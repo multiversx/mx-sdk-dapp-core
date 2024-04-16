@@ -1,11 +1,10 @@
-# `react-library`
+# `core-library`
 
 > TODO: description
 
 ## Usage
 
 ```
-const reactLibrary = require('react-library');
 
 // TODO: DEMONSTRATE API
 ```
