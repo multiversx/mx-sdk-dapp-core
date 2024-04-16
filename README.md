@@ -1,2 +1,11 @@
-# mx-sdk-dapp-core
-Core logic for building vanilla TypeScript dApps on the MultiversX blockchain
+# `react-library`
+
+> TODO: description
+
+## Usage
+
+```
+const reactLibrary = require('react-library');
+
+// TODO: DEMONSTRATE API
+```

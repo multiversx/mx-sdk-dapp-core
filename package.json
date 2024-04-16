@@ -1,0 +1,53 @@
+{
+  "name": "@multiversx/sdk-dapp-core",
+  "version": "0.0.0",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "description": "> TODO: description",
+  "author": "Andrei <giura.andrei70@gmail.com>",
+  "homepage": "https://github.com/multiversx/sdk-dapp-workspace#readme",
+  "license": "ISC",
+  "directories": {
+    "lib": "src",
+    "test": "__tests__"
+  },
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/multiversx/sdk-dapp-workspace.git"
+  },
+  "scripts": {
+    "test": "node ./__tests__/react-library.test.js",
+    "compile": "npm run tsc",
+    "tsc": "tsc -p . --outDir ./dist"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@multiversx/sdk-core": "^12.19.1",
+    "@multiversx/sdk-dapp-ui": "*",
+    "zustand": "^4.4.7",
+    "@multiversx/sdk-web-wallet-cross-window-provider": "0.0.37"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.65",
+    "eslint-plugin-vitest": "^0.4.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "typescript": "^5.4.2",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-import-resolver-typescript": "^2.4.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "eslint-plugin-promise": "^6.0.0",
+    "eslint-plugin-react": "^7.34.1",
+    "prettier": "^3.1.0"
+  }
+}
