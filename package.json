@@ -6,7 +6,7 @@
   "types": "dist/index.d.ts",
   "description": "A library to hold core logic for building TypeScript dApps on the MultiversX blockchain",
   "author": "MultiversX",
-  "license": "GPL-3.0-or-later",
+  "license": "MIT",
   "directories": {
     "lib": "src",
     "test": "__tests__"
