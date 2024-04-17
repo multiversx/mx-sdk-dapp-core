@@ -4,10 +4,9 @@
   "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
-  "description": "> TODO: description",
-  "author": "Andrei <giura.andrei70@gmail.com>",
-  "homepage": "https://github.com/multiversx/sdk-dapp-workspace#readme",
-  "license": "ISC",
+  "description": "A library to hold core logic for building TypeScript dApps on the MultiversX blockchain",
+  "author": "MultiversX",
+  "license": "GPL-3.0-or-later",
   "directories": {
     "lib": "src",
     "test": "__tests__"
@@ -17,7 +16,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/multiversx/sdk-dapp-workspace.git"
+    "url": "git+https://github.com/multiversx/mx-sdk-dapp-core.git"
   },
   "scripts": {
     "test": "node ./__tests__/react-library.test.js",
