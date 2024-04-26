@@ -1,7 +1,7 @@
+import { produce } from 'immer';
 import { createJSONStorage, devtools, persist } from 'zustand/middleware';
 import { createStore } from 'zustand/vanilla';
 import { CurrentNetworkType, NetworkType } from '../../types/network.types';
-import { GetSetType } from '../store.types';
 
 export const defaultNetwork: CurrentNetworkType = {
   id: 'not-configured',
@@ -31,6 +31,7 @@ function getRandomAddressFromNetwork(walletConnectAddresses: string[]) {
 export interface NetworkConfigStateType {
   network: CurrentNetworkType;
   chainID: string;
+  customWalletAddress?: string;
 }
 
 export type NetworkRootState = NetworkConfigStateType & {
@@ -40,31 +41,34 @@ export type NetworkRootState = NetworkConfigStateType & {
 };
 
 export const networkStoreDefinition = (
-  set: GetSetType<NetworkRootState>
+  set: (fn: (state: NetworkRootState) => NetworkRootState) => void
 ): NetworkRootState => ({
   setChainID: (chainID) =>
-    set((state) => ({
-      ...state,
-      chainID
-    })),
+    set(
+      produce((state) => {
+        state.chainID = chainID;
+      })
+    ),
   setCustomWalletAddress: (customWalletAddress) =>
-    set((state) => ({
-      ...state,
-      customWalletAddress
-    })),
+    set(
+      produce((state) => {
+        state.network.customWalletAddress = customWalletAddress;
+      })
+    ),
   initializeNetworkConfig: (newNetwork) => {
     const walletConnectV2RelayAddress = getRandomAddressFromNetwork(
       newNetwork.walletConnectV2RelayAddresses
     );
     const { walletConnectV2RelayAddresses, ...network } = newNetwork;
-    set((state) => ({
-      ...state,
-      network: {
-        ...state.network,
-        ...network,
-        walletConnectV2RelayAddress
-      }
-    }));
+    set(
+      produce((state) => {
+        state.network = {
+          ...state.network,
+          ...network,
+          walletConnectV2RelayAddress
+        };
+      })
+    );
   },
   network: defaultNetwork,
   chainID: '-1'
