@@ -1,2 +1,2 @@
-export * from './account';
-export * from './network';
+export * as account from './account';
+export * as network from './network';

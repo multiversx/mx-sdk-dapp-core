@@ -1,29 +1,51 @@
-interface IAccountState {
-  address: string;
+import { createJSONStorage, devtools, persist } from 'zustand/middleware';
+import { immer } from 'zustand/middleware/immer';
+import { createStore } from 'zustand/vanilla';
+
+export interface ICounterState {
+  count: number;
+  increment: () => void;
 }
 
-interface IAccountModifiers {
-  setAddress: (newAddress: string) => void;
+export const namespace = 'account';
+
+export enum AddressKeysEnum {
+  address = 'address',
+  setAddress = 'setAddress'
 }
 
-export type AccountStoreType = IAccountState & IAccountModifiers;
+interface AddressConfigStateType {
+  [AddressKeysEnum.address]: string;
+}
 
-const initialState = {
-  address: ''
+interface AddressModifiersType {
+  [AddressKeysEnum.setAddress]: (address: string) => void;
+}
+
+export type NetworkRootState = {
+  [namespace]: AddressConfigStateType & AddressModifiersType;
 };
 
-export const account = (
-  set: (
-    partial:
-      | AccountStoreType
-      | Partial<AccountStoreType>
-      | ((
-          state: AccountStoreType
-        ) => AccountStoreType | Partial<AccountStoreType>),
-    replace?: boolean | undefined
-  ) => void
-): AccountStoreType => ({
-  ...initialState,
-  setAddress: (newAddress: string) =>
-    set((state) => ({ ...state, address: newAddress }))
-});
+export const store = createStore<NetworkRootState>()(
+  devtools(
+    persist(
+      immer((set) => ({
+        [namespace]: {
+          address: 'defaultAddress',
+          setAddress: (address) =>
+            set(
+              ({ account }) => {
+                account[AddressKeysEnum.address] = address;
+              },
+              false,
+              { type: AddressKeysEnum.setAddress }
+            )
+        }
+      })),
+      {
+        name: 'accountStore',
+        storage: createJSONStorage(() => sessionStorage)
+      }
+    )
+  )
+);

@@ -1,10 +1,6 @@
-export * from './models';
-// import { combine } from 'zustand/middleware/combine';
-// import { createStore } from 'zustand/vanilla';
-// import { sessionNetworkStore } from './models';
+import { account, network } from './models';
 
-// export const store = createStore(
-//   combine(sessionNetworkStore, (sessionNetworkStore) => ({
-//     ...sessionNetworkStore
-//   }))
-// );
+export const store = {
+  [account.namespace]: account.store,
+  [network.namespace]: network.store
+};

@@ -1,5 +1,5 @@
-import { produce } from 'immer';
 import { createJSONStorage, devtools, persist } from 'zustand/middleware';
+import { immer } from 'zustand/middleware/immer';
 import { createStore } from 'zustand/vanilla';
 import { CurrentNetworkType, NetworkType } from '../../types/network.types';
 
@@ -28,57 +28,82 @@ function getRandomAddressFromNetwork(walletConnectAddresses: string[]) {
   ];
 }
 
-export interface NetworkConfigStateType {
-  network: CurrentNetworkType;
-  chainID: string;
-  customWalletAddress?: string;
+export const namespace = 'network';
+
+export enum NetworkKeysEnum {
+  network = 'network',
+  chainID = 'chainID',
+  customWalletAddress = 'customWalletAddress',
+  setChainID = 'setChainID',
+  setCustomWalletAddress = 'setCustomWalletAddress',
+  initializeNetworkConfig = 'initializeNetworkConfig'
 }
 
-export type NetworkRootState = NetworkConfigStateType & {
-  setChainID: (chainID: string) => void;
-  setCustomWalletAddress: (customWalletAddress: string) => void;
-  initializeNetworkConfig: (network: NetworkType) => void;
+interface NetworkConfigStateType {
+  [NetworkKeysEnum.network]: CurrentNetworkType;
+  [NetworkKeysEnum.chainID]: string;
+  [NetworkKeysEnum.customWalletAddress]?: string;
+}
+
+interface NetworkModifiersType {
+  [NetworkKeysEnum.setChainID]: (chainID: string) => void;
+  [NetworkKeysEnum.setCustomWalletAddress]: (
+    customWalletAddress: string
+  ) => void;
+  [NetworkKeysEnum.initializeNetworkConfig]: (network: NetworkType) => void;
+}
+
+export type NetworkRootState = {
+  [namespace]: NetworkConfigStateType & NetworkModifiersType;
 };
 
-export const networkStoreDefinition = (
-  set: (fn: (state: NetworkRootState) => NetworkRootState) => void
-): NetworkRootState => ({
-  setChainID: (chainID) =>
-    set(
-      produce((state) => {
-        state.chainID = chainID;
-      })
-    ),
-  setCustomWalletAddress: (customWalletAddress) =>
-    set(
-      produce((state) => {
-        state.network.customWalletAddress = customWalletAddress;
-      })
-    ),
-  initializeNetworkConfig: (newNetwork) => {
-    const walletConnectV2RelayAddress = getRandomAddressFromNetwork(
-      newNetwork.walletConnectV2RelayAddresses
-    );
-    const { walletConnectV2RelayAddresses, ...network } = newNetwork;
-    set(
-      produce((state) => {
-        state.network = {
-          ...state.network,
-          ...network,
-          walletConnectV2RelayAddress
-        };
-      })
-    );
-  },
-  network: defaultNetwork,
-  chainID: '-1'
-});
-
-export const sessionNetworkStore = createStore<NetworkRootState>()(
+export const store = createStore<NetworkRootState>()(
   devtools(
-    persist(networkStoreDefinition, {
-      name: 'sessionNetworkStore',
-      storage: createJSONStorage(() => sessionStorage)
-    })
+    persist(
+      immer((set) => ({
+        [namespace]: {
+          network: defaultNetwork,
+          chainID: '-1',
+          initializeNetworkConfig: (newNetwork) => {
+            const walletConnectV2RelayAddress = getRandomAddressFromNetwork(
+              newNetwork.walletConnectV2RelayAddresses
+            );
+            const { walletConnectV2RelayAddresses, ...rest } = newNetwork;
+            return set(
+              ({ network }) => {
+                network[NetworkKeysEnum.network] = {
+                  ...network[NetworkKeysEnum.network],
+                  ...rest,
+                  walletConnectV2RelayAddress
+                };
+              },
+              false,
+              { type: NetworkKeysEnum.initializeNetworkConfig }
+            );
+          },
+          setCustomWalletAddress: (customWalletAddress) =>
+            set(
+              ({ network }) => {
+                network[NetworkKeysEnum.network].customWalletAddress =
+                  customWalletAddress;
+              },
+              false,
+              { type: NetworkKeysEnum.setCustomWalletAddress }
+            ),
+          setChainID: (chainID) =>
+            set(
+              ({ network }) => {
+                network[NetworkKeysEnum.chainID] = chainID;
+              },
+              false,
+              { type: NetworkKeysEnum.setChainID }
+            )
+        }
+      })),
+      {
+        name: 'networkStore',
+        storage: createJSONStorage(() => sessionStorage)
+      }
+    )
   )
 );
