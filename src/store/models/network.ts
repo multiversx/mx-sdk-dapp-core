@@ -38,6 +38,8 @@ export enum KeysEnum {
   initializeNetworkConfig = 'initializeNetworkConfig'
 }
 
+export const namespace = 'network';
+
 export const initialState = {
   network: defaultNetwork,
   chainID: '-1',
@@ -86,10 +88,10 @@ export const definition = (set: GetSetType<RootState>): RootState => ({
     )
 });
 
-export const sessionNetworkStore = createStore<RootState>()(
+export const store = createStore<RootState>()(
   devtools(
     persist(immer(definition), {
-      name: 'networkStore',
+      name: namespace,
       storage: createJSONStorage(() => sessionStorage)
     })
   )
