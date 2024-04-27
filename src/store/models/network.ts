@@ -1,6 +1,8 @@
 import { createJSONStorage, devtools, persist } from 'zustand/middleware';
+import { immer } from 'zustand/middleware/immer';
 import { createStore } from 'zustand/vanilla';
 import { EnvironmentsEnum } from '../../types/enums.types';
+import { GetSetType } from './models.types';
 
 export enum NetworkKeysEnum {
   chainID = 'chainID',
@@ -12,29 +14,24 @@ export type NetworkRootState = {
   [NetworkKeysEnum.setChainID]: (env: EnvironmentsEnum) => void;
 };
 
-export const networkStoreDefinition = (
-  set: (
-    partial:
-      | NetworkRootState
-      | Partial<NetworkRootState>
-      | ((
-          state: NetworkRootState
-        ) => NetworkRootState | Partial<NetworkRootState>),
-    replace?: boolean | undefined
-  ) => void
+export const definition = (
+  set: GetSetType<NetworkRootState>
 ): NetworkRootState => ({
-  [NetworkKeysEnum.chainID]: EnvironmentsEnum.devnet,
-  [NetworkKeysEnum.setChainID]: (env: EnvironmentsEnum) =>
-    set((state) => ({
-      ...state,
-      chainID: env
-    }))
+  chainID: EnvironmentsEnum.testnet,
+  setChainID: (chainID) =>
+    set(
+      (state) => {
+        state.chainID = chainID;
+      },
+      false,
+      { type: NetworkKeysEnum.chainID }
+    )
 });
 
 export const sessionNetworkStore = createStore<NetworkRootState>()(
   devtools(
-    persist(networkStoreDefinition, {
-      name: 'sessionNetworkStore',
+    persist(immer(definition), {
+      name: 'networkStore',
       storage: createJSONStorage(() => sessionStorage)
     })
   )
