@@ -1,51 +1,29 @@
-import { createJSONStorage, devtools, persist } from 'zustand/middleware';
-import { immer } from 'zustand/middleware/immer';
-import { createStore } from 'zustand/vanilla';
-import { GetSetType } from './models.types';
-
-export interface ICounterState {
-  count: number;
-  increment: () => void;
+interface IAccountState {
+  address: string;
 }
 
-export const namespace = 'account';
-
-export enum KeysEnum {
-  address = 'address',
-  setAddress = 'setAddress'
+interface IAccountModifiers {
+  setAddress: (newAddress: string) => void;
 }
 
-export const initialState = {
-  [namespace]: {
-    [KeysEnum.address]: 'defaultAddress',
-    [KeysEnum.setAddress]: (_address: string) => {}
-  }
+export type AccountStoreType = IAccountState & IAccountModifiers;
+
+const initialState = {
+  address: ''
 };
 
-export type RootState = typeof initialState;
-
-export const definition = (set: GetSetType<RootState>) => {
-  const values: RootState['account'] = {
-    address: 'defaultAddress',
-    setAddress: (address) =>
-      set(
-        ({ account }) => {
-          account[KeysEnum.address] = address;
-        },
-        false,
-        { type: KeysEnum.setAddress }
-      )
-  };
-  return {
-    [namespace]: values
-  };
-};
-
-export const store = createStore<RootState>()(
-  devtools(
-    persist(immer(definition), {
-      name: 'accountStore',
-      storage: createJSONStorage(() => sessionStorage)
-    })
-  )
-);
+export const account = (
+  set: (
+    partial:
+      | AccountStoreType
+      | Partial<AccountStoreType>
+      | ((
+          state: AccountStoreType
+        ) => AccountStoreType | Partial<AccountStoreType>),
+    replace?: boolean | undefined
+  ) => void
+): AccountStoreType => ({
+  ...initialState,
+  setAddress: (newAddress: string) =>
+    set((state) => ({ ...state, address: newAddress }))
+});
