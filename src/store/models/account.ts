@@ -1,6 +1,7 @@
 import { createJSONStorage, devtools, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 import { createStore } from 'zustand/vanilla';
+import { GetSetType } from './models.types';
 
 export interface ICounterState {
   count: number;
@@ -9,43 +10,42 @@ export interface ICounterState {
 
 export const namespace = 'account';
 
-export enum AddressKeysEnum {
+export enum KeysEnum {
   address = 'address',
   setAddress = 'setAddress'
 }
 
-interface AddressConfigStateType {
-  [AddressKeysEnum.address]: string;
-}
-
-interface AddressModifiersType {
-  [AddressKeysEnum.setAddress]: (address: string) => void;
-}
-
-export type NetworkRootState = {
-  [namespace]: AddressConfigStateType & AddressModifiersType;
+export const initialState = {
+  [namespace]: {
+    [KeysEnum.address]: 'defaultAddress',
+    [KeysEnum.setAddress]: (_address: string) => {}
+  }
 };
 
-export const store = createStore<NetworkRootState>()(
+export type RootState = typeof initialState;
+
+export const definition = (set: GetSetType<RootState>) => {
+  const values: RootState['account'] = {
+    address: 'defaultAddress',
+    setAddress: (address) =>
+      set(
+        ({ account }) => {
+          account[KeysEnum.address] = address;
+        },
+        false,
+        { type: KeysEnum.setAddress }
+      )
+  };
+  return {
+    [namespace]: values
+  };
+};
+
+export const store = createStore<RootState>()(
   devtools(
-    persist(
-      immer((set) => ({
-        [namespace]: {
-          address: 'defaultAddress',
-          setAddress: (address) =>
-            set(
-              ({ account }) => {
-                account[AddressKeysEnum.address] = address;
-              },
-              false,
-              { type: AddressKeysEnum.setAddress }
-            )
-        }
-      })),
-      {
-        name: 'accountStore',
-        storage: createJSONStorage(() => sessionStorage)
-      }
-    )
+    persist(immer(definition), {
+      name: 'accountStore',
+      storage: createJSONStorage(() => sessionStorage)
+    })
   )
 );
