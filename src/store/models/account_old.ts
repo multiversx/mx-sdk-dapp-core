@@ -1,7 +1,7 @@
 import { createJSONStorage, devtools, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 import { createStore } from 'zustand/vanilla';
-import { GetSetType } from './helpers';
+import { GetSetType } from './helpers/types';
 
 export interface ICounterState {
   count: number;
