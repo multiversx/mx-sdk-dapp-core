@@ -2,10 +2,10 @@ import { createJSONStorage, devtools, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 import { createStore } from 'zustand/vanilla';
 import { NetworkType } from '../../../types/network.types';
-import { defaultNetwork, getRandomAddressFromNetwork } from './helpers';
-import { GetSetType } from '../helpers/types';
 import { getKeys } from '../helpers/getKeys';
 import { getReactStore } from '../helpers/getReactStore';
+import { GetSetType } from '../helpers/types';
+import { defaultNetwork, getRandomAddressFromNetwork } from './helpers';
 
 const initialState = {
   ['network']: defaultNetwork,
@@ -58,7 +58,6 @@ const definition = (set: GetSetType<StateType>): StateType => ({
       { type: keys.setChainID }
     )
 });
-
 // vanilla store
 export const store = createStore<StateType>()(
   devtools(
