@@ -2,7 +2,7 @@ import { StateCreator } from 'zustand';
 import { SharedActionsEnum } from '../../actions/constants';
 import { listenToCustomEvent } from '../../helpers/eventHandlers';
 
-export const getHandleLogout: <
+export const listenToLogout: <
   T extends (state: T, options?: { detail?: { message: string } }) => void
 >(
   w: T

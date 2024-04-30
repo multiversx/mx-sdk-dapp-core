@@ -5,7 +5,7 @@ import { NetworkType } from '../../../types/network.types';
 import { getKeys } from '../helpers/getKeys';
 import { getReactStore } from '../helpers/getReactStore';
 import { GetSetType } from '../helpers/types';
-import { getHandleLogout } from '../shared/getHandleLogout';
+import { listenToLogout } from '../shared/listenToLogout';
 import { defaultNetwork, getRandomAddressFromNetwork } from './helpers';
 
 const initialState = {
@@ -60,7 +60,7 @@ const definition = (set: GetSetType<StateType>): StateType => ({
     )
 });
 
-const handleLogout = getHandleLogout((state: StateType) => {
+const handleLogout = listenToLogout((state: StateType) => {
   state.setCustomWalletAddress('');
 });
 

@@ -4,7 +4,7 @@ import { immer } from 'zustand/middleware/immer';
 import { getKeys } from './helpers/getKeys';
 import { getReactStore } from './helpers/getReactStore';
 import { GetSetType } from './helpers/types';
-import { getHandleLogout } from './shared/getHandleLogout';
+import { listenToLogout } from './shared/listenToLogout';
 
 const initialState = {
   ['address']: 'NO_ADDRESS',
@@ -27,12 +27,12 @@ const definition = (set: GetSetType<StateType>): StateType => ({
     )
 });
 
-const handleLogout = getHandleLogout((state: StateType) => {
+const handleLogout = listenToLogout((state: StateType) => {
   state.setAddress('');
 });
 
 // vanilla store
-const store = createStore<StateType>()(
+export const store = createStore<StateType>()(
   devtools(
     persist(
       immer((...a) => ({
