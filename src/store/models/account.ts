@@ -31,13 +31,14 @@ const handleLogout = getHandleLogout((state: StateType) => {
   state.setAddress('');
 });
 
+// vanilla store
 const store = createStore<StateType>()(
   devtools(
     persist(
       immer((...a) => ({
-        // @ts-ignore
+        // @ts-ignore:next-line
         ...definition(...a),
-        // @ts-ignore
+        // @ts-ignore:next-line
         ...handleLogout(...a)
       })),
       {

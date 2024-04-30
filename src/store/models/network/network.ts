@@ -5,6 +5,7 @@ import { NetworkType } from '../../../types/network.types';
 import { getKeys } from '../helpers/getKeys';
 import { getReactStore } from '../helpers/getReactStore';
 import { GetSetType } from '../helpers/types';
+import { getHandleLogout } from '../shared/getHandleLogout';
 import { defaultNetwork, getRandomAddressFromNetwork } from './helpers';
 
 const initialState = {
@@ -58,13 +59,26 @@ const definition = (set: GetSetType<StateType>): StateType => ({
       { type: keys.setChainID }
     )
 });
+
+const handleLogout = getHandleLogout((state: StateType) => {
+  state.setCustomWalletAddress('');
+});
+
 // vanilla store
 export const store = createStore<StateType>()(
   devtools(
-    persist(immer(definition), {
-      name: 'networkStore',
-      storage: createJSONStorage(() => sessionStorage)
-    })
+    persist(
+      immer((...a) => ({
+        // @ts-ignore:next-line
+        ...definition(...a),
+        // @ts-ignore:next-line
+        ...handleLogout(...a)
+      })),
+      {
+        name: 'networkStore',
+        storage: createJSONStorage(() => sessionStorage)
+      }
+    )
   )
 );
 
