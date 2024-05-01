@@ -1,8 +1,8 @@
-import { storage } from 'constants/storage';
-import { NetworkType } from 'types/network.types';
 import { devtools, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 import { createStore } from 'zustand/vanilla';
+import { storage } from 'constants/storage';
+import { NetworkType } from 'types/network.types';
 import { getKeys } from '../helpers/getKeys';
 import { getReactStore } from '../helpers/getReactStore';
 import { GetSetType } from '../helpers/types';
@@ -30,6 +30,7 @@ const definition = (set: GetSetType<StateType>): StateType => ({
     const walletConnectV2RelayAddress = getRandomAddressFromNetwork(
       newNetwork.walletConnectV2RelayAddresses
     );
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { walletConnectV2RelayAddresses, ...rest } = newNetwork;
     return set(
       (state) => {
@@ -70,8 +71,10 @@ export const store = createStore<StateType>()(
   devtools(
     persist(
       immer((...a) => ({
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore:next-line
         ...definition(...a),
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore:next-line
         ...handleLogout(...a)
       })),

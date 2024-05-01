@@ -1,11 +1,11 @@
 import { createStore } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
+import { storage } from 'constants/storage';
 import { getKeys } from './helpers/getKeys';
 import { getReactStore } from './helpers/getReactStore';
 import { GetSetType } from './helpers/types';
 import { listenToLogout } from './shared/listenToLogout';
-import { storage } from 'constants/storage';
 
 const initialState = {
   ['address']: 'NO_ADDRESS',
@@ -37,8 +37,10 @@ export const store = createStore<StateType>()(
   devtools(
     persist(
       immer((...a) => ({
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore:next-line
         ...definition(...a),
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore:next-line
         ...handleLogout(...a)
       })),
