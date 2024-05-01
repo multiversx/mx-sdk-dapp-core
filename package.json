@@ -21,8 +21,7 @@
   "scripts": {
     "compile": "tsc",
     "test": "jest",
-    "compile-next": "tsc --p tsconfig.next.json",
-    "publish-verdaccio": "npm publish --registry http://localhost:4873"
+    "compile-next": "tsc --p tsconfig.next.json"
   },
   "publishConfig": {
     "access": "public"
