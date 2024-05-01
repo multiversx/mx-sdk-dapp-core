@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { NetworkType } from 'types/network.types';
+import { NetworkType } from '../../types/network.types';
 import { CONFIG_ENDPOINT } from '../endpoints';
 
 export async function getServerConfiguration(apiAddress: string) {
