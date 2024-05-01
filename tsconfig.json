@@ -2,12 +2,14 @@
   "compilerOptions": {
       "module": "CommonJS",
       "target": "es2015",
-      "outDir": "out",
+      "outDir": "dist",
       "lib": [
           "es2015",
           "dom"
       ],
       "sourceMap": true,
+      "rootDir": "./src",
+      "baseUrl": "./src",
       "allowJs": true,
       "strict": true,
       "strictPropertyInitialization": true,
