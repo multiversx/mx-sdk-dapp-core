@@ -1,5 +1,5 @@
 import { createStore } from 'zustand';
-import { createJSONStorage, devtools, persist } from 'zustand/middleware';
+import { devtools, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 import { getKeys } from './helpers/getKeys';
 import { getReactStore } from './helpers/getReactStore';

@@ -1,6 +1,6 @@
 {
   "name": "@multiversx/sdk-dapp-core",
-  "version": "0.0.0",
+  "version": "0.0.0-allpha.0",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -21,6 +21,7 @@
   "scripts": {
     "test": "node ./__tests__/react-library.test.js",
     "compile": "npm run tsc",
+    "compile-next": "tsc --p tsconfig.next.json",
     "tsc": "tsc -p . --outDir ./dist"
   },
   "publishConfig": {
