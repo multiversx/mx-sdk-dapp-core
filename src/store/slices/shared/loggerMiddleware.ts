@@ -30,6 +30,7 @@ export const loggerMiddleware =
   ): S =>
     config(
       (...args) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const [_state, _shouldReplace, ...rest] = args;
 
         const [{ type }] = rest as any;
