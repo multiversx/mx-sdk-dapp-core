@@ -1,4 +1,4 @@
-import { CurrentNetworkType } from '../../../types/network.types';
+import { CurrentNetworkType } from 'types/network.types';
 
 export const defaultNetwork: CurrentNetworkType = {
   id: 'not-configured',

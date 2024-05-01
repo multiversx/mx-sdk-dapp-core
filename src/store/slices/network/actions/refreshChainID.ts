@@ -1,4 +1,4 @@
-import { getNetworkConfigFromApi } from '../../../../apiCalls/configuration/getNetworkConfigFromApi';
+import { getNetworkConfigFromApi } from 'apiCalls/configuration/getNetworkConfigFromApi';
 import { store } from '../network';
 
 export async function refreshChainID() {

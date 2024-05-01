@@ -1,7 +1,7 @@
 import { createJSONStorage, devtools, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 import { createStore } from 'zustand/vanilla';
-import { NetworkType } from '../../../types/network.types';
+import { NetworkType } from 'types/network.types';
 import { getKeys } from '../helpers/getKeys';
 import { getReactStore } from '../helpers/getReactStore';
 import { GetSetType } from '../helpers/types';

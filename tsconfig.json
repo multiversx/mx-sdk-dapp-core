@@ -8,6 +8,8 @@
           "dom"
       ],
       "sourceMap": true,
+      "rootDir": "./src",
+      "baseUrl": "./src",
       "allowJs": true,
       "strict": true,
       "strictPropertyInitialization": true,
