@@ -19,7 +19,7 @@
     "url": "git+https://github.com/multiversx/mx-sdk-dapp-core.git"
   },
   "scripts": {
-    "build": "tsc",
+    "compile": "tsc",
     "test": "jest",
     "compile-next": "tsc --p tsconfig.next.json"
   },
