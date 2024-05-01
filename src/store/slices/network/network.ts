@@ -7,6 +7,7 @@ import { getReactStore } from '../helpers/getReactStore';
 import { GetSetType } from '../helpers/types';
 import { listenToLogout } from '../shared/listenToLogout';
 import { defaultNetwork, getRandomAddressFromNetwork } from './helpers';
+import { storage } from 'constants/storage';
 
 const initialState = {
   ['network']: defaultNetwork,
@@ -76,7 +77,7 @@ export const store = createStore<StateType>()(
       })),
       {
         name: 'networkStore',
-        storage: createJSONStorage(() => sessionStorage)
+        storage
       }
     )
   )

@@ -5,6 +5,7 @@ import { getKeys } from './helpers/getKeys';
 import { getReactStore } from './helpers/getReactStore';
 import { GetSetType } from './helpers/types';
 import { listenToLogout } from './shared/listenToLogout';
+import { storage } from 'constants/storage';
 
 const initialState = {
   ['address']: 'NO_ADDRESS',
@@ -43,7 +44,7 @@ export const store = createStore<StateType>()(
       })),
       {
         name: 'accountStore',
-        storage: createJSONStorage(() => sessionStorage)
+        storage
       }
     )
   )
