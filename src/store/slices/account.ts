@@ -1,7 +1,7 @@
 import { createStore } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import { storage } from '@src/constants/storage';
+import { storage } from '../../constants/storage';
 import { getKeys } from './helpers/getKeys';
 import { getReactStore } from './helpers/getReactStore';
 import { GetSetType } from './helpers/types';
