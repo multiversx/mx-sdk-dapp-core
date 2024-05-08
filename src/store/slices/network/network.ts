@@ -56,7 +56,7 @@ const handleLogout = listenToLogout((state: StateType) => {
 });
 
 // vanilla store
-export const store = createStore<StateType>()(
+export const networkStore = createStore<StateType>()(
   devtools(
     persist(
       immer((...a) => ({
@@ -76,7 +76,7 @@ export const store = createStore<StateType>()(
 );
 
 // react store
-export const useStore = getReactStore({
+export const useNetworkStore = getReactStore({
   initialState,
-  store
+  store: networkStore
 });

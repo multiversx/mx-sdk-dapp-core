@@ -1,7 +1,7 @@
 {
   "name": "@multiversx/sdk-dapp-core",
   "version": "0.0.0-alpha.1",
-  "main": "out/index.js",
+  "main": "out/__commonjs/index.js",
   "module": "out/index.js",
   "types": "out/index.d.ts",
   "description": "A library to hold core logic for building TypeScript dApps on the MultiversX blockchain",
@@ -20,6 +20,10 @@
   },
   "scripts": {
     "compile": "tsc",
+    "build:esm-types": "tsc --project tsconfig.esm.json",
+    "build:cjs-types": "tsc --build tsconfig.json",
+    "build-esbuild": "rimraf out && node esbuild.js",
+    "build": "rimraf out && node esbuild.js && yarn build:esm-types && yarn build:cjs-types",
     "test": "jest",
     "compile-next": "tsc --p tsconfig.next.json"
   },
@@ -42,6 +46,7 @@
     "@typescript-eslint/eslint-plugin": "7.8.0",
     "@typescript-eslint/parser": "7.8.0",
     "axios": ">=1.6.5",
+    "esbuild": "^0.21.1",
     "eslint": "9.1.1",
     "eslint-config-prettier": "9.1.0",
     "eslint-config-standard": "17.1.0",
