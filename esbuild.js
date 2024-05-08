@@ -75,4 +75,4 @@ function esbuildWrapper(
 }
 
 esbuildWrapper('esm')();
-esbuildWrapper('cjs')();
+// esbuildWrapper('cjs')();

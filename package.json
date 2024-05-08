@@ -1,7 +1,7 @@
 {
   "name": "@multiversx/sdk-dapp-core",
   "version": "0.0.0-alpha.1",
-  "main": "out/__commonjs/index.js",
+  "main": "out/cjs/index.js",
   "module": "out/index.js",
   "types": "out/index.d.ts",
   "description": "A library to hold core logic for building TypeScript dApps on the MultiversX blockchain",
