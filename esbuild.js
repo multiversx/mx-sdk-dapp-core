@@ -53,7 +53,8 @@ function esbuildWrapper(
           bundle: true,
           sourcemap: true,
           chunkNames: '__chunks__/[name]-[hash]',
-          target: ['es2021'],
+          target: ['esnext'],
+          outExtension: { '.js': '.mjs' },
           tsconfig,
           platform: 'node',
           define: {
