@@ -1,13 +1,8 @@
 {
     "extends": "./tsconfig.base.json",
     "compilerOptions": {
-    "module": "NodeNext",
-    "moduleResolution": "nodenext",
-    "paths": {
-      "apiCalls/*": ["./src/apiCalls/*"],
-      "constants/*": ["./src/constants/*"],
-      "core/*": ["./src/core/*"],
-      "types/*": ["./src/types/*"],
-    }
-  },
+      "module": "NodeNext",
+      "moduleResolution": "nodenext",
+      "emitDeclarationOnly": true,
+    },
 }

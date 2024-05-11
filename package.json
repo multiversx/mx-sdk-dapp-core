@@ -20,10 +20,10 @@
   },
   "scripts": {
     "compile": "tsc",
-    "build:esm-types": "tsc --project tsconfig.esm.json",
-    "build:cjs-types": "tsc --build tsconfig.json",
+    "build:esm-types": "tsc --project tsconfig.esm.json && tsc-alias --project tsconfig.esm.json",
+    "build:cjs": "tsc && tsc-alias",
     "build-esbuild": "rimraf out && node esbuild.js",
-    "build": "rimraf out && node esbuild.js && yarn build:esm-types && yarn build:cjs-types",
+    "build": "rimraf out && node esbuild.js && yarn build:esm-types && yarn build:cjs",
     "test": "jest",
     "compile-next": "tsc --p tsconfig.next.json"
   },
@@ -59,6 +59,7 @@
     "jest-environment-jsdom": "29.7.0",
     "prettier": "3.2.5",
     "ts-jest": "29.1.2",
+    "tsc-alias": "^1.8.9",
     "typescript": "^5.4.5"
   }
 }

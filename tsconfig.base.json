@@ -17,7 +17,6 @@
         "noFallthroughCasesInSwitch": true,
         "noUnusedParameters": true,
         "esModuleInterop": true,
-        "emitDeclarationOnly": true,
         "declaration": true,
         "experimentalDecorators": true,
         "useDefineForClassFields": false,
