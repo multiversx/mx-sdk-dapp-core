@@ -31,49 +31,46 @@ function esbuildWrapper(
   ].join(',');
 
   return function executeBuildCommand() {
-    glob(filesToInclude, function (err, allFiles) {
-      if (err) {
-        console.log('error reading files', err);
-      }
+    const allFiles = glob.sync(filesToInclude);
 
-      const files = allFiles.filter((file) => {
-        const hasTestFiles =
-          file.includes('/tests/') || file.includes('/stories/');
-        return !hasTestFiles;
-      });
-
-      esbuild
-        .build({
-          entryPoints: files,
-          splitting,
-          format,
-          outdir: `${options.outDir}${destination}`,
-          treeShaking: true,
-          minify: true,
-          bundle: true,
-          sourcemap: true,
-          chunkNames: '__chunks__/[name]-[hash]',
-          target: ['esnext'],
-          outExtension: { '.js': '.mjs' },
-          tsconfig,
-          platform: 'node',
-          define: {
-            global: 'global',
-            process: 'process',
-            Buffer: 'Buffer',
-            'process.env.NODE_ENV': `"production"`
-          }
-        })
-        .then(() => {
-          console.log(
-            '\x1b[36m%s\x1b[0m',
-            `[${new Date().toLocaleTimeString()}] sdk-dapp build succeeded for ${format} types`
-          );
-        })
-        .catch(() => process.exit(1));
+    const files = allFiles.filter((file) => {
+      const hasTestFiles =
+        file.includes('/tests/') || file.includes('/stories/');
+      return !hasTestFiles;
     });
+
+    esbuild
+      .build({
+        entryPoints: files,
+        splitting,
+        format,
+        outdir: `${options.outDir}${destination}`,
+        treeShaking: true,
+        minify: true,
+        bundle: true,
+        sourcemap: true,
+        chunkNames: '__chunks__/[name]-[hash]',
+        target: ['es2021'],
+        outExtension: { '.js': '.mjs' },
+        tsconfig,
+        platform: 'node',
+        define: {
+          global: 'global',
+          process: 'process',
+          Buffer: 'Buffer',
+          'process.env.NODE_ENV': `"production"`
+        }
+      })
+      .then(() => {
+        console.log(
+          '\x1b[36m%s\x1b[0m',
+          `[${new Date().toLocaleTimeString()}] sdk-dapp build succeeded for ${format} types`
+        );
+      })
+      .catch(() => process.exit(1));
   };
 }
 
 esbuildWrapper('esm')();
+// cjs will be performed by tsc
 // esbuildWrapper('cjs')();
