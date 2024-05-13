@@ -1,4 +1,4 @@
-import { safeWindow } from '../../constants/window';
+import { safeWindow } from 'constants/window';
 
 export function createCustomEvent<T>(eventName: string, eventData: T) {
   const event = new CustomEvent(eventName, { detail: eventData });
