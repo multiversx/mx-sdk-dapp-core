@@ -1,7 +1,7 @@
 import { createJSONStorage } from 'zustand/middleware';
 import { safeWindow } from './window';
 
-const persistConfig: {
+export const persistConfig: {
   persistReducersStorageType: 'localStorage' | 'sessionStorage';
 } = {
   persistReducersStorageType: 'localStorage'

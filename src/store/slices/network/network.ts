@@ -12,8 +12,6 @@ import { defaultNetwork, getRandomAddressFromNetwork } from './helpers';
 const initialState = {
   ['network']: defaultNetwork,
   ['customWalletAddress']: '',
-  ['chainID']: '-1',
-  ['setChainID']: (_chainID: string) => {},
   ['setCustomWalletAddress']: (_customWalletAddress: string) => {},
   ['initializeNetworkConfig']: (_network: NetworkType) => {}
 };
@@ -25,7 +23,6 @@ const keys = getKeys(initialState);
 const definition = (set: GetSetType<StateType>): StateType => ({
   network: initialState.network,
   customWalletAddress: initialState.customWalletAddress,
-  chainID: initialState.chainID,
   initializeNetworkConfig: (newNetwork) => {
     const walletConnectV2RelayAddress = getRandomAddressFromNetwork(
       newNetwork.walletConnectV2RelayAddresses
@@ -51,14 +48,6 @@ const definition = (set: GetSetType<StateType>): StateType => ({
       },
       false,
       { type: keys.setCustomWalletAddress }
-    ),
-  setChainID: (chainID) =>
-    set(
-      (state) => {
-        state[keys.chainID] = chainID;
-      },
-      false,
-      { type: keys.setChainID }
     )
 });
 
@@ -67,7 +56,7 @@ const handleLogout = listenToLogout((state: StateType) => {
 });
 
 // vanilla store
-export const store = createStore<StateType>()(
+export const networkStore = createStore<StateType>()(
   devtools(
     persist(
       immer((...a) => ({
@@ -87,7 +76,7 @@ export const store = createStore<StateType>()(
 );
 
 // react store
-export const useStore = getReactStore({
+export const useNetworkStore = getReactStore({
   initialState,
-  store
+  store: networkStore
 });

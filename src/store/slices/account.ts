@@ -33,7 +33,7 @@ const handleLogout = listenToLogout((state: StateType) => {
 });
 
 // vanilla store
-export const store = createStore<StateType>()(
+export const accountStore = createStore<StateType>()(
   devtools(
     persist(
       immer((...a) => ({
@@ -53,7 +53,7 @@ export const store = createStore<StateType>()(
 );
 
 // react store
-export const useStore = getReactStore({
+export const useAccountStore = getReactStore({
   initialState,
-  store
+  store: accountStore
 });

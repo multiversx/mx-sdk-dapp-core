@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getCleanApiAddress } from '../../store/slices/network/actions/getCleanApiAddress';
+import { getCleanApiAddress } from 'store/slices/network/actions/getCleanApiAddress';
 import { ApiNetworkConfigType } from '../../types/network.types';
 import { NETWORK_CONFIG_ENDPOINT } from '../endpoints';
 
