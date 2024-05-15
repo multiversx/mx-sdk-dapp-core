@@ -1,6 +1,6 @@
 import { CurrentNetworkType } from 'types/network.types';
 
-export const defaultNetwork: CurrentNetworkType = {
+export const emptyNetwork: CurrentNetworkType = {
   id: 'not-configured',
   chainId: '',
   name: 'NOT CONFIGURED',
@@ -18,9 +18,3 @@ export const defaultNetwork: CurrentNetworkType = {
   explorerAddress: '',
   apiTimeout: '4000'
 };
-
-export function getRandomAddressFromNetwork(walletConnectAddresses: string[]) {
-  return walletConnectAddresses[
-    Math.floor(Math.random() * walletConnectAddresses.length)
-  ];
-}

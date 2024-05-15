@@ -1,19 +1,28 @@
+import { storage } from 'constants/storage';
+import { NetworkType } from 'types/network.types';
 import { devtools, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 import { createStore } from 'zustand/vanilla';
-import { storage } from '../../../constants/storage';
-import { NetworkType } from '../../../types/network.types';
 import { getKeys } from '../helpers/getKeys';
 import { getReactStore } from '../helpers/getReactStore';
 import { GetSetType } from '../helpers/types';
 import { listenToLogout } from '../shared/listenToLogout';
-import { defaultNetwork, getRandomAddressFromNetwork } from './helpers';
+import { emptyNetwork } from './emptyNetwork';
+import { NetworkSliceType } from './network.types';
+
+const initialData: NetworkSliceType = {
+  ['network']: emptyNetwork,
+  ['customWalletAddress']: ''
+};
+
+const actions = {
+  ['initializeNetworkConfig']: (_network: NetworkType) => {},
+  ['setCustomWalletAddress']: (_customWalletAddress: string) => {}
+};
 
 const initialState = {
-  ['network']: defaultNetwork,
-  ['customWalletAddress']: '',
-  ['setCustomWalletAddress']: (_customWalletAddress: string) => {},
-  ['initializeNetworkConfig']: (_network: NetworkType) => {}
+  ...initialData,
+  ...actions
 };
 
 type StateType = typeof initialState;
@@ -21,12 +30,14 @@ type StateType = typeof initialState;
 const keys = getKeys(initialState);
 
 const definition = (set: GetSetType<StateType>): StateType => ({
-  network: initialState.network,
-  customWalletAddress: initialState.customWalletAddress,
+  ...initialData,
   initializeNetworkConfig: (newNetwork) => {
-    const walletConnectV2RelayAddress = getRandomAddressFromNetwork(
-      newNetwork.walletConnectV2RelayAddresses
-    );
+    const walletConnectV2RelayAddress =
+      newNetwork.walletConnectV2RelayAddresses[
+        Math.floor(
+          Math.random() * newNetwork.walletConnectV2RelayAddresses.length
+        )
+      ];
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { walletConnectV2RelayAddresses, ...rest } = newNetwork;
     return set(

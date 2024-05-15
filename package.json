@@ -20,10 +20,10 @@
   },
   "scripts": {
     "compile": "tsc && tsc-alias",
-    "compile-next": "rimraf out && tsc --p tsconfig.next.json && tsc-alias --project tsconfig.next.json",
     "build-esbuild": "rimraf out && node esbuild.js",
     "build": "yarn build-esbuild && yarn compile",
-    "test": "jest"
+    "test": "jest",
+    "compile-next": "rimraf out && tsc --p tsconfig.next.json && tsc-alias --project tsconfig.next.json"
   },
   "publishConfig": {
     "access": "public"
