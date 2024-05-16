@@ -1,1 +1,1 @@
-export * from './getAction';
+export * from './getActions';

@@ -2,8 +2,7 @@ import { storage } from 'constants/storage';
 import { createStore } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import { getAction } from '../helpers';
-import { getKeys } from './../helpers/getKeys';
+import { getActions } from '../helpers';
 import { getReactStore } from './../helpers/getReactStore';
 import { GetSetType } from './../helpers/types';
 import { listenToLogout } from './../shared/listenToLogout';
@@ -31,13 +30,12 @@ const initialState = {
 
 type StateType = typeof initialState;
 
-const keys = getKeys(initialState);
-
 const definition = (set: GetSetType<StateType>): StateType => {
-  const createAction = getAction(set, actions, keys);
+  const createActions = getActions({ set, actions });
+
   return {
     ...initialData,
-    ...createAction({
+    ...createActions({
       setAddress: (state, newAddress) => {
         state.address = newAddress;
       }
