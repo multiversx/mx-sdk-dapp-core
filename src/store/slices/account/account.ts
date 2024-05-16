@@ -10,6 +10,8 @@ import {
   LedgerAccountType
 } from './account.types';
 import { emptyAccount } from './emptyAccount';
+import { listenToLogin } from '../shared/listenToLogin';
+import { Address } from '@multiversx/sdk-core/out';
 
 const initialData: AccountSliceType = {
   address: '',
@@ -88,10 +90,17 @@ const handleLogout = listenToLogout((state: StateType) => {
   state.setAddress('');
 });
 
+const handleLogin = listenToLogin(
+  (state: StateType, { detail: { address } }) => {
+    state.address = address;
+    state.publicKey = new Address(address).hex();
+  }
+);
+
 export const accountStore = getVanillaStore({
   name: 'accountStore',
   definition,
-  middleware: [handleLogout]
+  middleware: [handleLogout, handleLogin]
 });
 
 // react store

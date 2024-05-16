@@ -17,7 +17,7 @@ function listenToCustomEvent<T>(
 }
 
 type ListenToCustomEventType<K> = <
-  T extends (state: T, options?: { detail: K }) => void
+  T extends (state: T, options: { detail: K }) => void
 >(
   w: T
 ) => StateCreator<T, [], [], Record<string, unknown>>;
