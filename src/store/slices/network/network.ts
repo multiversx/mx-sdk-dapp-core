@@ -1,21 +1,21 @@
 import { NetworkType } from 'types/network.types';
+import { getActions } from '../helpers';
 import { getKeys } from '../helpers/getKeys';
 import { getReactStore } from '../helpers/getReactStore';
+import { getVanillaStore } from '../helpers/getVanillaStore';
 import { GetSetType } from '../helpers/types';
 import { listenToLogout } from '../shared/listenToLogout';
 import { emptyNetwork } from './emptyNetwork';
 import { NetworkSliceType } from './network.types';
-import { getActions } from '../helpers';
-import { getVanillaStore } from '../helpers/getVanillaStore';
 
 const initialData: NetworkSliceType = {
-  ['network']: emptyNetwork,
-  ['customWalletAddress']: ''
+  network: emptyNetwork,
+  customWalletAddress: ''
 };
 
 const actions = {
-  ['initializeNetworkConfig']: (_network: NetworkType) => {},
-  ['setCustomWalletAddress']: (_customWalletAddress: string) => {}
+  initializeNetworkConfig: (_network: NetworkType) => {},
+  setCustomWalletAddress: (_customWalletAddress: string) => {}
 };
 
 const initialState = {
