@@ -1,5 +1,5 @@
 import { storage } from 'constants/storage';
-import { createStore } from 'zustand';
+import { StoreApi, createStore } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 import { GetSetType } from './../helpers/types';
