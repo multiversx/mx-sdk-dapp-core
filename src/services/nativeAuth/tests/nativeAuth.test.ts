@@ -1,5 +1,6 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
+import { server, rest, mockResponse } from '__mocks__';
 import { nativeAuth } from '../nativeAuth';
 
 describe('Native Auth', () => {
@@ -39,13 +40,38 @@ describe('Native Auth', () => {
     mock.reset();
   });
 
-  describe('Client', () => {
-    it('Latest block should return signable token - API', async () => {
-      mock.onGet(`${API_URL}/blocks/latest`).reply(200, [
+  const handlers = {
+    latestBlockApi: rest.get(`${API_URL}/blocks/latest`, (_, res, ctx) => {
+      return res(
+        ctx.status(200),
+        ctx.json([
+          {
+            hash: BLOCK_HASH
+          }
+        ])
+      );
+    }),
+    latestBlockGateway: rest.get(
+      `${GATEWAY_URL}/blocks/by-round/${ROUND}`,
+      mockResponse([
         {
           hash: BLOCK_HASH
         }
-      ]);
+      ])
+    ),
+    serverError: [
+      rest.get(`${API_URL}/blocks/latest`, (_, res, ctx) => {
+        return res(ctx.status(500));
+      }),
+      rest.get(`${API_URL}/blocks`, (_, res, ctx) => {
+        return res(ctx.status(500));
+      })
+    ]
+  };
+
+  describe('Client', () => {
+    it('Latest block should return signable token - API', async () => {
+      server.use(handlers.latestBlockApi);
 
       const client = nativeAuth({
         origin: ORIGIN,
@@ -58,11 +84,7 @@ describe('Native Auth', () => {
     });
 
     it('Latest block should return signable token - Gateway', async () => {
-      mock.onGet(`${GATEWAY_URL}/blocks/by-round/${ROUND}`).reply(200, [
-        {
-          hash: BLOCK_HASH
-        }
-      ]);
+      server.use(handlers.latestBlockGateway);
 
       const client = nativeAuth({
         origin: ORIGIN,
@@ -77,10 +99,9 @@ describe('Native Auth', () => {
     });
 
     it('Internal server error', async () => {
-      mock.onGet(`${API_URL}/blocks/latest`).reply(500);
-      mock.onGet(`${API_URL}/blocks`).reply(500);
+      server.use(...handlers.serverError);
 
-      // This will make sure to expire the cache
+      //this will make sure to expire the cache
       jest
         .useFakeTimers()
         .setSystemTime(new Date().setSeconds(new Date().getSeconds() + 60));

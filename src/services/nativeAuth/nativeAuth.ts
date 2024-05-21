@@ -1,11 +1,11 @@
-import { NativeAuthClient } from "@multiversx/sdk-native-auth-client";
+import { NativeAuthClient } from '@multiversx/sdk-native-auth-client';
 import {
   getLatestBlockHash,
-  LatestBlockHashType,
-} from "./helpers/getLatestBlockHash";
+  LatestBlockHashType
+} from './helpers/getLatestBlockHash';
 
-import { getNativeAuthConfig, getTokenExpiration } from "./methods";
-import { NativeAuthConfigType } from "./nativeAuth.types";
+import { getNativeAuthConfig, getTokenExpiration } from './methods';
+import { NativeAuthConfigType } from './nativeAuth.types';
 
 interface NativeAuthInitType {
   extraInfo?: { [key: string]: string };
@@ -21,7 +21,7 @@ export const nativeAuth = (config?: NativeAuthConfigType) => {
     blockHashShard,
     extraInfo: extraInfoFromConfig,
     gatewayUrl,
-    extraRequestHeaders,
+    extraRequestHeaders
   } = getNativeAuthConfig(config) as NativeAuthConfigType;
 
   const nativeAuthClient = new NativeAuthClient({
@@ -30,14 +30,14 @@ export const nativeAuth = (config?: NativeAuthConfigType) => {
     expirySeconds,
     blockHashShard,
     gatewayUrl,
-    extraRequestHeaders,
+    extraRequestHeaders
   });
 
   const initialize = async (
     initProps?: NativeAuthInitType
   ): Promise<string> => {
     if (!apiAddress || !origin) {
-      return "";
+      return '';
     }
 
     const getBlockHash = (): Promise<string> =>
@@ -50,12 +50,13 @@ export const nativeAuth = (config?: NativeAuthConfigType) => {
         getBlockHash,
         initProps?.noCache
       ));
+    console.log(response);
 
     const { hash, timestamp } = response;
     const encodedExtraInfo = nativeAuthClient.encodeValue(
       JSON.stringify({
         ...(initProps?.extraInfo ?? extraInfoFromConfig),
-        ...(timestamp ? { timestamp } : {}),
+        ...(timestamp ? { timestamp } : {})
       })
     );
     const encodedOrigin = nativeAuthClient.encodeValue(origin);
@@ -66,7 +67,7 @@ export const nativeAuth = (config?: NativeAuthConfigType) => {
   const getToken = ({
     address,
     token,
-    signature,
+    signature
   }: {
     address: string;
     token: string;
@@ -77,6 +78,6 @@ export const nativeAuth = (config?: NativeAuthConfigType) => {
     getNativeAuthConfig,
     initialize,
     getToken,
-    getTokenExpiration,
+    getTokenExpiration
   };
 };
