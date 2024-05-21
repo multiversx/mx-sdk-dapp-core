@@ -39,6 +39,9 @@
     "@multiversx/sdk-dapp-utils": "^0.0.1",
     "axios": ">=1.6.5"
   },
+  "resolutions": {
+    "string-width": "4.1.0"
+  },
   "devDependencies": {
     "@multiversx/sdk-core": ">= 12.18.0",
     "@multiversx/sdk-dapp-utils": "^0.0.1",
