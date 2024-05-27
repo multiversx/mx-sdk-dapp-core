@@ -1,3 +1,4 @@
+import isString from 'lodash/isString';
 import { decodeBase64 } from 'utils/decoders/base64Utils';
 
 export interface DecodedLoginTokenType {
@@ -10,7 +11,7 @@ export interface DecodedLoginTokenType {
 export const decodeLoginToken = (
   loginToken: string
 ): DecodedLoginTokenType | null => {
-  if (!loginToken || !String(loginToken)) {
+  if (!loginToken || !isString(loginToken)) {
     return null;
   }
 
