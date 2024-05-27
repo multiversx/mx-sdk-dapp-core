@@ -762,7 +762,7 @@
     strict-event-emitter "^0.2.4"
     web-encoding "^1.1.5"
 
-"@multiversx/sdk-core@>= 12.18.0":
+"@multiversx/sdk-core@>= 13.0.0":
   version "13.1.0"
   resolved "https://registry.yarnpkg.com/@multiversx/sdk-core/-/sdk-core-13.1.0.tgz#ec3a117f8444611cc85941513f7d16c3f8236064"
   integrity sha512-Z8lDPX4mKKD0QUtAqRzM0bf8zex3xCWRd5yYRLCxjW1F+jYg+9LjIQjkyvDSWGYJHY4IJeYqkORoS3gQG8NDbA==

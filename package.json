@@ -37,7 +37,7 @@
     "zustand": "^4.4.7"
   },
   "peerDependencies": {
-    "@multiversx/sdk-core": ">= 12.18.0",
+    "@multiversx/sdk-core": ">= 13.0.0",
     "@multiversx/sdk-dapp-utils": "^0.0.1",
     "axios": ">=1.6.5",
     "bignumber.js": "9.x"
@@ -46,7 +46,7 @@
     "string-width": "4.1.0"
   },
   "devDependencies": {
-    "@multiversx/sdk-core": ">= 12.18.0",
+    "@multiversx/sdk-core": ">= 13.0.0",
     "@multiversx/sdk-dapp-utils": "^0.0.1",
     "@swc/core": "^1.4.17",
     "@swc/jest": "^0.2.36",
