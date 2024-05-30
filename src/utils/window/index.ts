@@ -3,3 +3,4 @@ export * from './getDefaultCallbackUrl';
 export * from './getWindowLocation';
 export * from './isWindowAvailable';
 export * from './sanitizeCallbackUrl';
+export * from './buildUrlParams';

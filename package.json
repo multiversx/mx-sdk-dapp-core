@@ -21,6 +21,7 @@
   "scripts": {
     "compile": "tsc && tsc-alias",
     "build-esbuild": "rimraf out && node esbuild.js",
+    "publish-verdaccio": "npm unpublish --registry http://localhost:4873 @multiversx/sdk-dapp-core@0.0.0-alpha.3 && rimraf out && yarn compile && npm publish --registry http://localhost:4873",
     "build": "yarn build-esbuild && yarn compile",
     "test": "jest",
     "compile-next": "rimraf out && tsc --p tsconfig.next.json && tsc-alias --project tsconfig.next.json"
