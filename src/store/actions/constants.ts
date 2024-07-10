@@ -1,3 +1,4 @@
 export enum SharedActionsEnum {
-  LOGOUT = 'LOGOUT'
+  LOGOUT = 'LOGOUT',
+  LOGIN = 'LOGIN'
 }

@@ -1,5 +1,5 @@
-import { EnvironmentsEnum } from '../types/enums.types';
-import { NetworkType } from '../types/network.types';
+import { EnvironmentsEnum } from 'types/enums.types';
+import { NetworkType } from 'types/network.types';
 
 export const fallbackNetworkConfigurations: Record<
   keyof typeof EnvironmentsEnum,
