@@ -39,4 +39,4 @@ export const store = createStore<StoreType, MutatorsOut>(
   )
 );
 
-export const useDAppStore = createBoundedUseStore(store);
+export const useStore = createBoundedUseStore(store);
