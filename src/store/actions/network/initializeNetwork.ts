@@ -1,8 +1,8 @@
 import { getServerConfiguration } from 'apiCalls/configuration/getServerConfiguration';
 import { fallbackNetworkConfigurations } from 'constants/network';
 import { EnvironmentsEnum } from 'types/enums.types';
-import { CustomNetworkType } from 'types/network.types';
-import { networkStore } from '../network';
+import { CustomNetworkType, NetworkType } from 'types/network.types';
+import { initializeNetworkConfig } from './networkActions';
 
 export type InitializeNetworkPropsType = {
   customNetworkConfig?: CustomNetworkType;
@@ -12,7 +12,7 @@ export type InitializeNetworkPropsType = {
 export const initializeNetwork = async ({
   customNetworkConfig = {},
   environment
-}: InitializeNetworkPropsType) => {
+}: InitializeNetworkPropsType): Promise<NetworkType> => {
   const fetchConfigFromServer = !customNetworkConfig?.skipFetchFromServer;
   const customNetworkApiAddress = customNetworkConfig?.apiAddress;
   const fallbackConfig = fallbackNetworkConfigurations[environment] || {};
@@ -35,10 +35,12 @@ export const initializeNetwork = async ({
         ...serverConfig,
         ...customNetworkConfig
       };
-      networkStore.getState().initializeNetworkConfig(apiConfig);
-      return;
+
+      initializeNetworkConfig(apiConfig);
+      return apiConfig;
     }
   }
 
-  networkStore.getState().initializeNetworkConfig(localConfig);
+  initializeNetworkConfig(localConfig);
+  return localConfig;
 };
