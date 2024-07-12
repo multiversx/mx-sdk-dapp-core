@@ -39,4 +39,6 @@ export const store = createStore<StoreType, MutatorsOut>(
   )
 );
 
+export const getState = () => store.getState();
+
 export const useStore = createBoundedUseStore(store);
