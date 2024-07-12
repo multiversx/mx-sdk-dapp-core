@@ -26,7 +26,6 @@ export interface LoginInfoSliceType {
   extensionLogin: LoginInfoType | null;
   operaLogin: LoginInfoType | null;
   crossWindowLogin: LoginInfoType | null;
-  isLoginSessionInvalid: boolean;
   logoutRoute?: string;
   isWalletConnectV2Initialized?: boolean;
 }

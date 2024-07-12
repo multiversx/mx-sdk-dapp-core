@@ -1,4 +1,5 @@
-import { StoreType, useStore } from '../../store';
+import { StoreType } from 'store/store.types';
+import { useStore } from '../../store';
 
 type ExtractState<S> = S extends { getState: () => infer X } ? X : StoreType;
 
