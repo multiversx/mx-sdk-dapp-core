@@ -1,8 +1,8 @@
 import { NetworkType } from 'types/network.types';
-import { store } from '../../store';
+import { getStore } from '../../store';
 
 export const initializeNetworkConfig = (newNetwork: NetworkType) =>
-  store.setState(({ network: state }) => {
+  getStore().setState(({ network: state }) => {
     const walletConnectV2RelayAddress =
       newNetwork.walletConnectV2RelayAddresses[
         Math.floor(
@@ -19,7 +19,7 @@ export const initializeNetworkConfig = (newNetwork: NetworkType) =>
   });
 
 export const setCustomWalletAddress = (customWalletAddress: string) =>
-  store.setState(({ network: state }) => {
+  getStore().setState(({ network: state }) => {
     state.network.customWalletAddress = customWalletAddress;
   });
 
