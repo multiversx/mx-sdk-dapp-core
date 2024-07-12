@@ -1,10 +1,12 @@
 import { Address, SignableMessage } from '@multiversx/sdk-core';
 import { nativeAuth } from 'services/nativeAuth';
 import { getNativeAuthConfig } from 'services/nativeAuth/methods';
-import { networkSelector } from 'store/selectors';
+import { networkSelector, tokenLoginSelector } from 'store/selectors';
 import { getState } from 'store/store';
 import { OnProviderLoginType } from 'types/login.types';
 import { getAccount } from '../account/getAccount';
+import { setTokenLogin } from 'store/actions/loginInfo/loginInfoActions';
+import { NativeAuthConfigType } from 'types/nativeAuth.types';
 
 const getApiAddress = (
   apiAddress: string,
@@ -19,11 +21,11 @@ const getApiAddress = (
   return config.apiAddress ?? apiAddress;
 };
 
-export const setLoginToken = (config?: OnProviderLoginType['nativeAuth']) => {
+export const getLoginService = (config?: OnProviderLoginType['nativeAuth']) => {
   const network = networkSelector(getState());
 
-  const tokenLogin = useSelector(tokenLoginSelector);
-  const tokenRef = useRef(tokenLogin?.loginToken);
+  const tokenLogin = tokenLoginSelector(getState());
+  let tokenRef = tokenLogin?.loginToken;
 
   const apiAddress = getApiAddress(network.apiAddress, config);
 
@@ -38,14 +40,13 @@ export const setLoginToken = (config?: OnProviderLoginType['nativeAuth']) => {
   const { address } = getAccount();
 
   const setLoginToken = (loginToken: string) => {
-    tokenRef.current = loginToken;
-    dispatch(
-      setTokenLogin({
-        ...tokenLogin,
-        loginToken,
-        ...(apiAddress ? { nativeAuthConfig: configuration } : {})
-      })
-    );
+    tokenRef = loginToken;
+
+    setTokenLogin({
+      ...tokenLogin,
+      loginToken,
+      ...(apiAddress ? { nativeAuthConfig: configuration } : {})
+    });
   };
 
   const getNativeAuthLoginToken = () => {
@@ -64,19 +65,18 @@ export const setLoginToken = (config?: OnProviderLoginType['nativeAuth']) => {
     address: string;
     signature: string;
   }) => {
-    const loginToken = tokenRef.current;
+    const loginToken = tokenRef;
 
     if (!loginToken) {
       throw 'Token not found. Call `setLoginToken` first.';
     }
 
     if (!hasNativeAuth) {
-      dispatch(
-        setTokenLogin({
-          loginToken,
-          signature
-        })
-      );
+      setTokenLogin({
+        loginToken,
+        signature
+      });
+
       return;
     }
 
@@ -86,18 +86,15 @@ export const setLoginToken = (config?: OnProviderLoginType['nativeAuth']) => {
       signature
     });
 
-    dispatch(
-      setTokenLogin({
-        loginToken,
-        signature,
-        nativeAuthToken,
-        ...(apiAddress ? { nativeAuthConfig: configuration } : {})
-      })
-    );
+    setTokenLogin({
+      loginToken,
+      signature,
+      nativeAuthToken,
+      ...(apiAddress ? { nativeAuthConfig: configuration } : {})
+    });
     return nativeAuthToken;
   };
 
-  // TODO: @StanislavSava verify and maybe refactor to separate function
   const refreshNativeAuthTokenLogin = async ({
     signMessageCallback,
     nativeAuthClientConfig
@@ -116,7 +113,7 @@ export const setLoginToken = (config?: OnProviderLoginType['nativeAuth']) => {
       noCache: Boolean(nativeAuthClientConfig)
     });
 
-    tokenRef.current = loginToken;
+    tokenRef = loginToken;
     if (!loginToken) {
       return;
     }

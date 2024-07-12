@@ -1,6 +1,15 @@
 import { LoginMethodsEnum } from 'types/enums.types';
 import { OnProviderLoginType } from 'types/login.types';
+import { CrossWindowProvider } from '@multiversx/sdk-web-wallet-cross-window-provider/out/CrossWindowProvider/CrossWindowProvider';
 import { getWindowLocation } from 'utils/window/getWindowLocation';
+import { getLoginService } from './getLoginService';
+import { networkSelector } from 'store/selectors';
+import { getState } from 'store/store';
+import { getIsLoggedIn } from '../account/getIsLoggedIn';
+import { setAccountProvider } from 'core/providers/accountProvider';
+import { SECOND_LOGIN_ATTEMPT_ERROR } from 'constants/errorMessages.constants';
+import { isBrowserWithPopupConfirmation } from 'constants/browser.constants';
+import { processModifiedAccount } from './helpers/processModifiedAccount';
 
 export const webWalletLogin = ({
   token: tokenToSign,
@@ -12,9 +21,9 @@ export const webWalletLogin = ({
   walletAddress?: string;
 }) => {
   const hasNativeAuth = nativeAuth != null;
-  const loginService = useLoginService(nativeAuth);
+  const loginService = getLoginService(nativeAuth);
   let token = tokenToSign;
-  const network = useSelector(networkSelector);
+  const network = networkSelector(getState());
 
   const isLoggedIn = getIsLoggedIn();
 
@@ -72,7 +81,6 @@ export const webWalletLogin = ({
       setAccountProvider(provider);
 
       if (!address) {
-        setIsLoading(false);
         console.warn('Login cancelled.');
         return;
       }
@@ -89,12 +97,10 @@ export const webWalletLogin = ({
         return;
       }
 
-      dispatch(
-        loginAction({
-          address: account.address,
-          loginMethod: LoginMethodsEnum.crossWindow
-        })
-      );
+      loginAction({
+        address: account.address,
+        loginMethod: LoginMethodsEnum.crossWindow
+      });
 
       dispatch(
         setAccount({

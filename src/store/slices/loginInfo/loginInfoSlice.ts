@@ -3,7 +3,7 @@ import { StateCreator } from 'zustand/vanilla';
 import { StoreType, MutatorsIn } from 'store/store.types';
 import { LoginInfoSliceType } from './loginInfo.types';
 
-const initialState: LoginInfoSliceType = {
+export const initialState: LoginInfoSliceType = {
   loginMethod: LoginMethodsEnum.none,
   walletConnectLogin: null,
   ledgerLogin: null,
