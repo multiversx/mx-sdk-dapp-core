@@ -4,10 +4,10 @@ import { initialState as initialLoginInfoState } from 'store/slices/loginInfo/lo
 import { store } from '../../store';
 import { LoginMethodsEnum } from 'types/enums.types';
 
-export const logout = () =>
-  store.setState(({ account, loginInfo }) => {
-    account = initialAccountState;
-    loginInfo = initialLoginInfoState;
+export const logoutAction = () =>
+  store.setState((store) => {
+    store.account = initialAccountState;
+    store.loginInfo = initialLoginInfoState;
   });
 
 export interface LoginActionPayloadType {
@@ -15,7 +15,7 @@ export interface LoginActionPayloadType {
   loginMethod: LoginMethodsEnum;
 }
 
-export const login = ({ address, loginMethod }: LoginActionPayloadType) =>
+export const loginAction = ({ address, loginMethod }: LoginActionPayloadType) =>
   store.setState(({ account, loginInfo }) => {
     account.address = address;
     account.publicKey = new Address(address).hex();

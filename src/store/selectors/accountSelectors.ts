@@ -5,3 +5,6 @@ export const accountSelector = ({
 }: StoreType) => accounts[address];
 
 export const addressSelector = ({ account: { address } }: StoreType) => address;
+
+export const accountNonceSelector = (store: StoreType) =>
+  accountSelector(store).nonce;
