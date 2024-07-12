@@ -1,6 +1,6 @@
 import { Address } from '@multiversx/sdk-core/out';
 import { initialState as initialAccountState } from 'store/slices/account/accountSlice';
-import { store } from '../store';
+import { store } from '../../store';
 
 export const logout = () =>
   store.setState((state) => {

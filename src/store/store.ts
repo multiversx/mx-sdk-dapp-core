@@ -1,10 +1,10 @@
 import { createStore } from 'zustand/vanilla';
 import { createJSONStorage, devtools, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import { networkConfigSlice } from './slices/network/networkSlice';
+import { networkSlice } from './slices/network/networkSlice';
 import { NetworkSliceType } from './slices/network/networkSlice.types';
 import { AccountSliceType } from './slices/account/account.types';
-import { accountConfigSlice } from './slices/account/accountSlice';
+import { accountSlice } from './slices/account/accountSlice';
 import { createBoundedUseStore } from './createBoundedStore';
 
 export type StoreType = {
@@ -28,8 +28,8 @@ export const store = createStore<StoreType, MutatorsOut>(
   devtools(
     persist(
       immer((...args) => ({
-        network: networkConfigSlice(...args),
-        account: accountConfigSlice(...args)
+        network: networkSlice(...args),
+        account: accountSlice(...args)
       })),
       {
         name: 'sdk-dapp-store',

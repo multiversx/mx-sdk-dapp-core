@@ -13,7 +13,7 @@ export const initialState: AccountSliceType = {
   walletConnectAccount: null
 };
 
-function getAccountConfigSlice(): StateCreator<
+function getAccountSlice(): StateCreator<
   DAppStoreState,
   MutatorsIn,
   [],
@@ -22,4 +22,4 @@ function getAccountConfigSlice(): StateCreator<
   return () => initialState;
 }
 
-export const accountConfigSlice = getAccountConfigSlice();
+export const accountSlice = getAccountSlice();

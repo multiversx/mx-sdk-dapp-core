@@ -7,7 +7,7 @@ const initialState: NetworkSliceType = {
   network: emptyNetwork
 };
 
-function getNetworkConfigSlice(): StateCreator<
+function getNetworkSlice(): StateCreator<
   DAppStoreState,
   MutatorsIn,
   [],
@@ -16,4 +16,4 @@ function getNetworkConfigSlice(): StateCreator<
   return () => initialState;
 }
 
-export const networkConfigSlice = getNetworkConfigSlice();
+export const networkSlice = getNetworkSlice();
