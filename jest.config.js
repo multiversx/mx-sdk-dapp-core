@@ -8,6 +8,7 @@ module.exports = {
   transform: {
     '^.+\\.(ts|js|tsx|jsx)$': ['@swc/jest']
   },
+  setupFilesAfterEnv: ['<rootDir>/src/setupTests.js'],
   transformIgnorePatterns: ['node_modules/(^.+\\\\.(ts|js|tsx|jsx)$)'],
   testMatch: [
     '**/__tests__/**/*.[jt]s?(x)',
