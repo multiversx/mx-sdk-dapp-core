@@ -55,7 +55,7 @@ export const setDAppStore = (_store: StoreApi) => {
 }
 
 /**
- * Initialize store with storage callback.
+ * Initialize store with the preferred storage by passing a callback.
  * Default storage is localStorage.
  * You can pass your own storage.
  * Call this function before using store, ideally before app bootstrapping.
