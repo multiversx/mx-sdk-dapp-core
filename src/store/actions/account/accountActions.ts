@@ -1,5 +1,4 @@
-import { NetworkType } from 'types/network.types';
-import { store } from '../store';
+import { store } from 'store/store';
 import { AccountType } from 'types/account.types';
 import { emptyAccount } from 'store/slices/account/emptyAccount';
 import {
