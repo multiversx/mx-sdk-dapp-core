@@ -37,7 +37,6 @@ export const getLoginService = (config?: OnProviderLoginType['nativeAuth']) => {
   const hasNativeAuth = Boolean(config);
 
   const client = nativeAuth(configuration);
-  const { address } = getAccount();
 
   const setLoginToken = (loginToken: string) => {
     tokenRef = loginToken;
@@ -105,6 +104,8 @@ export const getLoginService = (config?: OnProviderLoginType['nativeAuth']) => {
     ) => Promise<SignableMessage>;
     nativeAuthClientConfig?: NativeAuthConfigType;
   }) => {
+    const { address } = getAccount();
+
     const nativeAuthClient = nativeAuth(
       nativeAuthClientConfig || configuration
     );
