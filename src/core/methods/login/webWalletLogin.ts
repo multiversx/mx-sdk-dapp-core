@@ -13,6 +13,7 @@ import { processModifiedAccount } from './helpers/processModifiedAccount';
 import { loginAction } from 'store/actions/sharedActions';
 import { setAccount } from 'store/actions/account/accountActions';
 import { getLatestNonce } from 'utils/account/getLatestNonce';
+import { AccountType } from 'types/account.types';
 
 export const webWalletLogin = async ({
   token: tokenToSign,
@@ -22,7 +23,7 @@ export const webWalletLogin = async ({
 }: OnProviderLoginType & {
   hasConsentPopup?: boolean;
   walletAddress?: string;
-}) => {
+}): Promise<AccountType | null> => {
   const hasNativeAuth = nativeAuth != null;
   const loginService = getLoginService(nativeAuth);
   let token = tokenToSign;
@@ -44,7 +45,7 @@ export const webWalletLogin = async ({
   try {
     if (!isSuccessfullyInitialized) {
       console.warn('Something went wrong trying to redirect to wallet login..');
-      return;
+      return null;
     }
 
     const { origin, pathname } = getWindowLocation();
@@ -56,7 +57,7 @@ export const webWalletLogin = async ({
       // Fetching block failed
       if (!token) {
         console.warn('Fetching block failed. Login cancelled.');
-        return;
+        return null;
       }
     }
 
@@ -82,7 +83,7 @@ export const webWalletLogin = async ({
 
     if (!address) {
       console.warn('Login cancelled.');
-      return;
+      return null;
     }
 
     const account = await processModifiedAccount({
@@ -94,7 +95,7 @@ export const webWalletLogin = async ({
     });
 
     if (!account) {
-      return;
+      return null;
     }
 
     loginAction({
@@ -102,13 +103,16 @@ export const webWalletLogin = async ({
       loginMethod: LoginMethodsEnum.crossWindow
     });
 
-    setAccount({
+    const newAccount: AccountType = {
       ...account,
       nonce: getLatestNonce(account)
-    });
+    };
+
+    setAccount(newAccount);
+
+    return newAccount;
   } catch (error) {
     console.error('error loging in', error);
-    // TODO: can be any or typed error
     throw error;
   }
 };
