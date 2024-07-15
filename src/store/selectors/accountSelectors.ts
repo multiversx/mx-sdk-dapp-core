@@ -7,4 +7,4 @@ export const accountSelector = ({
 export const addressSelector = ({ account: { address } }: StoreType) => address;
 
 export const accountNonceSelector = (store: StoreType) =>
-  accountSelector(store).nonce;
+  accountSelector(store)?.nonce || 0;
