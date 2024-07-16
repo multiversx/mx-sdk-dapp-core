@@ -1,14 +1,24 @@
 import { Address } from '@multiversx/sdk-core/out';
 import { initialState as initialAccountState } from 'store/slices/account/accountSlice';
+import { initialState as initialLoginInfoState } from 'store/slices/loginInfo/loginInfoSlice';
 import { store } from '../../store';
+import { LoginMethodsEnum } from 'types/enums.types';
 
-export const logout = () =>
-  store.setState((state) => {
-    state.account = initialAccountState;
+export const logoutAction = () =>
+  store.setState((store) => {
+    store.account = initialAccountState;
+    store.loginInfo = initialLoginInfoState;
   });
 
-export const login = (address: string) =>
-  store.setState(({ account }) => {
+export interface LoginActionPayloadType {
+  address: string;
+  loginMethod: LoginMethodsEnum;
+}
+
+export const loginAction = ({ address, loginMethod }: LoginActionPayloadType) =>
+  store.setState(({ account, loginInfo }) => {
     account.address = address;
     account.publicKey = new Address(address).hex();
+    loginInfo.loginMethod = loginMethod;
+    // setLoginExpiresAt(getNewLoginExpiresTimestamp());
   });

@@ -1,9 +1,11 @@
 import { AccountSliceType } from './slices/account/account.types';
+import { LoginInfoSliceType } from './slices/loginInfo/loginInfo.types';
 import { NetworkSliceType } from './slices/network/networkSlice.types';
 
-export type DAppStoreState = {
+export type StoreType = {
   network: NetworkSliceType;
   account: AccountSliceType;
+  loginInfo: LoginInfoSliceType;
 };
 
 export type MutatorsIn = [
@@ -14,6 +16,6 @@ export type MutatorsIn = [
 
 export type MutatorsOut = [
   ['zustand/devtools', never],
-  ['zustand/persist', DAppStoreState],
+  ['zustand/persist', StoreType],
   ['zustand/immer', never]
 ];

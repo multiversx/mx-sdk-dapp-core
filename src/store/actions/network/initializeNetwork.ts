@@ -1,8 +1,8 @@
 import { getServerConfiguration } from 'apiCalls/configuration/getServerConfiguration';
-import { fallbackNetworkConfigurations } from 'constants/network';
 import { EnvironmentsEnum } from 'types/enums.types';
 import { CustomNetworkType, NetworkType } from 'types/network.types';
 import { initializeNetworkConfig } from './networkActions';
+import { fallbackNetworkConfigurations } from 'constants/network.constants';
 
 export type InitializeNetworkPropsType = {
   customNetworkConfig?: CustomNetworkType;
