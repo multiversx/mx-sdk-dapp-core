@@ -12,5 +12,5 @@ export const accountNonceSelector = (store: StoreType) =>
 export const isLoggedInSelector = (store: StoreType) => {
   const address = addressSelector(store);
   const account = accountSelector(store);
-  return address && account.address === address;
+  return Boolean(address && account?.address === address);
 };
