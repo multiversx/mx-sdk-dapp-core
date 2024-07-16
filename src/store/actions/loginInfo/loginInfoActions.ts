@@ -50,3 +50,15 @@ export const setIsWalletConnectV2Initialized = (isInitialized: boolean) =>
   store.setState(({ loginInfo: state }) => {
     state.isWalletConnectV2Initialized = isInitialized;
   });
+
+// reset by passing null
+export const updateLoginExpiresAt = (data?: null) =>
+  store.setState(({ loginInfo: state }) => {
+    if (data === null) {
+      state.loginExpiresAt = null;
+      return;
+    }
+
+    const loginExpiresAt = new Date().setHours(new Date().getHours() + 24);
+    state.loginExpiresAt = loginExpiresAt;
+  });

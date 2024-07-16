@@ -22,6 +22,7 @@ export interface LoginInfoSliceType {
   walletConnectLogin: WalletConnectLoginType | null;
   ledgerLogin: LedgerLoginType | null;
   tokenLogin: TokenLoginType | null;
+  loginExpiresAt: number | null;
   walletLogin: LoginInfoType | null;
   extensionLogin: LoginInfoType | null;
   operaLogin: LoginInfoType | null;
