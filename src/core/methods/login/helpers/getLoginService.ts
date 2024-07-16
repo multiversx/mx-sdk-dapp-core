@@ -4,7 +4,7 @@ import { getNativeAuthConfig } from 'services/nativeAuth/methods';
 import { networkSelector, tokenLoginSelector } from 'store/selectors';
 import { getState } from 'store/store';
 import { OnProviderLoginType } from 'types/login.types';
-import { getAccount } from '../account/getAccount';
+import { getAccount } from '../../account/getAccount';
 import { setTokenLogin } from 'store/actions/loginInfo/loginInfoActions';
 import { NativeAuthConfigType } from 'types/nativeAuth.types';
 

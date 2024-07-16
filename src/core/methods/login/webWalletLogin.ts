@@ -2,7 +2,7 @@ import { LoginMethodsEnum } from 'types/enums.types';
 import { OnProviderLoginType } from 'types/login.types';
 import { CrossWindowProvider } from '@multiversx/sdk-web-wallet-cross-window-provider/out/CrossWindowProvider/CrossWindowProvider';
 import { getWindowLocation } from 'utils/window/getWindowLocation';
-import { getLoginService } from './getLoginService';
+import { getLoginService } from './helpers/getLoginService';
 import { networkSelector } from 'store/selectors';
 import { getState } from 'store/store';
 import { getIsLoggedIn } from '../account/getIsLoggedIn';
