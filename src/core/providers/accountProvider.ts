@@ -1,6 +1,6 @@
-import { CrossWindowProvider } from '@multiversx/sdk-web-wallet-cross-window-provider/out/CrossWindowProvider/CrossWindowProvider';
 import { IDappProvider } from 'types/dappProvider.types';
 import { emptyProvider } from './helpers/emptyProvider';
+import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
 
 export type ProvidersType = IDappProvider | CrossWindowProvider;
 
