@@ -1,3 +1,3 @@
-import { StoreType } from '../store';
+import { StoreType } from 'store/store.types';
 
 export const stateSelector = (state: StoreType) => state;

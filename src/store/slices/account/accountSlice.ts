@@ -1,5 +1,5 @@
 import { StateCreator } from 'zustand/vanilla';
-import { DAppStoreState, MutatorsIn } from 'store/store.types';
+import { StoreType, MutatorsIn } from 'store/store.types';
 import { AccountSliceType } from './account.types';
 import { emptyAccount } from './emptyAccount';
 
@@ -14,7 +14,7 @@ export const initialState: AccountSliceType = {
 };
 
 function getAccountSlice(): StateCreator<
-  DAppStoreState,
+  StoreType,
   MutatorsIn,
   [],
   AccountSliceType
