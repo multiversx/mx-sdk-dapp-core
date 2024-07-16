@@ -30,7 +30,7 @@ export const logoutAction = () =>
   store.setState((store) => {
     store.account = initialAccountState;
     store.loginInfo = initialLoginInfoState;
-    store.loginInfo.loginExpiresAt = null;
+    updateLoginExpiresAt(null);
   });
 
 export interface LoginActionPayloadType {
