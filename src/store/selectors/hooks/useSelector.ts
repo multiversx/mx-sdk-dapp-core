@@ -1,10 +1,11 @@
 import { StoreType } from 'store/store.types';
-import { useStore } from '../../store';
+import { getStoreHook } from '../../store';
 
-type ExtractState<S> = S extends { getState: () => infer X } ? X : StoreType;
+type ExtractState<S> = S extends { getState: () => infer T } ? T : StoreType;
 
-export const useSelector = <T>(
+export function useSelector<T>(
   selector: (state: ExtractState<StoreType>) => T
-) => {
+) {
+  const useStore = getStoreHook();
   return useStore(selector);
-};
+}

@@ -1,6 +1,11 @@
 import { createStore } from 'zustand/vanilla';
 import { createJSONStorage, devtools, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
+import {
+  InMemoryStorage,
+  defaultStorageCallback,
+  StorageCallback
+} from './storage';
 import { networkSlice } from './slices/network/networkSlice';
 import { accountSlice } from './slices/account/accountSlice';
 import { createBoundedUseStore } from './createBoundedStore';
@@ -20,24 +25,59 @@ export type MutatorsOut = [
   ['zustand/immer', never]
 ];
 
-export const store = createStore<StoreType, MutatorsOut>(
-  devtools(
-    persist(
-      immer((...args) => ({
-        network: networkSlice(...args),
-        account: accountSlice(...args),
-        loginInfo: loginInfoSlice(...args)
-      })),
-      {
-        name: 'sdk-dapp-store',
-        storage: createJSONStorage(() => localStorage)
-      }
+export const createDAppStore = (getStorageCallback: StorageCallback) => {
+  const store = createStore<StoreType, MutatorsOut>(
+    devtools(
+      persist(
+        immer((...args) => ({
+          network: networkSlice(...args),
+          account: accountSlice(...args),
+          loginInfo: loginInfoSlice(...args)
+        })),
+        {
+          name: 'sdk-dapp-store',
+          storage: createJSONStorage(getStorageCallback)
+        }
+      )
     )
-  )
-);
+  );
+  applyMiddleware(store);
 
-applyMiddleware(store);
+  return store;
+};
 
-export const getState = () => store.getState();
+export type StoreApi = ReturnType<typeof createDAppStore>;
 
-export const useStore = createBoundedUseStore(store);
+let store: StoreApi;
+
+export const getStore = () => {
+  if (!store) {
+    setDAppStore(createDAppStore(() => new InMemoryStorage()));
+  }
+  return store;
+};
+
+export const setDAppStore = (_store: StoreApi) => {
+  store = _store;
+};
+
+/**
+ * Initialize store with the preferred storage by passing a callback.
+ * Default storage is localStorage.
+ * You can pass your own storage.
+ * Call this function before using store, ideally before app bootstrapping.
+ * @param getStorageCallback
+ * @default () => localStorage
+ * @returns persistent store instance
+ * @example
+ * initStore(() => window.localStorage);
+ * initStore(() => window.sessionStorage);
+ * initStore(() => new InMemoryStorage());
+ * */
+export const initStore = (getStorageCallback = defaultStorageCallback) => {
+  return setDAppStore(createDAppStore(getStorageCallback));
+};
+
+export const getState = () => getStore().getState();
+
+export const getStoreHook = () => createBoundedUseStore(getStore());
