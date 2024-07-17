@@ -6,6 +6,7 @@ import { accountSlice } from './slices/account/accountSlice';
 import { createBoundedUseStore } from './createBoundedStore';
 import { loginInfoSlice } from './slices/loginInfo';
 import { StoreType } from './store.types';
+import { applyMiddleware } from './middleware/applyMiddleware';
 
 export type MutatorsIn = [
   ['zustand/devtools', never],
@@ -34,6 +35,8 @@ export const store = createStore<StoreType, MutatorsOut>(
     )
   )
 );
+
+applyMiddleware(store);
 
 export const getState = () => store.getState();
 
