@@ -1,11 +1,12 @@
 import { NativeAuthClient } from '@multiversx/sdk-native-auth-client';
+import { NativeAuthConfigType } from 'types/nativeAuth.types';
+
 import {
   getLatestBlockHash,
   LatestBlockHashType
 } from './helpers/getLatestBlockHash';
 
 import { getNativeAuthConfig, getTokenExpiration } from './methods';
-import { NativeAuthConfigType } from './nativeAuth.types';
 
 interface NativeAuthInitType {
   extraInfo?: { [key: string]: string };
