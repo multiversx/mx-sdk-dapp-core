@@ -1,9 +1,5 @@
 import { Transaction } from '@multiversx/sdk-core';
-import {
-  // IframeProvider,
-  CrossWindowProvider
-  // ICrossWindowWalletAccount
-} from '@multiversx/sdk-web-wallet-cross-window-provider/out/CrossWindowProvider/CrossWindowProvider';
+import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
 
 export interface IProvider {
   login: (options?: { token?: string }) => Promise<any>;

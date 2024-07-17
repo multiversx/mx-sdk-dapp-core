@@ -1,6 +1,5 @@
 import { LoginMethodsEnum } from 'types/enums.types';
 import { OnProviderLoginType } from 'types/login.types';
-import { CrossWindowProvider } from '@multiversx/sdk-web-wallet-cross-window-provider/out/CrossWindowProvider/CrossWindowProvider';
 import { getWindowLocation } from 'utils/window/getWindowLocation';
 import { getLoginService } from './helpers/getLoginService';
 import { networkSelector } from 'store/selectors';
@@ -14,6 +13,7 @@ import { loginAction } from 'store/actions/sharedActions';
 import { setAccount } from 'store/actions/account/accountActions';
 import { getLatestNonce } from 'utils/account/getLatestNonce';
 import { AccountType } from 'types/account.types';
+import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
 
 export const webWalletLogin = async ({
   token: tokenToSign,
