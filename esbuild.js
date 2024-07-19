@@ -1,5 +1,8 @@
 const esbuild = require('esbuild');
 const glob = require('glob');
+const plugin = require('node-stdlib-browser/helpers/esbuild/plugin');
+const stdLibBrowser = require('node-stdlib-browser');
+const { nodeExternalsPlugin } = require('esbuild-node-externals');
 
 /*
   The reason why we use esbuild instead of tsc is because esbuild can output .mjs files
@@ -34,7 +37,11 @@ const executeBuild = () =>
         global: 'global',
         process: 'process',
         Buffer: 'Buffer'
-      }
+      },
+      plugins: [
+        plugin(stdLibBrowser),
+        nodeExternalsPlugin(),
+      ]
     })
     .then(() => {
       console.log(
