@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- [Make middlewares registration more scalable](https://github.com/multiversx/mx-sdk-dapp-core/pull/11)
 - [Fix Node Polyfills](https://github.com/multiversx/mx-sdk-dapp-core/pull/10)
 - [Removed chain id from network slice & added esbuild and absolute imports](https://github.com/multiversx/mx-sdk-dapp-core/pull/3)
 - [Reverted absolute imports](https://github.com/multiversx/mx-sdk-dapp-core/pull/2)
