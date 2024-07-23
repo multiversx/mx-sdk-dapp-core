@@ -11,7 +11,7 @@ import { accountSlice } from './slices/account/accountSlice';
 import { createBoundedUseStore } from './createBoundedStore';
 import { loginInfoSlice } from './slices/loginInfo';
 import { StoreType } from './store.types';
-import { applyMiddleware } from './middleware/applyMiddleware';
+import { applyMiddlewares } from './middleware/applyMiddlewares';
 
 export type MutatorsIn = [
   ['zustand/devtools', never],
@@ -41,8 +41,7 @@ export const createDAppStore = (getStorageCallback: StorageCallback) => {
       )
     )
   );
-  applyMiddleware(store);
-
+  store.subscribe(applyMiddlewares);
   return store;
 };
 
