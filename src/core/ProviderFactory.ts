@@ -1,18 +1,12 @@
-import { Transaction } from '@multiversx/sdk-core';
 import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
-import { ExtensionProvider } from '@multiversx/sdk-extension-provider/out';
+import { ExtensionProvider } from '@multiversx/sdk-extension-provider';
+import type { IDAppProviderBase } from '@multiversx/sdk-dapp-utils';
 
-export interface IProvider {
+export interface IProvider extends IDAppProviderBase {
   init: () => Promise<boolean>;
-  login: (options?: { token?: string }) => Promise<{
-    address: string;
-    signature: string;
-    nativeToken: string;
-    [key: string]: unknown;
-  }>;
+  login: (options?: { token?: string }) => Promise<string | boolean>;
   relogin?: () => Promise<void>;
   logout: () => Promise<boolean>;
-  signTransactions: (transaction: Transaction[]) => Promise<Transaction[]>;
   setAddress: (address: string) => IProvider;
   setShouldShowConsentPopup?: (shouldShow: boolean) => void;
   getAddress(): string | undefined;
