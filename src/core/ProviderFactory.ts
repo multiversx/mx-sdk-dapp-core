@@ -1,12 +1,22 @@
 import { Transaction } from '@multiversx/sdk-core';
 import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
+import { ExtensionProvider } from '@multiversx/sdk-extension-provider/out';
 
 export interface IProvider {
-  login: (options?: { token?: string }) => Promise<any>;
+  init: () => Promise<boolean>;
+  login: (options?: { token?: string }) => Promise<{
+    address: string;
+    signature: string;
+    nativeToken: string;
+    [key: string]: unknown;
+  }>;
+  relogin?: () => Promise<void>;
   logout: () => Promise<boolean>;
   signTransactions: (transaction: Transaction[]) => Promise<Transaction[]>;
   setAddress: (address: string) => IProvider;
   setShouldShowConsentPopup?: (shouldShow: boolean) => void;
+  getAddress(): string | undefined;
+  getSignature(): string | undefined;
 }
 export interface IProviderConfig {
   network: {
@@ -25,18 +35,21 @@ export interface IProviderRecreateFactory extends IProviderFactory {
 
 export enum ProviderTypeEnum {
   iframe = 'iframe',
-  crossWindow = 'crossWindow'
+  crossWindow = 'crossWindow',
+  extension = 'extension',
+  walletConnect = 'walletConnect',
+  hardware = 'hardware',
+  opera = 'opera',
+  metamask = 'metamask',
+  wallet = 'wallet',
 }
 
 export class ProviderFactory {
-  public static async create({
+  public async create({
     type,
-    config: {
-      network: { walletAddress }
-    },
-    address
-  }: IProviderFactory): Promise<IProvider> {
-    let createdProvider: IProvider;
+    config,
+  }: IProviderFactory): Promise<IProvider | undefined> {
+    let createdProvider: IProvider | undefined = undefined;
 
     switch (type) {
       // case ProviderTypeEnum.iframe: {
@@ -47,24 +60,34 @@ export class ProviderFactory {
       //   break;
       // }
 
+      case ProviderTypeEnum.extension: {
+        const provider = await this.getExtensionProvider();
+        createdProvider = provider as unknown as IProvider;
+
+        createdProvider.getAddress = () => {
+          return provider.account.address;
+        }
+
+        createdProvider.getSignature = () => {
+          return provider.account.signature;
+        }
+
+        break;
+      }
+
       case ProviderTypeEnum.crossWindow: {
-        const provider = await ProviderFactory.getCrossWindowProvider({
+        const { walletAddress } = config.network;
+
+        const provider = await this.getCrossWindowProvider({
           walletAddress
         });
         createdProvider = provider as unknown as IProvider;
+
         break;
       }
 
       default:
-        const provider = await ProviderFactory.getCrossWindowProvider({
-          walletAddress
-        });
-        createdProvider = provider as unknown as IProvider;
         break;
-    }
-
-    if (address) {
-      createdProvider.setAddress(address);
     }
 
     return createdProvider;
@@ -72,17 +95,24 @@ export class ProviderFactory {
 
   public static async reCreate(
     config: IProviderRecreateFactory
-  ): Promise<IProvider> {
-    return await ProviderFactory.create(config);
+  ): Promise<IProvider | undefined> {
+    const factory = new ProviderFactory();
+    return await factory.create(config);
   }
 
-  private static async getCrossWindowProvider({
+  private async getCrossWindowProvider({
     walletAddress
   }: Partial<IProviderConfig['network']>) {
     // CrossWindowProvider.getInstance().clearInstance();
     const provider = CrossWindowProvider.getInstance();
     await provider.init();
     provider.setWalletUrl(String(walletAddress));
+    return provider;
+  }
+
+  private async getExtensionProvider() {
+    const provider = ExtensionProvider.getInstance();
+    await provider.init();
     return provider;
   }
 }

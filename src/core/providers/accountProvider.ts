@@ -1,8 +1,8 @@
-import { IDappProvider } from 'types/dappProvider.types';
 import { emptyProvider } from './helpers/emptyProvider';
 import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
+import { IProvider } from 'core/ProviderFactory';
 
-export type ProvidersType = IDappProvider | CrossWindowProvider;
+export type ProvidersType = IProvider | CrossWindowProvider;
 
 let accountProvider: ProvidersType = emptyProvider;
 
@@ -12,6 +12,6 @@ export function setAccountProvider<TProvider extends ProvidersType>(
   accountProvider = provider;
 }
 
-export function getAccountProvider(): IDappProvider {
-  return (accountProvider as IDappProvider) || emptyProvider;
+export function getAccountProvider(): IProvider {
+  return (accountProvider as IProvider) || emptyProvider;
 }

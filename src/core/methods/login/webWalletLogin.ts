@@ -112,7 +112,7 @@ export const webWalletLogin = async ({
 
     return newAccount;
   } catch (error) {
-    console.error('error loging in', error);
+    console.error('error logging in', error);
     throw error;
   }
 };
