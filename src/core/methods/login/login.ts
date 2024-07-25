@@ -10,7 +10,7 @@ import {
   IProviderFactory
 } from 'core/providers/types/providerFactory.types';
 import { ProviderFactory } from 'core/providers/ProviderFactory';
-import { tokenLoginSelector } from 'store/selectors';
+import { nativeAuthConfigSelector } from 'store/selectors';
 import { getState } from 'store/store';
 import { NativeAuthConfigType } from 'services/nativeAuth/nativeAuth.types';
 import { getIsLoggedIn } from 'utils/account/getIsLoggedIn';
@@ -101,7 +101,7 @@ export const login = async ({
   setAccountProvider(provider);
   setProviderType(providerConfig.type);
 
-  const nativeAuthConfig = tokenLoginSelector(getState())?.nativeAuthConfig;
+  const nativeAuthConfig = nativeAuthConfigSelector(getState());
 
   if (nativeAuthConfig) {
     return await loginWithNativeToken(provider, nativeAuthConfig);
