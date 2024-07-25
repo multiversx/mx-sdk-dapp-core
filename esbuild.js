@@ -38,10 +38,7 @@ const executeBuild = () =>
         process: 'process',
         Buffer: 'Buffer'
       },
-      plugins: [
-        plugin(stdLibBrowser),
-        nodeExternalsPlugin(),
-      ]
+      plugins: [plugin(stdLibBrowser), nodeExternalsPlugin()]
     })
     .then(() => {
       console.log(

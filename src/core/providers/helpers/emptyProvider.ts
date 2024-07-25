@@ -1,6 +1,6 @@
 import { SignableMessage, Transaction } from '@multiversx/sdk-core';
-import { IDappProvider } from 'types';
 import { EngineTypes } from 'utils/walletconnect/__sdkWalletconnectProvider';
+import { IProvider } from 'core/providers/types/providerFactory.types';
 
 export const DAPP_INIT_ROUTE = '/dapp/init';
 
@@ -8,7 +8,7 @@ const notInitializedError = (caller: string) => {
   return `Unable to perform ${caller}, Provider not initialized`;
 };
 
-export class EmptyProvider implements IDappProvider {
+export class EmptyProvider implements IProvider {
   init(): Promise<boolean> {
     return Promise.resolve(false);
   }
@@ -23,10 +23,6 @@ export class EmptyProvider implements IDappProvider {
     options?: TOptions
   ): Promise<TResponse> {
     throw new Error(notInitializedError(`logout with options: ${options}`));
-  }
-
-  getAddress(): Promise<string> {
-    throw new Error(notInitializedError('getAddress'));
   }
 
   isInitialized(): boolean {
@@ -59,14 +55,9 @@ export class EmptyProvider implements IDappProvider {
     );
   }
 
-  signTransactions<TOptions = { callbackUrl?: string }, TResponse = []>(
-    transactions: [],
-    options?: TOptions
-  ): Promise<TResponse> {
+  signTransactions<T>(transactions: T[]): Promise<T[]> {
     throw new Error(
-      notInitializedError(
-        `signTransactions with transactions: ${transactions} options: ${options}`
-      )
+      notInitializedError(`signTransactions with transactions: ${transactions}`)
     );
   }
 
@@ -103,8 +94,12 @@ export class EmptyProvider implements IDappProvider {
     );
   }
 
-  ping?(): Promise<boolean> {
-    return Promise.resolve(false);
+  getAddress(): string | undefined {
+    throw new Error(notInitializedError('getAddress'));
+  }
+
+  getTokenLoginSignature(): string | undefined {
+    throw new Error(notInitializedError(`getSignature`));
   }
 }
 
