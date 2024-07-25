@@ -16,5 +16,8 @@ export const loginAction = ({
   getStore().setState(({ account, loginInfo }) => {
     account.address = address;
     account.publicKey = new Address(address).hex();
-    loginInfo.providerType = providerType;
+
+    if (loginInfo) {
+      loginInfo.providerType = providerType;
+    }
   });

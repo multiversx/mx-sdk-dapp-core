@@ -36,6 +36,10 @@ export class ProviderFactory {
           return provider.account.signature;
         };
 
+        createdProvider.getType = () => {
+          return ProviderTypeEnum.extension;
+        };
+
         break;
       }
 
@@ -46,6 +50,10 @@ export class ProviderFactory {
           walletAddress
         });
         createdProvider = provider as unknown as IProvider;
+
+        createdProvider.getType = () => {
+          return ProviderTypeEnum.crossWindow;
+        };
 
         break;
       }

@@ -1,6 +1,7 @@
 import { ACCOUNTS_ENDPOINT } from 'apiCalls/endpoints';
 import { axiosInstance } from 'apiCalls/utils/axiosInstance';
 import { getCleanApiAddress } from 'apiCalls/utils/getCleanApiAddress';
+import { AccountType } from 'types/account.types';
 
 export const accountFetcher = (address: string | null) => {
   const apiAddress = getCleanApiAddress();
@@ -16,7 +17,7 @@ export const getAccountFromApi = async (address?: string) => {
 
   try {
     const { data } = await accountFetcher(address);
-    return data;
+    return data as AccountType;
   } catch (err) {
     console.error('error fetching configuration for ', address);
   }
