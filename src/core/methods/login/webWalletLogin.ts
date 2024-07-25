@@ -10,10 +10,13 @@ import { isBrowserWithPopupConfirmation } from 'constants/browser.constants';
 import { processModifiedAccount } from './helpers/processModifiedAccount';
 import { loginAction } from 'store/actions/sharedActions';
 import { setAccount } from 'store/actions/account/accountActions';
-import { getLatestNonce } from 'utils/account/getLatestNonce';
+import { getLatestNonce } from 'core/methods/account/getLatestNonce';
 import { AccountType } from 'types/account.types';
 import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
-import { ProviderTypeEnum } from '../../providers/types/providerFactory.types';
+import {
+  IProvider,
+  ProviderTypeEnum
+} from '../../providers/types/providerFactory.types';
 
 export const webWalletLogin = async ({
   token: tokenToSign,
@@ -79,7 +82,7 @@ export const webWalletLogin = async ({
     const { signature, address, multisig, impersonate } =
       await provider.login(providerLoginData);
 
-    setAccountProvider(provider);
+    setAccountProvider(provider as unknown as IProvider);
 
     if (!address) {
       console.warn('Login cancelled.');

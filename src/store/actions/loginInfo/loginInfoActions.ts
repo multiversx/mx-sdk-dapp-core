@@ -18,6 +18,17 @@ export const setTokenLogin = (tokenLogin: TokenLoginType) =>
     state.tokenLogin = tokenLogin;
   });
 
+export const setLoginToken = (loginToken: string) =>
+  getStore().setState(({ loginInfo: state }) => {
+    if (state.tokenLogin != null) {
+      state.tokenLogin.loginToken = loginToken;
+      return;
+    }
+    state.tokenLogin = {
+      loginToken
+    };
+  });
+
 export const setTokenLoginSignature = (signature: string) =>
   getStore().setState(({ loginInfo: state }) => {
     if (state?.tokenLogin != null) {

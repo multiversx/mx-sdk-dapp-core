@@ -13,8 +13,10 @@ import { ProviderFactory } from 'core/providers/ProviderFactory';
 import { nativeAuthConfigSelector } from 'store/selectors';
 import { getState } from 'store/store';
 import { NativeAuthConfigType } from 'services/nativeAuth/nativeAuth.types';
-import { getIsLoggedIn } from 'utils/account/getIsLoggedIn';
-import { getAddress } from 'utils/account/getAddress';
+import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
+import { getAddress } from 'core/methods/account/getAddress';
+import { loginAction } from 'store/actions';
+import { impersonateAccount } from './helpers/impersonateAccount';
 
 async function loginWithoutNativeToken(provider: IProvider) {
   await provider.login();
@@ -32,6 +34,28 @@ async function loginWithoutNativeToken(provider: IProvider) {
   };
 }
 
+async function tryImpersonateAccount({
+  loginToken,
+  extraInfoData,
+  address,
+  provider
+}: {
+  loginToken: string;
+  extraInfoData: {
+    multisig?: string;
+    impersonate?: string;
+  };
+  address: string;
+  provider: IProvider;
+}) {
+  return await impersonateAccount({
+    loginToken,
+    extraInfoData,
+    address,
+    provider
+  });
+}
+
 async function loginWithNativeToken(
   provider: IProvider,
   nativeAuthConfig: NativeAuthConfigType
@@ -42,17 +66,19 @@ async function loginWithNativeToken(
     noCache: true
   });
 
-  await provider.login({ token: loginToken });
+  const loginResult = await provider.login({ token: loginToken });
 
   const address = provider.getAddress?.();
   const signature = provider.getTokenLoginSignature?.();
 
   if (!address) {
-    throw new Error('Address not found');
+    console.warn('Login cancelled.');
+    return null;
   }
 
   if (!signature) {
-    throw new Error('Signature not found');
+    console.error('Failed to sign login token');
+    return null;
   }
 
   const nativeAuthToken = nativeAuthClient.getToken({
@@ -61,19 +87,32 @@ async function loginWithNativeToken(
     signature
   });
 
-  setAddress(address);
   setTokenLogin({
     loginToken,
     signature,
     nativeAuthToken,
     nativeAuthConfig
   });
+  loginAction({
+    address,
+    providerType: provider.getType()
+  });
+
+  const impersonationDetails = await tryImpersonateAccount({
+    loginToken,
+    extraInfoData: {
+      multisig: loginResult.multisig,
+      impersonate: loginResult.impersonate
+    },
+    address,
+    provider
+  });
 
   return {
-    address,
+    address: impersonationDetails?.address || address,
     signature,
     nativeAuthToken,
-    loginToken,
+    loginToken: impersonationDetails?.modifiedLoginToken || loginToken,
     nativeAuthConfig
   };
 }
