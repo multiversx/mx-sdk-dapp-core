@@ -1,4 +1,4 @@
-import { NativeAuthConfigType } from './nativeAuth.types';
+import { NativeAuthConfigType } from 'services/nativeAuth/nativeAuth.types';
 
 export interface OnProviderLoginType {
   token?: string;
