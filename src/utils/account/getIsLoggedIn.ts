@@ -1,5 +1,5 @@
 import { getAddress } from './getAddress';
 
-export const isLoggedIn = () => {
+export const getIsLoggedIn = () => {
   return Boolean(getAddress());
 };

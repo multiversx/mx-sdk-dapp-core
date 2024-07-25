@@ -13,7 +13,7 @@ import { ProviderFactory } from 'core/providers/ProviderFactory';
 import { tokenLoginSelector } from 'store/selectors';
 import { getState } from 'store/store';
 import { NativeAuthConfigType } from 'services/nativeAuth/nativeAuth.types';
-import { isLoggedIn } from 'utils/account/isLoggedIn';
+import { getIsLoggedIn } from 'utils/account/getIsLoggedIn';
 import { getAddress } from 'utils/account/getAddress';
 
 async function normalLogin(provider: IProvider) {
@@ -83,7 +83,7 @@ export const login = async ({
 }: {
   providerConfig: IProviderFactory;
 }) => {
-  const loggedIn = isLoggedIn();
+  const loggedIn = getIsLoggedIn();
 
   if (loggedIn) {
     console.warn('Already logged in with:', getAddress());

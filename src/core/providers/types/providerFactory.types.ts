@@ -5,7 +5,6 @@ export interface IProvider extends IDAppProviderBase {
   // TODO change return type to { address: string, signature: string } and also change the return type in IDAppProviderBase.
   login: (options?: { token?: string }) => Promise<string | boolean>;
   logout: () => Promise<boolean>;
-  setAddress: (address: string) => IProvider;
   setShouldShowConsentPopup?: (shouldShow: boolean) => void;
   getAddress(): string | undefined;
   // TODO will be removed as soon as the new login method is implemented in the same way for all providers

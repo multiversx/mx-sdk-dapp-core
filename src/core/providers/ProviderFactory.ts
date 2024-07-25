@@ -13,7 +13,7 @@ export class ProviderFactory {
     config,
     customProvider
   }: IProviderFactory): Promise<IProvider | undefined> {
-    let createdProvider: IProvider | undefined = undefined;
+    let createdProvider: IProvider | undefined;
 
     switch (type) {
       // case ProviderTypeEnum.iframe: {

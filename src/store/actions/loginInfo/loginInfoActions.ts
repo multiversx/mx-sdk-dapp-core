@@ -31,12 +31,13 @@ export const setTokenLoginNativeAuthTokenConfig = (
   getStore().setState(({ loginInfo: state }) => {
     if (state?.tokenLogin != null) {
       state.tokenLogin.nativeAuthConfig = nativeAuthConfig;
-    } else {
-      state.tokenLogin = {
-        nativeAuthConfig,
-        loginToken: ''
-      };
+      return;
     }
+
+    state.tokenLogin = {
+      nativeAuthConfig,
+      loginToken: ''
+    };
   });
 
 export const setWalletLogin = (walletLogin: LoginInfoType | null) =>

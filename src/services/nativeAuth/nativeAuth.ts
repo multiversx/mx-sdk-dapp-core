@@ -23,7 +23,7 @@ export const nativeAuth = (config?: NativeAuthConfigType) => {
     extraInfo: extraInfoFromConfig,
     gatewayUrl,
     extraRequestHeaders
-  } = buildNativeAuthConfig(config) as NativeAuthConfigType;
+  } = buildNativeAuthConfig(config);
 
   const nativeAuthClient = new NativeAuthClient({
     origin,
