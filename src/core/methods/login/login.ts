@@ -1,31 +1,34 @@
-import { IProviderFactory, ProviderFactory } from 'core/ProviderFactory';
+import { IProvider, IProviderFactory, ProviderFactory } from 'core/ProviderFactory';
 import { NativeAuthConfigType } from 'types/nativeAuth.types';
 import { nativeAuth } from 'services/nativeAuth';
 import { setAddress } from 'store/actions/account';
 import { setLoginMethod, setTokenLogin } from 'store/actions/loginInfo/loginInfoActions';
 import { setAccountProvider } from 'core/providers/accountProvider';
+import { getNativeAuthConfig } from 'services/nativeAuth/methods';
 
-export const login = async ({
-  providerConfig,
-  nativeAuthConfig
-}: {
-  providerConfig: IProviderFactory,
-  nativeAuthConfig?: NativeAuthConfigType
-}) => {
-  const factory = new ProviderFactory();
-  const provider = await factory.create(providerConfig);
+async function normalLogin(provider: IProvider) {
+  await provider.login();
 
-  if(!provider) {
-    throw new Error('Provider not found');
+  const address = provider.getAddress?.();
+
+  if (!address) {
+    throw new Error('Address not found');
   }
 
-  await provider.init?.();
+  setAddress(address);
 
+  return {
+    address
+  };
+}
+
+async function loginWithNativeToken(provider: IProvider, nativeAuthConfig: NativeAuthConfigType) {
   const nativeAuthClient =  nativeAuth(nativeAuthConfig);
 
   const loginToken = await nativeAuthClient.initialize({
     noCache: true
   });
+
   await provider.login({ token: loginToken });
 
   const address = provider.getAddress?.();
@@ -45,7 +48,6 @@ export const login = async ({
     signature
   });
 
-  setAccountProvider(provider);
   setAddress(address);
   setTokenLogin({
     loginToken,
@@ -53,7 +55,6 @@ export const login = async ({
     nativeAuthToken,
     nativeAuthConfig
   });
-  setLoginMethod(providerConfig.type);
 
   return {
     address,
@@ -61,5 +62,36 @@ export const login = async ({
     nativeAuthToken,
     loginToken,
     nativeAuthConfig
+  }
+}
+
+export const login = async ({
+  providerConfig,
+  withNativeAuth
+}: {
+  providerConfig: IProviderFactory,
+  withNativeAuth?: boolean | NativeAuthConfigType,
+}) => {
+  const factory = new ProviderFactory();
+  const provider = await factory.create(providerConfig);
+
+  if(!provider) {
+    throw new Error('Provider not found');
+  }
+
+  await provider.init?.();
+  setAccountProvider(provider);
+  setLoginMethod(providerConfig.type);
+
+  if(withNativeAuth) {
+    if(typeof withNativeAuth === 'boolean') {
+      withNativeAuth = getNativeAuthConfig(true);
+    }
+
+    const nativeAuthConfig = withNativeAuth as NativeAuthConfigType;
+
+    return await loginWithNativeToken(provider, nativeAuthConfig);
+  } else {
+    return await normalLogin(provider);
   }
 }
