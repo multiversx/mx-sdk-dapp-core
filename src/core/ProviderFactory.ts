@@ -1,47 +1,42 @@
 import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
 import { ExtensionProvider } from '@multiversx/sdk-extension-provider';
 import type { IDAppProviderBase } from '@multiversx/sdk-dapp-utils';
+import { LoginMethodsType, LoginMethodsEnum } from '../types';
 
 export interface IProvider extends IDAppProviderBase {
   init: () => Promise<boolean>;
+  // TODO change return type to { address: string, signature: string } and also change the return type in IDAppProviderBase.
   login: (options?: { token?: string }) => Promise<string | boolean>;
-  relogin?: () => Promise<void>;
   logout: () => Promise<boolean>;
   setAddress: (address: string) => IProvider;
   setShouldShowConsentPopup?: (shouldShow: boolean) => void;
   getAddress(): string | undefined;
-  getSignature(): string | undefined;
+  getTokenLoginSignature(): string | undefined;
 }
+
 export interface IProviderConfig {
   network: {
     walletAddress: string;
   };
 }
+
+export type ProviderType = LoginMethodsType;
+
 export interface IProviderFactory {
-  type: ProviderTypeEnum;
+  type: ProviderType;
   config: IProviderConfig;
-  address?: string;
+  customProvider?: IProvider;
 }
 
-export interface IProviderRecreateFactory extends IProviderFactory {
-  address: string;
-}
-
-export enum ProviderTypeEnum {
-  iframe = 'iframe',
-  crossWindow = 'crossWindow',
-  extension = 'extension',
-  walletConnect = 'walletConnect',
-  hardware = 'hardware',
-  opera = 'opera',
-  metamask = 'metamask',
-  wallet = 'wallet',
-}
+export const ProviderTypeEnum = {
+  ...LoginMethodsEnum
+} as const;
 
 export class ProviderFactory {
   public async create({
     type,
     config,
+    customProvider
   }: IProviderFactory): Promise<IProvider | undefined> {
     let createdProvider: IProvider | undefined = undefined;
 
@@ -62,7 +57,7 @@ export class ProviderFactory {
           return provider.account.address;
         }
 
-        createdProvider.getSignature = () => {
+        createdProvider.getTokenLoginSignature = () => {
           return provider.account.signature;
         }
 
@@ -80,18 +75,16 @@ export class ProviderFactory {
         break;
       }
 
+      case ProviderTypeEnum.custom: {
+        createdProvider = customProvider;
+        break;
+      }
+
       default:
         break;
     }
 
     return createdProvider;
-  }
-
-  public static async reCreate(
-    config: IProviderRecreateFactory
-  ): Promise<IProvider | undefined> {
-    const factory = new ProviderFactory();
-    return await factory.create(config);
   }
 
   private async getCrossWindowProvider({

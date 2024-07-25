@@ -110,7 +110,7 @@ export class EmptyProvider implements IProvider {
     throw new Error(notInitializedError('getAddress'));
   }
 
-  getSignature(): string | undefined {
+  getTokenLoginSignature(): string | undefined {
     throw new Error(notInitializedError(`getSignature`));
   }
 }

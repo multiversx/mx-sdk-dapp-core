@@ -1,4 +1,4 @@
-import { LoginMethodsEnum } from 'types/enums.types';
+import { LoginMethodsType } from 'types/enums.types';
 import { TokenLoginType } from 'types/login.types';
 import {
   LedgerLoginType,
@@ -7,7 +7,7 @@ import {
 } from 'store/slices/loginInfo/loginInfo.types';
 import { getStore } from 'store/store';
 
-export const setLoginMethod = (loginMethod: LoginMethodsEnum) =>
+export const setLoginMethod = (loginMethod: LoginMethodsType) =>
   getStore().setState(({ loginInfo: state }) => {
     state.loginMethod = loginMethod;
   });

@@ -1,4 +1,4 @@
-import { LoginMethodsEnum } from 'types/enums.types';
+import { LoginMethodsEnum, LoginMethodsType } from 'types/enums.types';
 import { TokenLoginType } from 'types/login.types';
 
 export interface WalletConnectLoginType {
@@ -18,7 +18,7 @@ export interface LoginInfoType {
 }
 
 export interface LoginInfoSliceType {
-  loginMethod: LoginMethodsEnum;
+  loginMethod: LoginMethodsType;
   walletConnectLogin: WalletConnectLoginType | null;
   ledgerLogin: LedgerLoginType | null;
   tokenLogin: TokenLoginType | null;

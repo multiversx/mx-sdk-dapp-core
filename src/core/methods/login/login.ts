@@ -3,7 +3,6 @@ import { NativeAuthConfigType } from 'types/nativeAuth.types';
 import { nativeAuth } from 'services/nativeAuth';
 import { setAddress } from 'store/actions/account';
 import { setLoginMethod, setTokenLogin } from 'store/actions/loginInfo/loginInfoActions';
-import { resolveLoginMethod } from './helpers/resolveLoginMethod';
 import { setAccountProvider } from 'core/providers/accountProvider';
 
 export const login = async ({
@@ -30,7 +29,7 @@ export const login = async ({
   await provider.login({ token: loginToken });
 
   const address = provider.getAddress?.();
-  const signature = provider.getSignature?.();
+  const signature = provider.getTokenLoginSignature?.();
 
   if(!address) {
     throw new Error('Address not found');
@@ -54,7 +53,7 @@ export const login = async ({
     nativeAuthToken,
     nativeAuthConfig
   });
-  setLoginMethod(resolveLoginMethod(providerConfig.type))
+  setLoginMethod(providerConfig.type);
 
   return {
     address,

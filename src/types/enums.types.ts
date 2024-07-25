@@ -4,18 +4,20 @@ export enum EnvironmentsEnum {
   mainnet = 'mainnet'
 }
 
-export enum LoginMethodsEnum {
-  ledger = 'ledger',
-  walletconnect = 'walletconnect',
-  walletconnectv2 = 'walletconnectv2',
-  wallet = 'wallet',
-  crossWindow = 'crossWindow',
-  extension = 'extension',
-  metamask = 'metamask',
-  opera = 'opera',
-  extra = 'extra',
-  none = ''
-}
+export const LoginMethodsEnum = {
+  iframe: 'iframe',
+  crossWindow: 'crossWindow',
+  extension: 'extension',
+  walletConnect: 'walletConnect',
+  hardware: 'hardware',
+  opera: 'opera',
+  metamask: 'metamask',
+  webhook: 'webhook',
+  custom: "custom",
+  none: ''
+} as const
+
+export type LoginMethodsType = typeof LoginMethodsEnum[keyof typeof LoginMethodsEnum];
 
 export enum TypesOfSmartContractCallsEnum {
   MultiESDTNFTTransfer = 'MultiESDTNFTTransfer',
