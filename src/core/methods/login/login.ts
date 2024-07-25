@@ -14,7 +14,7 @@ import { tokenLoginSelector } from 'store/selectors';
 import { getState } from 'store/store';
 import { NativeAuthConfigType } from 'services/nativeAuth/nativeAuth.types';
 import { isLoggedIn } from 'utils/account/isLoggedIn';
-import { getAddress } from '../../../utils/account/getAddress';
+import { getAddress } from 'utils/account/getAddress';
 
 async function normalLogin(provider: IProvider) {
   await provider.login();
