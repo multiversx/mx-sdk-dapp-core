@@ -4,11 +4,17 @@ import { nativeAuth } from 'services/nativeAuth';
 import { setAddress } from 'store/actions/account';
 import { setLoginMethod, setTokenLogin } from 'store/actions/loginInfo/loginInfoActions';
 import { resolveLoginMethod } from './helpers/resolveLoginMethod';
-import { setAccountProvider } from '../../providers/accountProvider';
+import { setAccountProvider } from 'core/providers/accountProvider';
 
-export const login = async (config: IProviderFactory, nativeAuthConfig?: NativeAuthConfigType) => {
+export const login = async ({
+  providerConfig,
+  nativeAuthConfig
+}: {
+  providerConfig: IProviderFactory,
+  nativeAuthConfig?: NativeAuthConfigType
+}) => {
   const factory = new ProviderFactory();
-  const provider = await factory.create(config);
+  const provider = await factory.create(providerConfig);
 
   if(!provider) {
     throw new Error('Provider not found');
@@ -48,7 +54,7 @@ export const login = async (config: IProviderFactory, nativeAuthConfig?: NativeA
     nativeAuthToken,
     nativeAuthConfig
   });
-  setLoginMethod(resolveLoginMethod(config.type))
+  setLoginMethod(resolveLoginMethod(providerConfig.type))
 
   return {
     address,
