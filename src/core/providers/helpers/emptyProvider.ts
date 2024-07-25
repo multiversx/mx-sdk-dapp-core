@@ -94,14 +94,6 @@ export class EmptyProvider implements IProvider {
     );
   }
 
-  ping?(): Promise<boolean> {
-    return Promise.resolve(false);
-  }
-
-  setAddress(address: string): IProvider {
-    throw new Error(notInitializedError(`setAddress with address: ${address}`));
-  }
-
   getAddress(): string | undefined {
     throw new Error(notInitializedError('getAddress'));
   }
