@@ -16,7 +16,7 @@ import { NativeAuthConfigType } from 'services/nativeAuth/nativeAuth.types';
 import { getIsLoggedIn } from 'utils/account/getIsLoggedIn';
 import { getAddress } from 'utils/account/getAddress';
 
-async function normalLogin(provider: IProvider) {
+async function loginWithoutNativeToken(provider: IProvider) {
   await provider.login();
 
   const address = provider.getAddress?.();
@@ -107,5 +107,5 @@ export const login = async ({
     return await loginWithNativeToken(provider, nativeAuthConfig);
   }
 
-  return await normalLogin(provider);
+  return await loginWithoutNativeToken(provider);
 };
