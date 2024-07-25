@@ -1,17 +1,20 @@
 import { Address } from '@multiversx/sdk-core/out';
 import { getStore } from '../../store';
-import { LoginMethodsType } from 'types/enums.types';
 import { resetStore } from 'store/middleware/logoutMiddleware';
+import { ProviderTypeEnum } from 'core/providers/types/providerFactory.types';
 
 export const logoutAction = () => getStore().setState(resetStore);
 export interface LoginActionPayloadType {
   address: string;
-  loginMethod: LoginMethodsType;
+  providerType: ProviderTypeEnum;
 }
 
-export const loginAction = ({ address, loginMethod }: LoginActionPayloadType) =>
+export const loginAction = ({
+  address,
+  providerType
+}: LoginActionPayloadType) =>
   getStore().setState(({ account, loginInfo }) => {
     account.address = address;
     account.publicKey = new Address(address).hex();
-    loginInfo.loginMethod = loginMethod;
+    loginInfo.providerType = providerType;
   });

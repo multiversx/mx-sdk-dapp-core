@@ -1,10 +1,9 @@
-import { LoginMethodsEnum } from 'types/enums.types';
 import { StateCreator } from 'zustand/vanilla';
 import { StoreType, MutatorsIn } from 'store/store.types';
 import { LoginInfoSliceType } from './loginInfo.types';
 
 export const initialState: LoginInfoSliceType = {
-  loginMethod: LoginMethodsEnum.none,
+  providerType: null,
   walletConnectLogin: null,
   ledgerLogin: null,
   tokenLogin: null,

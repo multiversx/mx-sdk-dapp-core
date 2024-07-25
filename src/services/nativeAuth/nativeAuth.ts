@@ -1,12 +1,12 @@
 import { NativeAuthClient } from '@multiversx/sdk-native-auth-client';
-import { NativeAuthConfigType } from 'types/nativeAuth.types';
 
 import {
   getLatestBlockHash,
   LatestBlockHashType
 } from './helpers/getLatestBlockHash';
 
-import { getNativeAuthConfig, getTokenExpiration } from './methods';
+import { buildNativeAuthConfig, getTokenExpiration } from './methods';
+import { NativeAuthConfigType } from './nativeAuth.types';
 
 interface NativeAuthInitType {
   extraInfo?: { [key: string]: string };
@@ -23,7 +23,7 @@ export const nativeAuth = (config?: NativeAuthConfigType) => {
     extraInfo: extraInfoFromConfig,
     gatewayUrl,
     extraRequestHeaders
-  } = getNativeAuthConfig(config) as NativeAuthConfigType;
+  } = buildNativeAuthConfig(config) as NativeAuthConfigType;
 
   const nativeAuthClient = new NativeAuthClient({
     origin,
@@ -76,7 +76,6 @@ export const nativeAuth = (config?: NativeAuthConfigType) => {
   }): string => nativeAuthClient.getToken(address, token, signature);
 
   return {
-    getNativeAuthConfig,
     initialize,
     getToken,
     getTokenExpiration

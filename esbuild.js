@@ -25,7 +25,7 @@ const executeBuild = () =>
       format: 'esm',
       outdir: 'out',
       treeShaking: true,
-      minify: true,
+      minify: false,
       bundle: true,
       sourcemap: true,
       chunkNames: '__chunks__/[name]-[hash]',
@@ -38,10 +38,7 @@ const executeBuild = () =>
         process: 'process',
         Buffer: 'Buffer'
       },
-      plugins: [
-        plugin(stdLibBrowser),
-        nodeExternalsPlugin(),
-      ]
+      plugins: [plugin(stdLibBrowser), nodeExternalsPlugin()]
     })
     .then(() => {
       console.log(

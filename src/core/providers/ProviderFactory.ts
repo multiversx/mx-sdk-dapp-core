@@ -1,36 +1,11 @@
 import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
 import { ExtensionProvider } from '@multiversx/sdk-extension-provider';
-import type { IDAppProviderBase } from '@multiversx/sdk-dapp-utils';
-import { LoginMethodsType, LoginMethodsEnum } from '../types';
-
-export interface IProvider extends IDAppProviderBase {
-  init: () => Promise<boolean>;
-  // TODO change return type to { address: string, signature: string } and also change the return type in IDAppProviderBase.
-  login: (options?: { token?: string }) => Promise<string | boolean>;
-  logout: () => Promise<boolean>;
-  setAddress: (address: string) => IProvider;
-  setShouldShowConsentPopup?: (shouldShow: boolean) => void;
-  getAddress(): string | undefined;
-  getTokenLoginSignature(): string | undefined;
-}
-
-export interface IProviderConfig {
-  network: {
-    walletAddress: string;
-  };
-}
-
-export type ProviderType = LoginMethodsType;
-
-export interface IProviderFactory {
-  type: ProviderType;
-  config: IProviderConfig;
-  customProvider?: IProvider;
-}
-
-export const ProviderTypeEnum = {
-  ...LoginMethodsEnum
-} as const;
+import {
+  IProvider,
+  IProviderConfig,
+  IProviderFactory,
+  ProviderTypeEnum
+} from './types/providerFactory.types';
 
 export class ProviderFactory {
   public async create({
@@ -55,11 +30,11 @@ export class ProviderFactory {
 
         createdProvider.getAddress = () => {
           return provider.account.address;
-        }
+        };
 
         createdProvider.getTokenLoginSignature = () => {
           return provider.account.signature;
-        }
+        };
 
         break;
       }

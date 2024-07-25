@@ -1,11 +1,11 @@
 import { storage } from 'storage';
 import { localStorageKeys } from 'storage/local';
-import { LoginMethodsEnum } from 'types';
 import { getAddress } from '../account/getAddress';
 import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
 import { logoutAction } from 'store/actions/sharedActions/sharedActions';
 import { getAccountProvider } from 'core/providers/accountProvider';
 import { getProviderType } from 'core/providers/helpers/utils';
+import { ProviderTypeEnum } from 'core/providers/types/providerFactory.types';
 
 const broadcastLogoutAcrossTabs = (address: string) => {
   const storedData = storage.local?.getItem(localStorageKeys.logoutEvent);
@@ -52,7 +52,7 @@ export async function logout(
 
     if (
       options.hasConsentPopup &&
-      providerType === LoginMethodsEnum.crossWindow
+      providerType === ProviderTypeEnum.crossWindow
     ) {
       (provider as unknown as CrossWindowProvider).setShouldShowConsentPopup(
         true

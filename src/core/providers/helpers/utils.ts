@@ -3,31 +3,31 @@ import { HWProvider } from '@multiversx/sdk-hw-provider';
 import { MetamaskProvider } from '@multiversx/sdk-metamask-provider/out/metamaskProvider';
 import { OperaProvider } from '@multiversx/sdk-opera-provider';
 import { WalletProvider } from '@multiversx/sdk-web-wallet-provider';
-import { LoginMethodsType, LoginMethodsEnum } from 'types/enums.types';
 import { WalletConnectV2Provider } from 'utils/walletconnect/__sdkWalletconnectProvider';
 import { EmptyProvider } from './emptyProvider';
 import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
+import { ProviderTypeEnum } from 'core/providers/types/providerFactory.types';
 
 export const getProviderType = <TProvider extends object>(
   provider?: TProvider | null
-): LoginMethodsType => {
+): ProviderTypeEnum => {
   switch (provider?.constructor) {
     case WalletProvider:
-      return LoginMethodsEnum.webhook;
+      return ProviderTypeEnum.webhook;
     case WalletConnectV2Provider:
-      return LoginMethodsEnum.walletConnect;
+      return ProviderTypeEnum.walletConnect;
     case HWProvider:
-      return LoginMethodsEnum.hardware;
+      return ProviderTypeEnum.hardware;
     case ExtensionProvider:
-      return LoginMethodsEnum.extension;
+      return ProviderTypeEnum.extension;
     case MetamaskProvider:
-      return LoginMethodsEnum.metamask;
+      return ProviderTypeEnum.metamask;
     case OperaProvider:
-      return LoginMethodsEnum.opera;
+      return ProviderTypeEnum.opera;
     case CrossWindowProvider:
-      return LoginMethodsEnum.crossWindow;
+      return ProviderTypeEnum.crossWindow;
     case EmptyProvider:
     default:
-      return LoginMethodsEnum.none;
+      return ProviderTypeEnum.none;
   }
 };
