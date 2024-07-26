@@ -1,5 +1,5 @@
 import { nativeAuth } from 'services/nativeAuth';
-import { setAddress } from 'store/actions/account';
+import { setAccount, setAddress } from 'store/actions/account';
 import {
   setProviderType,
   setTokenLogin
@@ -15,8 +15,9 @@ import { getState } from 'store/store';
 import { NativeAuthConfigType } from 'services/nativeAuth/nativeAuth.types';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import { getAddress } from 'core/methods/account/getAddress';
-import { loginAction } from 'store/actions';
+import { loginAction, logoutAction } from 'store/actions';
 import { impersonateAccount } from './helpers/impersonateAccount';
+import { AccountType } from '../../../types/account.types';
 
 async function loginWithoutNativeToken(provider: IProvider) {
   await provider.login();
@@ -68,8 +69,12 @@ async function loginWithNativeToken(
 
   const loginResult = await provider.login({ token: loginToken });
 
-  const address = provider.getAddress?.();
-  const signature = provider.getTokenLoginSignature?.();
+  const address = provider.getAddress
+    ? await provider.getAddress()
+    : loginResult.address;
+  const signature = provider.getTokenLoginSignature
+    ? provider.getTokenLoginSignature()
+    : loginResult.signature;
 
   if (!address) {
     console.warn('Login cancelled.');
@@ -90,8 +95,7 @@ async function loginWithNativeToken(
   setTokenLogin({
     loginToken,
     signature,
-    nativeAuthToken,
-    nativeAuthConfig
+    nativeAuthToken
   });
   loginAction({
     address,
@@ -107,6 +111,14 @@ async function loginWithNativeToken(
     address,
     provider
   });
+
+  if (impersonationDetails.account) {
+    setAccount(impersonationDetails.account);
+  } else {
+    logoutAction();
+    console.error('Failed to fetch account');
+    throw new Error('Failed to fetch account');
+  }
 
   return {
     address: impersonationDetails?.address || address,

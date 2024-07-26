@@ -14,6 +14,8 @@ export const loginAction = ({
   providerType
 }: LoginActionPayloadType) =>
   getStore().setState(({ account, loginInfo }) => {
+    console.log('settings address with:', address);
+
     account.address = address;
     account.publicKey = new Address(address).hex();
 

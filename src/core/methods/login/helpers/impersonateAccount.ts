@@ -26,11 +26,11 @@ export async function impersonateAccount({
     address
   });
 
-  if (impersonationDetails?.modifiedLoginToken) {
+  if (impersonationDetails.modifiedLoginToken) {
     setLoginToken(impersonationDetails.modifiedLoginToken);
   }
 
-  if (impersonationDetails?.account) {
+  if (impersonationDetails.account) {
     loginAction({
       address: impersonationDetails.address,
       providerType: provider.getType()
@@ -42,6 +42,10 @@ export async function impersonateAccount({
     };
 
     setAccount(newAccount);
+    return {
+      ...impersonationDetails,
+      account: newAccount
+    };
   }
 
   return impersonationDetails;

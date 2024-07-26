@@ -27,10 +27,6 @@ export const getImpersonatedAccountDetails = async ({
 
   const account = await getAccount(accountAddress);
 
-  if (!account) {
-    return null;
-  }
-
   return {
     account,
     address: accountAddress,
