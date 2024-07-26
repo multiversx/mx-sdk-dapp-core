@@ -6,12 +6,11 @@ import {
   defaultStorageCallback,
   StorageCallback
 } from './storage';
-import { networkSlice } from './slices/network/networkSlice';
-import { accountSlice } from './slices/account/accountSlice';
+import { networkSlice, accountSlice, loginInfoSlice } from './slices';
 import { createBoundedUseStore } from './createBoundedStore';
-import { loginInfoSlice } from './slices/loginInfo';
 import { StoreType } from './store.types';
-import { applyMiddlewares } from './middleware/applyMiddlewares';
+import { applyMiddlewares } from './middleware';
+import { configSlice } from './slices';
 
 export type MutatorsIn = [
   ['zustand/devtools', never],
@@ -32,7 +31,8 @@ export const createDAppStore = (getStorageCallback: StorageCallback) => {
         immer((...args) => ({
           network: networkSlice(...args),
           account: accountSlice(...args),
-          loginInfo: loginInfoSlice(...args)
+          loginInfo: loginInfoSlice(...args),
+          config: configSlice(...args)
         })),
         {
           name: 'sdk-dapp-store',

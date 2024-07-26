@@ -10,6 +10,7 @@ interface SetMultisigLoginToken<T> extends GetMultiSigLoginTokenType {
   loginService: T;
 }
 
+// TODO check if this is needed anymore as we are not using it and a new implementation is already in place in the impersonateAccount.ts
 export const processModifiedAccount = async <
   T extends {
     setLoginToken: (loginToken: string) => void;
