@@ -17,10 +17,13 @@ import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import { getAddress } from 'core/methods/account/getAddress';
 import { loginAction, logoutAction } from 'store/actions';
 import { impersonateAccount } from './helpers/impersonateAccount';
-import { AccountType } from '../../../types/account.types';
+import { SECOND_LOGIN_ATTEMPT_ERROR } from 'constants/errorMessages.constants';
+import { getCallbackUrl } from './helpers/getCallbackUrl';
 
 async function loginWithoutNativeToken(provider: IProvider) {
-  await provider.login();
+  await provider.login({
+    callbackUrl: getCallbackUrl()
+  });
 
   const address = provider.getAddress?.();
 
@@ -67,10 +70,14 @@ async function loginWithNativeToken(
     noCache: true
   });
 
-  const loginResult = await provider.login({ token: loginToken });
+  const loginResult = await provider.login({
+    callbackUrl: getCallbackUrl(),
+    token: loginToken
+  });
 
   const address = provider.getAddress
-    ? await provider.getAddress()
+    ? // TODO check why on the second login the address is fetched asynchronously
+      await provider.getAddress()
     : loginResult.address;
   const signature = provider.getTokenLoginSignature
     ? provider.getTokenLoginSignature()
@@ -138,7 +145,7 @@ export const login = async ({
 
   if (loggedIn) {
     console.warn('Already logged in with:', getAddress());
-    return;
+    throw new Error(SECOND_LOGIN_ATTEMPT_ERROR);
   }
 
   const factory = new ProviderFactory();
