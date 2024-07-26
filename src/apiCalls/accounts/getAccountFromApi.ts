@@ -7,7 +7,9 @@ export const accountFetcher = (address: string | null) => {
   const apiAddress = getCleanApiAddress();
   const url = `${apiAddress}/${ACCOUNTS_ENDPOINT}/${address}?withGuardianInfo=true`;
   // we need to get it with an axios instance because of cross-window user interaction issues
-  return axiosInstance.get(url);
+  return axiosInstance.get(url, {
+    baseURL: apiAddress
+  });
 };
 
 export const getAccountFromApi = async (address?: string) => {

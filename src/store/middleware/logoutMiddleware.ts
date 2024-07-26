@@ -23,8 +23,8 @@ export function setLoginExpiresAt(expiresAt: number) {
   });
 }
 
-export const logoutMiddleware = (newStore: StoreType) => {
-  const isLoggedIn = isLoggedInSelector(newStore);
+export const logoutMiddleware = (state: StoreType) => {
+  const isLoggedIn = isLoggedInSelector(state);
   const loginTimestamp = storage.local.getItem(localStorageKeys.loginExpiresAt);
 
   if (!isLoggedIn) {
@@ -41,6 +41,6 @@ export const logoutMiddleware = (newStore: StoreType) => {
 
   if (isExpired) {
     // logout
-    resetStore(newStore);
+    resetStore(state);
   }
 };
