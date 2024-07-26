@@ -18,6 +18,7 @@ import {
   ProviderTypeEnum
 } from '../../providers/types/providerFactory.types';
 
+// Remove when the generic login is validated and is working as expected
 export const webWalletLogin = async ({
   token: tokenToSign,
   nativeAuth,

@@ -4,7 +4,7 @@ import type { IDAppProviderBase } from '@multiversx/sdk-dapp-utils';
 export interface IProvider extends IDAppProviderBase {
   init: () => Promise<boolean>;
   // TODO change return type to { address: string, signature: string } and also change the return type in IDAppProviderBase.
-  login: (options?: { token?: string }) => Promise<{
+  login: (options?: { callbackUrl?: string; token?: string }) => Promise<{
     address: string;
     signature: string;
     multisig?: string;
