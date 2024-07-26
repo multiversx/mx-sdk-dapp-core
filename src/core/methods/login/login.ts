@@ -76,7 +76,7 @@ async function loginWithNativeToken(
   });
 
   const address = provider.getAddress
-    ? // TODO check why on the second login the address is fetched asynchronously
+    ? // TODO check why on the second login the address is fetched asynchronously (looks like the crosswindow provider has getAddress as an async function)
       await provider.getAddress()
     : loginResult.address;
   const signature = provider.getTokenLoginSignature
