@@ -2,9 +2,10 @@ import { SignableMessage, Address } from '@multiversx/sdk-core';
 import { getAccountProvider } from 'core/providers';
 import { getProviderType } from 'core/providers/helpers/utils';
 import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
-import { LoginMethodsEnum, Nullable } from 'types';
 import { addOriginToLocationPath } from 'utils/window/addOriginToLocationPath';
 import { getAddress } from '../account/getAddress';
+import { Nullable } from 'types/misc.types';
+import { ProviderTypeEnum } from 'core/providers/types/providerFactory.types';
 
 export interface SignMessageType {
   message: string;
@@ -31,7 +32,7 @@ export const signMessage = async ({
 
   if (
     options?.hasConsentPopup &&
-    providerType === LoginMethodsEnum.crossWindow
+    providerType === ProviderTypeEnum.crossWindow
   ) {
     (provider as unknown as CrossWindowProvider).setShouldShowConsentPopup(
       true
