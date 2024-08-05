@@ -1,12 +1,12 @@
 import { Address, SignableMessage } from '@multiversx/sdk-core';
 import { nativeAuth } from 'services/nativeAuth';
-import { getNativeAuthConfig } from 'services/nativeAuth/methods';
+import { buildNativeAuthConfig } from 'services/nativeAuth/methods';
 import { networkSelector, tokenLoginSelector } from 'store/selectors';
 import { getState } from 'store/store';
 import { OnProviderLoginType } from 'types/login.types';
 import { getAccount } from '../../account/getAccount';
 import { setTokenLogin } from 'store/actions/loginInfo/loginInfoActions';
-import { NativeAuthConfigType } from 'types/nativeAuth.types';
+import { NativeAuthConfigType } from 'services/nativeAuth/nativeAuth.types';
 
 const getApiAddress = (
   apiAddress: string,
@@ -29,7 +29,7 @@ export const getLoginService = (config?: OnProviderLoginType['nativeAuth']) => {
 
   const apiAddress = getApiAddress(network.apiAddress, config);
 
-  const configuration = getNativeAuthConfig({
+  const configuration = buildNativeAuthConfig({
     ...(config === true ? {} : config),
     ...(apiAddress ? { apiAddress } : {})
   });

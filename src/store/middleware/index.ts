@@ -1,1 +1,1 @@
-export * from './applyMiddleware';
+export * from './applyMiddlewares';

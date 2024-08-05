@@ -1,4 +1,3 @@
-import { LoginMethodsEnum } from 'types/enums.types';
 import { TokenLoginType } from 'types/login.types';
 import {
   LedgerLoginType,
@@ -6,15 +5,27 @@ import {
   WalletConnectLoginType
 } from 'store/slices/loginInfo/loginInfo.types';
 import { getStore } from 'store/store';
+import { ProviderTypeEnum } from 'core/providers/types/providerFactory.types';
 
-export const setLoginMethod = (loginMethod: LoginMethodsEnum) =>
+export const setProviderType = (providerType: ProviderTypeEnum) =>
   getStore().setState(({ loginInfo: state }) => {
-    state.loginMethod = loginMethod;
+    state.providerType = providerType;
   });
 
 export const setTokenLogin = (tokenLogin: TokenLoginType) =>
   getStore().setState(({ loginInfo: state }) => {
     state.tokenLogin = tokenLogin;
+  });
+
+export const setLoginToken = (loginToken: string) =>
+  getStore().setState(({ loginInfo: state }) => {
+    if (state.tokenLogin != null) {
+      state.tokenLogin.loginToken = loginToken;
+      return;
+    }
+    state.tokenLogin = {
+      loginToken
+    };
   });
 
 export const setTokenLoginSignature = (signature: string) =>

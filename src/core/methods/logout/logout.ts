@@ -1,12 +1,11 @@
 import { storage } from 'storage';
 import { localStorageKeys } from 'storage/local';
-import { LoginMethodsEnum } from 'types';
 import { getAddress } from '../account/getAddress';
 import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
 import { logoutAction } from 'store/actions/sharedActions/sharedActions';
-import { getWebviewToken } from '../account/getWebviewToken';
 import { getAccountProvider } from 'core/providers/accountProvider';
 import { getProviderType } from 'core/providers/helpers/utils';
+import { ProviderTypeEnum } from 'core/providers/types/providerFactory.types';
 
 const broadcastLogoutAcrossTabs = (address: string) => {
   const storedData = storage.local?.getItem(localStorageKeys.logoutEvent);
@@ -35,7 +34,6 @@ export type LogoutPropsType = {
 };
 
 export async function logout(
-  shouldAttemptReLogin = Boolean(getWebviewToken()),
   options = {
     shouldBroadcastLogoutAcrossTabs: true,
     hasConsentPopup: false
@@ -44,10 +42,6 @@ export async function logout(
   let address = getAddress();
   const provider = getAccountProvider();
   const providerType = getProviderType(provider);
-
-  if (shouldAttemptReLogin && provider?.relogin != null) {
-    return provider.relogin();
-  }
 
   if (options.shouldBroadcastLogoutAcrossTabs) {
     broadcastLogoutAcrossTabs(address);
@@ -58,7 +52,7 @@ export async function logout(
 
     if (
       options.hasConsentPopup &&
-      providerType === LoginMethodsEnum.crossWindow
+      providerType === ProviderTypeEnum.crossWindow
     ) {
       (provider as unknown as CrossWindowProvider).setShouldShowConsentPopup(
         true

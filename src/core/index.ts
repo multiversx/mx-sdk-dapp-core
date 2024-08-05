@@ -1,2 +1,2 @@
-export * from './ProviderFactory';
+export * from './providers/ProviderFactory';
 export * from './Logger';

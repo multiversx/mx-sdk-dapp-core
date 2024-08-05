@@ -1,18 +1,10 @@
-import { getWindowLocation } from 'utils/window/getWindowLocation';
-import { NativeAuthConfigType } from '../../../types/nativeAuth.types';
+import { NativeAuthConfigType } from '../nativeAuth.types';
+import { getDefaultNativeAuthConfig } from './getDefaultNativeAuthConfig';
 
-const defaultNativeAuthConfig = {
-  origin: getWindowLocation().origin,
-  apiAddress: 'https://api.multiversx.com',
-  expirySeconds: 60 * 60 * 24, // one day
-  tokenExpirationToastWarningSeconds: 5 * 60 // five minutes
-};
+export const buildNativeAuthConfig = (config?: NativeAuthConfigType) => {
+  const defaultNativeAuthConfig = getDefaultNativeAuthConfig();
 
-export const getNativeAuthConfig = (config?: NativeAuthConfigType | true) => {
-  if (config === true) {
-    return defaultNativeAuthConfig;
-  }
-  const nativeAuthConfig = {
+  return {
     origin: config?.origin ?? defaultNativeAuthConfig.origin,
     blockHashShard: config?.blockHashShard,
     expirySeconds:
@@ -25,5 +17,4 @@ export const getNativeAuthConfig = (config?: NativeAuthConfigType | true) => {
     gatewayUrl: config?.gatewayUrl,
     extraRequestHeaders: config?.extraRequestHeaders ?? {}
   };
-  return nativeAuthConfig;
 };
