@@ -31,7 +31,6 @@
   },
   "dependencies": {
     "@multiversx/sdk-native-auth-client": "^1.0.8",
-    "@multiversx/sdk-web-wallet-cross-window-provider": "0.2.0",
     "@types/lodash": "^4.17.4",
     "isomorphic-fetch": "^3.0.0",
     "lodash": "^4.17.21",
@@ -40,6 +39,7 @@
   "peerDependencies": {
     "@multiversx/sdk-core": ">= 13.0.0",
     "@multiversx/sdk-dapp-utils": "^0.0.1",
+    "@multiversx/sdk-web-wallet-cross-window-provider": ">= 0.4.2",
     "axios": ">=1.6.5",
     "bignumber.js": "9.x"
   },
@@ -49,6 +49,7 @@
   "devDependencies": {
     "@multiversx/sdk-core": ">= 13.0.0",
     "@multiversx/sdk-dapp-utils": "^0.0.1",
+    "@multiversx/sdk-web-wallet-cross-window-provider": ">= 0.4.2",
     "@swc/core": "^1.4.17",
     "@swc/jest": "^0.2.36",
     "@types/node": "20.12.8",
