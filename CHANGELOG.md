@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [[v0.0.0-alpha.8]](https://github.com/multiversx/mx-sdk-dapp-core)] - 2024-08-27
 - [Added `@multiversx/sdk-web-wallet-cross-window-provider` as peer dep](https://github.com/multiversx/mx-sdk-dapp-core/pull/15)
 - [Removed chain id from network slice & added esbuild and absolute imports](https://github.com/multiversx/mx-sdk-dapp-core/pull/3)
 - [Reverted absolute imports](https://github.com/multiversx/mx-sdk-dapp-core/pull/2)
