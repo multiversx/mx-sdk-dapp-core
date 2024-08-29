@@ -3,7 +3,6 @@ import type { IDAppProviderBase } from '@multiversx/sdk-dapp-utils';
 // @ts-ignore
 export interface IProvider extends IDAppProviderBase {
   init: () => Promise<boolean>;
-  // TODO change return type to { address: string, signature: string } and also change the return type in IDAppProviderBase.
   login: (options?: { callbackUrl?: string; token?: string }) => Promise<{
     address: string;
     signature: string;
@@ -14,7 +13,7 @@ export interface IProvider extends IDAppProviderBase {
   logout: () => Promise<boolean>;
   setShouldShowConsentPopup?: (shouldShow: boolean) => void;
   getType: () => ProviderTypeEnum;
-  getAddress(): string | undefined;
+  getAddress(): Promise<string | undefined>;
   // TODO will be removed as soon as the new login method is implemented in the same way for all providers
   getTokenLoginSignature(): string | undefined;
   // getExtraInfoData(): { multisig?: string; impersonate?: string } | undefined;

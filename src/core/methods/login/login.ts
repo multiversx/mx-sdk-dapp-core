@@ -21,7 +21,7 @@ import { SECOND_LOGIN_ATTEMPT_ERROR } from 'constants/errorMessages.constants';
 import { getCallbackUrl } from './helpers/getCallbackUrl';
 
 async function loginWithoutNativeToken(provider: IProvider) {
-  await provider.login({
+  await provider.login?.({
     callbackUrl: getCallbackUrl()
   });
 
@@ -70,7 +70,7 @@ async function loginWithNativeToken(
     noCache: true
   });
 
-  const loginResult = await provider.login({
+  const loginResult = await provider.login?.({
     callbackUrl: getCallbackUrl(),
     token: loginToken
   });
@@ -78,10 +78,10 @@ async function loginWithNativeToken(
   const address = provider.getAddress
     ? // TODO check why on the second login the address is fetched asynchronously (looks like the crosswindow provider has getAddress as an async function)
       await provider.getAddress()
-    : loginResult.address;
+    : loginResult?.address;
   const signature = provider.getTokenLoginSignature
     ? provider.getTokenLoginSignature()
-    : loginResult.signature;
+    : loginResult?.signature;
 
   if (!address) {
     console.warn('Login cancelled.');
@@ -112,8 +112,8 @@ async function loginWithNativeToken(
   const impersonationDetails = await tryImpersonateAccount({
     loginToken,
     extraInfoData: {
-      multisig: loginResult.multisig,
-      impersonate: loginResult.impersonate
+      multisig: loginResult?.multisig,
+      impersonate: loginResult?.impersonate
     },
     address,
     provider
