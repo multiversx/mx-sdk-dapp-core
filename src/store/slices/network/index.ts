@@ -1,2 +1,1 @@
-export * from './actions';
-export * from './network';
+export { networkSlice } from './networkSlice';
