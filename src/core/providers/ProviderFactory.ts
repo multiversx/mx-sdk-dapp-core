@@ -6,6 +6,7 @@ import {
   IProviderFactory,
   ProviderTypeEnum
 } from './types/providerFactory.types';
+import { isBrowserWithPopupConfirmation } from '../../constants';
 
 export class ProviderFactory {
   public async create({
@@ -36,6 +37,10 @@ export class ProviderFactory {
           return provider.account.signature;
         };
 
+        createdProvider.getType = () => {
+          return ProviderTypeEnum.extension;
+        };
+
         break;
       }
 
@@ -46,6 +51,10 @@ export class ProviderFactory {
           walletAddress
         });
         createdProvider = provider as unknown as IProvider;
+
+        createdProvider.getType = () => {
+          return ProviderTypeEnum.crossWindow;
+        };
 
         break;
       }
@@ -69,6 +78,11 @@ export class ProviderFactory {
     const provider = CrossWindowProvider.getInstance();
     await provider.init();
     provider.setWalletUrl(String(walletAddress));
+
+    if (isBrowserWithPopupConfirmation) {
+      provider.setShouldShowConsentPopup(true);
+    }
+
     return provider;
   }
 

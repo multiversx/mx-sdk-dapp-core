@@ -1,1 +1,1 @@
-export * from './networkSlice';
+export { networkSlice } from './networkSlice';

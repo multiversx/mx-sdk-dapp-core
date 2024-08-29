@@ -7,8 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-
-- [Added sdk-web-wallet-cross-window-provider as peer dependency](https://github.com/multiversx/mx-sdk-dapp-core/pull/12)
+- [CrossWindow login](https://github.com/multiversx/mx-sdk-dapp-core/pull/13)
+- [Added sdk-web-wallet-cross-window-provider as peer dependency](https://github.com/multiversx/mx-sdk-dapp-core/pull/14)
 - [Generic login + ExtensionProvider login](https://github.com/multiversx/mx-sdk-dapp-core/pull/12)
 - [Make middlewares registration more scalable](https://github.com/multiversx/mx-sdk-dapp-core/pull/11)
 - [Fix Node Polyfills](https://github.com/multiversx/mx-sdk-dapp-core/pull/10)

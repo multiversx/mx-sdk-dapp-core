@@ -1,6 +1,9 @@
 import { SignableMessage, Transaction } from '@multiversx/sdk-core';
 import { EngineTypes } from 'utils/walletconnect/__sdkWalletconnectProvider';
-import { IProvider } from 'core/providers/types/providerFactory.types';
+import {
+  IProvider,
+  ProviderTypeEnum
+} from 'core/providers/types/providerFactory.types';
 
 export const DAPP_INIT_ROUTE = '/dapp/init';
 
@@ -100,6 +103,10 @@ export class EmptyProvider implements IProvider {
 
   getTokenLoginSignature(): string | undefined {
     throw new Error(notInitializedError(`getSignature`));
+  }
+
+  getType(): ProviderTypeEnum {
+    return ProviderTypeEnum.none;
   }
 }
 

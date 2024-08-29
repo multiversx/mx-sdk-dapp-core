@@ -1,5 +1,5 @@
 import { nativeAuth } from 'services/nativeAuth';
-import { setAddress } from 'store/actions/account';
+import { setAccount, setAddress } from 'store/actions/account';
 import {
   setProviderType,
   setTokenLogin
@@ -13,11 +13,17 @@ import { ProviderFactory } from 'core/providers/ProviderFactory';
 import { nativeAuthConfigSelector } from 'store/selectors';
 import { getState } from 'store/store';
 import { NativeAuthConfigType } from 'services/nativeAuth/nativeAuth.types';
-import { getIsLoggedIn } from 'utils/account/getIsLoggedIn';
-import { getAddress } from 'utils/account/getAddress';
+import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
+import { getAddress } from 'core/methods/account/getAddress';
+import { loginAction, logoutAction } from 'store/actions';
+import { impersonateAccount } from './helpers/impersonateAccount';
+import { SECOND_LOGIN_ATTEMPT_ERROR } from 'constants/errorMessages.constants';
+import { getCallbackUrl } from './helpers/getCallbackUrl';
 
 async function loginWithoutNativeToken(provider: IProvider) {
-  await provider.login();
+  await provider.login?.({
+    callbackUrl: getCallbackUrl()
+  });
 
   const address = provider.getAddress?.();
 
@@ -32,6 +38,28 @@ async function loginWithoutNativeToken(provider: IProvider) {
   };
 }
 
+async function tryImpersonateAccount({
+  loginToken,
+  extraInfoData,
+  address,
+  provider
+}: {
+  loginToken: string;
+  extraInfoData: {
+    multisig?: string;
+    impersonate?: string;
+  };
+  address: string;
+  provider: IProvider;
+}) {
+  return await impersonateAccount({
+    loginToken,
+    extraInfoData,
+    address,
+    provider
+  });
+}
+
 async function loginWithNativeToken(
   provider: IProvider,
   nativeAuthConfig: NativeAuthConfigType
@@ -42,17 +70,27 @@ async function loginWithNativeToken(
     noCache: true
   });
 
-  await provider.login({ token: loginToken });
+  const loginResult = await provider.login?.({
+    callbackUrl: getCallbackUrl(),
+    token: loginToken
+  });
 
-  const address = provider.getAddress?.();
-  const signature = provider.getTokenLoginSignature?.();
+  const address = provider.getAddress
+    ? // TODO check why on the second login the address is fetched asynchronously (looks like the crosswindow provider has getAddress as an async function)
+      await provider.getAddress()
+    : loginResult?.address;
+  const signature = provider.getTokenLoginSignature
+    ? provider.getTokenLoginSignature()
+    : loginResult?.signature;
 
   if (!address) {
-    throw new Error('Address not found');
+    console.warn('Login cancelled.');
+    return null;
   }
 
   if (!signature) {
-    throw new Error('Signature not found');
+    console.error('Failed to sign login token');
+    return null;
   }
 
   const nativeAuthToken = nativeAuthClient.getToken({
@@ -61,19 +99,39 @@ async function loginWithNativeToken(
     signature
   });
 
-  setAddress(address);
   setTokenLogin({
     loginToken,
     signature,
-    nativeAuthToken,
-    nativeAuthConfig
+    nativeAuthToken
+  });
+  loginAction({
+    address,
+    providerType: provider.getType()
   });
 
-  return {
+  const impersonationDetails = await tryImpersonateAccount({
+    loginToken,
+    extraInfoData: {
+      multisig: loginResult?.multisig,
+      impersonate: loginResult?.impersonate
+    },
     address,
+    provider
+  });
+
+  if (impersonationDetails.account) {
+    setAccount(impersonationDetails.account);
+  } else {
+    logoutAction();
+    console.error('Failed to fetch account');
+    throw new Error('Failed to fetch account');
+  }
+
+  return {
+    address: impersonationDetails?.address || address,
     signature,
     nativeAuthToken,
-    loginToken,
+    loginToken: impersonationDetails?.modifiedLoginToken || loginToken,
     nativeAuthConfig
   };
 }
@@ -87,7 +145,7 @@ export const login = async ({
 
   if (loggedIn) {
     console.warn('Already logged in with:', getAddress());
-    return;
+    throw new Error(SECOND_LOGIN_ATTEMPT_ERROR);
   }
 
   const factory = new ProviderFactory();

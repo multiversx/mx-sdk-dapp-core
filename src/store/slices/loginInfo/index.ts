@@ -1,1 +1,1 @@
-export * from './loginInfoSlice';
+export { loginInfoSlice } from './loginInfoSlice';

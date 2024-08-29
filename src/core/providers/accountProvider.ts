@@ -1,8 +1,7 @@
 import { emptyProvider } from './helpers/emptyProvider';
-import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
 import { IProvider } from 'core/providers/types/providerFactory.types';
 
-export type ProvidersType = IProvider | CrossWindowProvider;
+export type ProvidersType = IProvider;
 
 let accountProvider: ProvidersType = emptyProvider;
 

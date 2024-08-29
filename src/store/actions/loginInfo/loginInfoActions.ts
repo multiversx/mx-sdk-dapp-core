@@ -6,7 +6,6 @@ import {
 } from 'store/slices/loginInfo/loginInfo.types';
 import { getStore } from 'store/store';
 import { ProviderTypeEnum } from 'core/providers/types/providerFactory.types';
-import { NativeAuthConfigType } from 'services/nativeAuth/nativeAuth.types';
 
 export const setProviderType = (providerType: ProviderTypeEnum) =>
   getStore().setState(({ loginInfo: state }) => {
@@ -18,26 +17,22 @@ export const setTokenLogin = (tokenLogin: TokenLoginType) =>
     state.tokenLogin = tokenLogin;
   });
 
+export const setLoginToken = (loginToken: string) =>
+  getStore().setState(({ loginInfo: state }) => {
+    if (state.tokenLogin != null) {
+      state.tokenLogin.loginToken = loginToken;
+      return;
+    }
+    state.tokenLogin = {
+      loginToken
+    };
+  });
+
 export const setTokenLoginSignature = (signature: string) =>
   getStore().setState(({ loginInfo: state }) => {
     if (state?.tokenLogin != null) {
       state.tokenLogin.signature = signature;
     }
-  });
-
-export const setTokenLoginNativeAuthTokenConfig = (
-  nativeAuthConfig: NativeAuthConfigType
-) =>
-  getStore().setState(({ loginInfo: state }) => {
-    if (state?.tokenLogin != null) {
-      state.tokenLogin.nativeAuthConfig = nativeAuthConfig;
-      return;
-    }
-
-    state.tokenLogin = {
-      nativeAuthConfig,
-      loginToken: ''
-    };
   });
 
 export const setWalletLogin = (walletLogin: LoginInfoType | null) =>
