@@ -30,7 +30,7 @@ export class ProviderFactory {
         createdProvider = provider as unknown as IProvider;
 
         createdProvider.getAddress = () => {
-          return provider.account.address;
+          return Promise.resolve(provider.account.address);
         };
 
         createdProvider.getTokenLoginSignature = () => {

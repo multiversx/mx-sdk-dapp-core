@@ -25,7 +25,7 @@ async function loginWithoutNativeToken(provider: IProvider) {
     callbackUrl: getCallbackUrl()
   });
 
-  const address = provider.getAddress?.();
+  const address = await provider.getAddress?.();
 
   if (!address) {
     throw new Error('Address not found');

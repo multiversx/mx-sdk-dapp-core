@@ -97,7 +97,7 @@ export class EmptyProvider implements IProvider {
     );
   }
 
-  getAddress(): string | undefined {
+  async getAddress(): Promise<string | undefined> {
     throw new Error(notInitializedError('getAddress'));
   }
 
