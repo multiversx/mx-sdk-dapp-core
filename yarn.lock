@@ -1051,7 +1051,7 @@
     "@walletconnect/utils" "2.12.2"
     bech32 "1.1.4"
 
-"@multiversx/sdk-wallet@^4.5.1":
+"@multiversx/sdk-wallet@4.5.1":
   version "4.5.1"
   resolved "https://registry.yarnpkg.com/@multiversx/sdk-wallet/-/sdk-wallet-4.5.1.tgz#e4ffd218645c870c466bc0a7ef9bf68a4737ceb5"
   integrity sha512-rvaMUV6OxNj9gchOn7wSCPZcWc6hjs1nQuY6QwnaEcBfPsHtFemNNt+t3uxPZOrDhAwXqUgyy9WdltvOs8somg==
@@ -7084,6 +7084,7 @@ word-wrap@^1.2.5:
   integrity sha512-BN22B5eaMMI9UMtjrGd5g5eCYPpCPDUy0FJXbYsaT5zYxjFOckS53SQDE3pWkVoWpHXVb3BrYcEN4Twa55B5cA==
 
 "wrap-ansi-cjs@npm:wrap-ansi@^7.0.0", wrap-ansi@^7.0.0:
+  name wrap-ansi-cjs
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/wrap-ansi/-/wrap-ansi-7.0.0.tgz#67e145cff510a6a6984bdf1152911d69d2eb9e43"
   integrity sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==
