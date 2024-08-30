@@ -1,7 +1,7 @@
 import { getAccount } from 'utils/account/getAccount';
 import { getModifiedLoginToken } from './getModifiedLoginToken';
 
-interface GetImpersonatedAccountDetailsType {
+interface GetAccountFromTokenType {
   address: string;
   originalLoginToken?: string;
   extraInfoData: {
@@ -10,11 +10,11 @@ interface GetImpersonatedAccountDetailsType {
   };
 }
 
-export const getImpersonatedAccountDetails = async ({
+export const getAccountFromToken = async ({
   originalLoginToken,
   extraInfoData,
   address
-}: GetImpersonatedAccountDetailsType) => {
+}: GetAccountFromTokenType) => {
   const modifiedLoginToken = await getModifiedLoginToken({
     loginToken: originalLoginToken,
     extraInfoData

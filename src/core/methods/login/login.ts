@@ -16,7 +16,7 @@ import { NativeAuthConfigType } from 'services/nativeAuth/nativeAuth.types';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import { getAddress } from 'core/methods/account/getAddress';
 import { loginAction, logoutAction } from 'store/actions';
-import { impersonateAccount } from './helpers/impersonateAccount';
+import { extractAccountFromToken } from './helpers/extractAccountFromToken';
 import { SECOND_LOGIN_ATTEMPT_ERROR } from 'constants/errorMessages.constants';
 import { getCallbackUrl } from './helpers/getCallbackUrl';
 
@@ -36,28 +36,6 @@ async function loginWithoutNativeToken(provider: IProvider) {
   return {
     address
   };
-}
-
-async function tryImpersonateAccount({
-  loginToken,
-  extraInfoData,
-  address,
-  provider
-}: {
-  loginToken: string;
-  extraInfoData: {
-    multisig?: string;
-    impersonate?: string;
-  };
-  address: string;
-  provider: IProvider;
-}) {
-  return await impersonateAccount({
-    loginToken,
-    extraInfoData,
-    address,
-    provider
-  });
 }
 
 async function loginWithNativeToken(
@@ -104,12 +82,13 @@ async function loginWithNativeToken(
     signature,
     nativeAuthToken
   });
+
   loginAction({
     address,
     providerType: provider.getType()
   });
 
-  const impersonationDetails = await tryImpersonateAccount({
+  const accountDetails = await extractAccountFromToken({
     loginToken,
     extraInfoData: {
       multisig: loginResult?.multisig,
@@ -119,8 +98,8 @@ async function loginWithNativeToken(
     provider
   });
 
-  if (impersonationDetails.account) {
-    setAccount(impersonationDetails.account);
+  if (accountDetails.account) {
+    setAccount(accountDetails.account);
   } else {
     logoutAction();
     console.error('Failed to fetch account');
@@ -128,10 +107,10 @@ async function loginWithNativeToken(
   }
 
   return {
-    address: impersonationDetails?.address || address,
+    address: accountDetails?.address || address,
     signature,
     nativeAuthToken,
-    loginToken: impersonationDetails?.modifiedLoginToken || loginToken,
+    loginToken: accountDetails?.modifiedLoginToken || loginToken,
     nativeAuthConfig
   };
 }
