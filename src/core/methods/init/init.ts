@@ -7,16 +7,35 @@ import { EnvironmentsEnum } from 'types/enums.types';
 import { NativeAuthConfigType } from 'services/nativeAuth/nativeAuth.types';
 import { getDefaultNativeAuthConfig } from 'services/nativeAuth/methods/getDefaultNativeAuthConfig';
 
-type InitAppType = {
+export type InitAppType = {
+  /**
+   * The storage configuration for the dApp.
+   */
   storage?: {
+    /**
+     * The callback to get the storage (custom storage).
+     */
     getStorageCallback: StorageCallback;
   };
   dAppConfig?: {
+    /**
+     * The native auth configuration for the dApp.
+     * If set to `true`, will fallback on default configuration.
+     * If set to `false`, will disable native auth.
+     * If set to `NativeAuthConfigType`, will set the native auth configuration.
+     */
     nativeAuth?: boolean | NativeAuthConfigType;
+    /**
+     * Can override the network configuration, e.g. for sovereign shards.
+     */
     network?: CustomNetworkType;
+    /**
+     * If passed in, will automatically initialize the network with the given environment.
+     */
     environment?: EnvironmentsEnum;
   };
 };
+
 const defaultInitAppProps = {
   storage: {
     getStorageCallback: defaultStorageCallback
@@ -26,23 +45,15 @@ const defaultInitAppProps = {
 /**
  * Initializes the dApp with the given configuration.
  * @param props - The configuration for the dApp initialization.
- * @param props.storage - The storage configuration for the dApp.
- * @param props.storage.getStorageCallback - The callback to get the storage (custom storage).
- * @param props.nativeAuth - The native auth configuration for the dApp.
- * @param props.nativeAuth - If set to `true`, will fallback on default configuration.
- * @param props.nativeAuth - If set to `false`, will disable native auth.
- * @param props.nativeAuth - If set to `NativeAuthConfigType`, will set the native auth configuration.
- *
- * !!! Avoid changing the configuration during the dApp lifecycle.
  *
  * @example
  * ```ts
- * initializeDApp({
- *  nativeAuth: true
- *  });
+   initApp({
+      nativeAuth: true
+   });
  *  ```
  * */
-export const initializeDApp = async (props?: InitAppType) => {
+export const initApp = async (props?: InitAppType) => {
   const { storage, dAppConfig } = { ...defaultInitAppProps, ...props };
   initStore(storage.getStorageCallback);
 
@@ -58,7 +69,7 @@ export const initializeDApp = async (props?: InitAppType) => {
   if (dAppConfig?.network) {
     await initializeNetwork({
       customNetworkConfig: dAppConfig.network,
-      environment: dAppConfig.environment ?? EnvironmentsEnum.devnet
+      environment: dAppConfig.environment
     });
   }
 };
