@@ -3,10 +3,10 @@ import { setLoginToken } from 'store/actions/loginInfo/loginInfoActions';
 import { IProvider } from 'core/providers/types/providerFactory.types';
 import { loginAction } from 'store/actions';
 import { AccountType } from 'types/account.types';
-import { getImpersonatedAccountDetails } from './getImpersonatedAccountDetails';
+import { getAccountFromToken } from './getAccountFromToken';
 import { getLatestNonce } from 'core/methods/account/getLatestNonce';
 
-export async function impersonateAccount({
+export async function extractAccountFromToken({
   loginToken,
   extraInfoData,
   address,
@@ -20,33 +20,33 @@ export async function impersonateAccount({
   address: string;
   provider: IProvider;
 }) {
-  const impersonationDetails = await getImpersonatedAccountDetails({
+  const accountDetails = await getAccountFromToken({
     originalLoginToken: loginToken,
     extraInfoData,
     address
   });
 
-  if (impersonationDetails.modifiedLoginToken) {
-    setLoginToken(impersonationDetails.modifiedLoginToken);
+  if (accountDetails.modifiedLoginToken) {
+    setLoginToken(accountDetails.modifiedLoginToken);
   }
 
-  if (impersonationDetails.account) {
+  if (accountDetails.account) {
     loginAction({
-      address: impersonationDetails.address,
+      address: accountDetails.address,
       providerType: provider.getType()
     });
 
     const newAccount: AccountType = {
-      ...impersonationDetails.account,
-      nonce: getLatestNonce(impersonationDetails.account)
+      ...accountDetails.account,
+      nonce: getLatestNonce(accountDetails.account)
     };
 
     setAccount(newAccount);
     return {
-      ...impersonationDetails,
+      ...accountDetails,
       account: newAccount
     };
   }
 
-  return impersonationDetails;
+  return accountDetails;
 }
