@@ -13,8 +13,9 @@ export type InitializeNetworkPropsType = {
 export const initializeNetwork = async ({
   customNetworkConfig = {},
   environment
-}: InitializeNetworkPropsType): Promise<NetworkType> => {
+}: InitializeNetworkPropsType) => {
   const fetchConfigFromServer = !customNetworkConfig?.skipFetchFromServer;
+
   const customNetworkApiAddress = customNetworkConfig?.apiAddress;
 
   const isFoundEnv =
@@ -43,9 +44,9 @@ export const initializeNetwork = async ({
   const fallbackApiAddress = fallbackConfig?.apiAddress;
 
   if (fetchConfigFromServer) {
-    const serverConfig = await getServerConfiguration(
-      customNetworkApiAddress || fallbackApiAddress
-    );
+    const serverConfigAddress = customNetworkApiAddress || fallbackApiAddress;
+
+    const serverConfig = await getServerConfiguration(serverConfigAddress);
 
     if (serverConfig != null) {
       const apiConfig: NetworkType = {
@@ -55,10 +56,8 @@ export const initializeNetwork = async ({
       };
 
       initializeNetworkConfig(apiConfig);
-      return apiConfig;
     }
   }
 
   initializeNetworkConfig(localConfig);
-  return localConfig;
 };
