@@ -6,6 +6,8 @@ import { CustomNetworkType } from 'types/network.types';
 import { EnvironmentsEnum } from 'types/enums.types';
 import { NativeAuthConfigType } from 'services/nativeAuth/nativeAuth.types';
 import { getDefaultNativeAuthConfig } from 'services/nativeAuth/methods/getDefaultNativeAuthConfig';
+import { getIsLoggedIn } from '../account/getIsLoggedIn';
+import { restoreProvider } from 'core/providers/helpers/restoreProvider';
 
 export type InitAppType = {
   /**
@@ -71,5 +73,11 @@ export const initApp = async (props?: InitAppType) => {
       customNetworkConfig: dAppConfig.network,
       environment: dAppConfig.environment
     });
+  }
+
+  const isLoggedIn = getIsLoggedIn();
+
+  if (isLoggedIn) {
+    await restoreProvider();
   }
 };
