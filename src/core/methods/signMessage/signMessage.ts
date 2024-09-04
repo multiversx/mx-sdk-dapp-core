@@ -6,7 +6,6 @@ import { Nullable } from 'types';
 import { getAddress } from '../account/getAddress';
 import { addOriginToLocationPath } from 'utils/window/addOriginToLocationPath';
 import { ProviderTypeEnum } from 'core/providers/types/providerFactory.types';
-import { log } from 'console';
 
 export interface SignMessageType {
   message: string;
@@ -24,12 +23,6 @@ export const signMessage = async ({
   const address = getAddress();
   const provider = getAccountProvider();
   const providerType = getProviderType(provider);
-
-  console.log('signMessage', providerType, provider);
-
-  const providerAddress = await provider?.getAddress?.();
-
-  console.log('providerAddress', providerAddress);
 
   const callbackUrl = addOriginToLocationPath(callbackRoute);
   const signableMessage = new SignableMessage({

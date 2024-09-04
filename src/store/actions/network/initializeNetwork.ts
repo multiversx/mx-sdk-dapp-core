@@ -13,7 +13,7 @@ export type InitializeNetworkPropsType = {
 export const initializeNetwork = async ({
   customNetworkConfig = {},
   environment
-}: InitializeNetworkPropsType): Promise<NetworkType> => {
+}: InitializeNetworkPropsType) => {
   const fetchConfigFromServer = !customNetworkConfig?.skipFetchFromServer;
   const customNetworkApiAddress = customNetworkConfig?.apiAddress;
 
@@ -55,10 +55,8 @@ export const initializeNetwork = async ({
       };
 
       initializeNetworkConfig(apiConfig);
-      return apiConfig;
     }
   }
 
   initializeNetworkConfig(localConfig);
-  return localConfig;
 };

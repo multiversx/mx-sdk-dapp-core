@@ -82,6 +82,7 @@ async function loginWithNativeToken(
     signature,
     nativeAuthToken
   });
+
   loginAction({
     address,
     providerType: provider.getType()

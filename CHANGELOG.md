@@ -9,9 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 - [Added restore provider after page reload](https://github.com/multiversx/mx-sdk-dapp-core/pull/19)
+- [Added signMessage](https://github.com/multiversx/mx-sdk-dapp-core/pull/18)
 
 ## [[0.0.0-alpha.9]](https://github.com/multiversx/mx-sdk-dapp-core)] - 2024-08-29
 - [CrossWindow login](https://github.com/multiversx/mx-sdk-dapp-core/pull/13)
+
 ## [[v0.0.0-alpha.8]](https://github.com/multiversx/mx-sdk-dapp-core/pull/16) - 2024-08-27
 - [Added sdk-web-wallet-cross-window-provider as peer dependency](https://github.com/multiversx/mx-sdk-dapp-core/pull/14)
 - [Generic login + ExtensionProvider login](https://github.com/multiversx/mx-sdk-dapp-core/pull/12)
