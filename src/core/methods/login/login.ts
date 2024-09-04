@@ -22,9 +22,11 @@ import { getCallbackUrl } from './helpers/getCallbackUrl';
 
 async function loginWithoutNativeToken(provider: IProvider) {
   await provider.login?.({
+    // TODO remove callbackUrl when the provider will be standardized
     callbackUrl: getCallbackUrl()
   });
 
+  // TODO update this when the provider will be standardized
   const address = await provider.getAddress?.();
 
   if (!address) {
@@ -49,6 +51,7 @@ async function loginWithNativeToken(
   });
 
   const loginResult = await provider.login?.({
+    // TODO remove callbackUrl when the provider will be standardized
     callbackUrl: getCallbackUrl(),
     token: loginToken
   });
