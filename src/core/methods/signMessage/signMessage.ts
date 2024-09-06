@@ -15,6 +15,7 @@ export interface SignMessageType {
   };
 }
 
+// TODO: upgrade to Message
 export const signMessage = async ({
   message,
   callbackRoute,

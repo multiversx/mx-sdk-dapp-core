@@ -1,42 +1,12 @@
 import { initStore } from 'store/store';
-import { defaultStorageCallback, StorageCallback } from 'store/storage';
+import { defaultStorageCallback } from 'store/storage';
 import { setNativeAuthConfig } from 'store/actions/config/configActions';
 import { initializeNetwork } from 'store/actions';
-import { CustomNetworkType } from 'types/network.types';
-import { EnvironmentsEnum } from 'types/enums.types';
 import { NativeAuthConfigType } from 'services/nativeAuth/nativeAuth.types';
 import { getDefaultNativeAuthConfig } from 'services/nativeAuth/methods/getDefaultNativeAuthConfig';
+import { InitAppType } from './initApp.types';
 import { getIsLoggedIn } from '../account/getIsLoggedIn';
 import { restoreProvider } from 'core/providers/helpers/restoreProvider';
-
-export type InitAppType = {
-  /**
-   * The storage configuration for the dApp.
-   */
-  storage?: {
-    /**
-     * The callback to get the storage (custom storage).
-     */
-    getStorageCallback: StorageCallback;
-  };
-  dAppConfig?: {
-    /**
-     * The native auth configuration for the dApp.
-     * If set to `true`, will fallback on default configuration.
-     * If set to `false`, will disable native auth.
-     * If set to `NativeAuthConfigType`, will set the native auth configuration.
-     */
-    nativeAuth?: boolean | NativeAuthConfigType;
-    /**
-     * Can override the network configuration, e.g. for sovereign shards.
-     */
-    network?: CustomNetworkType;
-    /**
-     * If passed in, will automatically initialize the network with the given environment.
-     */
-    environment?: EnvironmentsEnum;
-  };
-};
 
 const defaultInitAppProps = {
   storage: {
@@ -51,12 +21,15 @@ const defaultInitAppProps = {
  * @example
  * ```ts
    initApp({
-      nativeAuth: true
+      nativeAuth: true,
+      environment: EnvironmentsEnum.devnet
    });
  *  ```
  * */
-export const initApp = async (props?: InitAppType) => {
-  const { storage, dAppConfig } = { ...defaultInitAppProps, ...props };
+export const initApp = async ({
+  storage = defaultInitAppProps.storage,
+  dAppConfig
+}: InitAppType) => {
   initStore(storage.getStorageCallback);
 
   if (dAppConfig?.nativeAuth) {
@@ -68,12 +41,10 @@ export const initApp = async (props?: InitAppType) => {
     setNativeAuthConfig(nativeAuthConfig);
   }
 
-  if (dAppConfig?.network) {
-    await initializeNetwork({
-      customNetworkConfig: dAppConfig.network,
-      environment: dAppConfig.environment
-    });
-  }
+  await initializeNetwork({
+    customNetworkConfig: dAppConfig.network,
+    environment: dAppConfig.environment
+  });
 
   const isLoggedIn = getIsLoggedIn();
 
