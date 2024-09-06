@@ -83,11 +83,6 @@ async function loginWithNativeToken(
     nativeAuthToken
   });
 
-  loginAction({
-    address,
-    providerType: provider.getType()
-  });
-
   const accountDetails = await extractAccountFromToken({
     loginToken,
     extraInfoData: {
@@ -98,9 +93,7 @@ async function loginWithNativeToken(
     provider
   });
 
-  if (accountDetails.account) {
-    setAccount(accountDetails.account);
-  } else {
+  if (!accountDetails.account) {
     logoutAction();
     console.error('Failed to fetch account');
     throw new Error('Failed to fetch account');
