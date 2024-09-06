@@ -31,6 +31,7 @@ export async function extractAccountFromToken({
   }
 
   if (accountDetails.account) {
+    // TODO remove this as is already done before this function is called
     loginAction({
       address: accountDetails.address,
       providerType: provider.getType()
