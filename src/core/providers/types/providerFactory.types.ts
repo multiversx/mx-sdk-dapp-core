@@ -20,9 +20,11 @@ export interface IProvider extends IDAppProviderBase {
 }
 
 export interface IProviderConfig {
-  // TODO check if we have to pass the network object as argument here or it should be read from the state
   network: {
     walletAddress: string;
+  };
+  account?: {
+    address: string;
   };
 }
 

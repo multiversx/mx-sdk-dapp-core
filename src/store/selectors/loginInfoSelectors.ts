@@ -7,3 +7,6 @@ export const tokenLoginSelector = ({ loginInfo }: StoreType) =>
 
 export const walletConnectLoginSelector = ({ loginInfo }: StoreType) =>
   loginInfo.walletConnectLogin;
+
+export const providerTypeSelector = ({ loginInfo }: StoreType) =>
+  loginInfo.providerType;

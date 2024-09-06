@@ -48,7 +48,8 @@ export class ProviderFactory {
         const { walletAddress } = config.network;
 
         const provider = await this.getCrossWindowProvider({
-          walletAddress
+          walletAddress,
+          address: config.account?.address || ''
         });
         createdProvider = provider as unknown as IProvider;
 
@@ -72,12 +73,16 @@ export class ProviderFactory {
   }
 
   private async getCrossWindowProvider({
+    address,
     walletAddress
-  }: Partial<IProviderConfig['network']>) {
-    // CrossWindowProvider.getInstance().clearInstance();
+  }: {
+    address: string;
+    walletAddress: string;
+  }) {
     const provider = CrossWindowProvider.getInstance();
     await provider.init();
     provider.setWalletUrl(String(walletAddress));
+    provider.setAddress(address);
 
     if (isBrowserWithPopupConfirmation) {
       provider.setShouldShowConsentPopup(true);
