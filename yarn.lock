@@ -924,9 +924,9 @@
     uuid "^9.0.1"
 
 "@metamask/utils@^9.0.0":
-  version "9.2.1"
-  resolved "https://registry.yarnpkg.com/@metamask/utils/-/utils-9.2.1.tgz#d9f84706ff97e0c8d1bde5778549365b14269e81"
-  integrity sha512-/u663aUaB6+Xe75i3Mt/1cCljm41HDYIsna5oBrwGvgkY2zH7/9k9Zjd706cxoAbxN7QgLSVAReUiGnuxCuXrQ==
+  version "9.2.0"
+  resolved "https://registry.yarnpkg.com/@metamask/utils/-/utils-9.2.0.tgz#62c59a180fd7c3a08752009429ef2bdda8619a04"
+  integrity sha512-01riKC6oc6YJVJBL6g6TgCBwcmzwuVSIIMhnwvWanPWs3ZpUabJzy3GR9PlsBPa2pHd1p0Q6WMVRExWWEHzsQA==
   dependencies:
     "@ethereumjs/tx" "^4.2.0"
     "@metamask/superstruct" "^3.1.0"

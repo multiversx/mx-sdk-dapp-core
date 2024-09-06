@@ -5,6 +5,8 @@ import { initializeNetwork } from 'store/actions';
 import { NativeAuthConfigType } from 'services/nativeAuth/nativeAuth.types';
 import { getDefaultNativeAuthConfig } from 'services/nativeAuth/methods/getDefaultNativeAuthConfig';
 import { InitAppType } from './initApp.types';
+import { getIsLoggedIn } from '../account/getIsLoggedIn';
+import { restoreProvider } from 'core/providers/helpers/restoreProvider';
 
 const defaultInitAppProps = {
   storage: {
@@ -43,4 +45,10 @@ export const initApp = async ({
     customNetworkConfig: dAppConfig.network,
     environment: dAppConfig.environment
   });
+
+  const isLoggedIn = getIsLoggedIn();
+
+  if (isLoggedIn) {
+    await restoreProvider();
+  }
 };
