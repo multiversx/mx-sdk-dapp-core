@@ -1,1 +1,0 @@
-export const LEDGER_CONTRACT_DATA_ENABLED_VALUE = 1;
