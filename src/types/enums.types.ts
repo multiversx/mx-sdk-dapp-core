@@ -4,6 +4,16 @@ export enum EnvironmentsEnum {
   mainnet = 'mainnet'
 }
 
+export enum TransactionServerStatusesEnum {
+  pending = 'pending',
+  fail = 'fail',
+  invalid = 'invalid',
+  success = 'success',
+  executed = 'executed',
+  notExecuted = 'not executed',
+  rewardReverted = 'reward-reverted'
+}
+
 export enum TypesOfSmartContractCallsEnum {
   MultiESDTNFTTransfer = 'MultiESDTNFTTransfer',
   ESDTNFTTransfer = 'ESDTNFTTransfer'
