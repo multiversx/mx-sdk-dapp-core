@@ -1,5 +1,5 @@
 import { getAddress } from 'core/methods/account/getAddress';
-import { getAccount } from './getAccount';
+import { fetchAccount } from './fetchAccount';
 import { getLatestNonce } from 'core/methods/account/getLatestNonce';
 import { getAccountProvider } from 'core/providers/accountProvider';
 import { setAccount } from 'store/actions';
@@ -9,7 +9,7 @@ const setNewAccount = async () => {
     const address = getAddress();
 
     try {
-      const account = await getAccount(address);
+      const account = await fetchAccount(address);
 
       if (account != null) {
         const accountData = {
