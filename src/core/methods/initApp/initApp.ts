@@ -7,6 +7,10 @@ import { getDefaultNativeAuthConfig } from 'services/nativeAuth/methods/getDefau
 import { InitAppType } from './initApp.types';
 import { getIsLoggedIn } from '../account/getIsLoggedIn';
 import { restoreProvider } from 'core/providers/helpers/restoreProvider';
+import { registerWebsocketListener } from './websocket/registerWebsocket';
+import { refreshAccount } from 'utils';
+
+console.log('\x1b[42m%s\x1b[0m', 'in sdk-dapp');
 
 const defaultInitAppProps = {
   storage: {
@@ -50,5 +54,10 @@ export const initApp = async ({
 
   if (isLoggedIn) {
     await restoreProvider();
+    await registerWebsocketListener({
+      onMessageReceived: () => {
+        refreshAccount();
+      }
+    });
   }
 };

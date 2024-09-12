@@ -15,10 +15,12 @@ import { getState } from 'store/store';
 import { NativeAuthConfigType } from 'services/nativeAuth/nativeAuth.types';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import { getAddress } from 'core/methods/account/getAddress';
-import { loginAction, logoutAction } from 'store/actions';
+import { logoutAction } from 'store/actions';
 import { extractAccountFromToken } from './helpers/extractAccountFromToken';
 import { SECOND_LOGIN_ATTEMPT_ERROR } from 'constants/errorMessages.constants';
 import { getCallbackUrl } from './helpers/getCallbackUrl';
+import { registerWebsocketListener } from '../initApp/websocket/registerWebsocket';
+import { refreshAccount } from 'utils';
 
 async function loginWithoutNativeToken(provider: IProvider) {
   await provider.login?.({
@@ -99,6 +101,12 @@ async function loginWithNativeToken(
     throw new Error('Failed to fetch account');
   }
 
+  await registerWebsocketListener({
+    onMessageReceived: () => {
+      refreshAccount();
+    }
+  });
+
   return {
     address: accountDetails?.address || address,
     signature,
@@ -137,5 +145,13 @@ export const login = async ({
     return await loginWithNativeToken(provider, nativeAuthConfig);
   }
 
-  return await loginWithoutNativeToken(provider);
+  const data = await loginWithoutNativeToken(provider);
+
+  await registerWebsocketListener({
+    onMessageReceived: () => {
+      refreshAccount();
+    }
+  });
+
+  return data;
 };
