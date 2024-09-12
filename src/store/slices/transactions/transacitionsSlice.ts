@@ -1,6 +1,6 @@
 import { StateCreator } from 'zustand/vanilla';
 import { StoreType, MutatorsIn } from 'store/store.types';
-import { TransactionsSliceType } from './transacitions.types';
+import { TransactionsSliceType } from './transacitionsSlice.types';
 
 const initialState: TransactionsSliceType = {};
 

@@ -9,3 +9,7 @@ export const chainIdSelector = ({ network: { network } }: StoreType) =>
 
 export const walletAddressSelector = ({ network: { network } }: StoreType) =>
   network.walletAddress;
+
+export const roundDurationSelectorSelector = ({
+  network: { network }
+}: StoreType) => network.roundDuration;

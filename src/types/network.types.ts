@@ -14,6 +14,8 @@ export interface BaseNetworkType {
   walletConnectV2ProjectId?: string;
   walletConnectV2Options?: Record<string, any>;
   xAliasAddress?: string;
+  roundDuration: number;
+  metamaskSnapWalletAddress?: string;
 }
 
 export interface CurrentNetworkType extends BaseNetworkType {

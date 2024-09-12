@@ -1,7 +1,7 @@
 import { Transaction } from '@multiversx/sdk-core/out';
 import { AxiosError } from 'axios';
-import { sendSignedTransactions } from './sendSignedTransactions';
-import { SignedTransactionType } from 'store/slices/transactions/transacitions.types';
+import { sendSignedTransactions } from './helpers/sendSignedTransactions';
+import { SignedTransactionType } from 'types/transactions.types';
 
 export const sendTransactions = async (
   transactions: Transaction[] = []

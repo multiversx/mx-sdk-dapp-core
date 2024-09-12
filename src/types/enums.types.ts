@@ -14,6 +14,16 @@ export enum TransactionServerStatusesEnum {
   rewardReverted = 'reward-reverted'
 }
 
+export enum TransactionBatchStatusesEnum {
+  signed = 'signed',
+  cancelled = 'cancelled',
+  success = 'success',
+  sent = 'sent',
+  fail = 'fail',
+  timedOut = 'timedOut',
+  invalid = 'invalid'
+}
+
 export enum TypesOfSmartContractCallsEnum {
   MultiESDTNFTTransfer = 'MultiESDTNFTTransfer',
   ESDTNFTTransfer = 'ESDTNFTTransfer'

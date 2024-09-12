@@ -1,9 +1,9 @@
-import { IPlainTransactionObject, Transaction } from '@multiversx/sdk-core';
+import { Transaction } from '@multiversx/sdk-core';
 import axios from 'axios';
 import { networkSelector } from 'store/selectors';
-import { SignedTransactionType } from 'store/slices/transactions/transacitions.types';
 import { getState } from 'store/store';
 import { TransactionServerStatusesEnum } from 'types';
+import { SignedTransactionType } from 'types/transactions.types';
 
 export async function sendSignedTransactions(
   signedTransactions: Transaction[]
@@ -20,12 +20,18 @@ export async function sendSignedTransactions(
 
   const response = await Promise.all(promises);
 
-  const sentTransactions: SignedTransactionType[] = response.map(({ data }) => {
-    return {
-      ...data,
-      hash: data.txHash,
-      status: TransactionServerStatusesEnum.pending
-    };
+  const sentTransactions: SignedTransactionType[] = [];
+  debugger;
+  response.forEach(({ data }, i) => {
+    const currentTransaction = signedTransactions[i];
+    debugger;
+    if (currentTransaction.getHash().hex() === data.txHash) {
+      sentTransactions.push({
+        ...currentTransaction.toPlainObject(),
+        hash: data.txHash,
+        status: TransactionServerStatusesEnum.pending
+      });
+    }
   });
 
   return sentTransactions;
