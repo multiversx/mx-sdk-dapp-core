@@ -24,13 +24,16 @@ export async function trackTransactions(props?: TransactionsTrackerType) {
     props?.getTransactionsByHash ?? defaultGetTxByHash;
 
   // Function that handles message (checking transaction status)
-  const onMessage = () => {
+  const recheckStatus = () => {
     checkTransactionStatus({
       shouldRefreshBalance: isWebsocketCompleted,
       getTransactionsByHash,
       ...props
     });
   };
+
+  // recheck on page initial page load
+  recheckStatus();
 
   if (isWebsocketCompleted) {
     // Do not set polling interval if websocket is complete
@@ -41,13 +44,13 @@ export async function trackTransactions(props?: TransactionsTrackerType) {
     store.subscribe(async ({ account: { websocketEvent } }) => {
       if (websocketEvent?.message && timestamp !== websocketEvent.timestamp) {
         timestamp = websocketEvent.timestamp;
-        onMessage();
+        recheckStatus();
       }
     });
   } else {
     // Set polling interval if websocket is not complete and no existing interval is set
     if (!pollingIntervalTimer) {
-      pollingIntervalTimer = setInterval(onMessage, pollingInterval);
+      pollingIntervalTimer = setInterval(recheckStatus, pollingInterval);
     }
   }
 

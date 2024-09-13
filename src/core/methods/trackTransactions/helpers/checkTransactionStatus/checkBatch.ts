@@ -98,8 +98,6 @@ function manageTransaction({
     }
 
     if (hasStatusChanged) {
-      //otherwise, it will just trigger the change of status
-
       updateSignedTransactionStatus({
         sessionId,
         status,
