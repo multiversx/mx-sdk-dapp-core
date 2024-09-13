@@ -21,10 +21,9 @@ export async function sendSignedTransactions(
   const response = await Promise.all(promises);
 
   const sentTransactions: SignedTransactionType[] = [];
-  debugger;
+
   response.forEach(({ data }, i) => {
     const currentTransaction = signedTransactions[i];
-    debugger;
     if (currentTransaction.getHash().hex() === data.txHash) {
       sentTransactions.push({
         ...currentTransaction.toPlainObject(),

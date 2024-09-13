@@ -20,7 +20,6 @@ import { extractAccountFromToken } from './helpers/extractAccountFromToken';
 import { SECOND_LOGIN_ATTEMPT_ERROR } from 'constants/errorMessages.constants';
 import { getCallbackUrl } from './helpers/getCallbackUrl';
 import { registerWebsocketListener } from '../initApp/websocket/registerWebsocket';
-import { refreshAccount } from 'utils';
 
 async function loginWithoutNativeToken(provider: IProvider) {
   await provider.login?.({
@@ -101,11 +100,7 @@ async function loginWithNativeToken(
     throw new Error('Failed to fetch account');
   }
 
-  await registerWebsocketListener({
-    onMessageReceived: () => {
-      refreshAccount();
-    }
-  });
+  await registerWebsocketListener();
 
   return {
     address: accountDetails?.address || address,
@@ -147,11 +142,7 @@ export const login = async ({
 
   const data = await loginWithoutNativeToken(provider);
 
-  await registerWebsocketListener({
-    onMessageReceived: () => {
-      refreshAccount();
-    }
-  });
+  await registerWebsocketListener();
 
   return data;
 };

@@ -10,8 +10,6 @@ import { restoreProvider } from 'core/providers/helpers/restoreProvider';
 import { registerWebsocketListener } from './websocket/registerWebsocket';
 import { refreshAccount } from 'utils';
 
-console.log('\x1b[42m%s\x1b[0m', 'in sdk-dapp');
-
 const defaultInitAppProps = {
   storage: {
     getStorageCallback: defaultStorageCallback
@@ -54,10 +52,6 @@ export const initApp = async ({
 
   if (isLoggedIn) {
     await restoreProvider();
-    await registerWebsocketListener({
-      onMessageReceived: () => {
-        refreshAccount();
-      }
-    });
+    await registerWebsocketListener();
   }
 };

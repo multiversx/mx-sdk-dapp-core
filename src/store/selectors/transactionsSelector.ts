@@ -15,7 +15,7 @@ export const pendingSessionsSelector = ({
     const hasPendingTransactions = data.transactions.some(
       ({ status }) => status === TransactionServerStatusesEnum.pending
     );
-    if (hasPendingTransactions) {
+    if (hasPendingTransactions && data.status === 'sent') {
       pendingSessions[sessionId] = data;
     }
   });

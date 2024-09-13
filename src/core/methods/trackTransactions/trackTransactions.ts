@@ -6,9 +6,10 @@ import {
   websocketConnection,
   WebsocketConnectionStatusEnum
 } from '../initApp/websocket/websocket.constants';
-import { registerWebsocketListener } from '../initApp/websocket/registerWebsocket';
+import { getStore } from 'store/store';
 
-export function trackTransactions(props?: TransactionsTrackerType) {
+export async function trackTransactions(props?: TransactionsTrackerType) {
+  const store = getStore();
   const checkStatus = checkTransactionStatus();
   const pollingInterval = getPollingInterval();
   let pollingIntervalTimer: NodeJS.Timeout | null = null;
@@ -30,15 +31,31 @@ export function trackTransactions(props?: TransactionsTrackerType) {
     });
   };
 
-  registerWebsocketListener({ onMessageReceived: onMessage });
+  console.log({
+    isWebsocketCompleted
+  });
 
-  // Simulate the logic that would be within useEffect
   if (isWebsocketCompleted) {
+    console.log('\x1b[42m%s\x1b[0m', 'setting up subscribe');
+
     // Do not set polling interval if websocket is complete
     if (pollingIntervalTimer) {
       clearInterval(pollingIntervalTimer);
       pollingIntervalTimer = null;
     }
+    store.subscribe(async ({ account: { websocketEvent } }) => {
+      console.log('websocketEvent', websocketEvent);
+
+      if (websocketEvent?.message) {
+        console.log(
+          '\x1b[42m%s\x1b[0m',
+          'trackTransactions -> websocketEvent.message',
+          websocketEvent.message
+        );
+
+        onMessage();
+      }
+    });
   } else {
     // Set polling interval if websocket is not complete and no existing interval is set
     if (!pollingIntervalTimer) {

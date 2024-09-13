@@ -9,6 +9,10 @@ import { getWebsocketUrl } from 'apiCalls/websocket';
 import { getStore } from 'store/store';
 import { getAccount } from 'core/methods/account/getAccount';
 import { networkSelector } from 'store/selectors';
+import {
+  setWebsocketBatchEvent,
+  setWebsocketEvent
+} from 'store/actions/account/accountActions';
 
 const TIMEOUT = 3000;
 const RECONNECTION_ATTEMPTS = 3;
@@ -18,15 +22,7 @@ const BATCH_UPDATED_EVENT = 'batchUpdated';
 const CONNECT = 'connect';
 const DISCONNECT = 'disconnect';
 
-export interface IWebsocketHandlerOptions {
-  onMessageReceived: (message: string) => void;
-  onBatchUpdate?: (data: BatchTransactionsWSResponseType) => void;
-}
-
-export async function initializeWebsocketConnection({
-  onMessageReceived,
-  onBatchUpdate
-}: IWebsocketHandlerOptions) {
+export async function initializeWebsocketConnection() {
   const { address } = getAccount();
   const { apiAddress } = networkSelector(getStore().getState());
 
@@ -34,11 +30,16 @@ export async function initializeWebsocketConnection({
   let batchTimeout: NodeJS.Timeout | null = null;
 
   const handleMessageReceived = (message: string) => {
+    console.log(
+      '\x1b[42m%s\x1b[0m',
+      'handleMessageReceived -> message',
+      message
+    );
     if (messageTimeout) {
       clearTimeout(messageTimeout);
     }
     messageTimeout = setTimeout(() => {
-      onMessageReceived(message);
+      setWebsocketEvent(message);
     }, MESSAGE_DELAY);
   };
 
@@ -47,7 +48,7 @@ export async function initializeWebsocketConnection({
       clearTimeout(batchTimeout);
     }
     batchTimeout = setTimeout(() => {
-      onBatchUpdate?.(data);
+      setWebsocketBatchEvent(data);
     }, MESSAGE_DELAY);
   };
 

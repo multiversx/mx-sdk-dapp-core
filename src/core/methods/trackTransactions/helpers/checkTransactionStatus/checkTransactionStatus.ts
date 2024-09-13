@@ -4,15 +4,14 @@ import { getPendingStoreTransactions } from '../getPendingStoreTransactions';
 import { TransactionsTrackerType } from '../../trackTransactions.types';
 
 export function checkTransactionStatus() {
-  const { pendingTransactions, pendingSessions } =
-    getPendingStoreTransactions();
+  const { pendingSessions } = getPendingStoreTransactions();
 
   async function checkStatus(
     props: TransactionsTrackerType & {
       shouldRefreshBalance?: boolean;
     }
   ) {
-    if (pendingTransactions.length > 0) {
+    if (Object.keys(pendingSessions).length > 0) {
       for (const [sessionId, { transactions }] of Object.entries(
         pendingSessions
       )) {

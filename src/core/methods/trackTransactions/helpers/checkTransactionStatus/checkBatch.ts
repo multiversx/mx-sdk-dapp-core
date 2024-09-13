@@ -166,6 +166,10 @@ export async function checkBatch({
       );
 
       if (isSuccessful) {
+        updateTransactionsSession({
+          sessionId,
+          status: TransactionBatchStatusesEnum.success
+        });
         return onSuccess?.(sessionId);
       }
 
@@ -174,6 +178,10 @@ export async function checkBatch({
       );
 
       if (isFailed) {
+        updateTransactionsSession({
+          sessionId,
+          status: TransactionBatchStatusesEnum.fail
+        });
         return onFail?.(sessionId);
       }
     }
