@@ -9,6 +9,11 @@ import {
 import { getStore } from 'store/store';
 import { websocketEventSelector } from 'store/selectors/accountSelectors';
 
+/**
+ * Tracks transactions using websocket or polling
+ * @param props - optional object with additional websocket parameters
+ * @returns cleanup function
+ */
 export async function trackTransactions(props?: TransactionsTrackerType) {
   const store = getStore();
   const pollingInterval = getPollingInterval();

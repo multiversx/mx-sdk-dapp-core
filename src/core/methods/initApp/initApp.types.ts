@@ -2,7 +2,6 @@ import { StorageCallback } from 'store/storage';
 import { CustomNetworkType } from 'types/network.types';
 import { EnvironmentsEnum } from 'types/enums.types';
 import { NativeAuthConfigType } from 'services/nativeAuth/nativeAuth.types';
-import { TransactionsTrackerType } from '../trackTransactions/trackTransactions.types';
 
 type BaseDappConfigType = {
   /**
@@ -13,10 +12,9 @@ type BaseDappConfigType = {
    */
   nativeAuth?: boolean | NativeAuthConfigType;
   /**
-   * Transactions tracker configuration for the dApp.
-   * If set to `null`, will disable transaction tracking.
+   * default: `true`
    */
-  tansactionTracker?: TransactionsTrackerType | null;
+  enableTansactionTracker?: boolean;
 };
 
 export type EnvironmentDappConfigType = BaseDappConfigType & {
