@@ -7,12 +7,13 @@ import {
   WebsocketConnectionStatusEnum
 } from '../initApp/websocket/websocket.constants';
 import { getStore } from 'store/store';
+import { websocketEventSelector } from 'store/selectors/accountSelectors';
 
 export async function trackTransactions(props?: TransactionsTrackerType) {
   const store = getStore();
-  const checkStatus = checkTransactionStatus();
   const pollingInterval = getPollingInterval();
   let pollingIntervalTimer: NodeJS.Timeout | null = null;
+  let timestamp = websocketEventSelector(store.getState())?.timestamp;
 
   // Check if websocket is completed
   const isWebsocketCompleted =
@@ -24,35 +25,22 @@ export async function trackTransactions(props?: TransactionsTrackerType) {
 
   // Function that handles message (checking transaction status)
   const onMessage = () => {
-    checkStatus({
+    checkTransactionStatus({
       shouldRefreshBalance: isWebsocketCompleted,
       getTransactionsByHash,
       ...props
     });
   };
 
-  console.log({
-    isWebsocketCompleted
-  });
-
   if (isWebsocketCompleted) {
-    console.log('\x1b[42m%s\x1b[0m', 'setting up subscribe');
-
     // Do not set polling interval if websocket is complete
     if (pollingIntervalTimer) {
       clearInterval(pollingIntervalTimer);
       pollingIntervalTimer = null;
     }
     store.subscribe(async ({ account: { websocketEvent } }) => {
-      console.log('websocketEvent', websocketEvent);
-
-      if (websocketEvent?.message) {
-        console.log(
-          '\x1b[42m%s\x1b[0m',
-          'trackTransactions -> websocketEvent.message',
-          websocketEvent.message
-        );
-
+      if (websocketEvent?.message && timestamp !== websocketEvent.timestamp) {
+        timestamp = websocketEvent.timestamp;
         onMessage();
       }
     });
