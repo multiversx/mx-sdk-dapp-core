@@ -12,10 +12,10 @@ export enum WebsocketConnectionStatusEnum {
 }
 
 export const websocketConnection: {
-  current: Socket | null;
+  instance: Socket | null;
   // Use the connection status to avoid multiple websocket connections
   status: WebsocketConnectionStatusEnum;
 } = {
-  current: null,
+  instance: null,
   status: WebsocketConnectionStatusEnum.NOT_INITIALIZED
 };

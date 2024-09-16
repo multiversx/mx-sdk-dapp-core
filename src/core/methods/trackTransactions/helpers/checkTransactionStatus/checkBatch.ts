@@ -158,6 +158,7 @@ export async function checkBatch({
     // Call the onSuccess or onFail callback only if the transactions are sent normally (not using batch transactions mechanism).
     // The batch transactions mechanism will call the callbacks separately.
 
+    // TODO: check grouping and sequential transactions
     if (hasCompleted /* && !customTransactionInformation?.grouping */) {
       const isSuccessful = serverTransactions.every(
         (tx) => tx.status === TransactionServerStatusesEnum.success

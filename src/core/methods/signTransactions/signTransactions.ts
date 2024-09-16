@@ -32,17 +32,4 @@ export const signTransactions = async (
     (await provider.signTransactions(transacitonsToSign)) ?? [];
 
   return signedTransactions;
-
-  //   const { needs2FaSigning, sendTransactionsToGuardian } =
-  //     checkNeedsGuardianSigning({
-  //       transactions: signedTransactions,
-  //       sessionId,
-  //       callbackRoute,
-  //       isGuarded: isGuarded && allowGuardian,
-  //       walletAddress
-  //     });
-
-  //   if (needs2FaSigning) {
-  //     return sendTransactionsToGuardian();
-  //   }
 };

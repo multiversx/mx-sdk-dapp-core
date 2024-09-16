@@ -30,11 +30,6 @@ export async function initializeWebsocketConnection() {
   let batchTimeout: NodeJS.Timeout | null = null;
 
   const handleMessageReceived = (message: string) => {
-    console.log(
-      '\x1b[42m%s\x1b[0m',
-      'handleMessageReceived -> message',
-      message
-    );
     if (messageTimeout) {
       clearTimeout(messageTimeout);
     }
@@ -64,7 +59,7 @@ export async function initializeWebsocketConnection() {
         return;
       }
 
-      websocketConnection.current = io(websocketUrl, {
+      websocketConnection.instance = io(websocketUrl, {
         forceNew: true,
         reconnectionAttempts: RECONNECTION_ATTEMPTS,
         timeout: TIMEOUT,
@@ -73,19 +68,19 @@ export async function initializeWebsocketConnection() {
 
       websocketConnection.status = WebsocketConnectionStatusEnum.COMPLETED;
 
-      websocketConnection.current.onAny(handleMessageReceived);
+      websocketConnection.instance.onAny(handleMessageReceived);
 
-      websocketConnection.current.on(BATCH_UPDATED_EVENT, handleBatchUpdate);
+      websocketConnection.instance.on(BATCH_UPDATED_EVENT, handleBatchUpdate);
 
-      websocketConnection.current.on(CONNECT, () => {
+      websocketConnection.instance.on(CONNECT, () => {
         console.log('Websocket connected.');
       });
 
-      websocketConnection.current.on(DISCONNECT, () => {
+      websocketConnection.instance.on(DISCONNECT, () => {
         console.warn('Websocket disconnected. Trying to reconnect...');
         setTimeout(() => {
           console.log('Websocket reconnecting...');
-          websocketConnection.current?.connect();
+          websocketConnection.instance?.connect();
         }, RETRY_INTERVAL);
       });
     },
@@ -93,7 +88,7 @@ export async function initializeWebsocketConnection() {
   );
 
   const closeConnection = () => {
-    websocketConnection.current?.close();
+    websocketConnection.instance?.close();
     websocketConnection.status = WebsocketConnectionStatusEnum.NOT_INITIALIZED;
     if (messageTimeout) {
       clearTimeout(messageTimeout);
@@ -107,7 +102,7 @@ export async function initializeWebsocketConnection() {
     address &&
     websocketConnection.status ===
       WebsocketConnectionStatusEnum.NOT_INITIALIZED &&
-    !websocketConnection.current?.active
+    !websocketConnection.instance?.active
   ) {
     await initializeConnection();
   }
