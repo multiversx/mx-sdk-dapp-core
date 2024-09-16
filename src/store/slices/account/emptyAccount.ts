@@ -1,4 +1,4 @@
-import { ELLIPSIS, ZERO } from 'constants/placeholders';
+import { ELLIPSIS, ZERO } from 'constants/placeholders.constants';
 import { AccountType } from 'types/account.types';
 
 export const emptyAccount: AccountType = {

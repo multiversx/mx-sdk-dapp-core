@@ -16,5 +16,6 @@ export const emptyNetwork: CurrentNetworkType = {
   walletAddress: '',
   apiAddress: '',
   explorerAddress: '',
-  apiTimeout: '4000'
+  apiTimeout: '4000',
+  roundDuration: 60000
 };

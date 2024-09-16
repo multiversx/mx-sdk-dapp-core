@@ -7,6 +7,8 @@ import { getDefaultNativeAuthConfig } from 'services/nativeAuth/methods/getDefau
 import { InitAppType } from './initApp.types';
 import { getIsLoggedIn } from '../account/getIsLoggedIn';
 import { restoreProvider } from 'core/providers/helpers/restoreProvider';
+import { registerWebsocketListener } from './websocket/registerWebsocket';
+import { trackTransactions } from '../trackTransactions/trackTransactions';
 
 const defaultInitAppProps = {
   storage: {
@@ -32,6 +34,9 @@ export const initApp = async ({
 }: InitAppType) => {
   initStore(storage.getStorageCallback);
 
+  const shouldEnableTransactionTracker =
+    dAppConfig.enableTansactionTracker !== false;
+
   if (dAppConfig?.nativeAuth) {
     const nativeAuthConfig: NativeAuthConfigType =
       typeof dAppConfig.nativeAuth === 'boolean'
@@ -46,9 +51,14 @@ export const initApp = async ({
     environment: dAppConfig.environment
   });
 
+  if (shouldEnableTransactionTracker) {
+    trackTransactions();
+  }
+
   const isLoggedIn = getIsLoggedIn();
 
   if (isLoggedIn) {
     await restoreProvider();
+    await registerWebsocketListener();
   }
 };

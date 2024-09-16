@@ -15,10 +15,11 @@ import { getState } from 'store/store';
 import { NativeAuthConfigType } from 'services/nativeAuth/nativeAuth.types';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import { getAddress } from 'core/methods/account/getAddress';
-import { loginAction, logoutAction } from 'store/actions';
+import { logoutAction } from 'store/actions';
 import { extractAccountFromToken } from './helpers/extractAccountFromToken';
 import { SECOND_LOGIN_ATTEMPT_ERROR } from 'constants/errorMessages.constants';
 import { getCallbackUrl } from './helpers/getCallbackUrl';
+import { registerWebsocketListener } from '../initApp/websocket/registerWebsocket';
 
 async function loginWithoutNativeToken(provider: IProvider) {
   await provider.login?.({
@@ -83,11 +84,6 @@ async function loginWithNativeToken(
     nativeAuthToken
   });
 
-  loginAction({
-    address,
-    providerType: provider.getType()
-  });
-
   const accountDetails = await extractAccountFromToken({
     loginToken,
     extraInfoData: {
@@ -98,13 +94,13 @@ async function loginWithNativeToken(
     provider
   });
 
-  if (accountDetails.account) {
-    setAccount(accountDetails.account);
-  } else {
+  if (!accountDetails.account) {
     logoutAction();
     console.error('Failed to fetch account');
     throw new Error('Failed to fetch account');
   }
+
+  await registerWebsocketListener();
 
   return {
     address: accountDetails?.address || address,
@@ -144,5 +140,9 @@ export const login = async ({
     return await loginWithNativeToken(provider, nativeAuthConfig);
   }
 
-  return await loginWithoutNativeToken(provider);
+  const data = await loginWithoutNativeToken(provider);
+
+  await registerWebsocketListener();
+
+  return data;
 };

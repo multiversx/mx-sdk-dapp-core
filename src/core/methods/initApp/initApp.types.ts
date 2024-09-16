@@ -11,6 +11,10 @@ type BaseDappConfigType = {
    * If set to `NativeAuthConfigType`, will set the native auth configuration.
    */
   nativeAuth?: boolean | NativeAuthConfigType;
+  /**
+   * default: `true`
+   */
+  enableTansactionTracker?: boolean;
 };
 
 export type EnvironmentDappConfigType = BaseDappConfigType & {

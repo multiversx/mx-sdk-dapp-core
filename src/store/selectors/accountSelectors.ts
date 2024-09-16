@@ -6,6 +6,10 @@ export const accountSelector = ({
 
 export const addressSelector = ({ account: { address } }: StoreType) => address;
 
+export const websocketEventSelector = ({
+  account: { websocketEvent }
+}: StoreType) => websocketEvent;
+
 export const accountNonceSelector = (store: StoreType) =>
   accountSelector(store)?.nonce || 0;
 

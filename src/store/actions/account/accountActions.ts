@@ -11,13 +11,14 @@ export const setAddress = (address: string) =>
     state.address = address;
   });
 
-export const setAccount = (account: AccountType) =>
+export const setAccount = (account: AccountType) => {
   getStore().setState(({ account: state }) => {
     const isSameAddress = state.address === account.address;
     state.accounts = {
       [state.address]: isSameAddress ? account : emptyAccount
     };
   });
+};
 
 // TODO: check if needed
 export const setLedgerAccount = (ledgerAccount: LedgerAccountType | null) =>

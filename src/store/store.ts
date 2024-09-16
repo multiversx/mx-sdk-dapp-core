@@ -6,7 +6,12 @@ import {
   defaultStorageCallback,
   StorageCallback
 } from './storage';
-import { networkSlice, accountSlice, loginInfoSlice } from './slices';
+import {
+  networkSlice,
+  accountSlice,
+  loginInfoSlice,
+  transactionsSlice
+} from './slices';
 import { createBoundedUseStore } from './createBoundedStore';
 import { StoreType } from './store.types';
 import { applyMiddlewares } from './middleware';
@@ -30,6 +35,7 @@ export const createDAppStore = (getStorageCallback: StorageCallback) => {
       persist(
         immer((...args) => ({
           network: networkSlice(...args),
+          transactions: transactionsSlice(...args),
           account: accountSlice(...args),
           loginInfo: loginInfoSlice(...args),
           config: configSlice(...args)

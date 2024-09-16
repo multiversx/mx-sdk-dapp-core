@@ -12,10 +12,8 @@ export interface LoginActionPayloadType {
 export const loginAction = ({
   address,
   providerType
-}: LoginActionPayloadType) =>
+}: LoginActionPayloadType) => {
   getStore().setState(({ account, loginInfo }) => {
-    console.log('settings address with:', address);
-
     account.address = address;
     account.publicKey = new Address(address).hex();
 
@@ -23,3 +21,4 @@ export const loginAction = ({
       loginInfo.providerType = providerType;
     }
   });
+};
