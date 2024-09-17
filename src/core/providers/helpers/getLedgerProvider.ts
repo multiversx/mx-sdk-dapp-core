@@ -6,7 +6,7 @@ import { getAccountProvider } from '../accountProvider';
 import { logout } from 'core/methods/logout/logout';
 import { getLedgerConfiguration } from './getLedgerConfiguration';
 
-export const setLedgerProvider = async () => {
+export const getLedgerProvider = async () => {
   const isLoggedIn = getIsLoggedIn();
   const ledgerLogin = ledgerLoginSelector(getState());
   const provider = getAccountProvider();
@@ -23,47 +23,46 @@ export const setLedgerProvider = async () => {
         return provider;
       }
 
-      const hwWalletP = new HWProvider();
-      const isInitialized = await hwWalletP.init();
+      const ledgerProvider = new HWProvider();
+      const isInitialized = await ledgerProvider.init();
 
       if (!isInitialized) {
         return null;
       }
 
       if (hasAddressIndex) {
-        await hwWalletP.setAddressIndex(ledgerLogin.index);
+        await ledgerProvider.setAddressIndex(ledgerLogin.index);
       }
 
-      return hwWalletP;
+      return ledgerProvider;
     } catch (e) {
-      console.error('Failed to initialise Ledger Provider');
-
+      console.error('Failed to initialize Ledger Provider');
       return null;
     }
   };
 
-  let hwWalletP: HWProvider | null;
-
   try {
-    hwWalletP = await initHWProvider();
+    const ledgerProvider = await initHWProvider();
 
-    if (!hwWalletP) {
-      console.warn('Could not initialise ledger app');
+    if (!ledgerProvider) {
+      console.warn('Could not initialize ledger app');
 
       if (isLoggedIn) {
         logout();
       }
 
-      return;
+      return null;
     }
 
-    const ledgerConfig = await getLedgerConfiguration(hwWalletP);
-    return { hwWalletP, ledgerConfig };
+    const ledgerConfig = await getLedgerConfiguration(ledgerProvider);
+    return { ledgerProvider, ledgerConfig };
   } catch (err) {
-    console.error('Could not initialise ledger app', err);
+    console.error('Could not initialize ledger app', err);
 
     if (isLoggedIn) {
       logout();
     }
+
+    return null;
   }
 };

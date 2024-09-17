@@ -12,6 +12,7 @@ import { fetchAccount } from 'utils';
 import { setLedgerLogin } from 'store/actions/loginInfo/loginInfoActions';
 import { getLedgerConfiguration } from './helpers/getLedgerConfiguration';
 import { setLedgerAccount } from 'store/actions/account/accountActions';
+import { getLedgerProvider } from './helpers/getLedgerProvider';
 
 export class ProviderFactory {
   public async create({
@@ -58,7 +59,13 @@ export class ProviderFactory {
       }
 
       case ProviderTypeEnum.ledger: {
-        const provider = await this.getLedgerProvider();
+        const data = await getLedgerProvider();
+
+        if (!data) {
+          return;
+        }
+
+        const { ledgerProvider: provider, ledgerConfig } = data;
 
         createdProvider = provider as unknown as IProvider;
 
@@ -115,8 +122,7 @@ export class ProviderFactory {
             loginType: ProviderTypeEnum.ledger
           });
 
-          const { version, dataEnabled } =
-            await getLedgerConfiguration(provider);
+          const { version, dataEnabled } = ledgerConfig;
 
           setLedgerAccount({
             address: accountsWithBalance[selectedIndex].address,
@@ -182,12 +188,6 @@ export class ProviderFactory {
 
   private async getExtensionProvider() {
     const provider = ExtensionProvider.getInstance();
-    await provider.init();
-    return provider;
-  }
-
-  private async getLedgerProvider() {
-    const provider = new HWProvider();
     await provider.init();
     return provider;
   }
