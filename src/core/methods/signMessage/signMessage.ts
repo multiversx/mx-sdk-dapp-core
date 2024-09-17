@@ -1,4 +1,4 @@
-import { SignableMessage, Address } from '@multiversx/sdk-core';
+import { Message, Address } from '@multiversx/sdk-core';
 import { getAccountProvider } from 'core/providers';
 import { getProviderType } from 'core/providers/helpers/utils';
 import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
@@ -8,7 +8,7 @@ import { addOriginToLocationPath } from 'utils/window/addOriginToLocationPath';
 import { ProviderTypeEnum } from 'core/providers/types/providerFactory.types';
 
 export interface SignMessageType {
-  message: string;
+  message: Message;
   callbackRoute?: string;
   options?: {
     hasConsentPopup?: boolean;
@@ -20,15 +20,15 @@ export const signMessage = async ({
   message,
   callbackRoute,
   options
-}: SignMessageType): Promise<Nullable<SignableMessage>> => {
+}: SignMessageType): Promise<Nullable<Message>> => {
   const address = getAddress();
   const provider = getAccountProvider();
   const providerType = getProviderType(provider);
 
   const callbackUrl = addOriginToLocationPath(callbackRoute);
-  const signableMessage = new SignableMessage({
+  const messageToSign = new Message({
     address: new Address(address),
-    message: Buffer.from(message, 'ascii')
+    data: message.data
   });
 
   if (
@@ -40,9 +40,11 @@ export const signMessage = async ({
     );
   }
 
-  const signedMessage = await provider.signMessage(signableMessage, {
+  // TODO upgrade sdk-dapp-utils to use Message as input for signMessage method and remove the cast
+  const signedMessage = await provider.signMessage(messageToSign as any, {
     callbackUrl: encodeURIComponent(callbackUrl)
   });
 
-  return signedMessage;
+  // TODO upgrade sdk-dapp-utils to return Message instead of SignableMessage and remove the cast
+  return signedMessage as Nullable<Message>;
 };

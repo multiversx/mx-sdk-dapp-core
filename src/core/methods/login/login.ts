@@ -51,19 +51,9 @@ async function loginWithNativeToken(
     noCache: true
   });
 
-  const loginResult = await provider.login?.({
-    // TODO remove callbackUrl when the provider will be standardized
-    callbackUrl: getCallbackUrl(),
+  const { address, signature, ...loginResult } = await provider.login?.({
     token: loginToken
   });
-
-  const address = provider.getAddress
-    ? // TODO check why on the second login the address is fetched asynchronously (looks like the crosswindow provider has getAddress as an async function)
-      await provider.getAddress()
-    : loginResult?.address;
-  const signature = provider.getTokenLoginSignature
-    ? provider.getTokenLoginSignature()
-    : loginResult?.signature;
 
   if (!address) {
     console.warn('Login cancelled.');
