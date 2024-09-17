@@ -1,4 +1,4 @@
-import { getAccount } from 'utils/account/getAccount';
+import { fetchAccount } from 'utils/account/fetchAccount';
 import { getModifiedLoginToken } from './getModifiedLoginToken';
 
 interface GetAccountFromTokenType {
@@ -25,7 +25,7 @@ export const getAccountFromToken = async ({
 
   const accountAddress = modifiedLoginToken != null ? tokenAddress : address;
 
-  const account = await getAccount(accountAddress);
+  const account = await fetchAccount(accountAddress);
 
   return {
     account,

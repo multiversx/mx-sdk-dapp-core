@@ -21,7 +21,8 @@ export const fallbackNetworkConfigurations: Record<
     xAliasAddress: 'https://devnet.xalias.com',
     apiAddress: 'https://devnet-api.multiversx.com',
     explorerAddress: 'http://devnet-explorer.multiversx.com',
-    apiTimeout: '4000'
+    apiTimeout: '4000',
+    roundDuration: 6000
   },
   testnet: {
     id: 'testnet',
@@ -39,7 +40,8 @@ export const fallbackNetworkConfigurations: Record<
     xAliasAddress: 'https://testnet.xalias.com',
     apiAddress: 'https://testnet-api.multiversx.com',
     explorerAddress: 'http://testnet-explorer.multiversx.com',
-    apiTimeout: '4000'
+    apiTimeout: '4000',
+    roundDuration: 6000
   },
   mainnet: {
     id: 'mainnet',
@@ -57,7 +59,8 @@ export const fallbackNetworkConfigurations: Record<
     xAliasAddress: 'https://xalias.com',
     apiAddress: 'https://api.multiversx.com',
     explorerAddress: 'https://explorer.multiversx.com',
-    apiTimeout: '4000'
+    apiTimeout: '4000',
+    roundDuration: 6000
   }
 };
 

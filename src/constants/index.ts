@@ -4,4 +4,4 @@ export * from './storage.constants';
 export * from './window.constants';
 export * from './browser.constants';
 export * from './errorMessages.constants';
-export * from './ledger.constants';
+export * from './mvx.constants';
