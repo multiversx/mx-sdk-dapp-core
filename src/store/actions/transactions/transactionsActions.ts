@@ -69,7 +69,7 @@ export const updateSignedTransactionStatus = (
           return {
             ...(serverTransaction ?? {}),
             ...transaction,
-            status: status as TransactionServerStatusesEnum, // TODO: @CiprianDraghici is this correct?s
+            status: status as TransactionServerStatusesEnum,
             errorMessage,
             inTransit
           };
