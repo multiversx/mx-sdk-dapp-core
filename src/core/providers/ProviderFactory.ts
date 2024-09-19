@@ -7,10 +7,8 @@ import {
   ProviderTypeEnum
 } from './types/providerFactory.types';
 import { isBrowserWithPopupConfirmation } from '../../constants';
-import { HWProvider } from '@multiversx/sdk-hw-provider/out';
 import { fetchAccount } from 'utils';
 import { setLedgerLogin } from 'store/actions/loginInfo/loginInfoActions';
-import { getLedgerConfiguration } from './helpers/getLedgerConfiguration';
 import { setLedgerAccount } from 'store/actions/account/accountActions';
 import { getLedgerProvider } from './helpers/getLedgerProvider';
 
