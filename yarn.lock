@@ -1054,7 +1054,7 @@
     tweetnacl "1.0.3"
     uuid "8.3.2"
 
-"@multiversx/sdk-web-wallet-cross-window-provider@>= 2.0.0":
+"@multiversx/sdk-web-wallet-cross-window-provider@>= 2.0.0-alpha.1":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@multiversx/sdk-web-wallet-cross-window-provider/-/sdk-web-wallet-cross-window-provider-2.0.0.tgz#1a29f0034fc5ac95608de32556c1a1d983309058"
   integrity sha512-U+RpbfH45MotM3BQEhB9fVbmM70wLkO7DV/vV4sSdtgoEhy5JlaslOFm6p/ipsdfirQW19w6tBD2cNBH1LSijQ==
