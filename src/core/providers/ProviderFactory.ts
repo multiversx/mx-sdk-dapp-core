@@ -45,7 +45,7 @@ export class ProviderFactory {
       case ProviderTypeEnum.crossWindow: {
         const { walletAddress } = config.network;
 
-        const provider = await this.getCrossWindowProvider({
+        const provider = await this.createCrossWindowProvider({
           walletAddress,
           address: config.account?.address || ''
         });
@@ -167,7 +167,7 @@ export class ProviderFactory {
     return createdProvider;
   }
 
-  private async getCrossWindowProvider({
+  public async createCrossWindowProvider({
     address,
     walletAddress
   }: {

@@ -5,6 +5,7 @@ import {
 } from '@multiversx/sdk-core/out';
 import { getAccountProvider } from 'core/providers';
 import { getAccount } from '../account/getAccount';
+import { getGuardedTransactions } from './helpers/getGuardedTransactions';
 
 type SignTransactionsOptionsType = {
   skipGuardian?: boolean;
@@ -31,5 +32,9 @@ export const signTransactions = async (
   const signedTransactions: Transaction[] =
     (await provider.signTransactions(transacitonsToSign)) ?? [];
 
-  return signedTransactions;
+  const guardedTransactions = isGuarded
+    ? await getGuardedTransactions({ transactions: signedTransactions })
+    : signedTransactions;
+
+  return guardedTransactions;
 };
