@@ -25,14 +25,6 @@ export class ProviderFactory {
         const provider = await this.getExtensionProvider();
         createdProvider = provider as unknown as IProvider;
 
-        createdProvider.getAddress = () => {
-          return Promise.resolve(provider.account.address);
-        };
-
-        createdProvider.getTokenLoginSignature = () => {
-          return provider.account.signature;
-        };
-
         createdProvider.getType = () => {
           return ProviderTypeEnum.extension;
         };

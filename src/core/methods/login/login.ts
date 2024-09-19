@@ -23,9 +23,11 @@ import { registerWebsocketListener } from '../initApp/websocket/registerWebsocke
 
 async function loginWithoutNativeToken(provider: IProvider) {
   await provider.login?.({
+    // TODO remove callbackUrl when the provider will be standardized
     callbackUrl: getCallbackUrl()
   });
 
+  // TODO update this when the provider will be standardized
   const address = await provider.getAddress?.();
 
   if (!address) {
@@ -50,7 +52,6 @@ async function loginWithNativeToken(
   });
 
   const { address, signature, ...loginResult } = await provider.login?.({
-    callbackUrl: getCallbackUrl(),
     token: loginToken
   });
 
