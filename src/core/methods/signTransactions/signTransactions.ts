@@ -1,4 +1,5 @@
 import {
+  Address,
   Transaction,
   TransactionOptions,
   TransactionVersion
@@ -16,15 +17,16 @@ export const signTransactions = async (
   options: SignTransactionsOptionsType = {}
 ): Promise<Transaction[]> => {
   const provider = getAccountProvider();
-  const { isGuarded } = getAccount();
+  const { isGuarded, activeGuardianAddress } = getAccount();
 
   const transacitonsToSign =
-    isGuarded && !options.skipGuardian
+    activeGuardianAddress && !options.skipGuardian
       ? transactions?.map((transaction) => {
           transaction.setVersion(TransactionVersion.withTxOptions());
           transaction.setOptions(
             TransactionOptions.withOptions({ guarded: true })
           );
+          transaction.setGuardian(Address.fromBech32(activeGuardianAddress));
           return transaction;
         })
       : transactions;
