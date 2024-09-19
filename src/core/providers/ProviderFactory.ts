@@ -68,8 +68,15 @@ export class ProviderFactory {
         createdProvider.login = async (options?: {
           callbackUrl?: string | undefined;
           token?: string | undefined;
-        }) => {
-          await provider.isConnected();
+        }): Promise<{
+          address: string;
+          signature: string;
+        }> => {
+          const isConnected = provider.isConnected();
+
+          if (!isConnected) {
+            throw new Error('Ledger device is not connected');
+          }
 
           // TODO: perform additional UI logic here
           // maybe extract to file
@@ -132,7 +139,7 @@ export class ProviderFactory {
               signature: loginInfo.signature.toString('hex')
             };
           } else {
-            const address = await hwProviderLogin({
+            const { address } = await hwProviderLogin({
               addressIndex: accountsWithBalance[selectedIndex].index
             });
             return {
