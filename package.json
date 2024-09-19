@@ -55,12 +55,13 @@
     "string-width": "4.1.0"
   },
   "devDependencies": {
-    "@types/lodash": "4.17.4",
     "@multiversx/sdk-core": ">= 13.5.0",
     "@multiversx/sdk-dapp-utils": ">= 0.1.0",
     "@multiversx/sdk-web-wallet-cross-window-provider": ">= 2.0.1",
     "@swc/core": "^1.4.17",
     "@swc/jest": "^0.2.36",
+    "@types/jest": "29.5.13",
+    "@types/lodash": "4.17.4",
     "@types/node": "20.12.8",
     "@typescript-eslint/eslint-plugin": "7.8.0",
     "@typescript-eslint/parser": "7.8.0",
