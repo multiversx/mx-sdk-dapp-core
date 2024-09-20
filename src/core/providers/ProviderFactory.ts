@@ -98,16 +98,16 @@ export class ProviderFactory {
             fetchAccount(address)
           );
 
-          await Promise.all(balancePromises).then((balances) => {
-            balances.forEach((account, index) => {
-              if (!account) {
-                return;
-              }
-              accountsWithBalance.push({
-                address: account.address,
-                balance: account.balance,
-                index
-              });
+          const balances = await Promise.all(balancePromises);
+
+          balances.forEach((account, index) => {
+            if (!account) {
+              return;
+            }
+            accountsWithBalance.push({
+              address: account.address,
+              balance: account.balance,
+              index
             });
           });
 

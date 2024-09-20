@@ -18,7 +18,7 @@ export const getGuardedTransactions = async ({
     transactions
   });
 
-  if (!isGuarded || (isGuarded && allSignedByGuardian)) {
+  if (!isGuarded || allSignedByGuardian) {
     return transactions;
   }
 
