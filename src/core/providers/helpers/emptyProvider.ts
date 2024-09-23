@@ -1,9 +1,13 @@
-import { SignableMessage, Transaction } from '@multiversx/sdk-core';
+import { Message, Transaction } from '@multiversx/sdk-core';
 import { EngineTypes } from 'utils/walletconnect/__sdkWalletconnectProvider';
 import {
   IProvider,
   ProviderTypeEnum
 } from 'core/providers/types/providerFactory.types';
+import {
+  IDAppProviderAccount,
+  IDAppProviderOptions
+} from '@multiversx/sdk-dapp-utils/out';
 
 export const DAPP_INIT_ROUTE = '/dapp/init';
 
@@ -28,12 +32,21 @@ export class EmptyProvider implements IProvider {
     throw new Error(notInitializedError(`logout with options: ${options}`));
   }
 
+  getAccount(): IDAppProviderAccount | null {
+    throw new Error(notInitializedError(`unable to get account`));
+  }
+  setAccount(account: IDAppProviderAccount): void {
+    throw new Error(
+      notInitializedError(`unable to set account with: ${account}`)
+    );
+  }
+
   isInitialized(): boolean {
     return false;
   }
 
-  isConnected(): Promise<boolean> {
-    return Promise.resolve(false);
+  isConnected(): boolean {
+    return false;
   }
 
   sendTransaction?<
@@ -64,14 +77,12 @@ export class EmptyProvider implements IProvider {
     );
   }
 
-  signMessage<T extends SignableMessage, TOptions = { callbackUrl?: string }>(
-    message: T,
-    options: TOptions
-  ): Promise<T> {
+  signMessage(
+    message: Message,
+    options?: IDAppProviderOptions
+  ): Promise<Message | null> {
     throw new Error(
-      notInitializedError(
-        `signTransactions with ${message} and options ${options}`
-      )
+      notInitializedError(`signMessage with ${message} and options ${options}`)
     );
   }
 
