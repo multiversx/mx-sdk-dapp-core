@@ -84,5 +84,3 @@ export const initStore = (getStorageCallback = defaultStorageCallback) => {
 };
 
 export const getState = () => getStore().getState();
-
-export const getStoreHook = () => createBoundedUseStore(getStore());
