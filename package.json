@@ -1,6 +1,6 @@
 {
   "name": "@multiversx/sdk-dapp-core",
-  "version": "0.0.0-alpha.9",
+  "version": "0.0.0-alpha.10",
   "main": "out/index.js",
   "module": "out/index.js",
   "types": "out/index.d.ts",
@@ -21,7 +21,7 @@
   "scripts": {
     "compile": "tsc && tsc-alias",
     "build-esbuild": "rimraf out && node esbuild.js",
-    "publish-verdaccio": "npm unpublish --registry http://localhost:4873 @multiversx/sdk-dapp-core@0.0.0-alpha.3 && rimraf out && yarn compile && npm publish --registry http://localhost:4873",
+    "publish-verdaccio": "npm unpublish --registry http://localhost:4873 @multiversx/sdk-dapp-core@0.0.0-alpha.11 && rimraf out && yarn compile && npm publish --registry http://localhost:4873",
     "build": "yarn build-esbuild && yarn compile",
     "test": "jest",
     "compile-next": "rimraf out && tsc --p tsconfig.next.json && tsc-alias --project tsconfig.next.json"
@@ -32,7 +32,7 @@
   "dependencies": {
     "@lifeomic/axios-fetch": "3.0.1",
     "@multiversx/sdk-extension-provider": "4.0.0-alpha.0",
-    "@multiversx/sdk-hw-provider": "7.0.0-alpha.0",
+    "@multiversx/sdk-hw-provider": "7.0.0",
     "@multiversx/sdk-metamask-provider": "0.0.7",
     "@multiversx/sdk-native-auth-client": "^1.0.8",
     "@multiversx/sdk-opera-provider": "1.0.0-alpha.1",
@@ -41,22 +41,24 @@
     "@multiversx/sdk-web-wallet-provider": "3.2.1",
     "isomorphic-fetch": "3.0.0",
     "lodash": "4.17.21",
+    "protobufjs": "7.3.0",
     "socket.io-client": "4.7.5",
     "zustand": "4.4.7"
   },
   "peerDependencies": {
     "@multiversx/sdk-core": ">= 13.5.0",
-    "@multiversx/sdk-dapp-utils": ">= 0.1.0",
+    "@multiversx/sdk-dapp-utils": ">= 1.0.1",
     "@multiversx/sdk-web-wallet-cross-window-provider": ">= 2.0.1",
     "axios": ">=1.6.5",
-    "bignumber.js": "9.x"
+    "bignumber.js": "9.x",
+    "immer": "10.x"
   },
   "resolutions": {
     "string-width": "4.1.0"
   },
   "devDependencies": {
     "@multiversx/sdk-core": ">= 13.5.0",
-    "@multiversx/sdk-dapp-utils": ">= 0.1.0",
+    "@multiversx/sdk-dapp-utils": "1.0.1",
     "@multiversx/sdk-web-wallet-cross-window-provider": ">= 2.0.1",
     "@swc/core": "^1.4.17",
     "@swc/jest": "^0.2.36",
@@ -85,7 +87,6 @@
     "msw": "1.3.1",
     "node-stdlib-browser": "1.2.0",
     "prettier": "3.2.5",
-    "protobufjs": "^7.3.0",
     "react": "^18.3.1",
     "rimraf": "^5.0.6",
     "ts-jest": "29.1.2",

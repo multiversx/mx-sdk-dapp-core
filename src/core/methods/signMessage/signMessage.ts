@@ -15,17 +15,14 @@ export interface SignMessageType {
   };
 }
 
-// TODO: upgrade to Message
 export const signMessage = async ({
   message,
-  callbackRoute,
   options
 }: SignMessageType): Promise<Nullable<Message>> => {
   const address = getAddress();
   const provider = getAccountProvider();
   const providerType = getProviderType(provider);
 
-  const callbackUrl = addOriginToLocationPath(callbackRoute);
   const messageToSign = new Message({
     address: new Address(address),
     data: message.data
@@ -41,9 +38,7 @@ export const signMessage = async ({
   }
 
   // TODO upgrade sdk-dapp-utils to use Message as input for signMessage method and remove the cast
-  const signedMessage = await provider.signMessage(messageToSign as any, {
-    callbackUrl: encodeURIComponent(callbackUrl)
-  });
+  const signedMessage = await provider.signMessage(messageToSign, options);
 
   // TODO upgrade sdk-dapp-utils to return Message instead of SignableMessage and remove the cast
   return signedMessage as Nullable<Message>;

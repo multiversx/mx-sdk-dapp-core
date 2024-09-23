@@ -977,20 +977,20 @@
     json-bigint "1.0.0"
     keccak "3.0.2"
 
-"@multiversx/sdk-dapp-utils@>= 0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@multiversx/sdk-dapp-utils/-/sdk-dapp-utils-0.1.0.tgz#3103c2ffc648703e75f96acd229af299cb0840ab"
-  integrity sha512-EFvktZ/S1WQ1ie02nnKZHARC4r23JZWwoTFd5py1qi/Z/UoLHIzJ394HLjXFb6gBTsp4wnvNwIXBA/DNrd2Yeg==
+"@multiversx/sdk-dapp-utils@1.0.1":
+  version "1.0.1"
+  resolved "http://localhost:4873/@multiversx/sdk-dapp-utils/-/sdk-dapp-utils-1.0.1.tgz#242a82c1f523efdcdec9a0be7816e079216215f0"
+  integrity sha512-ccmRjbWyxbPqEITwAHdtJ10VXQS6R565gZILMXoyQU7M7yUDnauV15vOfMmYko4MnCJq40U/zxx4dN3mJW4Mgw==
 
 "@multiversx/sdk-extension-provider@4.0.0-alpha.0":
   version "4.0.0-alpha.0"
   resolved "https://registry.yarnpkg.com/@multiversx/sdk-extension-provider/-/sdk-extension-provider-4.0.0-alpha.0.tgz#e00ba0df0d1ef8ac0330ff3f6f0c5ced8163c5b3"
   integrity sha512-LPRy2sgWG1Ti3KMxembP0/13GHntenFK1kbXAfHUJiOH29s4nbGDqBlTI0p42en4c1BGlEbVJEfpUq1LtO5ZYA==
 
-"@multiversx/sdk-hw-provider@7.0.0-alpha.0":
-  version "7.0.0-alpha.0"
-  resolved "https://registry.yarnpkg.com/@multiversx/sdk-hw-provider/-/sdk-hw-provider-7.0.0-alpha.0.tgz#449b96d63ec1efa945ae15a6f217b90338a7a131"
-  integrity sha512-Mrv+AKXoe95CvxoGRVSF7d1MLNjvI3ot+/1muuBc3cgiwcKBFTbdW9cp5P79mEEDizI5foy/Gscn1Qs5Nh2Hrg==
+"@multiversx/sdk-hw-provider@7.0.0":
+  version "7.0.0"
+  resolved "http://localhost:4873/@multiversx/sdk-hw-provider/-/sdk-hw-provider-7.0.0.tgz#dafb239179949e23a75805c7cd386d618b1855cd"
+  integrity sha512-ZRGp5q985v5wvjnSZw+uvEXKGwe5YORuULhYMVoh63cPtGhyHIxl7H9D190KtSV0/LJfTcVUDDrtKoepOoKuVA==
   dependencies:
     "@ledgerhq/devices" "8.0.3"
     "@ledgerhq/errors" "6.12.6"
@@ -5859,10 +5859,10 @@ prompts@^2.0.1:
     kleur "^3.0.3"
     sisteransi "^1.0.5"
 
-protobufjs@^7.3.0:
-  version "7.4.0"
-  resolved "https://registry.yarnpkg.com/protobufjs/-/protobufjs-7.4.0.tgz#7efe324ce9b3b61c82aae5de810d287bc08a248a"
-  integrity sha512-mRUWCc3KUU4w1jU8sGxICXH/gNS94DvI1gxqDvBzhj1JpcsimQkYiOJfwsPUykUI5ZaspFbSgmBLER8IrQ3tqw==
+protobufjs@7.3.0:
+  version "7.3.0"
+  resolved "https://registry.yarnpkg.com/protobufjs/-/protobufjs-7.3.0.tgz#a32ec0422c039798c41a0700306a6e305b9cb32c"
+  integrity sha512-YWD03n3shzV9ImZRX3ccbjqLxj7NokGN0V/ESiBV5xWqrommYHYiihuIyavq03pWSGqlyvYUFmfoMKd+1rPA/g==
   dependencies:
     "@protobufjs/aspromise" "^1.1.2"
     "@protobufjs/base64" "^1.1.2"
