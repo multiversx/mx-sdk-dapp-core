@@ -3,8 +3,6 @@ import { IHWWalletApp } from '@multiversx/sdk-hw-provider/out/interface';
 
 import { LEDGER_CONTRACT_DATA_ENABLED_VALUE } from 'constants/index';
 
-export const DAPP_INIT_ROUTE = '/dapp/init';
-
 export const getLedgerConfiguration = async (
   initializedHwWalletP: HWProvider
 ) => {

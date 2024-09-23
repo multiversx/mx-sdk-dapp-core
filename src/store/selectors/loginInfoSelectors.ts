@@ -10,3 +10,6 @@ export const walletConnectLoginSelector = ({ loginInfo }: StoreType) =>
 
 export const providerTypeSelector = ({ loginInfo }: StoreType) =>
   loginInfo.providerType;
+
+export const ledgerLoginSelector = ({ loginInfo }: StoreType) =>
+  loginInfo.ledgerLogin;

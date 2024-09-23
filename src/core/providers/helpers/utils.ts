@@ -17,7 +17,7 @@ export const getProviderType = <TProvider extends object>(
     case WalletConnectV2Provider:
       return ProviderTypeEnum.walletConnect;
     case HWProvider:
-      return ProviderTypeEnum.hardware;
+      return ProviderTypeEnum.ledger;
     case ExtensionProvider:
       return ProviderTypeEnum.extension;
     case MetamaskProvider:

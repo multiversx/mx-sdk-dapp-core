@@ -33,7 +33,7 @@ export enum ProviderTypeEnum {
   crossWindow = 'crossWindow',
   extension = 'extension',
   walletConnect = 'walletConnect',
-  hardware = 'hardware',
+  ledger = 'ledger',
   opera = 'opera',
   metamask = 'metamask',
   webhook = 'webhook',
