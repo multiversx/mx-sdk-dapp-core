@@ -69,6 +69,10 @@ export class ProviderFactory {
 
         createdProvider = provider as unknown as IProvider;
 
+        createdProvider.getType = () => {
+          return ProviderTypeEnum.metamask;
+        };
+
         break;
       }
 
