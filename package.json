@@ -19,9 +19,10 @@
     "url": "git+https://github.com/multiversx/mx-sdk-dapp-core.git"
   },
   "scripts": {
+    "unpublish-verdaccio": "npm unpublish @multiversx/sdk-dapp-core@0.0.0-alpha.10 --registry http://localhost:4873",
+    "publish-verdaccio": "npm run unpublish-verdaccio && npm run compile && npm publish --registry http://localhost:4873/",
     "compile": "tsc && tsc-alias",
     "build-esbuild": "rimraf out && node esbuild.js",
-    "publish-verdaccio": "npm unpublish --registry http://localhost:4873 @multiversx/sdk-dapp-core@0.0.0-alpha.11 && rimraf out && yarn compile && npm publish --registry http://localhost:4873",
     "build": "yarn build-esbuild && yarn compile",
     "test": "jest",
     "compile-next": "rimraf out && tsc --p tsconfig.next.json && tsc-alias --project tsconfig.next.json"
@@ -38,6 +39,7 @@
     "@multiversx/sdk-opera-provider": "1.0.0-alpha.1",
     "@multiversx/sdk-wallet": "4.5.1",
     "@multiversx/sdk-wallet-connect-provider": "4.1.2",
+    "@multiversx/sdk-web-wallet-iframe-provider": "2.0.0",
     "@multiversx/sdk-web-wallet-provider": "3.2.1",
     "isomorphic-fetch": "3.0.0",
     "lodash": "4.17.21",

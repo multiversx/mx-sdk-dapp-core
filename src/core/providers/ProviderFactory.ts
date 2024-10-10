@@ -1,12 +1,14 @@
-import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
-import { ExtensionProvider } from '@multiversx/sdk-extension-provider';
 import {
   IProvider,
   IProviderFactory,
   ProviderTypeEnum
 } from './types/providerFactory.types';
-import { isBrowserWithPopupConfirmation } from '../../constants';
 import { createLedgerProvider } from './helpers/ledger/createLedgerProvider';
+import { createCrossWindowProvider } from './helpers/crossWindow/createCrossWindowProvider';
+import { createExtensionProvider } from './helpers/extension/createExtensionProvider';
+import { createMetamaskProvider } from './helpers/iframe/createMetamaskProvider';
+
+console.log('\x1b[42m%s\x1b[0m', 'sdk-dapp-core', 2);
 
 export class ProviderFactory {
   public async create({
@@ -18,7 +20,7 @@ export class ProviderFactory {
 
     switch (type) {
       case ProviderTypeEnum.extension: {
-        const provider = await this.getExtensionProvider();
+        const provider = await createExtensionProvider();
         createdProvider = provider as unknown as IProvider;
 
         createdProvider.getType = () => {
@@ -31,7 +33,7 @@ export class ProviderFactory {
       case ProviderTypeEnum.crossWindow: {
         const { walletAddress } = config.network;
 
-        const provider = await this.createCrossWindowProvider({
+        const provider = await createCrossWindowProvider({
           walletAddress,
           address: config.account?.address || ''
         });
@@ -56,6 +58,20 @@ export class ProviderFactory {
         break;
       }
 
+      case ProviderTypeEnum.metamask: {
+        const provider = await createMetamaskProvider(
+          'https://signing-providers.multiversx.com'
+        );
+
+        if (!provider) {
+          return;
+        }
+
+        createdProvider = provider as unknown as IProvider;
+
+        break;
+      }
+
       case ProviderTypeEnum.custom: {
         createdProvider = customProvider;
         break;
@@ -66,30 +82,5 @@ export class ProviderFactory {
     }
 
     return createdProvider;
-  }
-
-  public async createCrossWindowProvider({
-    address,
-    walletAddress
-  }: {
-    address: string;
-    walletAddress: string;
-  }) {
-    const provider = CrossWindowProvider.getInstance();
-    await provider.init();
-    provider.setWalletUrl(String(walletAddress));
-    provider.setAddress(address);
-
-    if (isBrowserWithPopupConfirmation) {
-      provider.setShouldShowConsentPopup(true);
-    }
-
-    return provider;
-  }
-
-  private async getExtensionProvider() {
-    const provider = ExtensionProvider.getInstance();
-    await provider.init();
-    return provider;
   }
 }
