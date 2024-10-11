@@ -1,7 +1,7 @@
 import { ExtensionProvider } from '@multiversx/sdk-extension-provider/out/extensionProvider';
 
-export async function createExtensionProvider() {
+export const createExtensionProvider = async () => {
   const provider = ExtensionProvider.getInstance();
   await provider.init();
   return provider;
-}
+};

@@ -3,15 +3,15 @@ import { IframeLoginTypes } from '@multiversx/sdk-web-wallet-iframe-provider/out
 import { networkSelector } from 'store/selectors';
 import { getState } from 'store/store';
 
-type CreateMetamaskProviderType = {
+interface ICreateMetamaskProviderProps {
   address?: string;
   metamaskSnapWalletAddress?: string;
-};
+}
 
-export async function createMetamaskProvider({
+export const createMetamaskProvider = async ({
   metamaskSnapWalletAddress,
   address = ''
-}: CreateMetamaskProviderType) {
+}: ICreateMetamaskProviderProps) => {
   const network = networkSelector(getState());
   const provider = IframeProvider.getInstance();
   provider.setLoginType(IframeLoginTypes.metamask);
@@ -25,4 +25,4 @@ export async function createMetamaskProvider({
 
   await provider.init();
   return provider;
-}
+};

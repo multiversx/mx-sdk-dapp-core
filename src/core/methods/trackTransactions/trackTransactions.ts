@@ -14,7 +14,7 @@ import { websocketEventSelector } from 'store/selectors/accountSelectors';
  * @param props - optional object with additional websocket parameters
  * @returns cleanup function
  */
-export async function trackTransactions(props?: TransactionsTrackerType) {
+export const trackTransactions = async (props?: TransactionsTrackerType) => {
   const store = getStore();
   const pollingInterval = getPollingInterval();
   let pollingIntervalTimer: NodeJS.Timeout | null = null;
@@ -70,4 +70,4 @@ export async function trackTransactions(props?: TransactionsTrackerType) {
   return {
     cleanup
   };
-}
+};

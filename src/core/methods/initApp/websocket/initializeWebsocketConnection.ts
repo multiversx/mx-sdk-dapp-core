@@ -22,7 +22,7 @@ const BATCH_UPDATED_EVENT = 'batchUpdated';
 const CONNECT = 'connect';
 const DISCONNECT = 'disconnect';
 
-export async function initializeWebsocketConnection() {
+export const initializeWebsocketConnection = async () => {
   const { address } = getAccount();
   const { apiAddress } = networkSelector(getStore().getState());
 
@@ -110,4 +110,4 @@ export async function initializeWebsocketConnection() {
   return {
     closeConnection
   };
-}
+};

@@ -20,9 +20,7 @@ export const createLedgerProvider = async () => {
 
   const hwProviderLogin = provider.login;
 
-  createdProvider.getType = () => {
-    return ProviderTypeEnum.ledger;
-  };
+  createdProvider.getType = () => ProviderTypeEnum.ledger;
 
   createdProvider.login = async (options?: {
     callbackUrl?: string | undefined;
