@@ -6,10 +6,10 @@ interface ICreateCrossWindowProviderProps {
   walletAddress: string;
 }
 
-export const createCrossWindowProvider = async ({
+export async function createCrossWindowProvider({
   address = '',
   walletAddress
-}: ICreateCrossWindowProviderProps) => {
+}: ICreateCrossWindowProviderProps) {
   const provider = CrossWindowProvider.getInstance();
   await provider.init();
   provider.setWalletUrl(String(walletAddress));
@@ -20,4 +20,4 @@ export const createCrossWindowProvider = async ({
   }
 
   return provider;
-};
+}

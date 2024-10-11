@@ -6,7 +6,7 @@ import { getAccountProvider } from '../../accountProvider';
 import { logout } from 'core/methods/logout/logout';
 import { getLedgerConfiguration } from './getLedgerConfiguration';
 
-export const getLedgerProvider = async () => {
+export async function getLedgerProvider() {
   const isLoggedIn = getIsLoggedIn();
   const ledgerLogin = ledgerLoginSelector(getState());
   const provider = getAccountProvider();
@@ -65,4 +65,4 @@ export const getLedgerProvider = async () => {
 
     return null;
   }
-};
+}

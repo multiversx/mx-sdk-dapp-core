@@ -33,12 +33,12 @@ export type LogoutPropsType = {
   hasConsentPopup?: boolean;
 };
 
-export const logout = async (
+export async function logout(
   options = {
     shouldBroadcastLogoutAcrossTabs: true,
     hasConsentPopup: false
   }
-) => {
+) {
   let address = getAddress();
   const provider = getAccountProvider();
   const providerType = getProviderType(provider);
@@ -63,4 +63,4 @@ export const logout = async (
   } catch (err) {
     console.error('Logging out error:', err);
   }
-};
+}

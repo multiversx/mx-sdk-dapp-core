@@ -8,10 +8,10 @@ interface ICreateMetamaskProviderProps {
   metamaskSnapWalletAddress?: string;
 }
 
-export const createMetamaskProvider = async ({
+export async function createMetamaskProvider({
   metamaskSnapWalletAddress,
   address = ''
-}: ICreateMetamaskProviderProps) => {
+}: ICreateMetamaskProviderProps) {
   const network = networkSelector(getState());
   const provider = IframeProvider.getInstance();
   provider.setLoginType(IframeLoginTypes.metamask);
@@ -25,4 +25,4 @@ export const createMetamaskProvider = async ({
 
   await provider.init();
   return provider;
-};
+}

@@ -5,11 +5,11 @@ import { walletAddressSelector } from 'store/selectors';
 import { getState } from 'store/store';
 import { createCrossWindowProvider } from 'core/providers/helpers/crossWindow/createCrossWindowProvider';
 
-export const getGuardedTransactions = async ({
+export async function getGuardedTransactions({
   transactions
 }: {
   transactions: Transaction[];
-}): Promise<Transaction[]> => {
+}): Promise<Transaction[]> {
   const { isGuarded, address } = getAccount();
   const walletAddress = walletAddressSelector(getState());
 
@@ -31,4 +31,4 @@ export const getGuardedTransactions = async ({
   const guardedTransactions = await provider.guardTransactions(transactions);
 
   return guardedTransactions;
-};
+}

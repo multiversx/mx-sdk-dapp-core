@@ -10,11 +10,11 @@ interface GetAccountFromTokenType {
   };
 }
 
-export const getAccountFromToken = async ({
+export async function getAccountFromToken({
   originalLoginToken,
   extraInfoData,
   address
-}: GetAccountFromTokenType) => {
+}: GetAccountFromTokenType) {
   const modifiedLoginToken = await getModifiedLoginToken({
     loginToken: originalLoginToken,
     extraInfoData
@@ -32,4 +32,4 @@ export const getAccountFromToken = async ({
     address: accountAddress,
     modifiedLoginToken
   };
-};
+}

@@ -8,9 +8,9 @@ import { EmptyProvider } from './emptyProvider';
 import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
 import { ProviderTypeEnum } from 'core/providers/types/providerFactory.types';
 
-export const getProviderType = <TProvider extends object>(
+export function getProviderType<TProvider extends object>(
   provider?: TProvider | null
-): ProviderTypeEnum => {
+): ProviderTypeEnum {
   switch (provider?.constructor) {
     case WalletProvider:
       return ProviderTypeEnum.webhook;
@@ -30,4 +30,4 @@ export const getProviderType = <TProvider extends object>(
     default:
       return ProviderTypeEnum.none;
   }
-};
+}

@@ -16,12 +16,12 @@ interface IExtractAccountFromTokenProps {
   provider: IProvider;
 }
 
-export const extractAccountFromToken = async ({
+export async function extractAccountFromToken({
   loginToken,
   extraInfoData,
   address,
   provider
-}: IExtractAccountFromTokenProps) => {
+}: IExtractAccountFromTokenProps) {
   const accountDetails = await getAccountFromToken({
     originalLoginToken: loginToken,
     extraInfoData,
@@ -52,4 +52,4 @@ export const extractAccountFromToken = async ({
   }
 
   return accountDetails;
-};
+}

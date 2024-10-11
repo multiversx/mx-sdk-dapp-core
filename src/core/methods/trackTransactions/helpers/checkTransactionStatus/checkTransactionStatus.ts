@@ -3,11 +3,11 @@ import { checkBatch } from './checkBatch';
 import { getPendingStoreTransactions } from '../getPendingStoreTransactions';
 import { TransactionsTrackerType } from '../../trackTransactions.types';
 
-export const checkTransactionStatus = async (
+export async function checkTransactionStatus(
   props: TransactionsTrackerType & {
     shouldRefreshBalance?: boolean;
   }
-) => {
+) {
   const { pendingSessions } = getPendingStoreTransactions();
   if (Object.keys(pendingSessions).length > 0) {
     for (const [sessionId, { transactions }] of Object.entries(
@@ -24,4 +24,4 @@ export const checkTransactionStatus = async (
   if (props.shouldRefreshBalance) {
     await refreshAccount();
   }
-};
+}

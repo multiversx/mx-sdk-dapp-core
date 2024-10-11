@@ -124,7 +124,7 @@ function manageTransaction({
   }
 }
 
-export const checkBatch = async ({
+export async function checkBatch({
   sessionId,
   transactionBatch: transactions,
   getTransactionsByHash = getTransactionsByHashes,
@@ -132,7 +132,7 @@ export const checkBatch = async ({
   isSequential,
   onSuccess,
   onFail
-}: TransactionStatusTrackerPropsType) => {
+}: TransactionStatusTrackerPropsType) {
   try {
     if (transactions == null) {
       return;
@@ -187,4 +187,4 @@ export const checkBatch = async ({
   } catch (error) {
     console.error(error);
   }
-};
+}

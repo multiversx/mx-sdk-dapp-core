@@ -28,10 +28,10 @@ const defaultInitAppProps = {
    });
  *  ```
  * */
-export const initApp = async ({
+export async function initApp({
   storage = defaultInitAppProps.storage,
   dAppConfig
-}: InitAppType) => {
+}: InitAppType) {
   initStore(storage.getStorageCallback);
 
   const shouldEnableTransactionTracker =
@@ -61,4 +61,4 @@ export const initApp = async ({
     await restoreProvider();
     await registerWebsocketListener();
   }
-};
+}

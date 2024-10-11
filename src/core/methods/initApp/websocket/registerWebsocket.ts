@@ -5,7 +5,7 @@ import { getAccount } from 'core/methods/account/getAccount';
 let localAddress = '';
 let closeConnectionRef: () => void;
 
-export const registerWebsocketListener = async () => {
+export async function registerWebsocketListener() {
   const store = getStore();
   const account = getAccount();
   localAddress = account.address;
@@ -22,4 +22,4 @@ export const registerWebsocketListener = async () => {
       closeConnectionRef = closeConnection;
     }
   });
-};
+}

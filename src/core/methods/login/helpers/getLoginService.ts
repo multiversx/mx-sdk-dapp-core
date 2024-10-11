@@ -21,7 +21,7 @@ const getApiAddress = (
   return config.apiAddress ?? apiAddress;
 };
 
-export const getLoginService = (config?: OnProviderLoginType['nativeAuth']) => {
+export function getLoginService(config?: OnProviderLoginType['nativeAuth']) {
   const network = networkSelector(getState());
 
   const tokenLogin = tokenLoginSelector(getState());
@@ -138,4 +138,4 @@ export const getLoginService = (config?: OnProviderLoginType['nativeAuth']) => {
     setTokenLoginInfo,
     refreshNativeAuthTokenLogin
   };
-};
+}

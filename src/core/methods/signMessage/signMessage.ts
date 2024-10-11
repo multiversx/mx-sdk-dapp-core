@@ -15,10 +15,10 @@ export interface SignMessageType {
   };
 }
 
-export const signMessage = async ({
+export async function signMessage({
   message,
   options
-}: SignMessageType): Promise<Nullable<Message>> => {
+}: SignMessageType): Promise<Nullable<Message>> {
   const address = getAddress();
   const provider = getAccountProvider();
   const providerType = getProviderType(provider);
@@ -42,4 +42,4 @@ export const signMessage = async ({
 
   // TODO upgrade sdk-dapp-utils to return Message instead of SignableMessage and remove the cast
   return signedMessage as Nullable<Message>;
-};
+}

@@ -7,7 +7,7 @@ import { fetchAccount } from 'utils/account/fetchAccount';
 import { setLedgerLogin } from 'store/actions/loginInfo/loginInfoActions';
 import { setLedgerAccount } from 'store/actions/account/accountActions';
 
-export const createLedgerProvider = async () => {
+export async function createLedgerProvider() {
   const data = await getLedgerProvider();
 
   if (!data) {
@@ -23,8 +23,8 @@ export const createLedgerProvider = async () => {
   createdProvider.getType = () => ProviderTypeEnum.ledger;
 
   createdProvider.login = async (options?: {
-    callbackUrl?: string | undefined;
-    token?: string | undefined;
+    callbackUrl?: string;
+    token?: string;
   }): Promise<{
     address: string;
     signature: string;
@@ -103,4 +103,4 @@ export const createLedgerProvider = async () => {
   };
 
   return createdProvider;
-};
+}

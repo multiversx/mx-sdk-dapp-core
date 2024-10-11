@@ -5,9 +5,9 @@ import { getState } from 'store/store';
 import { TransactionServerStatusesEnum } from 'types';
 import { SignedTransactionType } from 'types/transactions.types';
 
-export const sendSignedTransactions = async (
+export async function sendSignedTransactions(
   signedTransactions: Transaction[]
-): Promise<SignedTransactionType[]> => {
+): Promise<SignedTransactionType[]> {
   const { apiAddress, apiTimeout } = networkSelector(getState());
 
   const promises = signedTransactions.map((transaction) => {
@@ -34,4 +34,4 @@ export const sendSignedTransactions = async (
   });
 
   return sentTransactions;
-};
+}

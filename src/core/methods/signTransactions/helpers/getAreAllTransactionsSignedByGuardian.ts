@@ -1,12 +1,14 @@
 import { Transaction } from '@multiversx/sdk-core/out';
 
-export const getAreAllTransactionsSignedByGuardian = ({
-  transactions,
-  isGuarded
-}: {
+interface IGetAreAllTransactionsSignedByGuardian {
   transactions: Transaction[];
   isGuarded?: boolean;
-}) => {
+}
+
+export function getAreAllTransactionsSignedByGuardian({
+  transactions,
+  isGuarded
+}: IGetAreAllTransactionsSignedByGuardian) {
   if (!isGuarded) {
     return true;
   }
@@ -18,4 +20,4 @@ export const getAreAllTransactionsSignedByGuardian = ({
   return transactions.every((tx) =>
     Boolean(tx.getGuardianSignature().toString('hex'))
   );
-};
+}

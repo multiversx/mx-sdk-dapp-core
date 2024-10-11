@@ -2,7 +2,7 @@ import { TRANSACTIONS_STATUS_POLLING_INTERVAL_MS } from 'constants/transactions.
 import { roundDurationSelectorSelector } from 'store/selectors';
 import { getState } from 'store/store';
 
-export const getPollingInterval = () => {
+export function getPollingInterval() {
   const roundDuration = roundDurationSelectorSelector(getState());
 
   if (!roundDuration) {
@@ -11,4 +11,4 @@ export const getPollingInterval = () => {
 
   // Polling interval should not be less than 1s
   return Math.max(1000, roundDuration / 2);
-};
+}
