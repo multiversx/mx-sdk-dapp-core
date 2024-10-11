@@ -20,7 +20,7 @@ export const signTransactions = async (
   const { isGuarded, activeGuardianAddress } = getAccount();
 
   const transacitonsToSign =
-    activeGuardianAddress && !options.skipGuardian
+    activeGuardianAddress && isGuarded && !options.skipGuardian
       ? transactions?.map((transaction) => {
           transaction.setVersion(TransactionVersion.withTxOptions());
           transaction.setOptions(
