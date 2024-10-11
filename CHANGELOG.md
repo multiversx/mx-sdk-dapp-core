@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- [Metamask integration](https://github.com/multiversx/mx-sdk-dapp-core/pull/27)
 - [Extension integration](https://github.com/multiversx/mx-sdk-dapp-core/pull/26)
 - [Ledger integration](https://github.com/multiversx/mx-sdk-dapp-core/pull/22)
 - [Added sign, send, & track transactions with websocket connection](https://github.com/multiversx/mx-sdk-dapp-core/pull/21)
