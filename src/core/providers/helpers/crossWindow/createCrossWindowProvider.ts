@@ -1,13 +1,15 @@
 import { isBrowserWithPopupConfirmation } from 'constants/browser.constants';
 import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
 
-export async function createCrossWindowProvider({
-  address,
-  walletAddress
-}: {
-  address: string;
+type CreateCrossWindowProviderType = {
+  address?: string;
   walletAddress: string;
-}) {
+};
+
+export async function createCrossWindowProvider({
+  address = '',
+  walletAddress
+}: CreateCrossWindowProviderType) {
   const provider = CrossWindowProvider.getInstance();
   await provider.init();
   provider.setWalletUrl(String(walletAddress));

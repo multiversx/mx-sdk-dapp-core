@@ -8,8 +8,6 @@ import { createCrossWindowProvider } from './helpers/crossWindow/createCrossWind
 import { createExtensionProvider } from './helpers/extension/createExtensionProvider';
 import { createMetamaskProvider } from './helpers/iframe/createMetamaskProvider';
 
-console.log('\x1b[42m%s\x1b[0m', 'sdk-dapp-core', 2);
-
 export class ProviderFactory {
   public async create({
     type,
@@ -35,7 +33,7 @@ export class ProviderFactory {
 
         const provider = await createCrossWindowProvider({
           walletAddress,
-          address: config.account?.address || ''
+          address: config.account?.address
         });
         createdProvider = provider as unknown as IProvider;
 
@@ -59,9 +57,9 @@ export class ProviderFactory {
       }
 
       case ProviderTypeEnum.metamask: {
-        const provider = await createMetamaskProvider(
-          'https://signing-providers.multiversx.com'
-        );
+        const provider = await createMetamaskProvider({
+          address: config.account?.address
+        });
 
         if (!provider) {
           return;
