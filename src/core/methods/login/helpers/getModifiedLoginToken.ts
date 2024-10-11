@@ -10,10 +10,10 @@ export interface GetMultiSigLoginTokenType {
   };
 }
 
-export const getModifiedLoginToken = async ({
+export async function getModifiedLoginToken({
   loginToken,
   extraInfoData
-}: GetMultiSigLoginTokenType) => {
+}: GetMultiSigLoginTokenType) {
   if (loginToken == null || Object.keys(extraInfoData).length === 0) {
     return null;
   }
@@ -40,4 +40,4 @@ export const getModifiedLoginToken = async ({
   });
 
   return tokenLogin;
-};
+}

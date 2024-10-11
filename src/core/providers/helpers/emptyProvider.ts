@@ -66,14 +66,16 @@ export class EmptyProvider implements IProvider {
   ): Promise<TResponse> {
     throw new Error(
       notInitializedError(
-        `signTransaction with transactions: ${transaction} options: ${options}`
+        `signTransaction with transactions: ${JSON.stringify(transaction)} options: ${options}`
       )
     );
   }
 
   signTransactions<T>(transactions: T[]): Promise<T[]> {
     throw new Error(
-      notInitializedError(`signTransactions with transactions: ${transactions}`)
+      notInitializedError(
+        `signTransactions with transactions: ${JSON.stringify(transactions)}`
+      )
     );
   }
 

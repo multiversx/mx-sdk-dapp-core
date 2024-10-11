@@ -1,16 +1,12 @@
-import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
-import { ExtensionProvider } from '@multiversx/sdk-extension-provider';
 import {
   IProvider,
-  IProviderConfig,
   IProviderFactory,
   ProviderTypeEnum
 } from './types/providerFactory.types';
-import { isBrowserWithPopupConfirmation } from '../../constants';
-import { fetchAccount } from 'utils';
-import { setLedgerLogin } from 'store/actions/loginInfo/loginInfoActions';
-import { setLedgerAccount } from 'store/actions/account/accountActions';
-import { getLedgerProvider } from './helpers/getLedgerProvider';
+import { createLedgerProvider } from './helpers/ledger/createLedgerProvider';
+import { createCrossWindowProvider } from './helpers/crossWindow/createCrossWindowProvider';
+import { createExtensionProvider } from './helpers/extension/createExtensionProvider';
+import { createMetamaskProvider } from './helpers/iframe/createMetamaskProvider';
 
 export class ProviderFactory {
   public async create({
@@ -22,7 +18,7 @@ export class ProviderFactory {
 
     switch (type) {
       case ProviderTypeEnum.extension: {
-        const provider = await this.getExtensionProvider();
+        const provider = await createExtensionProvider();
         createdProvider = provider as unknown as IProvider;
 
         createdProvider.getType = () => {
@@ -35,9 +31,9 @@ export class ProviderFactory {
       case ProviderTypeEnum.crossWindow: {
         const { walletAddress } = config.network;
 
-        const provider = await this.createCrossWindowProvider({
+        const provider = await createCrossWindowProvider({
           walletAddress,
-          address: config.account?.address || ''
+          address: config.account?.address
         });
         createdProvider = provider as unknown as IProvider;
 
@@ -49,104 +45,30 @@ export class ProviderFactory {
       }
 
       case ProviderTypeEnum.ledger: {
-        const data = await getLedgerProvider();
+        const ledgerProvider = await createLedgerProvider();
 
-        if (!data) {
+        if (!ledgerProvider) {
           return;
         }
 
-        const { ledgerProvider: provider, ledgerConfig } = data;
+        createdProvider = ledgerProvider;
+
+        break;
+      }
+
+      case ProviderTypeEnum.metamask: {
+        const provider = await createMetamaskProvider({
+          address: config.account?.address
+        });
+
+        if (!provider) {
+          return;
+        }
 
         createdProvider = provider as unknown as IProvider;
 
-        const hwProviderLogin = provider.login;
-
         createdProvider.getType = () => {
-          return ProviderTypeEnum.ledger;
-        };
-
-        createdProvider.login = async (options?: {
-          callbackUrl?: string | undefined;
-          token?: string | undefined;
-        }): Promise<{
-          address: string;
-          signature: string;
-        }> => {
-          const isConnected = provider.isConnected();
-
-          if (!isConnected) {
-            throw new Error('Ledger device is not connected');
-          }
-
-          // TODO: perform additional UI logic here
-          // maybe extract to file
-          const startIndex = 0;
-          const addressesPerPage = 10;
-
-          const accounts = await provider.getAccounts(
-            startIndex,
-            addressesPerPage
-          );
-
-          const accountsWithBalance: {
-            address: string;
-            balance: string;
-            index: number;
-          }[] = [];
-
-          const balancePromises = accounts.map((address) =>
-            fetchAccount(address)
-          );
-
-          const balances = await Promise.all(balancePromises);
-
-          balances.forEach((account, index) => {
-            if (!account) {
-              return;
-            }
-            accountsWithBalance.push({
-              address: account.address,
-              balance: account.balance,
-              index
-            });
-          });
-
-          // Suppose user selects the first account
-          const selectedIndex = 0;
-
-          setLedgerLogin({
-            index: selectedIndex,
-            loginType: ProviderTypeEnum.ledger
-          });
-
-          const { version, dataEnabled } = ledgerConfig;
-
-          setLedgerAccount({
-            address: accountsWithBalance[selectedIndex].address,
-            index: selectedIndex,
-            version,
-            hasContractDataEnabled: dataEnabled
-          });
-
-          if (options?.token) {
-            const loginInfo = await provider.tokenLogin({
-              token: Buffer.from(`${options?.token}{}`),
-              addressIndex: accountsWithBalance[selectedIndex].index
-            });
-
-            return {
-              address: loginInfo.address,
-              signature: loginInfo.signature.toString('hex')
-            };
-          } else {
-            const { address } = await hwProviderLogin({
-              addressIndex: accountsWithBalance[selectedIndex].index
-            });
-            return {
-              address,
-              signature: ''
-            };
-          }
+          return ProviderTypeEnum.metamask;
         };
 
         break;
@@ -162,30 +84,5 @@ export class ProviderFactory {
     }
 
     return createdProvider;
-  }
-
-  public async createCrossWindowProvider({
-    address,
-    walletAddress
-  }: {
-    address: string;
-    walletAddress: string;
-  }) {
-    const provider = CrossWindowProvider.getInstance();
-    await provider.init();
-    provider.setWalletUrl(String(walletAddress));
-    provider.setAddress(address);
-
-    if (isBrowserWithPopupConfirmation) {
-      provider.setShouldShowConsentPopup(true);
-    }
-
-    return provider;
-  }
-
-  private async getExtensionProvider() {
-    const provider = ExtensionProvider.getInstance();
-    await provider.init();
-    return provider;
   }
 }

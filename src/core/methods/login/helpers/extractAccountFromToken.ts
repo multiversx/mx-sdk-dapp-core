@@ -6,12 +6,7 @@ import { AccountType } from 'types/account.types';
 import { getAccountFromToken } from './getAccountFromToken';
 import { getLatestNonce } from 'core/methods/account/getLatestNonce';
 
-export async function extractAccountFromToken({
-  loginToken,
-  extraInfoData,
-  address,
-  provider
-}: {
+interface IExtractAccountFromTokenProps {
   loginToken: string;
   extraInfoData: {
     multisig?: string;
@@ -19,7 +14,14 @@ export async function extractAccountFromToken({
   };
   address: string;
   provider: IProvider;
-}) {
+}
+
+export async function extractAccountFromToken({
+  loginToken,
+  extraInfoData,
+  address,
+  provider
+}: IExtractAccountFromTokenProps) {
   const accountDetails = await getAccountFromToken({
     originalLoginToken: loginToken,
     extraInfoData,

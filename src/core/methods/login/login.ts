@@ -104,11 +104,11 @@ async function loginWithNativeToken(
   };
 }
 
-export const login = async ({
+export async function login({
   providerConfig
 }: {
   providerConfig: IProviderFactory;
-}) => {
+}) {
   const loggedIn = getIsLoggedIn();
 
   if (loggedIn) {
@@ -138,4 +138,4 @@ export const login = async ({
   await registerWebsocketListener();
 
   return data;
-};
+}

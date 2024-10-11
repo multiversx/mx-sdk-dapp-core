@@ -12,15 +12,15 @@ type SignTransactionsOptionsType = {
   skipGuardian?: boolean;
 };
 
-export const signTransactions = async (
+export async function signTransactions(
   transactions: Transaction[],
   options: SignTransactionsOptionsType = {}
-): Promise<Transaction[]> => {
+): Promise<Transaction[]> {
   const provider = getAccountProvider();
   const { isGuarded, activeGuardianAddress } = getAccount();
 
   const transacitonsToSign =
-    activeGuardianAddress && !options.skipGuardian
+    activeGuardianAddress && isGuarded && !options.skipGuardian
       ? transactions?.map((transaction) => {
           transaction.setVersion(TransactionVersion.withTxOptions());
           transaction.setOptions(
@@ -39,4 +39,4 @@ export const signTransactions = async (
     : signedTransactions;
 
   return guardedTransactions;
-};
+}

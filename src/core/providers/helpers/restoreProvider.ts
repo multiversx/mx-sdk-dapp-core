@@ -5,7 +5,7 @@ import { getState } from 'store/store';
 import { setAccountProvider } from '../accountProvider';
 import { getAddress } from 'core/methods/account/getAddress';
 
-export const restoreProvider = async () => {
+export async function restoreProvider() {
   const type = providerTypeSelector(getState());
   const address = getAddress();
 
@@ -32,4 +32,4 @@ export const restoreProvider = async () => {
   }
 
   setAccountProvider(provider);
-};
+}

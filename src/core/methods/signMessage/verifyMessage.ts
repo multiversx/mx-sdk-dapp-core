@@ -1,7 +1,8 @@
 import { Address, SignableMessage } from '@multiversx/sdk-core/out';
 import { getVerifier } from './getVerifier';
 
-export const verifyMessage = (signedMessage: string) => {
+// TODO: upgrade
+export function verifyMessage(signedMessage: string) {
   try {
     const { message, address, signature } = JSON.parse(signedMessage);
 
@@ -32,4 +33,4 @@ export const verifyMessage = (signedMessage: string) => {
       address: ''
     };
   }
-};
+}
