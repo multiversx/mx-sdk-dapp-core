@@ -7,6 +7,7 @@ import { createLedgerProvider } from './helpers/ledger/createLedgerProvider';
 import { createCrossWindowProvider } from './helpers/crossWindow/createCrossWindowProvider';
 import { createExtensionProvider } from './helpers/extension/createExtensionProvider';
 import { createMetamaskProvider } from './helpers/iframe/createMetamaskProvider';
+import { createWalletconnectProvider } from './helpers/walletconnect/createWalletconnectProvider';
 
 export class ProviderFactory {
   public async create({
@@ -71,6 +72,11 @@ export class ProviderFactory {
           return ProviderTypeEnum.metamask;
         };
 
+        break;
+      }
+
+      case ProviderTypeEnum.walletconnect: {
+        createdProvider = createWalletconnectProvider();
         break;
       }
 

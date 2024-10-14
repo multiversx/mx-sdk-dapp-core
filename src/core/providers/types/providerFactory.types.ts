@@ -32,7 +32,7 @@ export enum ProviderTypeEnum {
   iframe = 'iframe',
   crossWindow = 'crossWindow',
   extension = 'extension',
-  walletConnect = 'walletConnect',
+  walletconnect = 'walletconnect',
   ledger = 'ledger',
   opera = 'opera',
   metamask = 'metamask',

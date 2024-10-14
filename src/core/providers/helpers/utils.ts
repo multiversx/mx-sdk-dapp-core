@@ -15,7 +15,7 @@ export function getProviderType<TProvider extends object>(
     case WalletProvider:
       return ProviderTypeEnum.webhook;
     case WalletConnectV2Provider:
-      return ProviderTypeEnum.walletConnect;
+      return ProviderTypeEnum.walletconnect;
     case HWProvider:
       return ProviderTypeEnum.ledger;
     case ExtensionProvider:
