@@ -8,6 +8,8 @@ import { createCrossWindowProvider } from './helpers/crossWindow/createCrossWind
 import { createExtensionProvider } from './helpers/extension/createExtensionProvider';
 import { createMetamaskProvider } from './helpers/iframe/createMetamaskProvider';
 import { createWalletconnectProvider } from './helpers/walletconnect/createWalletconnectProvider';
+import { networkSelector } from 'store/selectors';
+import { getState } from 'store/store';
 
 export class ProviderFactory {
   public async create({
@@ -16,6 +18,7 @@ export class ProviderFactory {
     customProvider
   }: IProviderFactory): Promise<IProvider | undefined> {
     let createdProvider: IProvider | undefined;
+    const network = networkSelector(getState());
 
     switch (type) {
       case ProviderTypeEnum.extension: {
@@ -30,10 +33,8 @@ export class ProviderFactory {
       }
 
       case ProviderTypeEnum.crossWindow: {
-        const { walletAddress } = config.network;
-
         const provider = await createCrossWindowProvider({
-          walletAddress,
+          walletAddress: config.network.walletAddress ?? network.walletAddress,
           address: config.account?.address
         });
         createdProvider = provider as unknown as IProvider;
@@ -76,7 +77,12 @@ export class ProviderFactory {
       }
 
       case ProviderTypeEnum.walletconnect: {
-        createdProvider = createWalletconnectProvider();
+        createdProvider = createWalletconnectProvider({
+          network: {
+            ...network,
+            ...config.network
+          }
+        });
         break;
       }
 

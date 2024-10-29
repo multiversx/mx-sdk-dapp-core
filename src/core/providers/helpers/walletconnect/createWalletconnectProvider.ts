@@ -1,17 +1,32 @@
 import { WalletConnectV2Provider } from '@multiversx/sdk-wallet-connect-provider';
 import { IProvider } from 'core/providers/types/providerFactory.types';
-import QRCode from 'qrcode';
-import { networkSelector } from 'store/selectors';
-import { getState } from 'store/store';
+import { createModalFunctions } from './components/WalletconnectModalComponent';
+import { CurrentNetworkType } from 'types';
 
-export function createWalletconnectProvider() {
-  const network = networkSelector(getState());
+interface IWalletconnectProvider {
+  openModal?: (connectorUri: string) => Promise<void>;
+  closeModal?: () => void;
+  onClientLogin?: () => Promise<void>;
+  onClientLogout?: () => void;
+  onClientEvent?: (event: any) => void;
+  network: CurrentNetworkType;
+}
+
+export function createWalletconnectProvider(
+  props: IWalletconnectProvider
+): IProvider {
+  const modalFunctions = createModalFunctions();
+  const openModal = props.openModal ?? modalFunctions.openModal;
+  const closeModal = props.closeModal ?? modalFunctions.closeModal;
+
   const provider = new WalletConnectV2Provider(
     prepareCallbacks(),
-    network.chainId,
-    network.walletConnectV2RelayAddress,
-    String(network.walletConnectV2ProjectId)
+    props.network.chainId,
+    props.network.walletConnectV2RelayAddress,
+    String(props.network.walletConnectV2ProjectId)
   );
+
+  const walletconnectLogin = provider.login;
 
   const createdProvider = provider as unknown as IProvider;
 
@@ -42,10 +57,10 @@ export function createWalletconnectProvider() {
       throw 'URI not found';
     }
 
-    await openModal(uri);
+    await openModal?.(uri);
 
     try {
-      const account = await provider.login({
+      const account = await walletconnectLogin({
         approval,
         token: options?.token
       });
@@ -54,7 +69,7 @@ export function createWalletconnectProvider() {
       const signature = account?.signature;
 
       if (!account) {
-        throw new Error('Connection Proposal Refused');
+        throw new Error(`Connection Proposal Refused ${account}`);
       }
 
       return {
@@ -62,89 +77,9 @@ export function createWalletconnectProvider() {
         signature: signature || ''
       };
     } catch (err) {
-      throw new Error('Connection Proposal Refused');
+      throw new Error(`Connection Proposal Refused, ${err}`);
     }
   };
 
   return createdProvider;
-}
-
-async function openModal(connectorUri: string) {
-  const svg = await QRCode.toString(connectorUri, { type: 'svg' });
-
-  // Check if the modal already exists
-  let modal = document.getElementById('MyWalletConnectV2Modal');
-
-  if (!modal) {
-    // Create the modal HTML
-    modal = document.createElement('div');
-    modal.id = 'MyWalletConnectV2Modal';
-    modal.className = 'modal';
-
-    const modalDialog = document.createElement('div');
-    modalDialog.className = 'modal-dialog';
-    modal.appendChild(modalDialog);
-
-    const modalContent = document.createElement('div');
-    modalContent.className = 'modal-content';
-    modalDialog.appendChild(modalContent);
-
-    const modalHeader = document.createElement('div');
-    modalHeader.className = 'modal-header';
-    modalContent.appendChild(modalHeader);
-
-    const modalTitle = document.createElement('h4');
-    modalTitle.className = 'modal-title';
-    modalTitle.textContent = 'Connect using xPortal on your phone';
-    modalHeader.appendChild(modalTitle);
-
-    const closeButton = document.createElement('button');
-    closeButton.type = 'button';
-    closeButton.className = 'close';
-    closeButton.textContent = '×';
-    closeButton.onclick = closeModal;
-    modalHeader.appendChild(closeButton);
-
-    const modalBody = document.createElement('div');
-    modalBody.className = 'modal-body';
-    modalContent.appendChild(modalBody);
-
-    const qrContainer = document.createElement('div');
-    qrContainer.id = 'MyWalletConnectV2QRContainer';
-    modalBody.appendChild(qrContainer);
-
-    const modalFooter = document.createElement('div');
-    modalFooter.className = 'modal-footer';
-    modalContent.appendChild(modalFooter);
-
-    const closeButtonFooter = document.createElement('button');
-    closeButtonFooter.type = 'button';
-    closeButtonFooter.className = 'btn btn-danger';
-    closeButtonFooter.textContent = 'Close';
-    closeButtonFooter.onclick = closeModal;
-    modalFooter.appendChild(closeButtonFooter);
-
-    // Append the modal to the body
-    document.body.appendChild(modal);
-  }
-
-  // Get the QR container
-  const qrContainer = document.getElementById('MyWalletConnectV2QRContainer');
-
-  if (qrContainer) {
-    qrContainer.innerHTML = svg;
-  }
-
-  // Show the modal
-  modal.classList.add('show');
-  modal.style.display = 'block';
-}
-
-function closeModal() {
-  const modal = document.getElementById('MyWalletConnectV2Modal');
-
-  if (modal) {
-    modal.classList.remove('show');
-    modal.style.display = 'none';
-  }
 }
