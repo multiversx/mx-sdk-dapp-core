@@ -102,6 +102,9 @@ export class ProviderFactory {
         createdProvider = createWalletconnectProvider({
           network
         });
+
+        createdProvider.getType = () => ProviderTypeEnum.passkey;
+
         break;
       }
 
