@@ -1,20 +1,23 @@
 import { IframeProvider } from '@multiversx/sdk-web-wallet-iframe-provider/out';
 import { IframeLoginTypes } from '@multiversx/sdk-web-wallet-iframe-provider/out/constants';
+import { ProviderTypeEnum } from 'core/providers/types/providerFactory.types';
 import { networkSelector } from 'store/selectors';
 import { getState } from 'store/store';
 
-interface ICreateMetamaskProviderProps {
+interface ICreateIframeProviderProps {
   address?: string;
   metamaskSnapWalletAddress?: string;
+  type: IframeLoginTypes.metamask | IframeLoginTypes.passkey;
 }
 
-export async function createMetamaskProvider({
+export async function createIframeProvider({
   metamaskSnapWalletAddress,
-  address = ''
-}: ICreateMetamaskProviderProps) {
+  address = '',
+  type
+}: ICreateIframeProviderProps) {
   const network = networkSelector(getState());
   const provider = IframeProvider.getInstance();
-  provider.setLoginType(IframeLoginTypes.metamask);
+  provider.setLoginType(type);
   provider.setWalletUrl(
     metamaskSnapWalletAddress || network.metamaskSnapWalletAddress || ''
   );

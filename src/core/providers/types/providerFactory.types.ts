@@ -36,6 +36,7 @@ export enum ProviderTypeEnum {
   ledger = 'ledger',
   opera = 'opera',
   metamask = 'metamask',
+  passkey = 'passkey',
   webhook = 'webhook',
   custom = 'custom',
   none = ''

@@ -6,7 +6,8 @@ import {
 import { createLedgerProvider } from './helpers/ledger/createLedgerProvider';
 import { createCrossWindowProvider } from './helpers/crossWindow/createCrossWindowProvider';
 import { createExtensionProvider } from './helpers/extension/createExtensionProvider';
-import { createMetamaskProvider } from './helpers/iframe/createMetamaskProvider';
+import { createIframeProvider } from './helpers/iframe/createIframeProvider';
+import { IframeLoginTypes } from '@multiversx/sdk-web-wallet-iframe-provider/out/constants';
 
 export class ProviderFactory {
   public async create({
@@ -57,8 +58,9 @@ export class ProviderFactory {
       }
 
       case ProviderTypeEnum.metamask: {
-        const provider = await createMetamaskProvider({
-          address: config.account?.address
+        const provider = await createIframeProvider({
+          address: config.account?.address,
+          type: IframeLoginTypes.metamask
         });
 
         if (!provider) {
@@ -69,6 +71,25 @@ export class ProviderFactory {
 
         createdProvider.getType = () => {
           return ProviderTypeEnum.metamask;
+        };
+
+        break;
+      }
+
+      case ProviderTypeEnum.passkey: {
+        const provider = await createIframeProvider({
+          address: config.account?.address,
+          type: IframeLoginTypes.passkey
+        });
+
+        if (!provider) {
+          return;
+        }
+
+        createdProvider = provider as unknown as IProvider;
+
+        createdProvider.getType = () => {
+          return ProviderTypeEnum.passkey;
         };
 
         break;
