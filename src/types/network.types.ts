@@ -40,6 +40,7 @@ export interface CustomNetworkType {
   walletConnectDeepLink?: string;
   walletConnectBridgeAddresses?: string[];
   walletAddress?: string;
+  metamaskSnapWalletAddress?: string;
   apiAddress?: string;
   explorerAddress?: string;
   skipFetchFromServer?: boolean;

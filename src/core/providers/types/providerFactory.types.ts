@@ -1,4 +1,5 @@
 import type { IDAppProviderBase } from '@multiversx/sdk-dapp-utils';
+import { CustomNetworkType } from 'types/network.types';
 
 // @ts-ignore
 export interface IProvider extends IDAppProviderBase {
@@ -20,9 +21,7 @@ export interface IProvider extends IDAppProviderBase {
 }
 
 export interface IProviderConfig {
-  network: {
-    walletAddress: string;
-  };
+  network?: CustomNetworkType;
   account?: {
     address: string;
   };
@@ -36,6 +35,7 @@ export enum ProviderTypeEnum {
   ledger = 'ledger',
   opera = 'opera',
   metamask = 'metamask',
+  passkey = 'passkey',
   webhook = 'webhook',
   custom = 'custom',
   none = ''
