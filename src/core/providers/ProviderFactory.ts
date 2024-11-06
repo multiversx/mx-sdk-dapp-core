@@ -28,9 +28,7 @@ export class ProviderFactory {
         const provider = await createExtensionProvider();
         createdProvider = provider as unknown as IProvider;
 
-        createdProvider.getType = () => {
-          return ProviderTypeEnum.extension;
-        };
+        createdProvider.getType = () => ProviderTypeEnum.extension;
 
         break;
       }
@@ -42,9 +40,7 @@ export class ProviderFactory {
         });
         createdProvider = provider as unknown as IProvider;
 
-        createdProvider.getType = () => {
-          return ProviderTypeEnum.crossWindow;
-        };
+        createdProvider.getType = () => ProviderTypeEnum.crossWindow;
 
         break;
       }
@@ -57,6 +53,8 @@ export class ProviderFactory {
         }
 
         createdProvider = ledgerProvider;
+
+        createdProvider.getType = () => ProviderTypeEnum.ledger;
 
         break;
       }
@@ -74,9 +72,7 @@ export class ProviderFactory {
 
         createdProvider = provider as unknown as IProvider;
 
-        createdProvider.getType = () => {
-          return ProviderTypeEnum.metamask;
-        };
+        createdProvider.getType = () => ProviderTypeEnum.metamask;
 
         break;
       }
@@ -94,9 +90,7 @@ export class ProviderFactory {
 
         createdProvider = provider as unknown as IProvider;
 
-        createdProvider.getType = () => {
-          return ProviderTypeEnum.passkey;
-        };
+        createdProvider.getType = () => ProviderTypeEnum.passkey;
 
         break;
       }
