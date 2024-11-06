@@ -1,9 +1,4 @@
-import {
-  Address,
-  Message,
-  MessageComputer,
-  SignableMessage
-} from '@multiversx/sdk-core/out';
+import { Address, Message, MessageComputer } from '@multiversx/sdk-core/out';
 import { getVerifier } from './getVerifier';
 
 export function verifyMessage(signedMessage: string) {

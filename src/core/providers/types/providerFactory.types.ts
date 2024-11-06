@@ -20,7 +20,7 @@ export interface IProvider extends IDAppProviderBase {
 }
 
 export interface IProviderConfig {
-  network: CustomNetworkType;
+  network?: CustomNetworkType;
   account?: {
     address: string;
   };
@@ -34,6 +34,7 @@ export enum ProviderTypeEnum {
   ledger = 'ledger',
   opera = 'opera',
   metamask = 'metamask',
+  passkey = 'passkey',
   webhook = 'webhook',
   custom = 'custom',
   none = ''

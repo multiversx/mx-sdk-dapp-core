@@ -6,10 +6,11 @@ import {
 import { createLedgerProvider } from './helpers/ledger/createLedgerProvider';
 import { createCrossWindowProvider } from './helpers/crossWindow/createCrossWindowProvider';
 import { createExtensionProvider } from './helpers/extension/createExtensionProvider';
-import { createMetamaskProvider } from './helpers/iframe/createMetamaskProvider';
-import { createWalletconnectProvider } from './helpers/walletconnect/createWalletconnectProvider';
+import { createIframeProvider } from './helpers/iframe/createIframeProvider';
+import { IframeLoginTypes } from '@multiversx/sdk-web-wallet-iframe-provider/out/constants';
 import { networkSelector } from 'store/selectors';
 import { getState } from 'store/store';
+import { createWalletconnectProvider } from './helpers/walletconnect/createWalletconnectProvider';
 
 export class ProviderFactory {
   public async create({
@@ -18,30 +19,31 @@ export class ProviderFactory {
     customProvider
   }: IProviderFactory): Promise<IProvider | undefined> {
     let createdProvider: IProvider | undefined;
-    const network = networkSelector(getState());
+    const network = {
+      ...networkSelector(getState()),
+      ...config.network
+    };
+    const { metamaskSnapWalletAddress = '', walletAddress } = network;
+    const address = config.account?.address;
 
     switch (type) {
       case ProviderTypeEnum.extension: {
         const provider = await createExtensionProvider();
         createdProvider = provider as unknown as IProvider;
 
-        createdProvider.getType = () => {
-          return ProviderTypeEnum.extension;
-        };
+        createdProvider.getType = () => ProviderTypeEnum.extension;
 
         break;
       }
 
       case ProviderTypeEnum.crossWindow: {
         const provider = await createCrossWindowProvider({
-          walletAddress: config.network.walletAddress ?? network.walletAddress,
-          address: config.account?.address
+          walletAddress,
+          address
         });
         createdProvider = provider as unknown as IProvider;
 
-        createdProvider.getType = () => {
-          return ProviderTypeEnum.crossWindow;
-        };
+        createdProvider.getType = () => ProviderTypeEnum.crossWindow;
 
         break;
       }
@@ -55,12 +57,16 @@ export class ProviderFactory {
 
         createdProvider = ledgerProvider;
 
+        createdProvider.getType = () => ProviderTypeEnum.ledger;
+
         break;
       }
 
       case ProviderTypeEnum.metamask: {
-        const provider = await createMetamaskProvider({
-          address: config.account?.address
+        const provider = await createIframeProvider({
+          address,
+          metamaskSnapWalletAddress,
+          type: IframeLoginTypes.metamask
         });
 
         if (!provider) {
@@ -69,19 +75,32 @@ export class ProviderFactory {
 
         createdProvider = provider as unknown as IProvider;
 
-        createdProvider.getType = () => {
-          return ProviderTypeEnum.metamask;
-        };
+        createdProvider.getType = () => ProviderTypeEnum.metamask;
+
+        break;
+      }
+
+      case ProviderTypeEnum.passkey: {
+        const provider = await createIframeProvider({
+          address,
+          metamaskSnapWalletAddress,
+          type: IframeLoginTypes.passkey
+        });
+
+        if (!provider) {
+          return;
+        }
+
+        createdProvider = provider as unknown as IProvider;
+
+        createdProvider.getType = () => ProviderTypeEnum.passkey;
 
         break;
       }
 
       case ProviderTypeEnum.walletconnect: {
         createdProvider = createWalletconnectProvider({
-          network: {
-            ...network,
-            ...config.network
-          }
+          network
         });
         break;
       }
