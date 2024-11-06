@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- [Iframe integration](https://github.com/multiversx/mx-sdk-dapp-core/pull/29)
+- [Walletconnect partial integration](https://github.com/multiversx/mx-sdk-dapp-core/pull/28)
 - [Metamask integration](https://github.com/multiversx/mx-sdk-dapp-core/pull/27)
 - [Extension integration](https://github.com/multiversx/mx-sdk-dapp-core/pull/26)
 - [Ledger integration](https://github.com/multiversx/mx-sdk-dapp-core/pull/22)
