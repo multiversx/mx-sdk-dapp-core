@@ -8,10 +8,12 @@ import { setLedgerLogin } from 'store/actions/loginInfo/loginInfoActions';
 import { setLedgerAccount } from 'store/actions/account/accountActions';
 import { createModalFunctions } from './components/LedgerModalComponent';
 import { CurrentNetworkType } from 'types/network.types';
+import { ILedgerAccount } from './ledger.types';
 
 interface ILedgerProvider {
   openModal?: () => Promise<void>;
   closeModal?: () => void;
+  updateLedgerAccounts?: (wallets: ILedgerAccount[]) => void;
   network: CurrentNetworkType;
 }
 
@@ -22,6 +24,8 @@ export async function createLedgerProvider(
   const modalFunctions = createModalFunctions();
 
   const openModal = props.openModal ?? modalFunctions.openModal;
+  const updateLedgerAccounts =
+    props.updateLedgerAccounts ?? modalFunctions.updateLedgerAccounts;
   const closeModal = props.closeModal ?? modalFunctions.closeModal;
 
   if (!data) {
@@ -59,11 +63,7 @@ export async function createLedgerProvider(
 
     const accounts = await provider.getAccounts(startIndex, addressesPerPage);
 
-    const accountsWithBalance: {
-      address: string;
-      balance: string;
-      index: number;
-    }[] = [];
+    const accountsWithBalance: ILedgerAccount[] = [];
 
     const balancePromises = accounts.map((address) => fetchAccount(address));
 
@@ -80,45 +80,47 @@ export async function createLedgerProvider(
       });
     });
 
+    updateLedgerAccounts(accountsWithBalance);
+
     // Suppose user selects the first account
-    const selectedIndex = 0;
+    // const selectedIndex = 0;
 
-    setLedgerLogin({
-      index: selectedIndex,
-      loginType: ProviderTypeEnum.ledger
-    });
+    // setLedgerLogin({
+    //   index: selectedIndex,
+    //   loginType: ProviderTypeEnum.ledger
+    // });
 
-    const { version, dataEnabled } = ledgerConfig;
+    // const { version, dataEnabled } = ledgerConfig;
 
-    closeModal();
+    // closeModal();
 
-    setLedgerAccount({
-      address: accountsWithBalance[selectedIndex].address,
-      index: selectedIndex,
-      version,
-      hasContractDataEnabled: dataEnabled
-    });
+    // setLedgerAccount({
+    //   address: accountsWithBalance[selectedIndex].address,
+    //   index: selectedIndex,
+    //   version,
+    //   hasContractDataEnabled: dataEnabled
+    // });
 
-    if (options?.token) {
-      const loginInfo = await provider.tokenLogin({
-        token: Buffer.from(`${options?.token}{}`),
-        addressIndex: accountsWithBalance[selectedIndex].index
-      });
+    // if (options?.token) {
+    //   const loginInfo = await provider.tokenLogin({
+    //     token: Buffer.from(`${options?.token}{}`),
+    //     addressIndex: accountsWithBalance[selectedIndex].index
+    //   });
 
-      return {
-        address: loginInfo.address,
-        signature: loginInfo.signature.toString('hex')
-      };
-    } else {
-      const { address } = await hwProviderLogin({
-        addressIndex: accountsWithBalance[selectedIndex].index
-      });
+    //   return {
+    //     address: loginInfo.address,
+    //     signature: loginInfo.signature.toString('hex')
+    //   };
+    // } else {
+    //   const { address } = await hwProviderLogin({
+    //     addressIndex: accountsWithBalance[selectedIndex].index
+    //   });
 
-      return {
-        address,
-        signature: ''
-      };
-    }
+    return {
+      address: options + '',
+      signature: ''
+    };
+    // }
   };
 
   return createdProvider;
