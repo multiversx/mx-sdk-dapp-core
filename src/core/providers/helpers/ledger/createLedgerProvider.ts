@@ -6,9 +6,23 @@ import { getLedgerProvider } from './getLedgerProvider';
 import { fetchAccount } from 'utils/account/fetchAccount';
 import { setLedgerLogin } from 'store/actions/loginInfo/loginInfoActions';
 import { setLedgerAccount } from 'store/actions/account/accountActions';
+import { createModalFunctions } from './components/LedgerModalComponent';
+import { CurrentNetworkType } from 'types/network.types';
 
-export async function createLedgerProvider() {
+interface ILedgerProvider {
+  openModal?: () => Promise<void>;
+  closeModal?: () => void;
+  network: CurrentNetworkType;
+}
+
+export async function createLedgerProvider(
+  props: ILedgerProvider
+): Promise<IProvider | null> {
   const data = await getLedgerProvider();
+  const modalFunctions = createModalFunctions();
+
+  const openModal = props.openModal ?? modalFunctions.openModal;
+  const closeModal = props.closeModal ?? modalFunctions.closeModal;
 
   if (!data) {
     return null;
@@ -29,6 +43,9 @@ export async function createLedgerProvider() {
     address: string;
     signature: string;
   }> => {
+    console.log('start');
+    openModal();
+
     const isConnected = provider.isConnected();
 
     if (!isConnected) {
@@ -72,6 +89,8 @@ export async function createLedgerProvider() {
     });
 
     const { version, dataEnabled } = ledgerConfig;
+
+    closeModal();
 
     setLedgerAccount({
       address: accountsWithBalance[selectedIndex].address,

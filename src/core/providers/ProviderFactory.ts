@@ -18,10 +18,12 @@ export class ProviderFactory {
     customProvider
   }: IProviderFactory): Promise<IProvider | undefined> {
     let createdProvider: IProvider | undefined;
-    const { metamaskSnapWalletAddress = '', walletAddress } = {
+    const network = {
       ...networkSelector(getState()),
       ...config.network
     };
+
+    const { metamaskSnapWalletAddress = '', walletAddress } = network;
 
     switch (type) {
       case ProviderTypeEnum.extension: {
@@ -46,7 +48,7 @@ export class ProviderFactory {
       }
 
       case ProviderTypeEnum.ledger: {
-        const ledgerProvider = await createLedgerProvider();
+        const ledgerProvider = await createLedgerProvider({ network });
 
         if (!ledgerProvider) {
           return;
