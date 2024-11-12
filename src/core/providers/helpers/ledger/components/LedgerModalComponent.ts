@@ -38,7 +38,9 @@ export class WalletConnectModalComponent extends LitElement {
           </div>
 
           <div class="navigation">
-            <button @click=${this.prevPage}>Prev</button>
+            <button @click=${this.prevPage} ?disabled="${this.startIndex <= 0}">
+              Prev
+            </button>
             <button @click=${this.nextPage}>Next</button>
           </div>
 
@@ -150,8 +152,6 @@ export class WalletConnectModalComponent extends LitElement {
         const accountArrayIndex = index + this.startIndex;
         this.accounts[accountArrayIndex].balance = account.balance;
       });
-
-      this.requestUpdate();
     } catch (error) {
       this.isLoading = false;
       console.error('Failed to fetch accounts:', error);
@@ -162,12 +162,14 @@ export class WalletConnectModalComponent extends LitElement {
     if (this.startIndex > 0) {
       this.startIndex = Math.max(0, this.startIndex - this.addressesPerPage);
       await this.fetchAccounts();
+      this.requestUpdate();
     }
   }
 
   async nextPage() {
     this.startIndex += this.addressesPerPage;
     await this.fetchAccounts();
+    this.requestUpdate();
   }
 
   close() {
