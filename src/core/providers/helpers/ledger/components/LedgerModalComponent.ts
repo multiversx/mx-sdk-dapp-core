@@ -17,6 +17,7 @@ export class WalletConnectModalComponent extends LitElement {
   // Internal state for pagination
   @property({ type: Number }) private startIndex = 0;
   @property({ type: Number }) private addressesPerPage = 10;
+  @property({ type: Boolean }) private isLoading = false;
 
   static styles = ledgerStyles;
 
@@ -30,7 +31,11 @@ export class WalletConnectModalComponent extends LitElement {
             <p>Choose the wallet you want to access</p>
           </div>
 
-          <div class="account-list">${this.renderAccounts()}</div>
+          <div class="account-list">
+            ${this.isLoading || this.accounts.length === 0
+              ? html`<div class="spinner"></div>`
+              : this.renderAccounts()}
+          </div>
 
           <div class="navigation">
             <button @click=${this.prevPage}>Prev</button>
@@ -47,16 +52,22 @@ export class WalletConnectModalComponent extends LitElement {
 
   private renderAccounts() {
     function trimAddress(s: string): string {
-      const firstFour = s.slice(0, 4); // Get the first four characters
-      const lastFour = s.slice(-4); // Get the last four characters
-      return `${firstFour}...${lastFour}`; // Combine them with three dots in between
+      const firstFour = s.slice(0, 6);
+      const lastFour = s.slice(-6);
+      return `${firstFour}...${lastFour}`;
     }
     function formatAmount(amount: string) {
       const number = new BigNumber(amount);
+
+      if (number.isNaN()) {
+        return amount;
+      }
+
       const formattedNumber = number
         .dividedBy(BigNumber(10).pow(18))
         .toFormat(4)
         .toString();
+
       return formattedNumber;
     }
     return html`
@@ -97,12 +108,15 @@ export class WalletConnectModalComponent extends LitElement {
     }
 
     const hasData = this.accounts.some(
-      ({ index, balance }) => index === this.startIndex && balance !== '...'
+      ({ index, balance }) =>
+        index === this.startIndex && new BigNumber(balance).isFinite()
     );
 
     if (hasData) {
       return;
     }
+
+    this.isLoading = true;
 
     try {
       const accounts = await this.getAccounts?.(
@@ -121,6 +135,8 @@ export class WalletConnectModalComponent extends LitElement {
       );
       this.accounts = [...this.accounts, ...accountsWithBalance];
 
+      this.isLoading = false;
+
       this.requestUpdate();
 
       const balancePromises = accounts.map((address) => fetchAccount(address));
@@ -137,6 +153,7 @@ export class WalletConnectModalComponent extends LitElement {
 
       this.requestUpdate();
     } catch (error) {
+      this.isLoading = false;
       console.error('Failed to fetch accounts:', error);
     }
   }
