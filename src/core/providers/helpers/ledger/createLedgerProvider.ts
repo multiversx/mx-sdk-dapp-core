@@ -47,13 +47,8 @@ export async function createLedgerProvider(
       throw new Error('Ledger device is not connected');
     }
 
-    const getAccounts: typeof provider.getAccounts = async (
-      startIndex,
-      addressesPerPage
-    ) => await provider.getAccounts(startIndex, addressesPerPage);
-
     const modalFunctions = createModalFunctions({
-      getAccounts
+      getAccounts: provider.getAccounts.bind(provider)
     });
 
     const openModal = props.openModal ?? modalFunctions.openModal;

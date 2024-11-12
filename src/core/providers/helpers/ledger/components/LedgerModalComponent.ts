@@ -156,8 +156,8 @@ export function createModalFunctions(props: {
   document.body.appendChild(modalElement);
 
   return {
-    openModal: async () => {
-      await modalElement.open();
+    openModal: () => {
+      modalElement.open();
     },
     closeModal: () => {
       modalElement.close();
