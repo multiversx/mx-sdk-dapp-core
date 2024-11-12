@@ -47,13 +47,10 @@ export async function createLedgerProvider(
       throw new Error('Ledger device is not connected');
     }
 
-    const getAccounts = async ({
-      startIndex = 0,
-      addressesPerPage = 10
-    }: {
-      startIndex: number;
-      addressesPerPage: number;
-    }) => await provider.getAccounts(startIndex, addressesPerPage);
+    const getAccounts: typeof provider.getAccounts = async (
+      startIndex,
+      addressesPerPage
+    ) => await provider.getAccounts(startIndex, addressesPerPage);
 
     const modalFunctions = createModalFunctions({
       getAccounts

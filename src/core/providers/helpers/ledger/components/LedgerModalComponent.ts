@@ -11,13 +11,10 @@ console.log('\x1b[42m%s\x1b[0m', 'link:', 1);
 export class WalletConnectModalComponent extends LitElement {
   @property({ type: Boolean }) isOpen = false;
   @property({ type: Array }) accounts: ILedgerAccount[] = [];
-  @property({ type: Function }) getAccounts?: ({
-    startIndex,
-    addressesPerPage
-  }: {
-    startIndex: number;
-    addressesPerPage: number;
-  }) => Promise<string[]>;
+  @property({ type: Function }) getAccounts?: (
+    page?: number,
+    pageSize?: number
+  ) => Promise<string[]>;
 
   // Internal state for pagination
   @property({ type: Number }) private startIndex = 0;
@@ -100,10 +97,10 @@ export class WalletConnectModalComponent extends LitElement {
     }
 
     try {
-      const accounts = await this.getAccounts?.({
-        startIndex: this.startIndex,
-        addressesPerPage: this.addressesPerPage
-      });
+      const accounts = await this.getAccounts?.(
+        this.startIndex,
+        this.addressesPerPage
+      );
 
       const accountsWithBalance: ILedgerAccount[] = [];
 
@@ -150,13 +147,7 @@ export class WalletConnectModalComponent extends LitElement {
 }
 
 export function createModalFunctions(props: {
-  getAccounts: ({
-    startIndex,
-    addressesPerPage
-  }: {
-    startIndex: number;
-    addressesPerPage: number;
-  }) => Promise<string[]>;
+  getAccounts: (page?: number, pageSize?: number) => Promise<string[]>;
 }) {
   const modalElement = document.createElement(
     'account-connect-modal'
