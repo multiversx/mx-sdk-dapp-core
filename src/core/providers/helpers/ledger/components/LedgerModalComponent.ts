@@ -3,6 +3,7 @@ import { customElement, property } from 'lit/decorators.js';
 import { ledgerStyles } from './ldegerModalComponent.styles';
 import { ILedgerAccount } from '../ledger.types';
 import BigNumber from 'bignumber.js';
+import { fetchAccount } from 'utils/account/fetchAccount';
 
 @customElement('account-connect-modal')
 export class WalletConnectModalComponent extends LitElement {
@@ -127,16 +128,49 @@ export class WalletConnectModalComponent extends LitElement {
 }
 
 export function createModalFunctions(props: {
-  getAccounts: (props: {
+  getAccounts: ({
+    startIndex,
+    addressesPerPage
+  }: {
     startIndex: number;
     addressesPerPage: number;
-  }) => Promise<ILedgerAccount[]>;
+  }) => Promise<string[]>;
 }) {
   const modalElement = document.createElement(
     'account-connect-modal'
   ) as WalletConnectModalComponent;
 
-  modalElement.getAccounts = props.getAccounts;
+  modalElement.getAccounts = async ({
+    startIndex = 0,
+    addressesPerPage = 10
+  }: {
+    startIndex: number;
+    addressesPerPage: number;
+  }) => {
+    const accounts = await props.getAccounts({
+      startIndex,
+      addressesPerPage
+    });
+
+    const accountsWithBalance: ILedgerAccount[] = [];
+
+    const balancePromises = accounts.map((address) => fetchAccount(address));
+
+    const balances = await Promise.all(balancePromises);
+
+    balances.forEach((account, index) => {
+      if (!account) {
+        return;
+      }
+      accountsWithBalance.push({
+        address: account.address,
+        balance: account.balance,
+        index
+      });
+    });
+
+    return accountsWithBalance;
+  };
 
   document.body.appendChild(modalElement);
 

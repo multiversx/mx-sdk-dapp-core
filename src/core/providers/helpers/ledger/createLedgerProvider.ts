@@ -47,40 +47,16 @@ export async function createLedgerProvider(
       throw new Error('Ledger device is not connected');
     }
 
+    const getAccounts = async ({
+      startIndex = 0,
+      addressesPerPage = 10
+    }: {
+      startIndex: number;
+      addressesPerPage: number;
+    }) => await provider.getAccounts(startIndex, addressesPerPage);
+
     const modalFunctions = createModalFunctions({
-      getAccounts: async ({
-        startIndex = 0,
-        addressesPerPage = 10
-      }: {
-        startIndex: number;
-        addressesPerPage: number;
-      }) => {
-        const accounts = await provider.getAccounts(
-          startIndex,
-          addressesPerPage
-        );
-
-        const accountsWithBalance: ILedgerAccount[] = [];
-
-        const balancePromises = accounts.map((address) =>
-          fetchAccount(address)
-        );
-
-        const balances = await Promise.all(balancePromises);
-
-        balances.forEach((account, index) => {
-          if (!account) {
-            return;
-          }
-          accountsWithBalance.push({
-            address: account.address,
-            balance: account.balance,
-            index
-          });
-        });
-
-        return accountsWithBalance;
-      }
+      getAccounts
     });
 
     const openModal = props.openModal ?? modalFunctions.openModal;
