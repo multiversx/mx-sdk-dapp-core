@@ -8,6 +8,14 @@ import BigNumber from 'bignumber.js';
 export class WalletConnectModalComponent extends LitElement {
   @property({ type: Boolean }) isOpen = false;
   @property({ type: Array }) accounts: ILedgerAccount[] = [];
+  @property({ type: Function }) getAccounts?: (props: {
+    startIndex: number;
+    addressesPerPage: number;
+  }) => Promise<ILedgerAccount[]>;
+
+  // Internal state for pagination
+  @property({ type: Number }) private startIndex = 0;
+  @property({ type: Number }) private addressesPerPage = 10;
 
   static styles = ledgerStyles;
 
@@ -76,23 +84,41 @@ export class WalletConnectModalComponent extends LitElement {
 
   async open() {
     this.isOpen = true;
-    this.requestUpdate();
+    await this.fetchAccounts();
   }
 
-  updateAccounts(accounts: ILedgerAccount[]) {
-    this.accounts = accounts;
+  private async fetchAccounts() {
+    if (!this.getAccounts) {
+      console.error('getAccounts function not provided');
+      return;
+    }
+
+    try {
+      const accounts = await this.getAccounts({
+        startIndex: this.startIndex,
+        addressesPerPage: this.addressesPerPage
+      });
+
+      this.accounts = accounts;
+    } catch (error) {
+      console.error('Failed to fetch accounts:', error);
+    }
+  }
+
+  async prevPage() {
+    if (this.startIndex > 0) {
+      this.startIndex = Math.max(0, this.startIndex - this.addressesPerPage);
+      await this.fetchAccounts();
+    }
+  }
+
+  async nextPage() {
+    this.startIndex += this.addressesPerPage;
+    await this.fetchAccounts();
   }
 
   close() {
     this.isOpen = false;
-  }
-
-  prevPage() {
-    // Implement pagination logic
-  }
-
-  nextPage() {
-    // Implement pagination logic
   }
 
   accessWallet() {
@@ -100,10 +126,18 @@ export class WalletConnectModalComponent extends LitElement {
   }
 }
 
-export function createModalFunctions() {
+export function createModalFunctions(props: {
+  getAccounts: (props: {
+    startIndex: number;
+    addressesPerPage: number;
+  }) => Promise<ILedgerAccount[]>;
+}) {
   const modalElement = document.createElement(
     'account-connect-modal'
   ) as WalletConnectModalComponent;
+
+  modalElement.getAccounts = props.getAccounts;
+
   document.body.appendChild(modalElement);
 
   return {
@@ -112,9 +146,6 @@ export function createModalFunctions() {
     },
     closeModal: () => {
       modalElement.close();
-    },
-    updateLedgerAccounts: (accounts: ILedgerAccount[]) => {
-      modalElement.updateAccounts(accounts);
     }
   };
 }

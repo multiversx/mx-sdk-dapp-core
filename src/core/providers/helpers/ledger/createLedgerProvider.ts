@@ -9,11 +9,11 @@ import { setLedgerAccount } from 'store/actions/account/accountActions';
 import { createModalFunctions } from './components/LedgerModalComponent';
 import { CurrentNetworkType } from 'types/network.types';
 import { ILedgerAccount } from './ledger.types';
+import { getAccount } from 'core/methods/account/getAccount';
 
 interface ILedgerProvider {
   openModal?: () => Promise<void>;
   closeModal?: () => void;
-  updateLedgerAccounts?: (wallets: ILedgerAccount[]) => void;
   network: CurrentNetworkType;
 }
 
@@ -21,12 +21,6 @@ export async function createLedgerProvider(
   props: ILedgerProvider
 ): Promise<IProvider | null> {
   const data = await getLedgerProvider();
-  const modalFunctions = createModalFunctions();
-
-  const openModal = props.openModal ?? modalFunctions.openModal;
-  const updateLedgerAccounts =
-    props.updateLedgerAccounts ?? modalFunctions.updateLedgerAccounts;
-  const closeModal = props.closeModal ?? modalFunctions.closeModal;
 
   if (!data) {
     return null;
@@ -47,40 +41,52 @@ export async function createLedgerProvider(
     address: string;
     signature: string;
   }> => {
-    console.log('start');
-    openModal();
-
     const isConnected = provider.isConnected();
 
     if (!isConnected) {
       throw new Error('Ledger device is not connected');
     }
 
-    // TODO: perform additional UI logic here
-    // maybe extract to file
-    const startIndex = 0;
-    const addressesPerPage = 10;
+    const modalFunctions = createModalFunctions({
+      getAccounts: async ({
+        startIndex = 0,
+        addressesPerPage = 10
+      }: {
+        startIndex: number;
+        addressesPerPage: number;
+      }) => {
+        const accounts = await provider.getAccounts(
+          startIndex,
+          addressesPerPage
+        );
 
-    const accounts = await provider.getAccounts(startIndex, addressesPerPage);
+        const accountsWithBalance: ILedgerAccount[] = [];
 
-    const accountsWithBalance: ILedgerAccount[] = [];
+        const balancePromises = accounts.map((address) =>
+          fetchAccount(address)
+        );
 
-    const balancePromises = accounts.map((address) => fetchAccount(address));
+        const balances = await Promise.all(balancePromises);
 
-    const balances = await Promise.all(balancePromises);
+        balances.forEach((account, index) => {
+          if (!account) {
+            return;
+          }
+          accountsWithBalance.push({
+            address: account.address,
+            balance: account.balance,
+            index
+          });
+        });
 
-    balances.forEach((account, index) => {
-      if (!account) {
-        return;
+        return accountsWithBalance;
       }
-      accountsWithBalance.push({
-        address: account.address,
-        balance: account.balance,
-        index
-      });
     });
 
-    updateLedgerAccounts(accountsWithBalance);
+    const openModal = props.openModal ?? modalFunctions.openModal;
+    const closeModal = props.closeModal ?? modalFunctions.closeModal;
+
+    openModal();
 
     // Suppose user selects the first account
     // const selectedIndex = 0;
