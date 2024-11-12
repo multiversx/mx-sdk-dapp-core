@@ -5,8 +5,6 @@ import { ILedgerAccount } from '../ledger.types';
 import BigNumber from 'bignumber.js';
 import { fetchAccount } from 'utils/account/fetchAccount';
 
-console.log('\x1b[42m%s\x1b[0m', 'link:', 1);
-
 @customElement('account-connect-modal')
 export class WalletConnectModalComponent extends LitElement {
   @property({ type: Boolean }) isOpen = false;
