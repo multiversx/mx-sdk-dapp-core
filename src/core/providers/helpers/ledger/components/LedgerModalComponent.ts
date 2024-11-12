@@ -5,14 +5,19 @@ import { ILedgerAccount } from '../ledger.types';
 import BigNumber from 'bignumber.js';
 import { fetchAccount } from 'utils/account/fetchAccount';
 
+console.log('\x1b[42m%s\x1b[0m', 'link:', 1);
+
 @customElement('account-connect-modal')
 export class WalletConnectModalComponent extends LitElement {
   @property({ type: Boolean }) isOpen = false;
   @property({ type: Array }) accounts: ILedgerAccount[] = [];
-  @property({ type: Function }) getAccounts?: (props: {
+  @property({ type: Function }) getAccounts?: ({
+    startIndex,
+    addressesPerPage
+  }: {
     startIndex: number;
     addressesPerPage: number;
-  }) => Promise<ILedgerAccount[]>;
+  }) => Promise<string[]>;
 
   // Internal state for pagination
   @property({ type: Number }) private startIndex = 0;
@@ -95,12 +100,29 @@ export class WalletConnectModalComponent extends LitElement {
     }
 
     try {
-      const accounts = await this.getAccounts({
+      const accounts = await this.getAccounts?.({
         startIndex: this.startIndex,
         addressesPerPage: this.addressesPerPage
       });
 
-      this.accounts = accounts;
+      const accountsWithBalance: ILedgerAccount[] = [];
+
+      const balancePromises = accounts.map((address) => fetchAccount(address));
+
+      const balances = await Promise.all(balancePromises);
+
+      balances.forEach((account, index) => {
+        if (!account) {
+          return;
+        }
+        accountsWithBalance.push({
+          address: account.address,
+          balance: account.balance,
+          index
+        });
+      });
+
+      this.accounts = accountsWithBalance;
     } catch (error) {
       console.error('Failed to fetch accounts:', error);
     }
@@ -140,37 +162,7 @@ export function createModalFunctions(props: {
     'account-connect-modal'
   ) as WalletConnectModalComponent;
 
-  modalElement.getAccounts = async ({
-    startIndex = 0,
-    addressesPerPage = 10
-  }: {
-    startIndex: number;
-    addressesPerPage: number;
-  }) => {
-    const accounts = await props.getAccounts({
-      startIndex,
-      addressesPerPage
-    });
-
-    const accountsWithBalance: ILedgerAccount[] = [];
-
-    const balancePromises = accounts.map((address) => fetchAccount(address));
-
-    const balances = await Promise.all(balancePromises);
-
-    balances.forEach((account, index) => {
-      if (!account) {
-        return;
-      }
-      accountsWithBalance.push({
-        address: account.address,
-        balance: account.balance,
-        index
-      });
-    });
-
-    return accountsWithBalance;
-  };
+  modalElement.getAccounts = props.getAccounts;
 
   document.body.appendChild(modalElement);
 
