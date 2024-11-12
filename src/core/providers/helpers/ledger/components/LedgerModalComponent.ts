@@ -65,32 +65,42 @@ export class WalletConnectModalComponent extends LitElement {
         <span>Balance</span>
         <span>#</span>
       </div>
-      ${this.accounts.map(
-        (account) => html`
-          <div class="account-row">
-            <input
-              type="radio"
-              name="account"
-              ?checked=${account.index === 0}
-              value=${account.index}
-            />
-            <span class="address">${trimAddress(account.address)}</span>
-            <span class="balance">${formatAmount(account.balance)}</span>
-            <span class="index">${account.index}</span>
-          </div>
-        `
-      )}
+      ${this.accounts
+        .slice(this.startIndex, this.startIndex + this.addressesPerPage)
+        .map(
+          (account) => html`
+            <div class="account-row">
+              <input
+                type="radio"
+                name="account"
+                ?checked=${account.index === 0}
+                value=${account.index}
+              />
+              <span class="address">${trimAddress(account.address)}</span>
+              <span class="balance">${formatAmount(account.balance)}</span>
+              <span class="index">${account.index}</span>
+            </div>
+          `
+        )}
     `;
   }
 
   async open() {
+    this.fetchAccounts();
     this.isOpen = true;
-    await this.fetchAccounts();
   }
 
   private async fetchAccounts() {
     if (!this.getAccounts) {
       console.error('getAccounts function not provided');
+      return;
+    }
+
+    const hasData = this.accounts.some(
+      ({ index, balance }) => index === this.startIndex && balance !== '...'
+    );
+
+    if (hasData) {
       return;
     }
 
@@ -100,7 +110,18 @@ export class WalletConnectModalComponent extends LitElement {
         this.addressesPerPage
       );
 
-      const accountsWithBalance: ILedgerAccount[] = [];
+      const accountsWithBalance: ILedgerAccount[] = accounts.map(
+        (address, index) => {
+          return {
+            address,
+            balance: '...',
+            index: index + this.startIndex
+          };
+        }
+      );
+      this.accounts = [...this.accounts, ...accountsWithBalance];
+
+      this.requestUpdate();
 
       const balancePromises = accounts.map((address) => fetchAccount(address));
 
@@ -110,14 +131,11 @@ export class WalletConnectModalComponent extends LitElement {
         if (!account) {
           return;
         }
-        accountsWithBalance.push({
-          address: account.address,
-          balance: account.balance,
-          index
-        });
+        const accountArrayIndex = index + this.startIndex;
+        this.accounts[accountArrayIndex].balance = account.balance;
       });
 
-      this.accounts = accountsWithBalance;
+      this.requestUpdate();
     } catch (error) {
       console.error('Failed to fetch accounts:', error);
     }
