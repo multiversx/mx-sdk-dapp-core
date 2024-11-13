@@ -152,6 +152,7 @@ export class WalletConnectModalComponent extends LitElement {
         const accountArrayIndex = index + this.startIndex;
         this.accounts[accountArrayIndex].balance = account.balance;
       });
+      this.requestUpdate();
     } catch (error) {
       this.isLoading = false;
       console.error('Failed to fetch accounts:', error);
@@ -162,14 +163,12 @@ export class WalletConnectModalComponent extends LitElement {
     if (this.startIndex > 0) {
       this.startIndex = Math.max(0, this.startIndex - this.addressesPerPage);
       await this.fetchAccounts();
-      this.requestUpdate();
     }
   }
 
   async nextPage() {
     this.startIndex += this.addressesPerPage;
     await this.fetchAccounts();
-    this.requestUpdate();
   }
 
   close() {
