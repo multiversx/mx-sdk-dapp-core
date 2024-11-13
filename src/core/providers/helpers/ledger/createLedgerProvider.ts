@@ -3,24 +3,22 @@ import {
   ProviderTypeEnum
 } from 'core/providers/types/providerFactory.types';
 import { getLedgerProvider } from './getLedgerProvider';
-import { fetchAccount } from 'utils/account/fetchAccount';
 import { setLedgerLogin } from 'store/actions/loginInfo/loginInfoActions';
 import { setLedgerAccount } from 'store/actions/account/accountActions';
 import { createModalFunctions } from './components/LedgerModalComponent';
 import { CurrentNetworkType } from 'types/network.types';
-import { ILedgerAccount } from './ledger.types';
-import { getAccount } from 'core/methods/account/getAccount';
 
 interface ILedgerProvider {
   openModal?: () => Promise<void>;
-  closeModal?: () => void;
   network: CurrentNetworkType;
 }
 
 export async function createLedgerProvider(
-  props: ILedgerProvider
+  props?: ILedgerProvider
 ): Promise<IProvider | null> {
   const data = await getLedgerProvider();
+
+  console.log('props', props);
 
   if (!data) {
     return null;
@@ -47,54 +45,44 @@ export async function createLedgerProvider(
       throw new Error('Ledger device is not connected');
     }
 
-    const modalFunctions = createModalFunctions({
+    const { address, index: selectedIndex } = await createModalFunctions({
       getAccounts: provider.getAccounts.bind(provider)
     });
 
-    const openModal = props.openModal ?? modalFunctions.openModal;
-    const closeModal = props.closeModal ?? modalFunctions.closeModal;
+    setLedgerLogin({
+      index: selectedIndex,
+      loginType: ProviderTypeEnum.ledger
+    });
 
-    openModal();
+    const { version, dataEnabled } = ledgerConfig;
 
-    // Suppose user selects the first account
-    // const selectedIndex = 0;
+    setLedgerAccount({
+      address,
+      index: selectedIndex,
+      version,
+      hasContractDataEnabled: dataEnabled
+    });
 
-    // setLedgerLogin({
-    //   index: selectedIndex,
-    //   loginType: ProviderTypeEnum.ledger
-    // });
+    if (options?.token) {
+      const loginInfo = await provider.tokenLogin({
+        token: Buffer.from(`${options?.token}{}`),
+        addressIndex: selectedIndex
+      });
 
-    // const { version, dataEnabled } = ledgerConfig;
+      return {
+        address: loginInfo.address,
+        signature: loginInfo.signature.toString('hex')
+      };
+    } else {
+      const { address } = await hwProviderLogin({
+        addressIndex: selectedIndex
+      });
 
-    // closeModal();
-
-    // setLedgerAccount({
-    //   address: accountsWithBalance[selectedIndex].address,
-    //   index: selectedIndex,
-    //   version,
-    //   hasContractDataEnabled: dataEnabled
-    // });
-
-    // if (options?.token) {
-    //   const loginInfo = await provider.tokenLogin({
-    //     token: Buffer.from(`${options?.token}{}`),
-    //     addressIndex: accountsWithBalance[selectedIndex].index
-    //   });
-
-    //   return {
-    //     address: loginInfo.address,
-    //     signature: loginInfo.signature.toString('hex')
-    //   };
-    // } else {
-    //   const { address } = await hwProviderLogin({
-    //     addressIndex: accountsWithBalance[selectedIndex].index
-    //   });
-
-    return {
-      address: options + '',
-      signature: ''
-    };
-    // }
+      return {
+        address,
+        signature: ''
+      };
+    }
   };
 
   return createdProvider;

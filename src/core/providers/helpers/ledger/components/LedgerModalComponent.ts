@@ -4,7 +4,6 @@ import { ledgerStyles } from './ldegerModalComponent.styles';
 import { ILedgerAccount } from '../ledger.types';
 import BigNumber from 'bignumber.js';
 import { fetchAccount } from 'utils/account/fetchAccount';
-import { c } from 'msw/lib/glossary-de6278a9';
 
 @customElement('account-connect-modal')
 export class WalletConnectModalComponent extends LitElement {
@@ -14,11 +13,13 @@ export class WalletConnectModalComponent extends LitElement {
     page?: number,
     pageSize?: number
   ) => Promise<string[]>;
+  @property({ type: Function }) accessWallet?: () => void;
 
   @property({ type: Number }) private startIndex = 0;
   @property({ type: Number }) private addressesPerPage = 10;
   @property({ type: Boolean }) private isLoading = false;
-  @property({ type: Number }) private selectedIndex = 0;
+  @property({ type: Number }) public selectedIndex = 0;
+  @property({ type: String }) public selectedAddress = '';
 
   static styles = ledgerStyles;
 
@@ -104,7 +105,7 @@ export class WalletConnectModalComponent extends LitElement {
               value=${account.index}
             />
             <span class="address">${trimAddress(account.address)}</span>
-            <span class="balance">${formatAmount(account.balance)}</span>
+            <span class="balance">${formatAmount(account.balance ?? '')}</span>
             <span class="index">${account.index}</span>
           </div>
         `
@@ -114,6 +115,10 @@ export class WalletConnectModalComponent extends LitElement {
 
   private selectAccount(index: number) {
     this.selectedIndex = index;
+
+    this.selectedAddress =
+      this.accounts.find((account) => account.index === index)?.address ?? '';
+
     this.requestUpdate();
   }
 
@@ -193,13 +198,9 @@ export class WalletConnectModalComponent extends LitElement {
   close() {
     this.isOpen = false;
   }
-
-  accessWallet() {
-    console.log('Accessing wallet with index:', this.selectedIndex);
-  }
 }
 
-export function createModalFunctions(props: {
+export async function createModalFunctions(props: {
   getAccounts: (page?: number, pageSize?: number) => Promise<string[]>;
 }) {
   const modalElement = document.createElement(
@@ -209,13 +210,22 @@ export function createModalFunctions(props: {
   modalElement.getAccounts = props.getAccounts;
 
   document.body.appendChild(modalElement);
+  modalElement.open();
 
-  return {
-    openModal: () => {
-      modalElement.open();
-    },
-    closeModal: () => {
-      modalElement.close();
+  const selectedAccount = await new Promise<{ address: string; index: number }>(
+    (resolve, reject) => {
+      modalElement.accessWallet = () => {
+        if (!modalElement.selectedAddress) {
+          return reject('No address selected');
+        }
+        resolve({
+          address: modalElement.selectedAddress,
+          index: modalElement.selectedIndex
+        });
+        document.body.removeChild(modalElement);
+      };
     }
-  };
+  );
+
+  return selectedAccount;
 }
