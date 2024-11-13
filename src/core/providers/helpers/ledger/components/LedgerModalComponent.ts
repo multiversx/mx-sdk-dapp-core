@@ -4,6 +4,7 @@ import { ledgerStyles } from './ldegerModalComponent.styles';
 import { ILedgerAccount } from '../ledger.types';
 import BigNumber from 'bignumber.js';
 import { fetchAccount } from 'utils/account/fetchAccount';
+import { c } from 'msw/lib/glossary-de6278a9';
 
 @customElement('account-connect-modal')
 export class WalletConnectModalComponent extends LitElement {
@@ -14,14 +15,22 @@ export class WalletConnectModalComponent extends LitElement {
     pageSize?: number
   ) => Promise<string[]>;
 
-  // Internal state for pagination
   @property({ type: Number }) private startIndex = 0;
   @property({ type: Number }) private addressesPerPage = 10;
   @property({ type: Boolean }) private isLoading = false;
+  @property({ type: Number }) private selectedIndex = 0;
 
   static styles = ledgerStyles;
 
   render() {
+    const shownAccounts = this.accounts.slice(
+      this.startIndex,
+      this.startIndex + this.addressesPerPage
+    );
+    const isSelectedIndexOnPage = shownAccounts.some(
+      ({ index }) => index === this.selectedIndex
+    );
+
     return html`
       <div class="modal" style="display: ${this.isOpen ? 'block' : 'none'}">
         <div class="modal-content">
@@ -34,7 +43,7 @@ export class WalletConnectModalComponent extends LitElement {
           <div class="account-list">
             ${this.isLoading || this.accounts.length === 0
               ? html`<div class="spinner"></div>`
-              : this.renderAccounts()}
+              : this.renderAccounts(shownAccounts)}
           </div>
 
           <div class="navigation">
@@ -44,7 +53,11 @@ export class WalletConnectModalComponent extends LitElement {
             <button @click=${this.nextPage}>Next</button>
           </div>
 
-          <button class="access-button" @click=${this.accessWallet}>
+          <button
+            class="access-button"
+            @click=${this.accessWallet}
+            ?disabled=${!isSelectedIndexOnPage}
+          >
             Access Wallet
           </button>
         </div>
@@ -52,7 +65,7 @@ export class WalletConnectModalComponent extends LitElement {
     `;
   }
 
-  private renderAccounts() {
+  private renderAccounts(shownAccounts: ILedgerAccount[]) {
     function trimAddress(s: string): string {
       const firstFour = s.slice(0, 6);
       const lastFour = s.slice(-6);
@@ -78,24 +91,30 @@ export class WalletConnectModalComponent extends LitElement {
         <span>Balance</span>
         <span>#</span>
       </div>
-      ${this.accounts
-        .slice(this.startIndex, this.startIndex + this.addressesPerPage)
-        .map(
-          (account) => html`
-            <div class="account-row">
-              <input
-                type="radio"
-                name="account"
-                ?checked=${account.index === 0}
-                value=${account.index}
-              />
-              <span class="address">${trimAddress(account.address)}</span>
-              <span class="balance">${formatAmount(account.balance)}</span>
-              <span class="index">${account.index}</span>
-            </div>
-          `
-        )}
+      ${shownAccounts.map(
+        (account) => html`
+          <div
+            class="account-row"
+            @click=${() => this.selectAccount(account.index)}
+          >
+            <input
+              type="radio"
+              name="account"
+              ?checked=${account.index === this.selectedIndex}
+              value=${account.index}
+            />
+            <span class="address">${trimAddress(account.address)}</span>
+            <span class="balance">${formatAmount(account.balance)}</span>
+            <span class="index">${account.index}</span>
+          </div>
+        `
+      )}
     `;
+  }
+
+  private selectAccount(index: number) {
+    this.selectedIndex = index;
+    this.requestUpdate();
   }
 
   async open() {
@@ -176,7 +195,7 @@ export class WalletConnectModalComponent extends LitElement {
   }
 
   accessWallet() {
-    // Implement wallet access logic
+    console.log('Accessing wallet with index:', this.selectedIndex);
   }
 }
 

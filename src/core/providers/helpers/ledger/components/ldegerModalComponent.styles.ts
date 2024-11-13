@@ -72,6 +72,14 @@ export const ledgerStyles = css`
     border-radius: 8px;
     cursor: pointer;
   }
+  .access-button:disabled {
+    background-color: #a1a1a1; /* Muted gray */
+    color: #e0e0e0; /* Lighter text color */
+    cursor: not-allowed;
+    opacity: 0.6;
+    box-shadow: none;
+    transform: none;
+  }
   .spinner {
     display: flex;
     justify-content: center;
