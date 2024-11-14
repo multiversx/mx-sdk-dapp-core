@@ -1,15 +1,25 @@
-import { LitElement, TemplateResult, html } from 'lit';
+import { LitElement, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import { ledgerStyles } from './ldegerModalComponent.styles';
-import { ILedgerAccount } from '../ledger.types';
 import BigNumber from 'bignumber.js';
+import { ledgerStyles } from './ldegerModalComponent.styles';
+import { ILedgerAccount } from '../../ledger.types';
 import { fetchAccount } from 'utils/account/fetchAccount';
-import { getAuthTokenText } from './getAuthTokenText';
+import { getAuthTokenText } from './helpers/getAuthTokenText';
+import { renderInModal } from './components/renderInModal';
+import { renderAccounts } from './components/renderAccounts';
 
-@customElement('account-connect-modal')
-export class WalletConnectModalComponent extends LitElement {
+@customElement('ledger-connect-modal')
+export class LedgerModalComponent extends LitElement {
   @property({ type: Boolean }) isOpen = false;
   @property({ type: Array }) accounts: ILedgerAccount[] = [];
+  @property({ type: Number }) private startIndex = 0;
+  @property({ type: Number }) private addressesPerPage = 10;
+  @property({ type: Boolean }) private isLoading = false;
+  @property({ type: Boolean }) private showConfirm = false;
+  @property({ type: Number }) public selectedIndex = 0;
+  @property({ type: String }) public selectedAddress = '';
+  @property({ type: String }) public signature = '';
+
   // external props
   @property({ type: String }) loginToken = '';
   @property({ type: String }) version = '';
@@ -24,14 +34,6 @@ export class WalletConnectModalComponent extends LitElement {
     addressIndex: number;
     signature?: string;
   }>;
-
-  @property({ type: Number }) private startIndex = 0;
-  @property({ type: Number }) private addressesPerPage = 10;
-  @property({ type: Boolean }) private isLoading = false;
-  @property({ type: Boolean }) private showConfirm = false;
-  @property({ type: Number }) public selectedIndex = 0;
-  @property({ type: String }) public selectedAddress = '';
-  @property({ type: String }) public signature = '';
 
   static styles = ledgerStyles;
 
@@ -50,7 +52,9 @@ export class WalletConnectModalComponent extends LitElement {
         version: this.version
       });
 
-      return this.renderInModal({
+      return renderInModal({
+        onClose: () => this.close(),
+        isOpen: this.isOpen,
         title: html`Confirm`,
         subtitle: html`Confirm Ledger Address`,
         body: html`<div data-testid="ledgerConfirmAddress">
@@ -84,17 +88,24 @@ export class WalletConnectModalComponent extends LitElement {
       });
     }
 
-    return this.renderInModal({
+    const accountsList =
+      this.isLoading || this.accounts.length === 0
+        ? html`<div class="spinner"></div>`
+        : renderAccounts({
+            shownAccounts,
+            onSelectAccount: this.selectAccount.bind(this),
+            selectedIndex: this.selectedIndex
+          });
+
+    return renderInModal({
+      onClose: () => this.close(),
+      isOpen: this.isOpen,
       title: html`Access your wallet`,
       subtitle: html`Choose the wallet you want to access`,
       body: html`
         <div>
             <div class="account-list">
-              ${
-                this.isLoading || this.accounts.length === 0
-                  ? html`<div class="spinner"></div>`
-                  : this.renderAccounts(shownAccounts)
-              }
+              ${accountsList}
             </div>
             <div class="navigation">
               <button
@@ -128,76 +139,6 @@ export class WalletConnectModalComponent extends LitElement {
     this.onSubmit({ addressIndex: this.selectedIndex });
   }
 
-  private renderInModal<T extends TemplateResult>({
-    body,
-    title,
-    subtitle
-  }: {
-    body: T;
-    title: T;
-    subtitle: T;
-  }) {
-    return html`
-      <div class="modal" style="display: ${this.isOpen ? 'block' : 'none'}">
-        <div class="modal-content">
-          <div class="modal-header">
-            <span class="close" @click=${this.close}>✕</span>
-            <h2>${title}</h2>
-            <p>${subtitle}</p>
-          </div>
-          ${body}
-        </div>
-      </div>
-    `;
-  }
-
-  private renderAccounts(shownAccounts: ILedgerAccount[]) {
-    function trimAddress(s: string): string {
-      const firstFour = s.slice(0, 6);
-      const lastFour = s.slice(-6);
-      return `${firstFour}...${lastFour}`;
-    }
-    function formatAmount(amount: string) {
-      const number = new BigNumber(amount);
-
-      if (number.isNaN()) {
-        return amount;
-      }
-
-      const formattedNumber = number
-        .dividedBy(BigNumber(10).pow(18))
-        .toFormat(4)
-        .toString();
-
-      return formattedNumber;
-    }
-    return html`
-      <div class="account-header">
-        <span>Address</span>
-        <span>Balance</span>
-        <span>#</span>
-      </div>
-      ${shownAccounts.map(
-        (account) => html`
-          <div
-            class="account-row"
-            @click=${() => this.selectAccount(account.index)}
-          >
-            <input
-              type="radio"
-              name="account"
-              ?checked=${account.index === this.selectedIndex}
-              value=${account.index}
-            />
-            <span class="address">${trimAddress(account.address)}</span>
-            <span class="balance">${formatAmount(account.balance ?? '')}</span>
-            <span class="index">${account.index}</span>
-          </div>
-        `
-      )}
-    `;
-  }
-
   private selectAccount(index: number) {
     this.selectedIndex = index;
 
@@ -208,8 +149,8 @@ export class WalletConnectModalComponent extends LitElement {
   }
 
   async open() {
-    this.fetchAccounts();
     this.isOpen = true;
+    this.fetchAccounts();
   }
 
   private async fetchAccounts() {
@@ -247,7 +188,6 @@ export class WalletConnectModalComponent extends LitElement {
       this.accounts = [...this.accounts, ...accountsWithBalance];
 
       this.isLoading = false;
-
       this.requestUpdate();
 
       const balancePromises = accounts.map((address) => fetchAccount(address));
@@ -283,47 +223,4 @@ export class WalletConnectModalComponent extends LitElement {
   close() {
     this.isOpen = false;
   }
-}
-
-export async function initiateLedgerLogin(props: {
-  getAccounts: (page?: number, pageSize?: number) => Promise<string[]>;
-  onSubmit: (props: { addressIndex: number }) => Promise<{
-    address: string;
-    signature?: string;
-  }>;
-}) {
-  const modalElement = document.createElement(
-    'account-connect-modal'
-  ) as WalletConnectModalComponent;
-
-  modalElement.getAccounts = props.getAccounts;
-
-  document.body.appendChild(modalElement);
-  modalElement.open();
-
-  const selectedAccount = await new Promise<{
-    address: string;
-    addressIndex: number;
-    signature?: string;
-  }>((resolve) => {
-    modalElement.onSubmit = async ({ addressIndex }) => {
-      const { address, signature } = await props.onSubmit({ addressIndex });
-
-      resolve({
-        address,
-        signature,
-        addressIndex
-      });
-
-      document.body.removeChild(modalElement);
-
-      return {
-        address,
-        signature,
-        addressIndex
-      };
-    };
-  });
-
-  return selectedAccount;
 }

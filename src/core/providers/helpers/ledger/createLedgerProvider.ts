@@ -5,7 +5,7 @@ import {
 import { getLedgerProvider } from './getLedgerProvider';
 import { setLedgerLogin } from 'store/actions/loginInfo/loginInfoActions';
 import { setLedgerAccount } from 'store/actions/account/accountActions';
-import { initiateLedgerLogin } from './components/LedgerModalComponent';
+import { initiateLedgerLogin } from './components/initiateLedgerLogin';
 import { CurrentNetworkType } from 'types/network.types';
 
 interface ILedgerProvider {
