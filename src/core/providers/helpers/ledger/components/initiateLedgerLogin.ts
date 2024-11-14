@@ -6,6 +6,8 @@ export async function initiateLedgerLogin(props: {
     address: string;
     signature?: string;
   }>;
+  version?: string;
+  token?: string;
 }) {
   // Ensure the custom element is defined (if not already done)
   if (!customElements.get('ledger-connect-modal')) {
@@ -17,6 +19,8 @@ export async function initiateLedgerLogin(props: {
   ) as LedgerModalComponent;
 
   modalElement.getAccounts = props.getAccounts;
+  modalElement.version = props.version ?? '';
+  modalElement.loginToken = props.token ?? '';
 
   document.body.appendChild(modalElement);
 

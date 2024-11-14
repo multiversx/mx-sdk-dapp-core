@@ -135,8 +135,10 @@ export class LedgerModalComponent extends LitElement {
       console.error('onSubmit function not provided');
       return;
     }
+
     this.showConfirm = true;
     this.onSubmit({ addressIndex: this.selectedIndex });
+    this.requestUpdate();
   }
 
   private selectAccount(index: number) {

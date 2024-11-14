@@ -69,7 +69,9 @@ export async function createLedgerProvider(
       signature = ''
     } = await initiateLedgerLogin({
       getAccounts: provider.getAccounts.bind(provider),
-      onSubmit
+      onSubmit,
+      version: ledgerConfig.version,
+      token: options?.token
     });
 
     const { version, dataEnabled } = ledgerConfig;
