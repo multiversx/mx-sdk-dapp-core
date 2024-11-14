@@ -285,7 +285,7 @@ export class WalletConnectModalComponent extends LitElement {
   }
 }
 
-export async function createModalFunctions(props: {
+export async function initiateLedgerLogin(props: {
   getAccounts: (page?: number, pageSize?: number) => Promise<string[]>;
   onSubmit: (props: { addressIndex: number }) => Promise<{
     address: string;
@@ -308,15 +308,15 @@ export async function createModalFunctions(props: {
   }>((resolve) => {
     modalElement.onSubmit = async ({ addressIndex }) => {
       const { address, signature } = await props.onSubmit({ addressIndex });
-      console.log('address', address);
-      console.log('signature', signature);
 
       resolve({
         address,
         signature,
         addressIndex
       });
+
       document.body.removeChild(modalElement);
+
       return {
         address,
         signature,

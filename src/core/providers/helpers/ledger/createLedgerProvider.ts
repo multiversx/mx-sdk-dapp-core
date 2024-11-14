@@ -5,7 +5,7 @@ import {
 import { getLedgerProvider } from './getLedgerProvider';
 import { setLedgerLogin } from 'store/actions/loginInfo/loginInfoActions';
 import { setLedgerAccount } from 'store/actions/account/accountActions';
-import { createModalFunctions } from './components/LedgerModalComponent';
+import { initiateLedgerLogin } from './components/LedgerModalComponent';
 import { CurrentNetworkType } from 'types/network.types';
 
 interface ILedgerProvider {
@@ -46,48 +46,38 @@ export async function createLedgerProvider(
     }
 
     const onSubmit = async ({ addressIndex }: { addressIndex: number }) => {
-      setLedgerLogin({
-        index: addressIndex,
-        loginType: ProviderTypeEnum.ledger
-      });
+      const loginInfo = options?.token
+        ? await provider.tokenLogin({
+            token: Buffer.from(`${options?.token}{}`),
+            addressIndex
+          })
+        : await hwProviderLogin({
+            addressIndex
+          });
 
-      console.log('ledgerConfig', ledgerConfig);
-      console.log('addressIndex', addressIndex);
-
-      if (options?.token) {
-        console.log('options', options);
-
-        const loginInfo = await provider.tokenLogin({
-          token: Buffer.from(`${options?.token}{}`),
-          addressIndex
-        });
-
-        return {
-          address: loginInfo.address,
-          signature: loginInfo.signature.toString('hex')
-        };
-      } else {
-        const { address } = await hwProviderLogin({
-          addressIndex
-        });
-
-        return {
-          address,
-          signature: ''
-        };
-      }
+      return {
+        address: loginInfo.address,
+        signature: loginInfo.signature
+          ? loginInfo.signature.toString('hex')
+          : ''
+      };
     };
 
     const {
       address,
       addressIndex,
       signature = ''
-    } = await createModalFunctions({
+    } = await initiateLedgerLogin({
       getAccounts: provider.getAccounts.bind(provider),
       onSubmit
     });
 
     const { version, dataEnabled } = ledgerConfig;
+
+    setLedgerLogin({
+      index: addressIndex,
+      loginType: ProviderTypeEnum.ledger
+    });
 
     setLedgerAccount({
       address,
