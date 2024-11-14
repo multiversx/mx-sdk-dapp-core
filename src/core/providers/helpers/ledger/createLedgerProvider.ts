@@ -45,44 +45,58 @@ export async function createLedgerProvider(
       throw new Error('Ledger device is not connected');
     }
 
-    const { address, index: selectedIndex } = await createModalFunctions({
-      getAccounts: provider.getAccounts.bind(provider)
-    });
+    const onSubmit = async ({ addressIndex }: { addressIndex: number }) => {
+      setLedgerLogin({
+        index: addressIndex,
+        loginType: ProviderTypeEnum.ledger
+      });
 
-    setLedgerLogin({
-      index: selectedIndex,
-      loginType: ProviderTypeEnum.ledger
+      console.log('ledgerConfig', ledgerConfig);
+      console.log('addressIndex', addressIndex);
+
+      if (options?.token) {
+        console.log('options', options);
+
+        const loginInfo = await provider.tokenLogin({
+          token: Buffer.from(`${options?.token}{}`),
+          addressIndex
+        });
+
+        return {
+          address: loginInfo.address,
+          signature: loginInfo.signature.toString('hex')
+        };
+      } else {
+        const { address } = await hwProviderLogin({
+          addressIndex
+        });
+
+        return {
+          address,
+          signature: ''
+        };
+      }
+    };
+
+    const {
+      address,
+      addressIndex,
+      signature = ''
+    } = await createModalFunctions({
+      getAccounts: provider.getAccounts.bind(provider),
+      onSubmit
     });
 
     const { version, dataEnabled } = ledgerConfig;
 
     setLedgerAccount({
       address,
-      index: selectedIndex,
+      index: addressIndex,
       version,
       hasContractDataEnabled: dataEnabled
     });
 
-    if (options?.token) {
-      const loginInfo = await provider.tokenLogin({
-        token: Buffer.from(`${options?.token}{}`),
-        addressIndex: selectedIndex
-      });
-
-      return {
-        address: loginInfo.address,
-        signature: loginInfo.signature.toString('hex')
-      };
-    } else {
-      const { address } = await hwProviderLogin({
-        addressIndex: selectedIndex
-      });
-
-      return {
-        address,
-        signature: ''
-      };
-    }
+    return { address, signature };
   };
 
   return createdProvider;

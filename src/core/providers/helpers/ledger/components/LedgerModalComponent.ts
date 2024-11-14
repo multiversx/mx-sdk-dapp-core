@@ -1,25 +1,37 @@
-import { LitElement, html } from 'lit';
+import { LitElement, TemplateResult, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { ledgerStyles } from './ldegerModalComponent.styles';
 import { ILedgerAccount } from '../ledger.types';
 import BigNumber from 'bignumber.js';
 import { fetchAccount } from 'utils/account/fetchAccount';
+import { getAuthTokenText } from './getAuthTokenText';
 
 @customElement('account-connect-modal')
 export class WalletConnectModalComponent extends LitElement {
   @property({ type: Boolean }) isOpen = false;
   @property({ type: Array }) accounts: ILedgerAccount[] = [];
+  // external props
+  @property({ type: String }) loginToken = '';
+  @property({ type: String }) version = '';
   @property({ type: Function }) getAccounts?: (
     page?: number,
     pageSize?: number
   ) => Promise<string[]>;
-  @property({ type: Function }) accessWallet?: () => void;
+  @property({ type: Function }) onSubmit?: (props: {
+    addressIndex: number;
+  }) => Promise<{
+    address: string;
+    addressIndex: number;
+    signature?: string;
+  }>;
 
   @property({ type: Number }) private startIndex = 0;
   @property({ type: Number }) private addressesPerPage = 10;
   @property({ type: Boolean }) private isLoading = false;
+  @property({ type: Boolean }) private showConfirm = false;
   @property({ type: Number }) public selectedIndex = 0;
   @property({ type: String }) public selectedAddress = '';
+  @property({ type: String }) public signature = '';
 
   static styles = ledgerStyles;
 
@@ -32,35 +44,108 @@ export class WalletConnectModalComponent extends LitElement {
       ({ index }) => index === this.selectedIndex
     );
 
+    if (this.showConfirm) {
+      const authTokenText = getAuthTokenText({
+        loginToken: this.loginToken,
+        version: this.version
+      });
+
+      return this.renderInModal({
+        title: html`Confirm`,
+        subtitle: html`Confirm Ledger Address`,
+        body: html`<div data-testid="ledgerConfirmAddress">
+          <div>
+            <div>${authTokenText?.confirmAddressText}</div>
+            <div>${this.selectedAddress}</div>
+          </div>
+
+          <div>
+            <div>${authTokenText?.authText}</div>
+            <div>${authTokenText?.data}</div>
+            <div>${authTokenText?.areShownText}</div>
+          </div>
+
+          <div>
+            <div>Select Approve on your device to confirm.</div>
+
+            <div>
+              Or, if it does not match, close this page and{' '}
+              <a
+                href="https://help.multiversx.com/en/"
+                target="_blank"
+                rel="noreferrer"
+              >
+                contact support
+              </a>
+              .
+            </div>
+          </div>
+        </div>`
+      });
+    }
+
+    return this.renderInModal({
+      title: html`Access your wallet`,
+      subtitle: html`Choose the wallet you want to access`,
+      body: html`
+        <div>
+            <div class="account-list">
+              ${
+                this.isLoading || this.accounts.length === 0
+                  ? html`<div class="spinner"></div>`
+                  : this.renderAccounts(shownAccounts)
+              }
+            </div>
+            <div class="navigation">
+              <button
+                @click=${this.prevPage}
+                ?disabled="${this.startIndex <= 0}"
+              >
+                Prev
+              </button>
+              <button @click=${this.nextPage}>Next</button>
+            </div>
+
+            <button
+              class="access-button"
+              @click=${this.accessWallet}
+              ?disabled=${!isSelectedIndexOnPage}
+            >
+              Access Wallet
+            </button>
+          </div>
+        </div>
+      `
+    });
+  }
+
+  private accessWallet() {
+    if (!this.onSubmit) {
+      console.error('onSubmit function not provided');
+      return;
+    }
+    this.showConfirm = true;
+    this.onSubmit({ addressIndex: this.selectedIndex });
+  }
+
+  private renderInModal<T extends TemplateResult>({
+    body,
+    title,
+    subtitle
+  }: {
+    body: T;
+    title: T;
+    subtitle: T;
+  }) {
     return html`
       <div class="modal" style="display: ${this.isOpen ? 'block' : 'none'}">
         <div class="modal-content">
           <div class="modal-header">
             <span class="close" @click=${this.close}>✕</span>
-            <h2>Access your wallet</h2>
-            <p>Choose the wallet you want to access</p>
+            <h2>${title}</h2>
+            <p>${subtitle}</p>
           </div>
-
-          <div class="account-list">
-            ${this.isLoading || this.accounts.length === 0
-              ? html`<div class="spinner"></div>`
-              : this.renderAccounts(shownAccounts)}
-          </div>
-
-          <div class="navigation">
-            <button @click=${this.prevPage} ?disabled="${this.startIndex <= 0}">
-              Prev
-            </button>
-            <button @click=${this.nextPage}>Next</button>
-          </div>
-
-          <button
-            class="access-button"
-            @click=${this.accessWallet}
-            ?disabled=${!isSelectedIndexOnPage}
-          >
-            Access Wallet
-          </button>
+          ${body}
         </div>
       </div>
     `;
@@ -202,6 +287,10 @@ export class WalletConnectModalComponent extends LitElement {
 
 export async function createModalFunctions(props: {
   getAccounts: (page?: number, pageSize?: number) => Promise<string[]>;
+  onSubmit: (props: { addressIndex: number }) => Promise<{
+    address: string;
+    signature?: string;
+  }>;
 }) {
   const modalElement = document.createElement(
     'account-connect-modal'
@@ -212,20 +301,29 @@ export async function createModalFunctions(props: {
   document.body.appendChild(modalElement);
   modalElement.open();
 
-  const selectedAccount = await new Promise<{ address: string; index: number }>(
-    (resolve, reject) => {
-      modalElement.accessWallet = () => {
-        if (!modalElement.selectedAddress) {
-          return reject('No address selected');
-        }
-        resolve({
-          address: modalElement.selectedAddress,
-          index: modalElement.selectedIndex
-        });
-        document.body.removeChild(modalElement);
+  const selectedAccount = await new Promise<{
+    address: string;
+    addressIndex: number;
+    signature?: string;
+  }>((resolve) => {
+    modalElement.onSubmit = async ({ addressIndex }) => {
+      const { address, signature } = await props.onSubmit({ addressIndex });
+      console.log('address', address);
+      console.log('signature', signature);
+
+      resolve({
+        address,
+        signature,
+        addressIndex
+      });
+      document.body.removeChild(modalElement);
+      return {
+        address,
+        signature,
+        addressIndex
       };
-    }
-  );
+    };
+  });
 
   return selectedAccount;
 }
