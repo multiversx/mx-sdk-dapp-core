@@ -9,7 +9,7 @@ export async function initiateLedgerLogin(props: {
   version?: string;
   token?: string;
 }) {
-  // Ensure the custom element is defined (if not already done)
+  // TODO: add this as param
   if (!customElements.get('ledger-connect-modal')) {
     customElements.define('ledger-connect-modal', LedgerModalComponent);
   }
@@ -29,7 +29,7 @@ export async function initiateLedgerLogin(props: {
     addressIndex: number;
     signature?: string;
   }>((resolve) => {
-    modalElement.open();
+    modalElement.open(); // TODO: remove
 
     modalElement.onSubmit = async ({ addressIndex }) => {
       const { address, signature } = await props.onSubmit({ addressIndex });
