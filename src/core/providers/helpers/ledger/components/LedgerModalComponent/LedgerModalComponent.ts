@@ -13,6 +13,7 @@ export interface ILedgerModalData {
   isLoading: boolean;
   showConfirm: boolean;
   selectedAddress: string;
+  shouldClose: boolean;
   confirmScreenData?: {
     data: string;
     confirmAddressText: string;
@@ -29,7 +30,8 @@ export class LedgerModalComponent extends LitElement {
     addressesPerPage: 10,
     isLoading: true,
     showConfirm: false,
-    selectedAddress: ''
+    selectedAddress: '',
+    shouldClose: false
   };
 
   @property({ type: Number }) private selectedIndex = 0;
@@ -162,13 +164,15 @@ export class LedgerModalComponent extends LitElement {
   }
 
   close() {
-    this.eventBus.publish('CLOSE');
     if (this.parentNode) {
       this.parentNode.removeChild(this);
     }
   }
 
   private dataUpdate(payload: ILedgerModalData) {
+    if (payload.shouldClose) {
+      return this.close();
+    }
     this.data = payload;
     this.requestUpdate();
   }

@@ -22,8 +22,6 @@ export class EventBus {
     if (!this.subscribers[event]) {
       return;
     }
-    console.log('\x1b[42m%s\x1b[0m', 'EV bus', event, data);
-
     this.subscribers[event].forEach((callback) => callback(data));
   }
 

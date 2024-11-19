@@ -74,7 +74,8 @@ export async function createLedgerProvider(
       isLoading: true,
       showConfirm: false,
       selectedAddress: '',
-      confirmScreenData
+      confirmScreenData,
+      shouldClose: false
     };
 
     const sendPartialUpdate = (members: Partial<ILedgerModalData>) => {
@@ -82,8 +83,6 @@ export async function createLedgerProvider(
         ...data,
         ...members
       };
-
-      console.log('\x1b[42m%s\x1b[0m', 'update with: data', data);
 
       eventBus.publish('DATA_UPDATE', data);
     };
@@ -197,12 +196,11 @@ export async function createLedgerProvider(
       eventBus.subscribe(
         'ACCESS_WALLET',
         async (payload: { addressIndex: number; selectedAddress: string }) => {
-          console.log('\x1b[42m%s\x1b[0m', 'access wallet?');
-
           sendPartialUpdate({
             showConfirm: true,
             selectedAddress: payload.selectedAddress
           });
+
           const loginInfo = options?.token
             ? await provider.tokenLogin({
                 token: Buffer.from(`${options?.token}{}`),
@@ -211,6 +209,10 @@ export async function createLedgerProvider(
             : await hwProviderLogin({
                 addressIndex: payload.addressIndex
               });
+
+          sendPartialUpdate({
+            shouldClose: true
+          });
 
           resolve({
             address: loginInfo.address,
