@@ -40,7 +40,6 @@ export class LedgerModalComponent extends LitElement {
   private eventBus: EventBus = EventBus.getInstance();
 
   render = () => {
-    console.log(11, this.data);
     const isSelectedIndexOnPage = this.data.accounts.some(
       ({ index }) => index === this.selectedIndex
     );

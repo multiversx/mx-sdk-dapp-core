@@ -64,13 +64,12 @@ export async function createLedgerProvider(
     const eventBus = EventBus.getInstance();
     initiateLedgerLogin();
 
-    let accounts: ILedgerAccount[] = [];
-    let startIndex = 0;
     const addressesPerPage = 10;
+    let allAccounts: ILedgerAccount[] = [];
 
     let data: ILedgerModalData = {
-      accounts,
-      startIndex,
+      accounts: allAccounts,
+      startIndex: 0,
       addressesPerPage,
       isLoading: true,
       showConfirm: false,
@@ -90,22 +89,21 @@ export async function createLedgerProvider(
     };
 
     const updateAccounts = async () => {
-      const hasData = data.accounts.some(
+      const { startIndex } = data;
+
+      const hasData = allAccounts.some(
         ({ index, balance }) =>
           index === startIndex && new BigNumber(balance).isFinite()
       );
 
-      const slicedAccounts = data.accounts.slice(
+      const slicedAccounts = allAccounts.slice(
         startIndex,
         startIndex + addressesPerPage
       );
 
       if (hasData) {
         return sendPartialUpdate({
-          accounts: data.accounts.slice(
-            startIndex,
-            startIndex + addressesPerPage
-          ),
+          accounts: slicedAccounts,
           isLoading: false
         });
       }
@@ -132,10 +130,13 @@ export async function createLedgerProvider(
           }
         );
 
-        accounts = [...accounts, ...accountsWithBalance];
+        allAccounts = [...allAccounts, ...accountsWithBalance];
 
         sendPartialUpdate({
-          accounts: accounts.slice(startIndex, startIndex + addressesPerPage),
+          accounts: allAccounts.slice(
+            startIndex,
+            startIndex + addressesPerPage
+          ),
           isLoading: false
         });
 
@@ -150,15 +151,18 @@ export async function createLedgerProvider(
             return;
           }
           const accountArrayIndex = index + startIndex;
-          accounts[accountArrayIndex].balance = account.balance;
+          allAccounts[accountArrayIndex].balance = account.balance;
         });
 
         sendPartialUpdate({
-          accounts: accounts.slice(startIndex, startIndex + addressesPerPage)
+          accounts: allAccounts.slice(startIndex, startIndex + addressesPerPage)
         });
       } catch (error) {
         sendPartialUpdate({
-          accounts: accounts.slice(startIndex, startIndex + addressesPerPage),
+          accounts: allAccounts.slice(
+            startIndex,
+            startIndex + addressesPerPage
+          ),
           isLoading: false
         });
         // TODO: handle here ledger error
@@ -176,12 +180,14 @@ export async function createLedgerProvider(
     }>(async (resolve) => {
       eventBus.subscribe(
         'PAGE_CHANGED',
-        async (data: { action: 'next' | 'prev' }) => {
-          if (data.action === 'next') {
-            startIndex = startIndex + addressesPerPage;
+        async (payload: { action: 'next' | 'prev' }) => {
+          const { startIndex } = data;
+
+          if (payload.action === 'next') {
+            data.startIndex = startIndex + addressesPerPage;
           }
-          if (data.action === 'prev' && startIndex > 0) {
-            startIndex = Math.max(0, startIndex - addressesPerPage);
+          if (payload.action === 'prev' && startIndex > 0) {
+            data.startIndex = Math.max(0, startIndex - addressesPerPage);
           }
 
           await updateAccounts();
@@ -190,18 +196,20 @@ export async function createLedgerProvider(
 
       eventBus.subscribe(
         'ACCESS_WALLET',
-        async (data: { addressIndex: number; selectedAddress: string }) => {
+        async (payload: { addressIndex: number; selectedAddress: string }) => {
+          console.log('\x1b[42m%s\x1b[0m', 'access wallet?');
+
           sendPartialUpdate({
             showConfirm: true,
-            selectedAddress: data.selectedAddress
+            selectedAddress: payload.selectedAddress
           });
           const loginInfo = options?.token
             ? await provider.tokenLogin({
                 token: Buffer.from(`${options?.token}{}`),
-                addressIndex: data.addressIndex
+                addressIndex: payload.addressIndex
               })
             : await hwProviderLogin({
-                addressIndex: data.addressIndex
+                addressIndex: payload.addressIndex
               });
 
           resolve({
@@ -209,7 +217,7 @@ export async function createLedgerProvider(
             signature: loginInfo.signature
               ? loginInfo.signature.toString('hex')
               : '',
-            addressIndex: data.addressIndex
+            addressIndex: payload.addressIndex
           });
         }
       );
