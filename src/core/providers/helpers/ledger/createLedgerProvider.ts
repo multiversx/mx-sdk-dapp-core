@@ -12,6 +12,7 @@ import { ILedgerAccount } from './ledger.types';
 import { fetchAccount } from 'utils/account/fetchAccount';
 import { getAuthTokenText } from './components/LedgerModalComponent/helpers/getAuthTokenText';
 import BigNumber from 'bignumber.js';
+import { ILedgerModalData } from './components/LedgerModalComponent/LedgerModalComponent';
 
 interface ILedgerProvider {
   openModal?: () => Promise<void>;
@@ -66,35 +67,52 @@ export async function createLedgerProvider(
     let accounts: ILedgerAccount[] = [];
     let startIndex = 0;
     const addressesPerPage = 10;
-    let selectedIndex: number | undefined;
+
+    let data: ILedgerModalData = {
+      accounts,
+      startIndex,
+      addressesPerPage,
+      isLoading: true,
+      showConfirm: false,
+      selectedAddress: '',
+      confirmScreenData
+    };
+
+    const sendPartialUpdate = (members: Partial<ILedgerModalData>) => {
+      data = {
+        ...data,
+        ...members
+      };
+
+      console.log('\x1b[42m%s\x1b[0m', 'update with: data', data);
+
+      eventBus.publish('DATA_UPDATE', data);
+    };
 
     const updateAccounts = async () => {
-      const hasData = accounts.some(
+      const hasData = data.accounts.some(
         ({ index, balance }) =>
           index === startIndex && new BigNumber(balance).isFinite()
       );
 
+      const slicedAccounts = data.accounts.slice(
+        startIndex,
+        startIndex + addressesPerPage
+      );
+
       if (hasData) {
-        return eventBus.publish('DATA_UPDATE', {
-          accounts: accounts.slice(startIndex, startIndex + addressesPerPage),
-          startIndex,
-          addressesPerPage,
-          isLoading: false,
-          showConfirm: false,
-          selectedAddress: 0,
-          confirmScreenData
+        return sendPartialUpdate({
+          accounts: data.accounts.slice(
+            startIndex,
+            startIndex + addressesPerPage
+          ),
+          isLoading: false
         });
       }
 
-      if (accounts.length === 0) {
-        return eventBus.publish('DATA_UPDATE', {
-          accounts: [],
-          startIndex,
-          addressesPerPage,
-          isLoading: true,
-          showConfirm: false,
-          selectedAddress: 0,
-          confirmScreenData
+      if (slicedAccounts.length === 0) {
+        sendPartialUpdate({
+          isLoading: true
         });
       }
 
@@ -116,14 +134,9 @@ export async function createLedgerProvider(
 
         accounts = [...accounts, ...accountsWithBalance];
 
-        eventBus.publish('DATA_UPDATE', {
+        sendPartialUpdate({
           accounts: accounts.slice(startIndex, startIndex + addressesPerPage),
-          startIndex,
-          addressesPerPage,
-          isLoading: false,
-          showConfirm: false,
-          selectedAddress: 0,
-          confirmScreenData
+          isLoading: false
         });
 
         const balancePromises = accountsArray.map((address) =>
@@ -140,25 +153,15 @@ export async function createLedgerProvider(
           accounts[accountArrayIndex].balance = account.balance;
         });
 
-        eventBus.publish('DATA_UPDATE', {
-          accounts: accounts.slice(startIndex, startIndex + addressesPerPage),
-          startIndex,
-          addressesPerPage,
-          isLoading: false,
-          showConfirm: false,
-          selectedAddress: 0,
-          confirmScreenData
+        sendPartialUpdate({
+          accounts: accounts.slice(startIndex, startIndex + addressesPerPage)
         });
       } catch (error) {
-        eventBus.publish('DATA_UPDATE', {
+        sendPartialUpdate({
           accounts: accounts.slice(startIndex, startIndex + addressesPerPage),
-          startIndex,
-          addressesPerPage,
-          isLoading: false,
-          showConfirm: false,
-          selectedAddress: 0,
-          confirmScreenData
+          isLoading: false
         });
+        // TODO: handle here ledger error
 
         console.error('Failed to fetch accounts:', error);
       }
@@ -187,38 +190,29 @@ export async function createLedgerProvider(
 
       eventBus.subscribe(
         'ACCESS_WALLET',
-        async (data: { addressIndex: number }) => {
-          selectedIndex = data.addressIndex;
-          eventBus.publish('DATA_UPDATE', {
-            accounts: accounts.slice(startIndex, startIndex + addressesPerPage),
-            startIndex,
-            addressesPerPage,
-            isLoading: false,
+        async (data: { addressIndex: number; selectedAddress: string }) => {
+          sendPartialUpdate({
             showConfirm: true,
-            selectedAddress: 0,
-            confirmScreenData
+            selectedAddress: data.selectedAddress
+          });
+          const loginInfo = options?.token
+            ? await provider.tokenLogin({
+                token: Buffer.from(`${options?.token}{}`),
+                addressIndex: data.addressIndex
+              })
+            : await hwProviderLogin({
+                addressIndex: data.addressIndex
+              });
+
+          resolve({
+            address: loginInfo.address,
+            signature: loginInfo.signature
+              ? loginInfo.signature.toString('hex')
+              : '',
+            addressIndex: data.addressIndex
           });
         }
       );
-
-      eventBus.subscribe('ON_SUBMIT', async (data: any) => {
-        const loginInfo = options?.token
-          ? await provider.tokenLogin({
-              token: Buffer.from(`${options?.token}{}`),
-              addressIndex: data.addressIndex
-            })
-          : await hwProviderLogin({
-              addressIndex: data.addressIndex
-            });
-
-        resolve({
-          address: loginInfo.address,
-          signature: loginInfo.signature
-            ? loginInfo.signature.toString('hex')
-            : '',
-          addressIndex: data.addressIndex
-        });
-      });
     });
 
     const { version, dataEnabled } = ledgerConfig;

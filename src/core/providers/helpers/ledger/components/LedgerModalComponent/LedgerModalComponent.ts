@@ -6,7 +6,7 @@ import { renderInModal } from './components/renderInModal';
 import { renderAccounts } from './components/renderAccounts';
 import { EventBus } from '../EventBus';
 
-interface ILedgerModalData {
+export interface ILedgerModalData {
   accounts: ILedgerAccount[];
   startIndex: number;
   addressesPerPage: number;
@@ -17,13 +17,13 @@ interface ILedgerModalData {
     data: string;
     confirmAddressText: string;
     authText: string;
-    areShownText?: undefined;
-  };
+    areShownText?: string | null;
+  } | null;
 }
 
 @customElement('ledger-connect-modal')
 export class LedgerModalComponent extends LitElement {
-  @property({ type: Object }) public myData: ILedgerModalData = {
+  @property({ type: Object }) public data: ILedgerModalData = {
     accounts: [],
     startIndex: 0,
     addressesPerPage: 10,
@@ -32,20 +32,22 @@ export class LedgerModalComponent extends LitElement {
     selectedAddress: ''
   };
 
-  @property({ type: Number }) public selectedIndex = 1;
+  @property({ type: Number }) private selectedIndex = 0;
+  @property({ type: Number }) private selectedAddress = '';
 
   static styles = ledgerStyles;
 
   private eventBus: EventBus = EventBus.getInstance();
 
   render = () => {
-    const isSelectedIndexOnPage = this.myData.accounts.some(
+    console.log(11, this.data);
+    const isSelectedIndexOnPage = this.data.accounts.some(
       ({ index }) => index === this.selectedIndex
     );
 
-    const authTokenText = this.myData.confirmScreenData;
+    const authTokenText = this.data.confirmScreenData;
 
-    if (this.myData.showConfirm) {
+    if (this.data.showConfirm) {
       return renderInModal({
         onClose: () => this.close(),
         title: html`Confirm`,
@@ -53,7 +55,7 @@ export class LedgerModalComponent extends LitElement {
         body: html`<div data-testid="ledgerConfirmAddress">
           <div>
             <div>${authTokenText?.confirmAddressText}</div>
-            <div>${this.myData.selectedAddress}</div>
+            <div>${this.data.selectedAddress}</div>
           </div>
 
           <div>
@@ -82,10 +84,10 @@ export class LedgerModalComponent extends LitElement {
     }
 
     const accountsList =
-      this.myData.isLoading || this.myData.accounts.length === 0
+      this.data.isLoading || this.data.accounts.length === 0
         ? html`<div class="spinner"></div>`
         : renderAccounts({
-            shownAccounts: this.myData.accounts,
+            shownAccounts: this.data.accounts,
             onSelectAccount: this.selectAccount.bind(this),
             selectedIndex: this.selectedIndex
           });
@@ -102,7 +104,7 @@ export class LedgerModalComponent extends LitElement {
             <div class="navigation">
               <button
                 @click=${this.prevPage}
-                ?disabled="${this.myData.startIndex <= 0}"
+                ?disabled="${this.data.startIndex <= 0}"
               >
                 Prev
               </button>
@@ -124,12 +126,16 @@ export class LedgerModalComponent extends LitElement {
 
   private accessWallet() {
     this.eventBus.publish('ACCESS_WALLET', {
-      addressIndex: this.selectedIndex
+      addressIndex: this.selectedIndex,
+      selectedAddress: this.selectedAddress
     });
   }
 
   private selectAccount(index: number) {
     this.selectedIndex = index;
+    this.selectedAddress =
+      this.data.accounts.find(({ index }) => index === this.selectedIndex)
+        ?.address ?? '';
   }
 
   // private dispatchPageChangeEvent(action: 'next' | 'prev') {
@@ -164,7 +170,7 @@ export class LedgerModalComponent extends LitElement {
   }
 
   private dataUpdate(payload: ILedgerModalData) {
-    this.myData = payload;
+    this.data = payload;
     this.requestUpdate();
   }
 

@@ -10,6 +10,4 @@ export async function initiateLedgerLogin() {
   ) as LedgerModalComponent;
 
   document.body.appendChild(modalElement);
-
-  console.log('\x1b[42m%s\x1b[0m', 'done appending');
 }
