@@ -17,13 +17,13 @@ export function formatAmount(amount: string): string {
 }
 
 export function renderAccounts({
-  shownAccounts,
+  shownAccounts = [],
   onSelectAccount,
   selectedIndex
 }: {
   shownAccounts: ILedgerAccount[];
   onSelectAccount: (index: number) => void;
-  selectedIndex: number;
+  selectedIndex?: number;
 }): TemplateResult {
   return html`
     <div class="account-header">

@@ -1,66 +1,59 @@
 import { LitElement, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import BigNumber from 'bignumber.js';
 import { ledgerStyles } from './ldegerModalComponent.styles';
 import { ILedgerAccount } from '../../ledger.types';
-import { fetchAccount } from 'utils/account/fetchAccount';
-import { getAuthTokenText } from './helpers/getAuthTokenText';
 import { renderInModal } from './components/renderInModal';
 import { renderAccounts } from './components/renderAccounts';
+import { EventBus } from '../EventBus';
+
+interface ILedgerModalData {
+  accounts: ILedgerAccount[];
+  startIndex: number;
+  addressesPerPage: number;
+  isLoading: boolean;
+  showConfirm: boolean;
+  selectedAddress: string;
+  confirmScreenData?: {
+    data: string;
+    confirmAddressText: string;
+    authText: string;
+    areShownText?: undefined;
+  };
+}
 
 @customElement('ledger-connect-modal')
 export class LedgerModalComponent extends LitElement {
-  @property({ type: Boolean }) isOpen = false;
-  @property({ type: Array }) accounts: ILedgerAccount[] = [];
-  @property({ type: Number }) private startIndex = 0;
-  @property({ type: Number }) private addressesPerPage = 10;
-  @property({ type: Boolean }) private isLoading = false;
-  @property({ type: Boolean }) private showConfirm = false;
-  @property({ type: Number }) public selectedIndex = 0;
-  @property({ type: String }) public selectedAddress = '';
-  @property({ type: String }) public signature = '';
+  @property({ type: Object }) public myData: ILedgerModalData = {
+    accounts: [],
+    startIndex: 0,
+    addressesPerPage: 10,
+    isLoading: true,
+    showConfirm: false,
+    selectedAddress: ''
+  };
 
-  // external props
-  @property({ type: String }) loginToken = '';
-  @property({ type: String }) version = '';
-  @property({ type: Function }) getAccounts?: (
-    page?: number,
-    pageSize?: number
-  ) => Promise<string[]>;
-  @property({ type: Function }) onSubmit?: (props: {
-    addressIndex: number;
-  }) => Promise<{
-    address: string;
-    addressIndex: number;
-    signature?: string;
-  }>;
+  @property({ type: Number }) public selectedIndex = 1;
 
   static styles = ledgerStyles;
 
-  render() {
-    const shownAccounts = this.accounts.slice(
-      this.startIndex,
-      this.startIndex + this.addressesPerPage
-    );
-    const isSelectedIndexOnPage = shownAccounts.some(
+  private eventBus: EventBus = EventBus.getInstance();
+
+  render = () => {
+    const isSelectedIndexOnPage = this.myData.accounts.some(
       ({ index }) => index === this.selectedIndex
     );
 
-    if (this.showConfirm) {
-      const authTokenText = getAuthTokenText({
-        loginToken: this.loginToken,
-        version: this.version
-      });
+    const authTokenText = this.myData.confirmScreenData;
 
+    if (this.myData.showConfirm) {
       return renderInModal({
         onClose: () => this.close(),
-        isOpen: this.isOpen,
         title: html`Confirm`,
         subtitle: html`Confirm Ledger Address`,
         body: html`<div data-testid="ledgerConfirmAddress">
           <div>
             <div>${authTokenText?.confirmAddressText}</div>
-            <div>${this.selectedAddress}</div>
+            <div>${this.myData.selectedAddress}</div>
           </div>
 
           <div>
@@ -89,17 +82,16 @@ export class LedgerModalComponent extends LitElement {
     }
 
     const accountsList =
-      this.isLoading || this.accounts.length === 0
+      this.myData.isLoading || this.myData.accounts.length === 0
         ? html`<div class="spinner"></div>`
         : renderAccounts({
-            shownAccounts,
+            shownAccounts: this.myData.accounts,
             onSelectAccount: this.selectAccount.bind(this),
             selectedIndex: this.selectedIndex
           });
 
     return renderInModal({
       onClose: () => this.close(),
-      isOpen: this.isOpen,
       title: html`Access your wallet`,
       subtitle: html`Choose the wallet you want to access`,
       body: html`
@@ -110,7 +102,7 @@ export class LedgerModalComponent extends LitElement {
             <div class="navigation">
               <button
                 @click=${this.prevPage}
-                ?disabled="${this.startIndex <= 0}"
+                ?disabled="${this.myData.startIndex <= 0}"
               >
                 Prev
               </button>
@@ -128,101 +120,61 @@ export class LedgerModalComponent extends LitElement {
         </div>
       `
     });
-  }
+  };
 
   private accessWallet() {
-    if (!this.onSubmit) {
-      console.error('onSubmit function not provided');
-      return;
-    }
-
-    this.showConfirm = true;
-    this.onSubmit({ addressIndex: this.selectedIndex });
-    this.requestUpdate();
+    this.eventBus.publish('ACCESS_WALLET', {
+      addressIndex: this.selectedIndex
+    });
   }
 
   private selectAccount(index: number) {
     this.selectedIndex = index;
-
-    this.selectedAddress =
-      this.accounts.find((account) => account.index === index)?.address ?? '';
-
-    this.requestUpdate();
   }
 
-  async open() {
-    this.isOpen = true;
-    this.fetchAccounts();
-  }
+  // private dispatchPageChangeEvent(action: 'next' | 'prev') {
+  //   const event = new CustomEvent('page-change', {
+  //     detail: {
+  //       startIndex: this.startIndex,
+  //       action: action
+  //     },
+  //     bubbles: true,
+  //     composed: true
+  //   });
+  //   this.dispatchEvent(event);
+  // }
 
-  private async fetchAccounts() {
-    if (!this.getAccounts) {
-      console.error('getAccounts function not provided');
-      return;
-    }
-
-    const hasData = this.accounts.some(
-      ({ index, balance }) =>
-        index === this.startIndex && new BigNumber(balance).isFinite()
-    );
-
-    if (hasData) {
-      return;
-    }
-
-    this.isLoading = true;
-
-    try {
-      const accounts = await this.getAccounts?.(
-        this.startIndex,
-        this.addressesPerPage
-      );
-
-      const accountsWithBalance: ILedgerAccount[] = accounts.map(
-        (address, index) => {
-          return {
-            address,
-            balance: '...',
-            index: index + this.startIndex
-          };
-        }
-      );
-      this.accounts = [...this.accounts, ...accountsWithBalance];
-
-      this.isLoading = false;
-      this.requestUpdate();
-
-      const balancePromises = accounts.map((address) => fetchAccount(address));
-
-      const balances = await Promise.all(balancePromises);
-
-      balances.forEach((account, index) => {
-        if (!account) {
-          return;
-        }
-        const accountArrayIndex = index + this.startIndex;
-        this.accounts[accountArrayIndex].balance = account.balance;
-      });
-      this.requestUpdate();
-    } catch (error) {
-      this.isLoading = false;
-      console.error('Failed to fetch accounts:', error);
-    }
+  async nextPage() {
+    this.eventBus.publish('PAGE_CHANGED', {
+      action: 'next'
+    });
   }
 
   async prevPage() {
-    if (this.startIndex > 0) {
-      this.startIndex = Math.max(0, this.startIndex - this.addressesPerPage);
-      await this.fetchAccounts();
-    }
-  }
-
-  async nextPage() {
-    this.startIndex += this.addressesPerPage;
-    await this.fetchAccounts();
+    this.eventBus.publish('PAGE_CHANGED', {
+      action: 'prev'
+    });
   }
 
   close() {
-    this.isOpen = false;
+    this.eventBus.publish('CLOSE');
+    if (this.parentNode) {
+      this.parentNode.removeChild(this);
+    }
+  }
+
+  private dataUpdate(payload: ILedgerModalData) {
+    this.myData = payload;
+    this.requestUpdate();
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    this.eventBus.subscribe('DATA_UPDATE', this.dataUpdate.bind(this));
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.eventBus.unsubscribe('DATA_UPDATE', this.dataUpdate.bind(this));
   }
 }
