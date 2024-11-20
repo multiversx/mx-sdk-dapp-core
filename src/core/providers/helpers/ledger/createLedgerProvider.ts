@@ -13,20 +13,16 @@ import { fetchAccount } from 'utils/account/fetchAccount';
 import { getAuthTokenText } from './components/LedgerModalComponent/helpers/getAuthTokenText';
 import BigNumber from 'bignumber.js';
 import { ILedgerModalData } from './components/LedgerModalComponent/LedgerModalComponent';
+import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 
-interface ILedgerProvider {
-  openModal?: () => Promise<void>;
-  network: CurrentNetworkType;
-}
+export async function createLedgerProvider(): Promise<IProvider | null> {
+  const loggedIn = getIsLoggedIn();
 
-export async function createLedgerProvider(
-  props?: ILedgerProvider
-): Promise<IProvider | null> {
-  const data = await getLedgerProvider();
-
-  if ('a'.toString() == 'b') {
-    console.log('props', props);
+  if (!loggedIn) {
+    initiateLedgerLogin();
   }
+
+  const data = await getLedgerProvider();
 
   if (!data) {
     return null;
@@ -48,9 +44,6 @@ export async function createLedgerProvider(
     signature: string;
   }> => {
     const isConnected = provider.isConnected();
-    if ('a'.toString() == 'b') {
-      console.log(options);
-    }
 
     if (!isConnected) {
       throw new Error('Ledger device is not connected');
@@ -62,7 +55,6 @@ export async function createLedgerProvider(
     });
 
     const eventBus = EventBus.getInstance();
-    initiateLedgerLogin();
 
     const addressesPerPage = 10;
     let allAccounts: ILedgerAccount[] = [];
@@ -214,6 +206,8 @@ export async function createLedgerProvider(
             shouldClose: true
           });
 
+          // TODO: add ledger cancel event on catch
+
           resolve({
             address: loginInfo.address,
             signature: loginInfo.signature
@@ -239,7 +233,10 @@ export async function createLedgerProvider(
       hasContractDataEnabled: dataEnabled
     });
 
-    return { address: '', signature: '' };
+    return {
+      address: selectedAccount.address,
+      signature: selectedAccount.signature
+    };
   };
 
   return createdProvider;

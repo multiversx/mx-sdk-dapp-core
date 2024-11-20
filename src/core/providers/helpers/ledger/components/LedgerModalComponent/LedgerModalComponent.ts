@@ -128,7 +128,11 @@ export class LedgerModalComponent extends LitElement {
   private accessWallet() {
     this.eventBus.publish('ACCESS_WALLET', {
       addressIndex: this.selectedIndex,
-      selectedAddress: this.selectedAddress
+      selectedAddress:
+        this.selectedAddress ||
+        this.data.accounts.find(({ index }) => index === this.selectedIndex)
+          ?.address ||
+        ''
     });
   }
 
@@ -138,18 +142,6 @@ export class LedgerModalComponent extends LitElement {
       this.data.accounts.find(({ index }) => index === this.selectedIndex)
         ?.address ?? '';
   }
-
-  // private dispatchPageChangeEvent(action: 'next' | 'prev') {
-  //   const event = new CustomEvent('page-change', {
-  //     detail: {
-  //       startIndex: this.startIndex,
-  //       action: action
-  //     },
-  //     bubbles: true,
-  //     composed: true
-  //   });
-  //   this.dispatchEvent(event);
-  // }
 
   async nextPage() {
     this.eventBus.publish('PAGE_CHANGED', {

@@ -1,8 +1,6 @@
 import { Transaction } from '@multiversx/sdk-core';
 import { getAreAllTransactionsSignedByGuardian } from './getAreAllTransactionsSignedByGuardian';
 import { getAccount } from 'core/methods/account/getAccount';
-import { walletAddressSelector } from 'store/selectors';
-import { getState } from 'store/store';
 import { createCrossWindowProvider } from 'core/providers/helpers/crossWindow/createCrossWindowProvider';
 
 export async function getGuardedTransactions({
@@ -11,7 +9,6 @@ export async function getGuardedTransactions({
   transactions: Transaction[];
 }): Promise<Transaction[]> {
   const { isGuarded, address } = getAccount();
-  const walletAddress = walletAddressSelector(getState());
 
   const allSignedByGuardian = getAreAllTransactionsSignedByGuardian({
     isGuarded,
@@ -23,8 +20,7 @@ export async function getGuardedTransactions({
   }
 
   const provider = await createCrossWindowProvider({
-    address,
-    walletAddress
+    address
   });
   provider.setShouldShowConsentPopup(true);
 

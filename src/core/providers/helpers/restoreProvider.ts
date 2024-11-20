@@ -1,4 +1,4 @@
-import { networkSelector, providerTypeSelector } from 'store/selectors';
+import { providerTypeSelector } from 'store/selectors';
 import { ProviderFactory } from '../ProviderFactory';
 import { IProviderConfig } from '../types/providerFactory.types';
 import { getState } from 'store/store';
@@ -14,7 +14,6 @@ export async function restoreProvider() {
   }
 
   const config: IProviderConfig = {
-    network: networkSelector(getState()),
     account: {
       address
     }
