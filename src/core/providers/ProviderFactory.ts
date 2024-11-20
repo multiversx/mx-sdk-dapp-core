@@ -8,8 +8,6 @@ import { createCrossWindowProvider } from './helpers/crossWindow/createCrossWind
 import { createExtensionProvider } from './helpers/extension/createExtensionProvider';
 import { createIframeProvider } from './helpers/iframe/createIframeProvider';
 import { IframeLoginTypes } from '@multiversx/sdk-web-wallet-iframe-provider/out/constants';
-import { networkSelector } from 'store/selectors';
-import { getState } from 'store/store';
 
 export class ProviderFactory {
   public async create({
@@ -18,12 +16,6 @@ export class ProviderFactory {
     customProvider
   }: IProviderFactory): Promise<IProvider | undefined> {
     let createdProvider: IProvider | undefined;
-    const network = {
-      ...networkSelector(getState()),
-      ...config.network
-    };
-
-    const { metamaskSnapWalletAddress = '', walletAddress } = network;
 
     switch (type) {
       case ProviderTypeEnum.extension: {
@@ -37,8 +29,7 @@ export class ProviderFactory {
 
       case ProviderTypeEnum.crossWindow: {
         const provider = await createCrossWindowProvider({
-          walletAddress,
-          address: config.account?.address
+          address: config?.account?.address
         });
         createdProvider = provider as unknown as IProvider;
 
@@ -48,7 +39,7 @@ export class ProviderFactory {
       }
 
       case ProviderTypeEnum.ledger: {
-        const ledgerProvider = await createLedgerProvider({ network });
+        const ledgerProvider = await createLedgerProvider();
 
         if (!ledgerProvider) {
           return;
@@ -63,8 +54,7 @@ export class ProviderFactory {
 
       case ProviderTypeEnum.metamask: {
         const provider = await createIframeProvider({
-          address: config.account?.address,
-          metamaskSnapWalletAddress,
+          address: config?.account?.address,
           type: IframeLoginTypes.metamask
         });
 
@@ -81,8 +71,7 @@ export class ProviderFactory {
 
       case ProviderTypeEnum.passkey: {
         const provider = await createIframeProvider({
-          address: config.account?.address,
-          metamaskSnapWalletAddress,
+          address: config?.account?.address,
           type: IframeLoginTypes.passkey
         });
 

@@ -2,7 +2,6 @@ import { css } from 'lit';
 
 export const ledgerStyles = css`
   .modal {
-    display: none;
     position: fixed;
     z-index: 1000;
     left: 0;
