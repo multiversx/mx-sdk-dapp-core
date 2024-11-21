@@ -6,32 +6,40 @@ import { renderInModal } from './components/renderInModal';
 import { renderAccounts } from './components/renderAccounts';
 import { EventBus } from '../EventBus';
 
-export interface ILedgerModalData {
+export interface IConnectScreenData {
+  customContentMarkup?: string;
+  disabled?: boolean;
+  error?: string;
+}
+
+export interface IAccountScreenData {
   accounts: ILedgerAccount[];
   startIndex: number;
   addressesPerPage: number;
   isLoading: boolean;
-  showConfirm: boolean;
+}
+
+export interface IConfirmScreenData {
+  data?: string;
   selectedAddress: string;
-  shouldClose: boolean;
-  confirmScreenData?: {
-    data: string;
-    confirmAddressText: string;
-    authText: string;
-    areShownText?: string | null;
-  } | null;
+  confirmAddressText?: string;
+  authText?: string;
+  areShownText?: string | null;
+}
+
+export interface ILedgerModalData {
+  connectScreenData: IConnectScreenData | null;
+  accountScreenData: IAccountScreenData | null;
+  shouldClose?: true;
+  confirmScreenData: IConfirmScreenData | null;
 }
 
 @customElement('ledger-connect-modal')
 export class LedgerModalComponent extends LitElement {
   @property({ type: Object }) public data: ILedgerModalData = {
-    accounts: [],
-    startIndex: 0,
-    addressesPerPage: 10,
-    isLoading: true,
-    showConfirm: false,
-    selectedAddress: '',
-    shouldClose: false
+    accountScreenData: null,
+    confirmScreenData: null,
+    connectScreenData: {}
   };
 
   @property({ type: Number }) private selectedIndex = 0;
@@ -42,27 +50,71 @@ export class LedgerModalComponent extends LitElement {
   private eventBus: EventBus = EventBus.getInstance();
 
   render = () => {
-    const isSelectedIndexOnPage = this.data.accounts.some(
-      ({ index }) => index === this.selectedIndex
-    );
+    const { accountScreenData, confirmScreenData, connectScreenData } =
+      this.data;
 
-    const authTokenText = this.data.confirmScreenData;
+    if (accountScreenData) {
+      const isSelectedIndexOnPage = accountScreenData.accounts.some(
+        ({ index }) => index === this.selectedIndex
+      );
 
-    if (this.data.showConfirm) {
+      const accountsList =
+        accountScreenData.isLoading || accountScreenData.accounts.length === 0
+          ? html`<div class="spinner"></div>`
+          : renderAccounts({
+              shownAccounts: accountScreenData.accounts,
+              onSelectAccount: this.selectAccount.bind(this),
+              selectedIndex: this.selectedIndex
+            });
+
+      return renderInModal({
+        onClose: () => this.close(),
+        title: html`Access your wallet`,
+        subtitle: html`Choose the wallet you want to access`,
+        body: html`
+                <div>
+                    <div class="account-list">
+                      ${accountsList}
+                    </div>
+                    <div class="navigation">
+                      <button
+                        @click=${this.prevPage}
+                        ?disabled="${accountScreenData.startIndex <= 0}"
+                      >
+                        Prev
+                      </button>
+                      <button @click=${this.nextPage}>Next</button>
+                    </div>
+        
+                    <button
+                      class="access-button"
+                      @click=${this.accessWallet}
+                      ?disabled=${!isSelectedIndexOnPage}
+                    >
+                      Access Wallet
+                    </button>
+                  </div>
+                </div>
+              `
+      });
+    }
+
+    // TODO: test simple ledger connection without token
+    if (confirmScreenData) {
       return renderInModal({
         onClose: () => this.close(),
         title: html`Confirm`,
         subtitle: html`Confirm Ledger Address`,
         body: html`<div data-testid="ledgerConfirmAddress">
           <div>
-            <div>${authTokenText?.confirmAddressText}</div>
-            <div>${this.data.selectedAddress}</div>
+            <div>${confirmScreenData.confirmAddressText}</div>
+            <div>${confirmScreenData.selectedAddress}</div>
           </div>
 
           <div>
-            <div>${authTokenText?.authText}</div>
-            <div>${authTokenText?.data}</div>
-            <div>${authTokenText?.areShownText}</div>
+            <div>${confirmScreenData?.authText}</div>
+            <div>${confirmScreenData?.data}</div>
+            <div>${confirmScreenData?.areShownText}</div>
           </div>
 
           <div>
@@ -84,44 +136,31 @@ export class LedgerModalComponent extends LitElement {
       });
     }
 
-    const accountsList =
-      this.data.isLoading || this.data.accounts.length === 0
-        ? html`<div class="spinner"></div>`
-        : renderAccounts({
-            shownAccounts: this.data.accounts,
-            onSelectAccount: this.selectAccount.bind(this),
-            selectedIndex: this.selectedIndex
-          });
-
+    // connectScreenData
     return renderInModal({
       onClose: () => this.close(),
-      title: html`Access your wallet`,
-      subtitle: html`Choose the wallet you want to access`,
-      body: html`
-        <div>
-            <div class="account-list">
-              ${accountsList}
-            </div>
-            <div class="navigation">
-              <button
-                @click=${this.prevPage}
-                ?disabled="${this.data.startIndex <= 0}"
-              >
-                Prev
-              </button>
-              <button @click=${this.nextPage}>Next</button>
-            </div>
+      title: html`Connect Ledger`,
+      subtitle: html`Unlock your device &amp; open the MultiversX App`,
+      body: html`<div>
+        ${connectScreenData?.error && html`<p>${connectScreenData.error}</p>`}
+        ${connectScreenData?.customContentMarkup &&
+        html`${connectScreenData?.customContentMarkup}`}
 
-            <button
-              class="access-button"
-              @click=${this.accessWallet}
-              ?disabled=${!isSelectedIndexOnPage}
-            >
-              Access Wallet
-            </button>
-          </div>
-        </div>
-      `
+        <button
+          class="access-button"
+          @click=${() => this.eventBus.publish('CONNECT_WALLET')}
+          ?disabled=${connectScreenData?.disabled}
+        >
+          Connect Ledger
+        </button>
+        <a
+          href="https://support.ledger.com/hc/en-us/articles/115005165269-Connection-issues-with-Windows-or-Linux"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Having connection issues?
+        </a>
+      </div>`
     });
   };
 
@@ -130,8 +169,9 @@ export class LedgerModalComponent extends LitElement {
       addressIndex: this.selectedIndex,
       selectedAddress:
         this.selectedAddress ||
-        this.data.accounts.find(({ index }) => index === this.selectedIndex)
-          ?.address ||
+        this.data.accountScreenData?.accounts.find(
+          ({ index }) => index === this.selectedIndex
+        )?.address ||
         ''
     });
   }
@@ -139,8 +179,9 @@ export class LedgerModalComponent extends LitElement {
   private selectAccount(index: number) {
     this.selectedIndex = index;
     this.selectedAddress =
-      this.data.accounts.find(({ index }) => index === this.selectedIndex)
-        ?.address ?? '';
+      this.data.accountScreenData?.accounts.find(
+        ({ index }) => index === this.selectedIndex
+      )?.address ?? '';
   }
 
   async nextPage() {

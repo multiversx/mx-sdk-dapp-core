@@ -14,46 +14,30 @@ export async function getLedgerProvider() {
   const initHWProvider = async () => {
     const hasAddressIndex = ledgerLogin?.index != null;
 
-    try {
-      if (provider instanceof HWProvider && provider.isInitialized()) {
-        if (hasAddressIndex) {
-          await provider.setAddressIndex(ledgerLogin.index);
-        }
-
-        return provider;
-      }
-
-      const ledgerProvider = new HWProvider();
-      const isInitialized = await ledgerProvider.init();
-
-      if (!isInitialized) {
-        return null;
-      }
-
+    if (provider instanceof HWProvider && provider.isInitialized()) {
       if (hasAddressIndex) {
-        await ledgerProvider.setAddressIndex(ledgerLogin.index);
+        await provider.setAddressIndex(ledgerLogin.index);
       }
 
-      return ledgerProvider;
-    } catch (e) {
-      console.error('Failed to initialize Ledger Provider');
-      return null;
+      return provider;
     }
+
+    const ledgerProvider = new HWProvider();
+    const isInitialized = await ledgerProvider.init();
+
+    if (!isInitialized) {
+      throw new Error('Failed to initialize Ledger Provider');
+    }
+
+    if (hasAddressIndex) {
+      await ledgerProvider.setAddressIndex(ledgerLogin.index);
+    }
+
+    return ledgerProvider;
   };
 
   try {
     const ledgerProvider = await initHWProvider();
-
-    if (!ledgerProvider) {
-      console.warn('Could not initialize ledger app');
-
-      if (isLoggedIn) {
-        logout();
-      }
-
-      return null;
-    }
-
     const ledgerConfig = await getLedgerConfiguration(ledgerProvider);
     return { ledgerProvider, ledgerConfig };
   } catch (err) {
@@ -63,6 +47,6 @@ export async function getLedgerProvider() {
       logout();
     }
 
-    return null;
+    throw err;
   }
 }

@@ -6,29 +6,67 @@ import { getLedgerProvider } from './getLedgerProvider';
 import { setLedgerLogin } from 'store/actions/loginInfo/loginInfoActions';
 import { setLedgerAccount } from 'store/actions/account/accountActions';
 import { initiateLedgerLogin } from './components/initiateLedgerLogin';
-import { CurrentNetworkType } from 'types/network.types';
 import { EventBus } from './components/EventBus';
 import { ILedgerAccount } from './ledger.types';
 import { fetchAccount } from 'utils/account/fetchAccount';
 import { getAuthTokenText } from './components/LedgerModalComponent/helpers/getAuthTokenText';
 import BigNumber from 'bignumber.js';
-import { ILedgerModalData } from './components/LedgerModalComponent/LedgerModalComponent';
+import {
+  IAccountScreenData,
+  IConfirmScreenData,
+  ILedgerModalData
+} from './components/LedgerModalComponent/LedgerModalComponent';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
+import { getLedgerErrorCodes } from './getLedgerErrorCodes';
+
+const failInitializeErrorText = 'Check if the MultiversX App is open on Ledger';
+const addressesPerPage = 10;
+let allAccounts: ILedgerAccount[] = [];
+
+let accountScreenData: IAccountScreenData = {
+  accounts: allAccounts,
+  startIndex: 0,
+  addressesPerPage,
+  isLoading: true
+};
+
+let confirmScreenData: IConfirmScreenData = {
+  selectedAddress: ''
+};
+
+let data: ILedgerModalData = {
+  accountScreenData: null,
+  confirmScreenData: null,
+  connectScreenData: {}
+};
 
 export async function createLedgerProvider(): Promise<IProvider | null> {
-  const loggedIn = getIsLoggedIn();
+  const shouldInitiateLogin = !getIsLoggedIn();
+  const eventBus = EventBus.getInstance();
 
-  if (!loggedIn) {
+  if (shouldInitiateLogin) {
     initiateLedgerLogin();
   }
 
-  const data = await getLedgerProvider();
+  let ledgerData: Awaited<ReturnType<typeof getLedgerProvider>>;
 
-  if (!data) {
+  try {
+    ledgerData = await getLedgerProvider();
+  } catch (err) {
+    console.error('Failed to create ledger provider:', err);
+    if (shouldInitiateLogin) {
+      const { errorMessage, defaultErrorMessage } = getLedgerErrorCodes(err);
+
+      data.connectScreenData = {
+        error: errorMessage ?? defaultErrorMessage ?? failInitializeErrorText
+      };
+      eventBus.publish('DATA_UPDATE', data);
+    }
+
     return null;
   }
 
-  const { ledgerProvider: provider, ledgerConfig } = data;
+  const { ledgerProvider: provider, ledgerConfig } = ledgerData;
 
   const createdProvider = provider as unknown as IProvider;
 
@@ -49,38 +87,39 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
       throw new Error('Ledger device is not connected');
     }
 
-    const confirmScreenData = getAuthTokenText({
+    const authData = getAuthTokenText({
       loginToken: options?.token,
       version: ledgerConfig.version
     });
 
     const eventBus = EventBus.getInstance();
 
-    const addressesPerPage = 10;
-    let allAccounts: ILedgerAccount[] = [];
-
-    let data: ILedgerModalData = {
-      accounts: allAccounts,
-      startIndex: 0,
-      addressesPerPage,
-      isLoading: true,
-      showConfirm: false,
-      selectedAddress: '',
-      confirmScreenData,
-      shouldClose: false
-    };
-
-    const sendPartialUpdate = (members: Partial<ILedgerModalData>) => {
-      data = {
-        ...data,
+    const updateAccountScreen = (members: Partial<IAccountScreenData>) => {
+      accountScreenData = {
+        ...accountScreenData,
         ...members
       };
+      data.accountScreenData = accountScreenData;
+      eventBus.publish('DATA_UPDATE', data);
+    };
 
+    const updateConfirmScreen = (members: Partial<IConfirmScreenData>) => {
+      confirmScreenData = {
+        ...confirmScreenData,
+        ...members
+      };
+      data.accountScreenData = null;
+      data.confirmScreenData = confirmScreenData;
+      eventBus.publish('DATA_UPDATE', data);
+    };
+
+    const closeComponent = () => {
+      data.shouldClose = true;
       eventBus.publish('DATA_UPDATE', data);
     };
 
     const updateAccounts = async () => {
-      const { startIndex } = data;
+      const { startIndex } = accountScreenData;
 
       const hasData = allAccounts.some(
         ({ index, balance }) =>
@@ -93,14 +132,14 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
       );
 
       if (hasData) {
-        return sendPartialUpdate({
+        return updateAccountScreen({
           accounts: slicedAccounts,
           isLoading: false
         });
       }
 
       if (slicedAccounts.length === 0) {
-        sendPartialUpdate({
+        updateAccountScreen({
           isLoading: true
         });
       }
@@ -123,7 +162,7 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
 
         allAccounts = [...allAccounts, ...accountsWithBalance];
 
-        sendPartialUpdate({
+        updateAccountScreen({
           accounts: allAccounts.slice(
             startIndex,
             startIndex + addressesPerPage
@@ -145,11 +184,11 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
           allAccounts[accountArrayIndex].balance = account.balance;
         });
 
-        sendPartialUpdate({
+        updateAccountScreen({
           accounts: allAccounts.slice(startIndex, startIndex + addressesPerPage)
         });
       } catch (error) {
-        sendPartialUpdate({
+        updateAccountScreen({
           accounts: allAccounts.slice(
             startIndex,
             startIndex + addressesPerPage
@@ -172,13 +211,16 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
       eventBus.subscribe(
         'PAGE_CHANGED',
         async (payload: { action: 'next' | 'prev' }) => {
-          const { startIndex } = data;
+          const { startIndex } = accountScreenData;
 
           if (payload.action === 'next') {
-            data.startIndex = startIndex + addressesPerPage;
+            accountScreenData.startIndex = startIndex + addressesPerPage;
           }
           if (payload.action === 'prev' && startIndex > 0) {
-            data.startIndex = Math.max(0, startIndex - addressesPerPage);
+            accountScreenData.startIndex = Math.max(
+              0,
+              startIndex - addressesPerPage
+            );
           }
 
           await updateAccounts();
@@ -188,8 +230,7 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
       eventBus.subscribe(
         'ACCESS_WALLET',
         async (payload: { addressIndex: number; selectedAddress: string }) => {
-          sendPartialUpdate({
-            showConfirm: true,
+          updateConfirmScreen({
             selectedAddress: payload.selectedAddress
           });
 
@@ -202,9 +243,7 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
                 addressIndex: payload.addressIndex
               });
 
-          sendPartialUpdate({
-            shouldClose: true
-          });
+          closeComponent();
 
           // TODO: add ledger cancel event on catch
 
