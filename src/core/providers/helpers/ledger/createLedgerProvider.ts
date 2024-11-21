@@ -48,25 +48,35 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
     initiateLedgerLogin();
   }
 
-  let ledgerData: Awaited<ReturnType<typeof getLedgerProvider>>;
+  const ledgerData = await new Promise<{
+    data: Awaited<ReturnType<typeof getLedgerProvider>>;
+  }>(async function buildLedgerProvider(resolve, reject) {
+    try {
+      const data = await getLedgerProvider();
+      eventBus.unsubscribe('CONNECT_DEVICE', () => {
+        buildLedgerProvider(resolve, reject);
+      });
+      resolve({ data });
+    } catch (err) {
+      if (shouldInitiateLogin) {
+        const { errorMessage, defaultErrorMessage } = getLedgerErrorCodes(err);
 
-  try {
-    ledgerData = await getLedgerProvider();
-  } catch (err) {
-    console.error('Failed to create ledger provider:', err);
-    if (shouldInitiateLogin) {
-      const { errorMessage, defaultErrorMessage } = getLedgerErrorCodes(err);
-
-      data.connectScreenData = {
-        error: errorMessage ?? defaultErrorMessage ?? failInitializeErrorText
-      };
-      eventBus.publish('DATA_UPDATE', data);
+        data.connectScreenData = {
+          error: errorMessage ?? defaultErrorMessage ?? failInitializeErrorText
+        };
+        eventBus.publish('DATA_UPDATE', data);
+        eventBus.subscribe('CONNECT_DEVICE', () => {
+          buildLedgerProvider(resolve, reject);
+        });
+        eventBus.subscribe('CLOSE', () => {
+          reject('User cancelled login');
+        });
+        // if user rejected on ledger search for error and reject
+      }
     }
+  });
 
-    return null;
-  }
-
-  const { ledgerProvider: provider, ledgerConfig } = ledgerData;
+  const { ledgerProvider: provider, ledgerConfig } = ledgerData.data;
 
   const createdProvider = provider as unknown as IProvider;
 
