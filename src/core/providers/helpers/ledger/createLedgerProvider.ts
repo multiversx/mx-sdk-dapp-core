@@ -34,25 +34,27 @@ let confirmScreenData: IConfirmScreenData = {
   selectedAddress: ''
 };
 
-let data: ILedgerModalData = {
+const initialData: ILedgerModalData = {
   accountScreenData: null,
   confirmScreenData: null,
   connectScreenData: {}
 };
 
+let data = initialData;
+
 export async function createLedgerProvider(): Promise<IProvider | null> {
   const shouldInitiateLogin = !getIsLoggedIn();
   const eventBus = EventBus.getInstance();
+
+  if (shouldInitiateLogin) {
+    initiateLedgerLogin();
+  }
 
   const { ledgerProvider: provider, ledgerConfig } = await new Promise<
     Awaited<ReturnType<typeof getLedgerProvider>>
   >(async function buildLedgerProvider(resolve, reject) {
     const onRetry = () => buildLedgerProvider(resolve, reject);
     const onCancel = () => reject('User cancelled login');
-
-    if (shouldInitiateLogin) {
-      initiateLedgerLogin();
-    }
 
     try {
       const data = await getLedgerProvider();
@@ -107,6 +109,7 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
         ...accountScreenData,
         ...members
       };
+      data.confirmScreenData = null;
       data.accountScreenData = accountScreenData;
       eventBus.publish('DATA_UPDATE', data);
     };
@@ -119,11 +122,6 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
       };
       data.accountScreenData = null;
       data.confirmScreenData = confirmScreenData;
-      eventBus.publish('DATA_UPDATE', data);
-    };
-
-    const closeComponent = () => {
-      data.shouldClose = true;
       eventBus.publish('DATA_UPDATE', data);
     };
 
@@ -216,33 +214,48 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
       address: string;
       signature: string;
       addressIndex: number;
-    }>(async (resolve) => {
-      eventBus.subscribe(
-        'PAGE_CHANGED',
-        async (payload: { action: 'next' | 'prev' }) => {
-          const { startIndex } = accountScreenData;
+    }>(async (resolve, reject) => {
+      const closeComponent = () => {
+        eventBus.unsubscribe('CLOSE', onCancel);
+        eventBus.unsubscribe('PAGE_CHANGED', onPageChanged);
+        eventBus.unsubscribe('ACCESS_WALLET', onAccessWallet);
+        data.shouldClose = true;
+        eventBus.publish('DATA_UPDATE', data);
+      };
 
-          if (payload.action === 'next') {
-            accountScreenData.startIndex = startIndex + addressesPerPage;
-          }
-          if (payload.action === 'prev' && startIndex > 0) {
-            accountScreenData.startIndex = Math.max(
-              0,
-              startIndex - addressesPerPage
-            );
-          }
+      const onCancel = async () => {
+        await updateAccounts();
+        eventBus.unsubscribe('CLOSE', onCancel);
+        eventBus.unsubscribe('PAGE_CHANGED', onPageChanged);
+        eventBus.unsubscribe('ACCESS_WALLET', onAccessWallet);
+        reject('User cancelled login');
+      };
 
-          await updateAccounts();
+      const onPageChanged = async (payload: { action: 'next' | 'prev' }) => {
+        const { startIndex } = accountScreenData;
+
+        if (payload.action === 'next') {
+          accountScreenData.startIndex = startIndex + addressesPerPage;
         }
-      );
+        if (payload.action === 'prev' && startIndex > 0) {
+          accountScreenData.startIndex = Math.max(
+            0,
+            startIndex - addressesPerPage
+          );
+        }
 
-      eventBus.subscribe(
-        'ACCESS_WALLET',
-        async (payload: { addressIndex: number; selectedAddress: string }) => {
-          updateConfirmScreen({
-            selectedAddress: payload.selectedAddress
-          });
+        await updateAccounts();
+      };
 
+      const onAccessWallet = async (payload: {
+        addressIndex: number;
+        selectedAddress: string;
+      }) => {
+        updateConfirmScreen({
+          selectedAddress: payload.selectedAddress
+        });
+
+        try {
           const loginInfo = options?.token
             ? await provider.tokenLogin({
                 token: Buffer.from(`${options?.token}{}`),
@@ -254,8 +267,6 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
 
           closeComponent();
 
-          // TODO: add ledger cancel event on catch
-
           resolve({
             address: loginInfo.address,
             signature: loginInfo.signature
@@ -263,8 +274,15 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
               : '',
             addressIndex: payload.addressIndex
           });
+        } catch (error) {
+          console.error('User rejected login:', error);
+          await updateAccounts();
         }
-      );
+      };
+
+      eventBus.subscribe('CLOSE', onCancel);
+      eventBus.subscribe('PAGE_CHANGED', onPageChanged);
+      eventBus.subscribe('ACCESS_WALLET', onAccessWallet);
     });
 
     const { version, dataEnabled } = ledgerConfig;

@@ -197,10 +197,13 @@ export class LedgerModalComponent extends LitElement {
   }
 
   close() {
-    if (this.parentNode) {
-      this.eventBus.publish('CLOSE');
-      this.parentNode.removeChild(this);
-    }
+    this.eventBus.publish('CLOSE');
+    // allow a final update before close
+    setTimeout(() => {
+      if (this.parentNode) {
+        this.parentNode.removeChild(this);
+      }
+    });
   }
 
   private dataUpdate(payload: ILedgerModalData) {
