@@ -38,9 +38,9 @@ let confirmScreenData: IConfirmScreenData = {
 let connectScreenData: IConnectScreenData = {};
 
 const initialData: ILedgerModalData = {
+  connectScreenData: {},
   accountScreenData: null,
-  confirmScreenData: null,
-  connectScreenData: {}
+  confirmScreenData: null
 };
 
 let data = initialData;
@@ -216,8 +216,6 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
           ),
           isLoading: false
         });
-        // TODO: handle here ledger error
-
         console.error('Failed to fetch accounts:', error);
       }
     };
