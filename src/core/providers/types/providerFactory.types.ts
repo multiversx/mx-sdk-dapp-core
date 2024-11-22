@@ -1,5 +1,4 @@
 import type { IDAppProviderBase } from '@multiversx/sdk-dapp-utils';
-import { CustomNetworkType } from 'types/network.types';
 
 // @ts-ignore
 export interface IProvider extends IDAppProviderBase {

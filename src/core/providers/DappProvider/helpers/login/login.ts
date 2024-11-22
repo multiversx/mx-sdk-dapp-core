@@ -19,7 +19,8 @@ import { logoutAction } from 'store/actions';
 import { extractAccountFromToken } from './helpers/extractAccountFromToken';
 import { SECOND_LOGIN_ATTEMPT_ERROR } from 'constants/errorMessages.constants';
 import { getCallbackUrl } from './helpers/getCallbackUrl';
-import { registerWebsocketListener } from '../initApp/websocket/registerWebsocket';
+import { registerWebsocketListener } from 'core/methods/initApp/websocket/registerWebsocket';
+import { I } from 'msw/lib/glossary-de6278a9';
 
 async function loginWithoutNativeToken(provider: IProvider) {
   await provider.login?.({
@@ -104,29 +105,7 @@ async function loginWithNativeToken(
   };
 }
 
-export async function login({
-  providerConfig
-}: {
-  providerConfig: IProviderFactory;
-}) {
-  const loggedIn = getIsLoggedIn();
-
-  if (loggedIn) {
-    console.warn('Already logged in with:', getAddress());
-    throw new Error(SECOND_LOGIN_ATTEMPT_ERROR);
-  }
-
-  const factory = new ProviderFactory();
-  const provider = await factory.create(providerConfig);
-
-  if (!provider) {
-    throw new Error('Provider not found');
-  }
-
-  await provider.init?.();
-  setAccountProvider(provider);
-  setProviderType(providerConfig.type);
-
+export async function login(provider: IProvider) {
   const nativeAuthConfig = nativeAuthConfigSelector(getState());
 
   if (nativeAuthConfig) {

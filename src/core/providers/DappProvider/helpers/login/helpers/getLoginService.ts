@@ -1,12 +1,12 @@
-import { Address, SignableMessage } from '@multiversx/sdk-core';
+import { Address, Message } from '@multiversx/sdk-core';
 import { nativeAuth } from 'services/nativeAuth';
 import { buildNativeAuthConfig } from 'services/nativeAuth/methods';
 import { networkSelector, tokenLoginSelector } from 'store/selectors';
 import { getState } from 'store/store';
 import { OnProviderLoginType } from 'types/login.types';
-import { getAccount } from '../../account/getAccount';
 import { setTokenLogin } from 'store/actions/loginInfo/loginInfoActions';
 import { NativeAuthConfigType } from 'services/nativeAuth/nativeAuth.types';
+import { getAccount } from 'core/methods/account/getAccount';
 
 const getApiAddress = (
   apiAddress: string,
@@ -99,9 +99,9 @@ export function getLoginService(config?: OnProviderLoginType['nativeAuth']) {
     nativeAuthClientConfig
   }: {
     signMessageCallback: (
-      messageToSign: SignableMessage,
+      messageToSign: Message,
       options: Record<any, any>
-    ) => Promise<SignableMessage>;
+    ) => Promise<Message>;
     nativeAuthClientConfig?: NativeAuthConfigType;
   }) => {
     const { address } = getAccount();
@@ -115,17 +115,25 @@ export function getLoginService(config?: OnProviderLoginType['nativeAuth']) {
     });
 
     tokenRef = loginToken;
+
     if (!loginToken) {
       return;
     }
-    const messageToSign = new SignableMessage({
+
+    const messageToSign = new Message({
       address: new Address(address),
-      message: Buffer.from(`${address}${loginToken}`)
+      data: Buffer.from(`${address}${loginToken}`)
     });
+
     const signedMessage = await signMessageCallback(messageToSign, {});
+
+    if (!signedMessage?.signature) {
+      throw 'Message not signed';
+    }
+
     const nativeAuthToken = setTokenLoginInfo({
       address,
-      signature: signedMessage.getSignature().toString('hex')
+      signature: Buffer.from(signedMessage.signature).toString('hex')
     });
 
     return nativeAuthToken;

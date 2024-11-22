@@ -8,13 +8,19 @@ import { createCrossWindowProvider } from './helpers/crossWindow/createCrossWind
 import { createExtensionProvider } from './helpers/extension/createExtensionProvider';
 import { createIframeProvider } from './helpers/iframe/createIframeProvider';
 import { IframeLoginTypes } from '@multiversx/sdk-web-wallet-iframe-provider/out/constants';
+import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
+import { getAddress } from 'core/methods/account/getAddress';
+import { SECOND_LOGIN_ATTEMPT_ERROR } from 'constants/errorMessages.constants';
+import { setAccountProvider } from './accountProvider';
+import { setProviderType } from 'store/actions/loginInfo/loginInfoActions';
+import { DappProvider } from './DappProvider/DappProvider';
 
 export class ProviderFactory {
   public async create({
     type,
     config,
     customProvider
-  }: IProviderFactory): Promise<IProvider | undefined> {
+  }: IProviderFactory): Promise<DappProvider | undefined> {
     let createdProvider: IProvider | undefined;
 
     switch (type) {
@@ -48,6 +54,15 @@ export class ProviderFactory {
         createdProvider = ledgerProvider;
 
         createdProvider.getType = () => ProviderTypeEnum.ledger;
+
+        const loggedIn = getIsLoggedIn();
+
+        if (loggedIn) {
+          console.warn('Already logged in with:', getAddress());
+          throw new Error(SECOND_LOGIN_ATTEMPT_ERROR);
+        }
+
+        await createdProvider.init?.();
 
         break;
       }
@@ -95,6 +110,15 @@ export class ProviderFactory {
         break;
     }
 
-    return createdProvider;
+    if (!createdProvider) {
+      throw new Error('Unable to create provider');
+    }
+
+    const dappProvider = new DappProvider(createdProvider);
+
+    setAccountProvider(dappProvider);
+    setProviderType(type);
+
+    return dappProvider;
   }
 }
