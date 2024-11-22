@@ -44,15 +44,15 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
   const shouldInitiateLogin = !getIsLoggedIn();
   const eventBus = EventBus.getInstance();
 
-  if (shouldInitiateLogin) {
-    initiateLedgerLogin();
-  }
-
-  const ledgerData = await new Promise<
+  const { ledgerProvider: provider, ledgerConfig } = await new Promise<
     Awaited<ReturnType<typeof getLedgerProvider>>
   >(async function buildLedgerProvider(resolve, reject) {
     const onRetry = () => buildLedgerProvider(resolve, reject);
     const onCancel = () => reject('User cancelled login');
+
+    if (shouldInitiateLogin) {
+      initiateLedgerLogin();
+    }
 
     try {
       const data = await getLedgerProvider();
@@ -60,21 +60,21 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
       eventBus.unsubscribe('CLOSE', onCancel);
       resolve(data);
     } catch (err) {
-      if (shouldInitiateLogin) {
-        const { errorMessage, defaultErrorMessage } = getLedgerErrorCodes(err);
-
-        data.connectScreenData = {
-          error: errorMessage ?? defaultErrorMessage ?? failInitializeErrorText
-        };
-        eventBus.publish('DATA_UPDATE', data);
-        eventBus.subscribe('CONNECT_DEVICE', onRetry);
-        eventBus.subscribe('CLOSE', onCancel);
-        // if user rejected on ledger search for error and reject
+      if (!shouldInitiateLogin) {
+        throw err;
       }
+
+      const { errorMessage, defaultErrorMessage } = getLedgerErrorCodes(err);
+
+      data.connectScreenData = {
+        error: errorMessage ?? defaultErrorMessage ?? failInitializeErrorText
+      };
+      eventBus.publish('DATA_UPDATE', data);
+      eventBus.subscribe('CONNECT_DEVICE', onRetry);
+      eventBus.subscribe('CLOSE', onCancel);
+      // if user rejected on ledger search for error and reject
     }
   });
-
-  const { ledgerProvider: provider, ledgerConfig } = ledgerData;
 
   const createdProvider = provider as unknown as IProvider;
 
@@ -113,6 +113,7 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
 
     const updateConfirmScreen = (members: Partial<IConfirmScreenData>) => {
       confirmScreenData = {
+        ...authData,
         ...confirmScreenData,
         ...members
       };
