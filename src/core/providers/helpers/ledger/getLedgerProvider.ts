@@ -3,7 +3,7 @@ import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import { ledgerLoginSelector } from 'store/selectors/loginInfoSelectors';
 import { getState } from 'store/store';
 import { getAccountProvider } from '../../accountProvider';
-import { logout } from 'core/methods/logout/logout';
+import { logout } from 'core/providers/DappProvider/helpers/logout/logout';
 import { getLedgerConfiguration } from './getLedgerConfiguration';
 
 export async function getLedgerProvider() {
@@ -44,7 +44,7 @@ export async function getLedgerProvider() {
     console.error('Could not initialize ledger app', err);
 
     if (isLoggedIn) {
-      logout();
+      await provider.logout();
     }
 
     throw err;

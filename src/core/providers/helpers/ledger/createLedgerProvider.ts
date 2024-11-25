@@ -14,6 +14,7 @@ import BigNumber from 'bignumber.js';
 import {
   IAccountScreenData,
   IConfirmScreenData,
+  IConnectScreenData,
   ILedgerModalData
 } from './components/LedgerModalComponent/LedgerModalComponent';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
@@ -34,11 +35,15 @@ let confirmScreenData: IConfirmScreenData = {
   selectedAddress: ''
 };
 
-let data: ILedgerModalData = {
+let connectScreenData: IConnectScreenData = {};
+
+const initialData: ILedgerModalData = {
+  connectScreenData: {},
   accountScreenData: null,
-  confirmScreenData: null,
-  connectScreenData: {}
+  confirmScreenData: null
 };
+
+let data = initialData;
 
 export async function createLedgerProvider(): Promise<IProvider | null> {
   const shouldInitiateLogin = !getIsLoggedIn();
@@ -48,25 +53,44 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
     initiateLedgerLogin();
   }
 
-  let ledgerData: Awaited<ReturnType<typeof getLedgerProvider>>;
+  const updateConnectScreen = (members: Partial<IConnectScreenData>) => {
+    connectScreenData = {
+      ...connectScreenData,
+      ...members
+    };
+    data.confirmScreenData = null;
+    data.accountScreenData = null;
+    eventBus.publish('DATA_UPDATE', data);
+  };
 
-  try {
-    ledgerData = await getLedgerProvider();
-  } catch (err) {
-    console.error('Failed to create ledger provider:', err);
-    if (shouldInitiateLogin) {
+  const { ledgerProvider: provider, ledgerConfig } = await new Promise<
+    Awaited<ReturnType<typeof getLedgerProvider>>
+  >(async function buildLedgerProvider(resolve, reject) {
+    const onRetry = () => buildLedgerProvider(resolve, reject);
+    const onCancel = () => reject('User cancelled login');
+
+    try {
+      const data = await getLedgerProvider();
+      eventBus.unsubscribe('CONNECT_DEVICE', onRetry);
+      eventBus.unsubscribe('CLOSE', onCancel);
+      resolve(data);
+    } catch (err) {
+      if (!shouldInitiateLogin) {
+        throw err;
+      }
+
       const { errorMessage, defaultErrorMessage } = getLedgerErrorCodes(err);
 
-      data.connectScreenData = {
+      updateConnectScreen({
         error: errorMessage ?? defaultErrorMessage ?? failInitializeErrorText
-      };
+      });
+
       eventBus.publish('DATA_UPDATE', data);
+      eventBus.subscribe('CONNECT_DEVICE', onRetry);
+      eventBus.subscribe('CLOSE', onCancel);
+      // if user rejected on ledger search for error and reject
     }
-
-    return null;
-  }
-
-  const { ledgerProvider: provider, ledgerConfig } = ledgerData;
+  });
 
   const createdProvider = provider as unknown as IProvider;
 
@@ -99,22 +123,19 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
         ...accountScreenData,
         ...members
       };
+      data.confirmScreenData = null;
       data.accountScreenData = accountScreenData;
       eventBus.publish('DATA_UPDATE', data);
     };
 
     const updateConfirmScreen = (members: Partial<IConfirmScreenData>) => {
       confirmScreenData = {
+        ...authData,
         ...confirmScreenData,
         ...members
       };
       data.accountScreenData = null;
       data.confirmScreenData = confirmScreenData;
-      eventBus.publish('DATA_UPDATE', data);
-    };
-
-    const closeComponent = () => {
-      data.shouldClose = true;
       eventBus.publish('DATA_UPDATE', data);
     };
 
@@ -195,8 +216,6 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
           ),
           isLoading: false
         });
-        // TODO: handle here ledger error
-
         console.error('Failed to fetch accounts:', error);
       }
     };
@@ -207,33 +226,51 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
       address: string;
       signature: string;
       addressIndex: number;
-    }>(async (resolve) => {
-      eventBus.subscribe(
-        'PAGE_CHANGED',
-        async (payload: { action: 'next' | 'prev' }) => {
-          const { startIndex } = accountScreenData;
+    }>(async (resolve, reject) => {
+      const closeComponent = () => {
+        eventBus.unsubscribe('CLOSE', onCancel);
+        eventBus.unsubscribe('PAGE_CHANGED', onPageChanged);
+        eventBus.unsubscribe('ACCESS_WALLET', onAccessWallet);
+        data = {
+          ...initialData,
+          shouldClose: true
+        };
+        eventBus.publish('DATA_UPDATE', data);
+      };
 
-          if (payload.action === 'next') {
-            accountScreenData.startIndex = startIndex + addressesPerPage;
-          }
-          if (payload.action === 'prev' && startIndex > 0) {
-            accountScreenData.startIndex = Math.max(
-              0,
-              startIndex - addressesPerPage
-            );
-          }
+      const onCancel = async () => {
+        await updateAccounts();
+        eventBus.unsubscribe('CLOSE', onCancel);
+        eventBus.unsubscribe('PAGE_CHANGED', onPageChanged);
+        eventBus.unsubscribe('ACCESS_WALLET', onAccessWallet);
+        reject('User cancelled login');
+      };
 
-          await updateAccounts();
+      const onPageChanged = async (payload: { action: 'next' | 'prev' }) => {
+        const { startIndex } = accountScreenData;
+
+        if (payload.action === 'next') {
+          accountScreenData.startIndex = startIndex + addressesPerPage;
         }
-      );
+        if (payload.action === 'prev' && startIndex > 0) {
+          accountScreenData.startIndex = Math.max(
+            0,
+            startIndex - addressesPerPage
+          );
+        }
 
-      eventBus.subscribe(
-        'ACCESS_WALLET',
-        async (payload: { addressIndex: number; selectedAddress: string }) => {
-          updateConfirmScreen({
-            selectedAddress: payload.selectedAddress
-          });
+        await updateAccounts();
+      };
 
+      const onAccessWallet = async function tryAccessWallet(payload: {
+        addressIndex: number;
+        selectedAddress: string;
+      }) {
+        updateConfirmScreen({
+          selectedAddress: payload.selectedAddress
+        });
+
+        try {
           const loginInfo = options?.token
             ? await provider.tokenLogin({
                 token: Buffer.from(`${options?.token}{}`),
@@ -245,8 +282,6 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
 
           closeComponent();
 
-          // TODO: add ledger cancel event on catch
-
           resolve({
             address: loginInfo.address,
             signature: loginInfo.signature
@@ -254,8 +289,22 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
               : '',
             addressIndex: payload.addressIndex
           });
+        } catch (err) {
+          console.error('User rejected login:', err);
+          const shouldGoBack = Boolean(confirmScreenData);
+          if (shouldGoBack) {
+            await updateAccounts();
+          }
+          const shouldClose = Boolean(accountScreenData);
+          if (shouldClose) {
+            closeComponent();
+          }
         }
-      );
+      };
+
+      eventBus.subscribe('CLOSE', onCancel);
+      eventBus.subscribe('PAGE_CHANGED', onPageChanged);
+      eventBus.subscribe('ACCESS_WALLET', onAccessWallet);
     });
 
     const { version, dataEnabled } = ledgerConfig;

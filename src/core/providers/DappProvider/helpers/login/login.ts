@@ -1,31 +1,17 @@
 import { nativeAuth } from 'services/nativeAuth';
-import { setAccount, setAddress } from 'store/actions/account';
-import {
-  setProviderType,
-  setTokenLogin
-} from 'store/actions/loginInfo/loginInfoActions';
-import { setAccountProvider } from 'core/providers/accountProvider';
-import {
-  IProvider,
-  IProviderFactory
-} from 'core/providers/types/providerFactory.types';
-import { ProviderFactory } from 'core/providers/ProviderFactory';
+import { setAddress } from 'store/actions/account';
+import { setTokenLogin } from 'store/actions/loginInfo/loginInfoActions';
+import { IProvider } from 'core/providers/types/providerFactory.types';
 import { nativeAuthConfigSelector } from 'store/selectors';
 import { getState } from 'store/store';
 import { NativeAuthConfigType } from 'services/nativeAuth/nativeAuth.types';
-import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
-import { getAddress } from 'core/methods/account/getAddress';
 import { logoutAction } from 'store/actions';
 import { extractAccountFromToken } from './helpers/extractAccountFromToken';
-import { SECOND_LOGIN_ATTEMPT_ERROR } from 'constants/errorMessages.constants';
 import { getCallbackUrl } from './helpers/getCallbackUrl';
-import { registerWebsocketListener } from '../initApp/websocket/registerWebsocket';
+import { registerWebsocketListener } from 'core/methods/initApp/websocket/registerWebsocket';
 
 async function loginWithoutNativeToken(provider: IProvider) {
-  await provider.login?.({
-    // TODO remove callbackUrl when the provider will be standardized
-    callbackUrl: getCallbackUrl()
-  });
+  await provider.login();
 
   // TODO update this when the provider will be standardized
   const address = await provider.getAddress?.();
@@ -104,29 +90,7 @@ async function loginWithNativeToken(
   };
 }
 
-export async function login({
-  providerConfig
-}: {
-  providerConfig: IProviderFactory;
-}) {
-  const loggedIn = getIsLoggedIn();
-
-  if (loggedIn) {
-    console.warn('Already logged in with:', getAddress());
-    throw new Error(SECOND_LOGIN_ATTEMPT_ERROR);
-  }
-
-  const factory = new ProviderFactory();
-  const provider = await factory.create(providerConfig);
-
-  if (!provider) {
-    throw new Error('Provider not found');
-  }
-
-  await provider.init?.();
-  setAccountProvider(provider);
-  setProviderType(providerConfig.type);
-
+export async function login(provider: IProvider) {
   const nativeAuthConfig = nativeAuthConfigSelector(getState());
 
   if (nativeAuthConfig) {

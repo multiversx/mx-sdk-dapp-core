@@ -148,7 +148,7 @@ export class LedgerModalComponent extends LitElement {
 
         <button
           class="access-button"
-          @click=${() => this.eventBus.publish('CONNECT_WALLET')}
+          @click=${() => this.eventBus.publish('CONNECT_DEVICE')}
           ?disabled=${connectScreenData?.disabled}
         >
           Connect Ledger
@@ -197,9 +197,13 @@ export class LedgerModalComponent extends LitElement {
   }
 
   close() {
-    if (this.parentNode) {
-      this.parentNode.removeChild(this);
-    }
+    this.eventBus.publish('CLOSE');
+    // allow a final update before close
+    setTimeout(() => {
+      if (this.parentNode) {
+        this.parentNode.removeChild(this);
+      }
+    });
   }
 
   private dataUpdate(payload: ILedgerModalData) {
