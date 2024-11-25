@@ -1,12 +1,12 @@
 import { Message, Address } from '@multiversx/sdk-core';
+import { getAddress } from 'core/methods/account/getAddress';
 import { getProviderType } from 'core/providers/helpers/utils';
-import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
-import { Nullable } from 'types';
 import {
   IProvider,
   ProviderTypeEnum
 } from 'core/providers/types/providerFactory.types';
-import { getAddress } from 'core/methods/account/getAddress';
+import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
+import { Nullable } from 'types';
 
 export type SignMessageType = {
   provider: IProvider;

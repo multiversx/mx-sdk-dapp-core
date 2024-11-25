@@ -1,14 +1,13 @@
-import { storage } from 'storage';
-import { localStorageKeys } from 'storage/local';
-import { getAddress } from '../../../../methods/account/getAddress';
-import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
-import { logoutAction } from 'store/actions/sharedActions/sharedActions';
-import { getAccountProvider } from 'core/providers/accountProvider';
+import { getAddress } from 'core/methods/account/getAddress';
 import { getProviderType } from 'core/providers/helpers/utils';
 import {
   IProvider,
   ProviderTypeEnum
 } from 'core/providers/types/providerFactory.types';
+import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
+import { storage } from 'storage';
+import { localStorageKeys } from 'storage/local';
+import { logoutAction } from 'store/actions/sharedActions/sharedActions';
 
 const broadcastLogoutAcrossTabs = (address: string) => {
   const storedData = storage.local?.getItem(localStorageKeys.logoutEvent);

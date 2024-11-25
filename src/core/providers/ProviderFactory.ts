@@ -1,19 +1,19 @@
+import { IframeLoginTypes } from '@multiversx/sdk-web-wallet-iframe-provider/out/constants';
+import { SECOND_LOGIN_ATTEMPT_ERROR } from 'constants/errorMessages.constants';
+import { getAddress } from 'core/methods/account/getAddress';
+import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
+import { setProviderType } from 'store/actions/loginInfo/loginInfoActions';
+import { setAccountProvider } from './accountProvider';
+import { DappProvider } from './DappProvider/DappProvider';
+import { createCrossWindowProvider } from './helpers/crossWindow/createCrossWindowProvider';
+import { createExtensionProvider } from './helpers/extension/createExtensionProvider';
+import { createIframeProvider } from './helpers/iframe/createIframeProvider';
+import { createLedgerProvider } from './helpers/ledger/createLedgerProvider';
 import {
   IProvider,
   IProviderFactory,
   ProviderTypeEnum
 } from './types/providerFactory.types';
-import { createLedgerProvider } from './helpers/ledger/createLedgerProvider';
-import { createCrossWindowProvider } from './helpers/crossWindow/createCrossWindowProvider';
-import { createExtensionProvider } from './helpers/extension/createExtensionProvider';
-import { createIframeProvider } from './helpers/iframe/createIframeProvider';
-import { IframeLoginTypes } from '@multiversx/sdk-web-wallet-iframe-provider/out/constants';
-import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
-import { getAddress } from 'core/methods/account/getAddress';
-import { SECOND_LOGIN_ATTEMPT_ERROR } from 'constants/errorMessages.constants';
-import { setAccountProvider } from './accountProvider';
-import { setProviderType } from 'store/actions/loginInfo/loginInfoActions';
-import { DappProvider } from './DappProvider/DappProvider';
 
 export class ProviderFactory {
   public async create({

@@ -1,9 +1,9 @@
+import { getAddress } from 'core/methods/account/getAddress';
 import { providerTypeSelector } from 'store/selectors';
-import { ProviderFactory } from '../ProviderFactory';
-import { IProviderConfig } from '../types/providerFactory.types';
 import { getState } from 'store/store';
 import { setAccountProvider } from '../accountProvider';
-import { getAddress } from 'core/methods/account/getAddress';
+import { ProviderFactory } from '../ProviderFactory';
+import { IProviderConfig } from '../types/providerFactory.types';
 
 export async function restoreProvider() {
   const type = providerTypeSelector(getState());
