@@ -1,32 +1,17 @@
 import { nativeAuth } from 'services/nativeAuth';
-import { setAccount, setAddress } from 'store/actions/account';
-import {
-  setProviderType,
-  setTokenLogin
-} from 'store/actions/loginInfo/loginInfoActions';
-import { setAccountProvider } from 'core/providers/accountProvider';
-import {
-  IProvider,
-  IProviderFactory
-} from 'core/providers/types/providerFactory.types';
-import { ProviderFactory } from 'core/providers/ProviderFactory';
+import { setAddress } from 'store/actions/account';
+import { setTokenLogin } from 'store/actions/loginInfo/loginInfoActions';
+import { IProvider } from 'core/providers/types/providerFactory.types';
 import { nativeAuthConfigSelector } from 'store/selectors';
 import { getState } from 'store/store';
 import { NativeAuthConfigType } from 'services/nativeAuth/nativeAuth.types';
-import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
-import { getAddress } from 'core/methods/account/getAddress';
 import { logoutAction } from 'store/actions';
 import { extractAccountFromToken } from './helpers/extractAccountFromToken';
-import { SECOND_LOGIN_ATTEMPT_ERROR } from 'constants/errorMessages.constants';
 import { getCallbackUrl } from './helpers/getCallbackUrl';
 import { registerWebsocketListener } from 'core/methods/initApp/websocket/registerWebsocket';
-import { I } from 'msw/lib/glossary-de6278a9';
 
 async function loginWithoutNativeToken(provider: IProvider) {
-  await provider.login?.({
-    // TODO remove callbackUrl when the provider will be standardized
-    callbackUrl: getCallbackUrl()
-  });
+  await provider.login();
 
   // TODO update this when the provider will be standardized
   const address = await provider.getAddress?.();
