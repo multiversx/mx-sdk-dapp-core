@@ -7,7 +7,6 @@ import { getState } from 'store/store';
 import { NativeAuthConfigType } from 'services/nativeAuth/nativeAuth.types';
 import { logoutAction } from 'store/actions';
 import { extractAccountFromToken } from './helpers/extractAccountFromToken';
-import { getCallbackUrl } from './helpers/getCallbackUrl';
 import { registerWebsocketListener } from 'core/methods/initApp/websocket/registerWebsocket';
 
 async function loginWithoutNativeToken(provider: IProvider) {
