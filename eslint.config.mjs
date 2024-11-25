@@ -81,6 +81,14 @@ export default [
       'linebreak-style': ['error', 'unix'],
       quotes: ['error', 'single'],
       semi: ['error', 'always'],
+      'no-unused-vars': [
+        'error',
+        {
+          varsIgnorePattern: '^_',
+          argsIgnorePattern: '^_',
+          destructuredArrayIgnorePattern: '^_'
+        }
+      ],
       'object-curly-newline': 'off',
       'arrow-body-style': 'off',
       'implicit-arrow-linebreak': 'off',

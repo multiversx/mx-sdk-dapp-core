@@ -1,6 +1,6 @@
-import { html, TemplateResult } from 'lit';
 import BigNumber from 'bignumber.js';
-import { ILedgerAccount } from '../../../ledger.types';
+import { html, TemplateResult } from 'lit';
+import { ILedgerAccount } from 'core/providers/helpers/ledger/ledger.types';
 
 export function trimAddress(s: string): string {
   const firstFour = s.slice(0, 6);
@@ -22,7 +22,7 @@ export function renderAccounts({
   selectedIndex
 }: {
   shownAccounts: ILedgerAccount[];
-  onSelectAccount: (index: number) => void;
+  onSelectAccount: (_index: number) => void;
   selectedIndex?: number;
 }): TemplateResult {
   return html`
