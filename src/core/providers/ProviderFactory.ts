@@ -20,8 +20,8 @@ export class ProviderFactory {
     type,
     config,
     customProvider
-  }: IProviderFactory): Promise<DappProvider | undefined> {
-    let createdProvider: IProvider | undefined;
+  }: IProviderFactory): Promise<DappProvider> {
+    let createdProvider: IProvider | null = null;
 
     switch (type) {
       case ProviderTypeEnum.extension: {
@@ -48,7 +48,7 @@ export class ProviderFactory {
         const ledgerProvider = await createLedgerProvider();
 
         if (!ledgerProvider) {
-          return;
+          throw new Error('Unable to create ledger provider');
         }
 
         createdProvider = ledgerProvider;
@@ -74,7 +74,7 @@ export class ProviderFactory {
         });
 
         if (!provider) {
-          return;
+          throw new Error('Unable to create metamask provider');
         }
 
         createdProvider = provider as unknown as IProvider;
@@ -91,7 +91,7 @@ export class ProviderFactory {
         });
 
         if (!provider) {
-          return;
+          throw new Error('Unable to create passkey provider');
         }
 
         createdProvider = provider as unknown as IProvider;
@@ -102,6 +102,9 @@ export class ProviderFactory {
       }
 
       case ProviderTypeEnum.custom: {
+        if (!customProvider) {
+          throw new Error('Unable to create custom provider provider');
+        }
         createdProvider = customProvider;
         break;
       }

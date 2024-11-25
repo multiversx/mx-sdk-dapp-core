@@ -8,6 +8,10 @@ import {
 } from './helpers/signTransactions/signTransactions';
 import { Message } from '@multiversx/sdk-core/out/message';
 import { signMessage } from './helpers/signMessage/signMessage';
+import {
+  verifyMessage,
+  VerifyMessageReturnType
+} from './helpers/signMessage/verifyMessage';
 
 export class DappProvider {
   private provider: IProvider;
@@ -41,6 +45,10 @@ export class DappProvider {
     return this.provider.getType();
   }
 
+  getProvider() {
+    return this.provider;
+  }
+
   async signTransactions(
     transactions: Transaction[],
     options?: SignTransactionsOptionsType
@@ -65,5 +73,9 @@ export class DappProvider {
       options
     });
     return signedMessage;
+  }
+
+  verifyMessage(signedMessage: string): VerifyMessageReturnType {
+    return verifyMessage(signedMessage);
   }
 }
