@@ -18,34 +18,38 @@ export class LedgerConnectStateManager<T extends IEventBus = IEventBus> {
   private eventBus: T;
   private allAccounts: ILedgerAccount[] = [];
 
+  // first screen data
+  private initialConnectScreenData: IConnectScreenData = {};
+  private connectScreenData: IConnectScreenData = {
+    ...this.initialConnectScreenData
+  };
+
+  // second screen data
   private initialAccountScreenData: IAccountScreenData = {
     accounts: this.allAccounts,
     startIndex: 0,
     addressesPerPage: this.addressesPerPage,
     isLoading: true
   };
+  private accountScreenData: IAccountScreenData = {
+    ...this.initialAccountScreenData
+  };
 
+  // third screen data
   private initialConfirmScreenData: IConfirmScreenData = {
     selectedAddress: ''
   };
+  private confirmScreenData: IConfirmScreenData = {
+    ...this.initialConfirmScreenData
+  };
 
-  private initialConnectScreenData: IConnectScreenData = {};
-
+  // whole data to be sent on update events
   private initialData: ILedgerConnectModalData = {
     connectScreenData: this.initialConnectScreenData,
     accountScreenData: null,
     confirmScreenData: null
   };
 
-  private accountScreenData: IAccountScreenData = {
-    ...this.initialAccountScreenData
-  };
-  private confirmScreenData: IConfirmScreenData = {
-    ...this.initialConfirmScreenData
-  };
-  private connectScreenData: IConnectScreenData = {
-    ...this.initialConnectScreenData
-  };
   private data: ILedgerConnectModalData = { ...this.initialData };
 
   private constructor(eventBus: T) {
@@ -130,19 +134,7 @@ export class LedgerConnectStateManager<T extends IEventBus = IEventBus> {
     return this.confirmScreenData ?? this.initialConfirmScreenData;
   }
 
-  public getConnectScreenData(): IConnectScreenData {
-    return this.connectScreenData ?? this.initialConnectScreenData;
-  }
-
   public getAllAccounts(): ILedgerAccount[] {
     return this.allAccounts;
-  }
-
-  public static hasInstance(): boolean {
-    return this.instance !== null;
-  }
-
-  public static resetInstance(): void {
-    this.instance = null;
   }
 }
