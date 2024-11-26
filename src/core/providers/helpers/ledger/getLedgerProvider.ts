@@ -3,7 +3,7 @@ import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import { ledgerLoginSelector } from 'store/selectors/loginInfoSelectors';
 import { getState } from 'store/store';
 import { getAccountProvider } from '../../accountProvider';
-import { logout } from 'core/methods/logout/logout';
+import { logout } from 'core/providers/DappProvider/helpers/logout/logout';
 import { getLedgerConfiguration } from './getLedgerConfiguration';
 
 export async function getLedgerProvider() {
@@ -14,55 +14,39 @@ export async function getLedgerProvider() {
   const initHWProvider = async () => {
     const hasAddressIndex = ledgerLogin?.index != null;
 
-    try {
-      if (provider instanceof HWProvider && provider.isInitialized()) {
-        if (hasAddressIndex) {
-          await provider.setAddressIndex(ledgerLogin.index);
-        }
-
-        return provider;
-      }
-
-      const ledgerProvider = new HWProvider();
-      const isInitialized = await ledgerProvider.init();
-
-      if (!isInitialized) {
-        return null;
-      }
-
+    if (provider instanceof HWProvider && provider.isInitialized()) {
       if (hasAddressIndex) {
-        await ledgerProvider.setAddressIndex(ledgerLogin.index);
+        await provider.setAddressIndex(ledgerLogin.index);
       }
 
-      return ledgerProvider;
-    } catch (e) {
-      console.error('Failed to initialize Ledger Provider');
-      return null;
+      return provider;
     }
+
+    const ledgerProvider = new HWProvider();
+    const isInitialized = await ledgerProvider.init();
+
+    if (!isInitialized) {
+      throw new Error('Failed to initialize Ledger Provider');
+    }
+
+    if (hasAddressIndex) {
+      await ledgerProvider.setAddressIndex(ledgerLogin.index);
+    }
+
+    return ledgerProvider;
   };
 
   try {
     const ledgerProvider = await initHWProvider();
-
-    if (!ledgerProvider) {
-      console.warn('Could not initialize ledger app');
-
-      if (isLoggedIn) {
-        logout();
-      }
-
-      return null;
-    }
-
     const ledgerConfig = await getLedgerConfiguration(ledgerProvider);
     return { ledgerProvider, ledgerConfig };
   } catch (err) {
     console.error('Could not initialize ledger app', err);
 
     if (isLoggedIn) {
-      logout();
+      await provider.logout();
     }
 
-    return null;
+    throw err;
   }
 }

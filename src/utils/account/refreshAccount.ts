@@ -1,8 +1,8 @@
 import { getAddress } from 'core/methods/account/getAddress';
-import { fetchAccount } from './fetchAccount';
 import { getLatestNonce } from 'core/methods/account/getLatestNonce';
 import { getAccountProvider } from 'core/providers/accountProvider';
 import { setAccount } from 'store/actions';
+import { fetchAccount } from './fetchAccount';
 
 const setNewAccount = async () => {
   try {

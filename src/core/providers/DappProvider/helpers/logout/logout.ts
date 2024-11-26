@@ -1,11 +1,13 @@
+import { getAddress } from 'core/methods/account/getAddress';
+import { getProviderType } from 'core/providers/helpers/utils';
+import {
+  IProvider,
+  ProviderTypeEnum
+} from 'core/providers/types/providerFactory.types';
+import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
 import { storage } from 'storage';
 import { localStorageKeys } from 'storage/local';
-import { getAddress } from '../account/getAddress';
-import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
 import { logoutAction } from 'store/actions/sharedActions/sharedActions';
-import { getAccountProvider } from 'core/providers/accountProvider';
-import { getProviderType } from 'core/providers/helpers/utils';
-import { ProviderTypeEnum } from 'core/providers/types/providerFactory.types';
 
 const broadcastLogoutAcrossTabs = (address: string) => {
   const storedData = storage.local?.getItem(localStorageKeys.logoutEvent);
@@ -33,14 +35,19 @@ export type LogoutPropsType = {
   hasConsentPopup?: boolean;
 };
 
-export async function logout(
+interface IProviderLogout {
+  provider: IProvider;
+  options?: LogoutPropsType;
+}
+
+export async function logout({
+  provider,
   options = {
     shouldBroadcastLogoutAcrossTabs: true,
     hasConsentPopup: false
   }
-) {
+}: IProviderLogout) {
   let address = getAddress();
-  const provider = getAccountProvider();
   const providerType = getProviderType(provider);
 
   if (options.shouldBroadcastLogoutAcrossTabs) {

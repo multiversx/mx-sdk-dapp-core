@@ -1,27 +1,27 @@
+import { IframeLoginTypes } from '@multiversx/sdk-web-wallet-iframe-provider/out/constants';
+import { SECOND_LOGIN_ATTEMPT_ERROR } from 'constants/errorMessages.constants';
+import { getAddress } from 'core/methods/account/getAddress';
+import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
+import { setProviderType } from 'store/actions/loginInfo/loginInfoActions';
+import { setAccountProvider } from './accountProvider';
+import { DappProvider } from './DappProvider/DappProvider';
+import { createCrossWindowProvider } from './helpers/crossWindow/createCrossWindowProvider';
+import { createExtensionProvider } from './helpers/extension/createExtensionProvider';
+import { createIframeProvider } from './helpers/iframe/createIframeProvider';
+import { createLedgerProvider } from './helpers/ledger/createLedgerProvider';
 import {
   IProvider,
   IProviderFactory,
   ProviderTypeEnum
 } from './types/providerFactory.types';
-import { createLedgerProvider } from './helpers/ledger/createLedgerProvider';
-import { createCrossWindowProvider } from './helpers/crossWindow/createCrossWindowProvider';
-import { createExtensionProvider } from './helpers/extension/createExtensionProvider';
-import { createIframeProvider } from './helpers/iframe/createIframeProvider';
-import { IframeLoginTypes } from '@multiversx/sdk-web-wallet-iframe-provider/out/constants';
-import { networkSelector } from 'store/selectors';
-import { getState } from 'store/store';
 
 export class ProviderFactory {
   public async create({
     type,
     config,
     customProvider
-  }: IProviderFactory): Promise<IProvider | undefined> {
-    let createdProvider: IProvider | undefined;
-    const { metamaskSnapWalletAddress = '', walletAddress } = {
-      ...networkSelector(getState()),
-      ...config.network
-    };
+  }: IProviderFactory): Promise<DappProvider> {
+    let createdProvider: IProvider | null = null;
 
     switch (type) {
       case ProviderTypeEnum.extension: {
@@ -35,8 +35,7 @@ export class ProviderFactory {
 
       case ProviderTypeEnum.crossWindow: {
         const provider = await createCrossWindowProvider({
-          walletAddress,
-          address: config.account?.address
+          address: config?.account?.address
         });
         createdProvider = provider as unknown as IProvider;
 
@@ -49,25 +48,33 @@ export class ProviderFactory {
         const ledgerProvider = await createLedgerProvider();
 
         if (!ledgerProvider) {
-          return;
+          throw new Error('Unable to create ledger provider');
         }
 
         createdProvider = ledgerProvider;
 
         createdProvider.getType = () => ProviderTypeEnum.ledger;
 
+        const loggedIn = getIsLoggedIn();
+
+        if (loggedIn) {
+          console.warn('Already logged in with:', getAddress());
+          throw new Error(SECOND_LOGIN_ATTEMPT_ERROR);
+        }
+
+        await createdProvider.init?.();
+
         break;
       }
 
       case ProviderTypeEnum.metamask: {
         const provider = await createIframeProvider({
-          address: config.account?.address,
-          metamaskSnapWalletAddress,
+          address: config?.account?.address,
           type: IframeLoginTypes.metamask
         });
 
         if (!provider) {
-          return;
+          throw new Error('Unable to create metamask provider');
         }
 
         createdProvider = provider as unknown as IProvider;
@@ -79,13 +86,12 @@ export class ProviderFactory {
 
       case ProviderTypeEnum.passkey: {
         const provider = await createIframeProvider({
-          address: config.account?.address,
-          metamaskSnapWalletAddress,
+          address: config?.account?.address,
           type: IframeLoginTypes.passkey
         });
 
         if (!provider) {
-          return;
+          throw new Error('Unable to create passkey provider');
         }
 
         createdProvider = provider as unknown as IProvider;
@@ -96,6 +102,9 @@ export class ProviderFactory {
       }
 
       case ProviderTypeEnum.custom: {
+        if (!customProvider) {
+          throw new Error('Unable to create custom provider provider');
+        }
         createdProvider = customProvider;
         break;
       }
@@ -104,6 +113,15 @@ export class ProviderFactory {
         break;
     }
 
-    return createdProvider;
+    if (!createdProvider) {
+      throw new Error('Unable to create provider');
+    }
+
+    const dappProvider = new DappProvider(createdProvider);
+
+    setAccountProvider(dappProvider);
+    setProviderType(type);
+
+    return dappProvider;
   }
 }

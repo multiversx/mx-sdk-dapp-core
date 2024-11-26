@@ -1,5 +1,4 @@
 import type { IDAppProviderBase } from '@multiversx/sdk-dapp-utils';
-import { CustomNetworkType } from 'types/network.types';
 
 // @ts-ignore
 export interface IProvider extends IDAppProviderBase {
@@ -21,7 +20,6 @@ export interface IProvider extends IDAppProviderBase {
 }
 
 export interface IProviderConfig {
-  network?: CustomNetworkType;
   account?: {
     address: string;
   };
@@ -43,6 +41,6 @@ export enum ProviderTypeEnum {
 
 export interface IProviderFactory {
   type: ProviderTypeEnum;
-  config: IProviderConfig;
+  config?: IProviderConfig;
   customProvider?: IProvider;
 }

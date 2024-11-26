@@ -1,17 +1,32 @@
-[
+import globals from 'globals';
+import pluginJs from '@eslint/js';
+import tseslint from 'typescript-eslint';
+import importPlugin from 'eslint-plugin-import';
+import prettierPlugin from 'eslint-plugin-prettier';
+
+/** @type {import('eslint').Linter.Config[]} */
+export default [
   {
-    env: {
-      es2021: true,
-      node: true
-    },
-    parser: '@typescript-eslint/parser',
-    parserOptions: {
-      ecmaVersion: 2021,
-      sourceType: 'module',
-      ecmaFeatures: {
-        jsx: true
+    files: ['**/*.{js,mjs,cjs,ts,tsx}'],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        ...globals.node
       },
-      project: './tsconfig.json'
+      parser: tseslint.parser,
+      parserOptions: {
+        ecmaVersion: 2021,
+        sourceType: 'module',
+        ecmaFeatures: {
+          jsx: true
+        },
+        project: './tsconfig.json'
+      }
+    },
+    plugins: {
+      import: importPlugin,
+      prettier: prettierPlugin,
+      '@typescript-eslint': tseslint.plugin
     },
     settings: {
       'import/parsers': {
@@ -27,13 +42,9 @@
         }
       }
     },
-    extends: [
-      'plugin:@typescript-eslint/recommended',
-      'prettier',
-      'plugin:prettier/recommended'
-    ],
-    plugins: ['prettier', 'import'],
     rules: {
+      ...pluginJs.configs.recommended.rules,
+      ...tseslint.configs.recommended.rules,
       'import/order': [
         'warn',
         {
@@ -52,12 +63,7 @@
           }
         }
       ],
-      'prettier/prettier': [
-        'error',
-        {
-          endOfLine: 'lf'
-        }
-      ],
+      'prettier/prettier': ['error', { endOfLine: 'lf' }],
       '@typescript-eslint/indent': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
       '@typescript-eslint/no-use-before-define': [
@@ -75,6 +81,14 @@
       'linebreak-style': ['error', 'unix'],
       quotes: ['error', 'single'],
       semi: ['error', 'always'],
+      'no-unused-vars': [
+        'error',
+        {
+          varsIgnorePattern: '^_',
+          argsIgnorePattern: '^_',
+          destructuredArrayIgnorePattern: '^_'
+        }
+      ],
       'object-curly-newline': 'off',
       'arrow-body-style': 'off',
       'implicit-arrow-linebreak': 'off',

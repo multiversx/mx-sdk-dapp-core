@@ -1,7 +1,13 @@
 import { Address, Message, MessageComputer } from '@multiversx/sdk-core/out';
 import { getVerifier } from './getVerifier';
 
-export function verifyMessage(signedMessage: string) {
+export type VerifyMessageReturnType = {
+  isVerified: boolean;
+  message: string;
+  address: any;
+};
+
+export function verifyMessage(signedMessage: string): VerifyMessageReturnType {
   try {
     const { message, address, signature } = JSON.parse(signedMessage);
 
