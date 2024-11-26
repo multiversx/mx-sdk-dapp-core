@@ -1,24 +1,24 @@
+import BigNumber from 'bignumber.js';
+import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import {
   IProvider,
   ProviderTypeEnum
 } from 'core/providers/types/providerFactory.types';
-import { getLedgerProvider } from './getLedgerProvider';
-import { setLedgerLogin } from 'store/actions/loginInfo/loginInfoActions';
 import { setLedgerAccount } from 'store/actions/account/accountActions';
-import { initiateLedgerLogin } from './components/initiateLedgerLogin';
-import { EventBus } from './components/EventBus';
-import { ILedgerAccount } from './ledger.types';
+import { setLedgerLogin } from 'store/actions/loginInfo/loginInfoActions';
 import { fetchAccount } from 'utils/account/fetchAccount';
+import { EventBus } from './components/EventBus';
+import { initiateLedgerLogin } from './components/initiateLedgerLogin';
 import { getAuthTokenText } from './components/LedgerModalComponent/helpers/getAuthTokenText';
-import BigNumber from 'bignumber.js';
 import {
   IAccountScreenData,
   IConfirmScreenData,
   IConnectScreenData,
   ILedgerModalData
 } from './components/LedgerModalComponent/LedgerModalComponent';
-import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import { getLedgerErrorCodes } from './getLedgerErrorCodes';
+import { getLedgerProvider } from './getLedgerProvider';
+import { ILedgerAccount } from './ledger.types';
 
 const failInitializeErrorText = 'Check if the MultiversX App is open on Ledger';
 const addressesPerPage = 10;
@@ -228,8 +228,11 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
       addressIndex: number;
     }>(async (resolve, reject) => {
       const closeComponent = () => {
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
         eventBus.unsubscribe('CLOSE', onCancel);
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
         eventBus.unsubscribe('PAGE_CHANGED', onPageChanged);
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
         eventBus.unsubscribe('ACCESS_WALLET', onAccessWallet);
         data = {
           ...initialData,
@@ -241,7 +244,9 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
       const onCancel = async () => {
         await updateAccounts();
         eventBus.unsubscribe('CLOSE', onCancel);
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
         eventBus.unsubscribe('PAGE_CHANGED', onPageChanged);
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
         eventBus.unsubscribe('ACCESS_WALLET', onAccessWallet);
         reject('User cancelled login');
       };

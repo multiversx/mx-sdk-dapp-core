@@ -9,6 +9,7 @@ export function decodePart(part: string) {
     if (isUtf8(hexPart) && hexPart.length > 1) {
       decodedPart = hexPart;
     }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-empty
   } catch (error) {}
 
   return decodedPart;

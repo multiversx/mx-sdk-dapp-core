@@ -1,8 +1,8 @@
+import { IPlainTransactionObject } from '@multiversx/sdk-core/out';
 import {
   TransactionBatchStatusesEnum,
   TransactionServerStatusesEnum
 } from 'types/enums.types';
-import { IPlainTransactionObject } from '@multiversx/sdk-core/out';
 
 export interface SignedTransactionType extends IPlainTransactionObject {
   hash: string;

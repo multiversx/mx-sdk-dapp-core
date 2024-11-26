@@ -1,6 +1,6 @@
-import { initializeWebsocketConnection } from './initializeWebsocketConnection';
-import { getStore } from 'store/store';
 import { getAccount } from 'core/methods/account/getAccount';
+import { getStore } from 'store/store';
+import { initializeWebsocketConnection } from './initializeWebsocketConnection';
 
 let localAddress = '';
 let closeConnectionRef: () => void;

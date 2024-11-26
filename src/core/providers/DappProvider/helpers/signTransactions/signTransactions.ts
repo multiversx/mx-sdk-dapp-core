@@ -4,9 +4,9 @@ import {
   TransactionOptions,
   TransactionVersion
 } from '@multiversx/sdk-core/out';
-import { getGuardedTransactions } from './helpers/getGuardedTransactions';
 import { getAccount } from 'core/methods/account/getAccount';
 import { IProvider } from 'core/providers/types/providerFactory.types';
+import { getGuardedTransactions } from './helpers/getGuardedTransactions';
 
 export type SignTransactionsOptionsType = {
   skipGuardian?: boolean;

@@ -2,9 +2,9 @@ import { LitElement, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { ledgerStyles } from './ldegerModalComponent.styles';
 import { ILedgerAccount } from '../../ledger.types';
-import { renderInModal } from './components/renderInModal';
-import { renderAccounts } from './components/renderAccounts';
 import { EventBus } from '../EventBus';
+import { renderAccounts } from './components/renderAccounts';
+import { renderInModal } from './components/renderInModal';
 
 export interface IConnectScreenData {
   customContentMarkup?: string;

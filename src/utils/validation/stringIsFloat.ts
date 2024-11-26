@@ -12,7 +12,6 @@ export const stringIsFloat = (amount: string) => {
     return false;
   }
 
-  // eslint-disable-next-line
   let [wholes, decimals] = amount.split('.');
   if (decimals) {
     while (decimals.charAt(decimals.length - 1) === ZERO) {

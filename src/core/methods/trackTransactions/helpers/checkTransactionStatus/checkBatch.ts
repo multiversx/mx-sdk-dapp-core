@@ -1,29 +1,23 @@
+import { getTransactionsByHashes } from 'apiCalls/transactions/getTransactionsByHashes';
+import {
+  updateSignedTransactionStatus,
+  updateTransactionsSession
+} from 'store/actions/transactions/transactionsActions';
+import { getIsTransactionFailed } from 'store/actions/transactions/transactionStateByStatus';
 import {
   TransactionBatchStatusesEnum,
   TransactionServerStatusesEnum
 } from 'types/enums.types';
+import { ServerTransactionType } from 'types/serverTransactions.types';
+import {
+  GetTransactionsByHashesReturnType,
+  SignedTransactionType
+} from 'types/transactions.types';
 import { refreshAccount } from 'utils/account';
 
 import { getPendingTransactions } from './getPendingTransactions';
 import { manageFailedTransactions } from './manageFailedTransactions';
 import { TransactionsTrackerType } from '../../trackTransactions.types';
-import {
-  GetTransactionsByHashesReturnType,
-  SignedTransactionType
-} from 'types/transactions.types';
-import {
-  BatchTransactionStatus,
-  ServerTransactionType
-} from 'types/serverTransactions.types';
-import {
-  updateSignedTransactionStatus,
-  updateTransactionsSession
-} from 'store/actions/transactions/transactionsActions';
-import {
-  getIsTransactionFailed,
-  getIsTransactionSuccessful
-} from 'store/actions/transactions/transactionStateByStatus';
-import { getTransactionsByHashes } from 'apiCalls/transactions/getTransactionsByHashes';
 
 export interface TransactionStatusTrackerPropsType
   extends TransactionsTrackerType {

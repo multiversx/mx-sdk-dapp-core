@@ -1,9 +1,8 @@
 import { decodeLoginToken } from 'services/nativeAuth/helpers/decodeLoginToken';
-import { secondsToTimeString } from './secondsToTimeString';
 import getLedgerVersionOptions from './getLedgerVersionOptions';
+import { secondsToTimeString } from './secondsToTimeString';
 
-
-// TODO: rename to something more specific? 
+// TODO: rename to something more specific?
 export const getAuthTokenText = ({
   loginToken,
   version

@@ -1,10 +1,10 @@
-import { getStore } from 'store/store';
-import { AccountType } from 'types/account.types';
-import { emptyAccount } from 'store/slices/account/emptyAccount';
 import {
   BatchTransactionsWSResponseType,
   LedgerAccountType
 } from 'store/slices/account/account.types';
+import { emptyAccount } from 'store/slices/account/emptyAccount';
+import { getStore } from 'store/store';
+import { AccountType } from 'types/account.types';
 
 export const setAddress = (address: string) =>
   getStore().setState(({ account: state }) => {

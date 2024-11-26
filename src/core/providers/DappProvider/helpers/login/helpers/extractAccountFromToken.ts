@@ -1,10 +1,10 @@
-import { setAccount } from 'store/actions/account';
-import { setLoginToken } from 'store/actions/loginInfo/loginInfoActions';
+import { getLatestNonce } from 'core/methods/account/getLatestNonce';
 import { IProvider } from 'core/providers/types/providerFactory.types';
 import { loginAction } from 'store/actions';
+import { setAccount } from 'store/actions/account';
+import { setLoginToken } from 'store/actions/loginInfo/loginInfoActions';
 import { AccountType } from 'types/account.types';
 import { getAccountFromToken } from './getAccountFromToken';
-import { getLatestNonce } from 'core/methods/account/getLatestNonce';
 
 interface IExtractAccountFromTokenProps {
   loginToken: string;

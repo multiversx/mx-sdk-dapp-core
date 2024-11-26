@@ -20,7 +20,7 @@ export const getAccountFromApi = async (address?: string) => {
   try {
     const { data } = await accountFetcher(address);
     return data as AccountType;
-  } catch (err) {
+  } catch (_err) {
     console.error('error fetching configuration for ', address);
   }
 
