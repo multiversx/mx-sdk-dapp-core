@@ -1,13 +1,13 @@
 import { getTransactionsByHashes as defaultGetTxByHash } from 'apiCalls/transactions/getTransactionsByHashes';
-import { TransactionsTrackerType } from './trackTransactions.types';
-import { getPollingInterval } from './helpers/getPollingInterval';
+import { websocketEventSelector } from 'store/selectors/accountSelectors';
+import { getStore } from 'store/store';
 import { checkTransactionStatus } from './helpers/checkTransactionStatus';
+import { getPollingInterval } from './helpers/getPollingInterval';
+import { TransactionsTrackerType } from './trackTransactions.types';
 import {
   websocketConnection,
   WebsocketConnectionStatusEnum
 } from '../initApp/websocket/websocket.constants';
-import { getStore } from 'store/store';
-import { websocketEventSelector } from 'store/selectors/accountSelectors';
 
 /**
  * Tracks transactions using websocket or polling
@@ -17,6 +17,7 @@ import { websocketEventSelector } from 'store/selectors/accountSelectors';
 export async function trackTransactions(props?: TransactionsTrackerType) {
   const store = getStore();
   const pollingInterval = getPollingInterval();
+  // eslint-disable-next-line no-undef
   let pollingIntervalTimer: NodeJS.Timeout | null = null;
   let timestamp = websocketEventSelector(store.getState())?.timestamp;
 

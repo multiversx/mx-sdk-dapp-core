@@ -3,15 +3,17 @@ import pluginJs from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import importPlugin from 'eslint-plugin-import';
 import prettierPlugin from 'eslint-plugin-prettier';
+import jestPlugin from 'eslint-plugin-jest';
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
   {
-    files: ['**/*.{js,mjs,cjs,ts,tsx}'],
+    files: ['**/*.{js,mjs,cjs,ts,tsx}', '**/*.{test,spec}.{js,ts,tsx}'],
     languageOptions: {
       globals: {
         ...globals.browser,
-        ...globals.node
+        ...globals.node,
+        ...globals.jest
       },
       parser: tseslint.parser,
       parserOptions: {
@@ -26,6 +28,7 @@ export default [
     plugins: {
       import: importPlugin,
       prettier: prettierPlugin,
+      jest: jestPlugin,
       '@typescript-eslint': tseslint.plugin
     },
     settings: {
@@ -43,6 +46,7 @@ export default [
       }
     },
     rules: {
+      ...jestPlugin.configs.recommended.rules,
       ...pluginJs.configs.recommended.rules,
       ...tseslint.configs.recommended.rules,
       'import/order': [
@@ -74,21 +78,20 @@ export default [
       '@typescript-eslint/no-empty-function': 'off',
       '@typescript-eslint/no-unused-vars': [
         'error',
-        { argsIgnorePattern: '^_' }
+        {
+          argsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_'
+        }
       ],
       '@typescript-eslint/no-var-requires': 'off',
       '@typescript-eslint/explicit-function-return-type': 'off',
       'linebreak-style': ['error', 'unix'],
       quotes: ['error', 'single'],
       semi: ['error', 'always'],
-      'no-unused-vars': [
-        'error',
-        {
-          varsIgnorePattern: '^_',
-          argsIgnorePattern: '^_',
-          destructuredArrayIgnorePattern: '^_'
-        }
-      ],
+      'no-unused-vars': ['off'],
+      'no-prototype-builtins': 'off',
+      'jest/no-mocks-import': 'off',
+      'no-async-promise-executor': 'off',
       'object-curly-newline': 'off',
       'arrow-body-style': 'off',
       'implicit-arrow-linebreak': 'off',

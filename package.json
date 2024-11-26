@@ -25,6 +25,7 @@
     "build-esbuild": "rimraf out && node esbuild.js",
     "build": "yarn build-esbuild && yarn compile",
     "test": "jest",
+    "lint": "eslint --fix src",
     "compile-next": "rimraf out && tsc --p tsconfig.next.json && tsc-alias --project tsconfig.next.json"
   },
   "publishConfig": {
@@ -81,6 +82,7 @@
     "eslint-config-standard": "17.1.0",
     "eslint-import-resolver-typescript": "3.6.3",
     "eslint-plugin-import": "2.31.0",
+    "eslint-plugin-jest": "28.9.0",
     "eslint-plugin-node": "11.1.0",
     "eslint-plugin-prettier": "5.2.1",
     "eslint-plugin-promise": "7.1.0",

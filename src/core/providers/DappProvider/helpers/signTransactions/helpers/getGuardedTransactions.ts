@@ -1,7 +1,7 @@
 import { Transaction } from '@multiversx/sdk-core';
-import { getAreAllTransactionsSignedByGuardian } from './getAreAllTransactionsSignedByGuardian';
 import { getAccount } from 'core/methods/account/getAccount';
 import { createCrossWindowProvider } from 'core/providers/helpers/crossWindow/createCrossWindowProvider';
+import { getAreAllTransactionsSignedByGuardian } from './getAreAllTransactionsSignedByGuardian';
 
 export async function getGuardedTransactions({
   transactions

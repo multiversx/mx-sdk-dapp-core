@@ -1,7 +1,7 @@
 import { StateCreator } from 'zustand/vanilla';
-import { NetworkSliceType } from './networkSlice.types';
 import { StoreType, MutatorsIn } from 'store/store.types';
 import { emptyNetwork } from './emptyNetwork';
+import { NetworkSliceType } from './networkSlice.types';
 
 const initialState: NetworkSliceType = {
   network: emptyNetwork

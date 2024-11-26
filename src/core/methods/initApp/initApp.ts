@@ -1,12 +1,12 @@
-import { initStore } from 'store/store';
-import { defaultStorageCallback } from 'store/storage';
-import { setNativeAuthConfig } from 'store/actions/config/configActions';
-import { initializeNetwork } from 'store/actions';
-import { NativeAuthConfigType } from 'services/nativeAuth/nativeAuth.types';
+import { restoreProvider } from 'core/providers/helpers/restoreProvider';
 import { getDefaultNativeAuthConfig } from 'services/nativeAuth/methods/getDefaultNativeAuthConfig';
+import { NativeAuthConfigType } from 'services/nativeAuth/nativeAuth.types';
+import { initializeNetwork } from 'store/actions';
+import { setNativeAuthConfig } from 'store/actions/config/configActions';
+import { defaultStorageCallback } from 'store/storage';
+import { initStore } from 'store/store';
 import { InitAppType } from './initApp.types';
 import { getIsLoggedIn } from '../account/getIsLoggedIn';
-import { restoreProvider } from 'core/providers/helpers/restoreProvider';
 import { registerWebsocketListener } from './websocket/registerWebsocket';
 import { trackTransactions } from '../trackTransactions/trackTransactions';
 

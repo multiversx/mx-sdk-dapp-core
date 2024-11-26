@@ -1,11 +1,11 @@
-import { TokenLoginType } from 'types/login.types';
+import { ProviderTypeEnum } from 'core/providers/types/providerFactory.types';
 import {
   LedgerLoginType,
   LoginInfoType,
   WalletConnectLoginType
 } from 'store/slices/loginInfo/loginInfo.types';
 import { getStore } from 'store/store';
-import { ProviderTypeEnum } from 'core/providers/types/providerFactory.types';
+import { TokenLoginType } from 'types/login.types';
 
 export const setProviderType = (providerType: ProviderTypeEnum) =>
   getStore().setState(({ loginInfo: state }) => {

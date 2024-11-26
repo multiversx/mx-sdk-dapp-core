@@ -3,10 +3,10 @@ import { HWProvider } from '@multiversx/sdk-hw-provider';
 import { MetamaskProvider } from '@multiversx/sdk-metamask-provider/out/metamaskProvider';
 import { OperaProvider } from '@multiversx/sdk-opera-provider';
 import { WalletProvider } from '@multiversx/sdk-web-wallet-provider';
+import { ProviderTypeEnum } from 'core/providers/types/providerFactory.types';
+import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
 import { WalletConnectV2Provider } from 'utils/walletconnect/__sdkWalletconnectProvider';
 import { EmptyProvider } from './emptyProvider';
-import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
-import { ProviderTypeEnum } from 'core/providers/types/providerFactory.types';
 
 export function getProviderType<TProvider extends object>(
   provider?: TProvider | null

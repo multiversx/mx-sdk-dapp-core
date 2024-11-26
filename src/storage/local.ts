@@ -6,7 +6,7 @@ export const localStorageKeys = {
 } as const;
 
 type LocalValueType = keyof typeof localStorageKeys;
-type LocalKeyType = typeof localStorageKeys[LocalValueType];
+type LocalKeyType = (typeof localStorageKeys)[LocalValueType];
 
 type ExpiresType = number | false;
 

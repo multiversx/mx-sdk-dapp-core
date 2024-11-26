@@ -1,9 +1,9 @@
-import { storage } from 'storage';
 import { WritableDraft } from 'immer';
-import { initialState as initialAccountState } from 'store/slices/account/accountSlice';
-import { initialState as initialLoginInfoState } from 'store/slices/loginInfo/loginInfoSlice';
+import { storage } from 'storage';
 import { localStorageKeys } from 'storage/local';
 import { isLoggedInSelector } from 'store/selectors';
+import { initialState as initialAccountState } from 'store/slices/account/accountSlice';
+import { initialState as initialLoginInfoState } from 'store/slices/loginInfo/loginInfoSlice';
 import { StoreType } from '../store.types';
 
 export const resetStore = (store: WritableDraft<StoreType>) => {

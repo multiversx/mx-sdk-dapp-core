@@ -1,13 +1,13 @@
 import { Message, Transaction } from '@multiversx/sdk-core';
-import { EngineTypes } from 'utils/walletconnect/__sdkWalletconnectProvider';
-import {
-  IProvider,
-  ProviderTypeEnum
-} from 'core/providers/types/providerFactory.types';
 import {
   IDAppProviderAccount,
   IDAppProviderOptions
 } from '@multiversx/sdk-dapp-utils/out';
+import {
+  IProvider,
+  ProviderTypeEnum
+} from 'core/providers/types/providerFactory.types';
+import { EngineTypes } from 'utils/walletconnect/__sdkWalletconnectProvider';
 
 export const DAPP_INIT_ROUTE = '/dapp/init';
 
@@ -33,7 +33,7 @@ export class EmptyProvider implements IProvider {
   }
 
   getAccount(): IDAppProviderAccount | null {
-    throw new Error(notInitializedError(`unable to get account`));
+    throw new Error(notInitializedError('unable to get account'));
   }
   setAccount(account: IDAppProviderAccount): void {
     throw new Error(
@@ -115,7 +115,7 @@ export class EmptyProvider implements IProvider {
   }
 
   getTokenLoginSignature(): string | undefined {
-    throw new Error(notInitializedError(`getSignature`));
+    throw new Error(notInitializedError('getSignature'));
   }
 
   getType(): ProviderTypeEnum {

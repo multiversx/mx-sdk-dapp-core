@@ -1,18 +1,18 @@
 import { io } from 'socket.io-client';
+import { getWebsocketUrl } from 'apiCalls/websocket';
+import { getAccount } from 'core/methods/account/getAccount';
+import {
+  setWebsocketBatchEvent,
+  setWebsocketEvent
+} from 'store/actions/account/accountActions';
+import { networkSelector } from 'store/selectors';
+import { getStore } from 'store/store';
 import { retryMultipleTimes } from 'utils/retryMultipleTimes';
 import {
   BatchTransactionsWSResponseType,
   websocketConnection,
   WebsocketConnectionStatusEnum
 } from './websocket.constants';
-import { getWebsocketUrl } from 'apiCalls/websocket';
-import { getStore } from 'store/store';
-import { getAccount } from 'core/methods/account/getAccount';
-import { networkSelector } from 'store/selectors';
-import {
-  setWebsocketBatchEvent,
-  setWebsocketEvent
-} from 'store/actions/account/accountActions';
 
 const TIMEOUT = 3000;
 const RECONNECTION_ATTEMPTS = 3;
@@ -22,12 +22,15 @@ const BATCH_UPDATED_EVENT = 'batchUpdated';
 const CONNECT = 'connect';
 const DISCONNECT = 'disconnect';
 
+// eslint-disable-next-line no-undef
+type TimeoutType = NodeJS.Timeout | null;
+
 export async function initializeWebsocketConnection() {
   const { address } = getAccount();
   const { apiAddress } = networkSelector(getStore().getState());
 
-  let messageTimeout: NodeJS.Timeout | null = null;
-  let batchTimeout: NodeJS.Timeout | null = null;
+  let messageTimeout: TimeoutType = null;
+  let batchTimeout: TimeoutType = null;
 
   const handleMessageReceived = (message: string) => {
     if (messageTimeout) {

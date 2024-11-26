@@ -1,12 +1,12 @@
 import { Address, Message } from '@multiversx/sdk-core';
+import { getAccount } from 'core/methods/account/getAccount';
 import { nativeAuth } from 'services/nativeAuth';
 import { buildNativeAuthConfig } from 'services/nativeAuth/methods';
+import { NativeAuthConfigType } from 'services/nativeAuth/nativeAuth.types';
+import { setTokenLogin } from 'store/actions/loginInfo/loginInfoActions';
 import { networkSelector, tokenLoginSelector } from 'store/selectors';
 import { getState } from 'store/store';
 import { OnProviderLoginType } from 'types/login.types';
-import { setTokenLogin } from 'store/actions/loginInfo/loginInfoActions';
-import { NativeAuthConfigType } from 'services/nativeAuth/nativeAuth.types';
-import { getAccount } from 'core/methods/account/getAccount';
 
 const getApiAddress = (
   apiAddress: string,

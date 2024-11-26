@@ -1,7 +1,7 @@
 import { Address } from '@multiversx/sdk-core/out';
-import { getStore } from '../../store';
-import { resetStore } from 'store/middleware/logoutMiddleware';
 import { ProviderTypeEnum } from 'core/providers/types/providerFactory.types';
+import { resetStore } from 'store/middleware/logoutMiddleware';
+import { getStore } from '../../store';
 
 export const logoutAction = () => getStore().setState(resetStore);
 export interface LoginActionPayloadType {

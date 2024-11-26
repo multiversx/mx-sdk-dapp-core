@@ -1,7 +1,7 @@
-import { StorageCallback } from 'store/storage';
-import { CustomNetworkType } from 'types/network.types';
-import { EnvironmentsEnum } from 'types/enums.types';
 import { NativeAuthConfigType } from 'services/nativeAuth/nativeAuth.types';
+import { StorageCallback } from 'store/storage';
+import { EnvironmentsEnum } from 'types/enums.types';
+import { CustomNetworkType } from 'types/network.types';
 
 type BaseDappConfigType = {
   /**

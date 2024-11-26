@@ -51,7 +51,7 @@ describe('stringIsFloat tests', () => {
   it('denies NaN', () => {
     expect(stringIsFloat(NaN as any)).toBe(false);
   });
-  it('denies caret separation', () => {
+  it('also denies caret separation', () => {
     expect(stringIsFloat(Infinity as any)).toBe(false);
   });
 });

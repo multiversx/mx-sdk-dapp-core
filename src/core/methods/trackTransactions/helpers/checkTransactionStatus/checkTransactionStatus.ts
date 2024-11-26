@@ -1,7 +1,7 @@
 import { refreshAccount } from 'utils/account';
 import { checkBatch } from './checkBatch';
-import { getPendingStoreTransactions } from '../getPendingStoreTransactions';
 import { TransactionsTrackerType } from '../../trackTransactions.types';
+import { getPendingStoreTransactions } from '../getPendingStoreTransactions';
 
 export async function checkTransactionStatus(
   props: TransactionsTrackerType & {

@@ -51,7 +51,7 @@ describe('ledgerOptions tests', () => {
       ledgerWithUsernames: false
     });
   });
-  test('ledger with tokens', () => {
+  test('ledger with latest tokens', () => {
     expect(ledgerVersionOptions('1.0.22')).toStrictEqual({
       ledgerWithHashSign: true,
       ledgerWithMultiAccount: true,

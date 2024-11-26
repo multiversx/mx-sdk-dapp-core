@@ -3,8 +3,9 @@
 
 function warning(cond: any, message: string): void {
   if (!cond) {
-    // eslint-disable-next-line no-console
-    if (typeof console !== 'undefined') console.warn(message);
+    if (typeof console !== 'undefined') {
+      console.warn(message);
+    }
 
     try {
       // Welcome to debugging React Router!
@@ -13,8 +14,8 @@ function warning(cond: any, message: string): void {
       // find the source for a warning that appears in the console by
       // enabling "pause on exceptions" in your JavaScript debugger.
       throw new Error(message);
-      // eslint-disable-next-line no-empty
-    } catch (e) {}
+      // eslint-disable-next-line no-empty, @typescript-eslint/no-unused-vars
+    } catch (error) {}
   }
 }
 
@@ -22,7 +23,7 @@ type ParamParseFailed = { failed: true };
 
 type ParamParseSegment<Segment extends string> =
   // Check here if there exists a forward slash in the string.
-  // eslint-disable-next-line prettier/prettier
+
   Segment extends `${infer LeftSegment}/${infer RightSegment}`
     ? // If there is a forward slash, then attempt to parse each side of the
       // forward slash.
@@ -37,25 +38,25 @@ type ParamParseSegment<Segment extends string> =
             ? LeftResult | RightResult
             : LeftResult
           : // If the left side is not successfully parsed as a param, then check
-          // if only the right side can be successfully parse as a param. If it
-          // can, then the result is just right, else it's a failure.
-          RightResult extends string
+            // if only the right side can be successfully parse as a param. If it
+            // can, then the result is just right, else it's a failure.
+            RightResult extends string
+            ? RightResult
+            : ParamParseFailed
+        : ParamParseFailed
+      : // If the left side didn't parse into a param, then just check the right
+        // side.
+        ParamParseSegment<RightSegment> extends infer RightResult
+        ? RightResult extends string
           ? RightResult
           : ParamParseFailed
         : ParamParseFailed
-      : // If the left side didn't parse into a param, then just check the right
-      // side.
-      ParamParseSegment<RightSegment> extends infer RightResult
-      ? RightResult extends string
-        ? RightResult
-        : ParamParseFailed
-      : ParamParseFailed
     : // If there's no forward slash, then check if this segment starts with a
-    // colon. If it does, then this is a dynamic segment, so the result is
-    // just the remainder of the string. Otherwise, it's a failure.
-    Segment extends `:${infer Remaining}`
-    ? Remaining
-    : ParamParseFailed;
+      // colon. If it does, then this is a dynamic segment, so the result is
+      // just the remainder of the string. Otherwise, it's a failure.
+      Segment extends `:${infer Remaining}`
+      ? Remaining
+      : ParamParseFailed;
 
 // Attempt to parse the given string segment. If it fails, then just return the
 // plain string type as a default fallback. Otherwise return the union of the
@@ -69,7 +70,7 @@ type ParamParseKey<Segment extends string> =
  * The parameters that were parsed from the URL path.
  */
 type Params<Key extends string = string> = {
-  readonly [key in Key]: string | undefined;
+  readonly [_key in Key]: string | undefined;
 };
 
 /**
@@ -143,7 +144,9 @@ export function matchPath<
   );
 
   const match = pathname.match(matcher);
-  if (!match) return null;
+  if (!match) {
+    return null;
+  }
 
   const matchedPathname = match[0];
   let pathnameBase = matchedPathname.replace(/(.)\/+$/, '$1');

@@ -8,7 +8,7 @@ export async function getServerConfiguration(apiAddress: string) {
   try {
     const { data } = await axios.get<NetworkType>(configUrl);
     return data;
-  } catch (err) {
+  } catch (_err) {
     console.error('error fetching configuration for ', configUrl);
   }
   return null;
