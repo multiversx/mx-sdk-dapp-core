@@ -17,7 +17,7 @@ export function renderInModal<T extends TemplateResult>({
         <div class="modal-header">
           <span class="close" @click=${onClose}>✕</span>
           <h2>${title}</h2>
-          <p>${subtitle}</p>
+          <h4>${subtitle}</h4>
         </div>
         ${body}
       </div>

@@ -43,7 +43,7 @@ export class LedgerModalComponent extends LitElement {
   };
 
   @property({ type: Number }) private selectedIndex = 0;
-  @property({ type: Number }) private selectedAddress = '';
+  @property({ type: String }) private selectedAddress = '';
 
   static styles = ledgerStyles;
 
@@ -105,19 +105,28 @@ export class LedgerModalComponent extends LitElement {
         onClose: () => this.close(),
         title: html`Confirm`,
         subtitle: html`Confirm Ledger Address`,
-        body: html`<div data-testid="ledgerConfirmAddress">
-          <div>
+        body: html`<div
+          data-testid="ledgerConfirmAddress"
+          class="ledger-confirm-address-section"
+        >
+          <div class="ledger-confirm-address-section">
             <div>${confirmScreenData.confirmAddressText}</div>
             <div>${confirmScreenData.selectedAddress}</div>
           </div>
 
-          <div>
-            <div>${confirmScreenData?.authText}</div>
-            <div>${confirmScreenData?.data}</div>
-            <div>${confirmScreenData?.areShownText}</div>
+          <div class="ledger-confirm-address-section">
+            <div class="ledger-confirm-address-description">
+              ${confirmScreenData?.authText}
+            </div>
+            <div class="ledger-confirm-address-data">
+              ${confirmScreenData?.data}
+            </div>
+            <div class="ledger-confirm-address-description">
+              ${confirmScreenData?.areShownText}
+            </div>
           </div>
 
-          <div>
+          <div class="ledger-confirm-address-footer">
             <div>Select Approve on your device to confirm.</div>
 
             <div>
