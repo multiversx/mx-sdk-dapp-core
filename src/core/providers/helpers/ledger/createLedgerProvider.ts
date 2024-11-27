@@ -31,7 +31,7 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
     Awaited<ReturnType<typeof getLedgerProvider>>
   >(async function buildLedgerProvider(resolve, reject) {
     const onRetry = () => buildLedgerProvider(resolve, reject);
-    const onCancel = () => reject('User cancelled login');
+    const onCancel = () => reject('Device unavailable');
 
     try {
       manager.updateAccountScreen({
@@ -53,7 +53,6 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
         error: errorMessage ?? defaultErrorMessage ?? failInitializeErrorText
       });
 
-      // eventBus.publish(LedgerConnectEventsEnum.DATA_UPDATE, data);
       eventBus.subscribe(LedgerConnectEventsEnum.CONNECT_DEVICE, onRetry);
       eventBus.subscribe(LedgerConnectEventsEnum.CLOSE, onCancel);
     }
@@ -84,7 +83,7 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
     });
 
     const updateAccounts = async () => {
-      const { startIndex } = manager.getAccountScreenData();
+      const startIndex = manager.getAccountScreenData()?.startIndex || 0;
       const allAccounts = manager.getAllAccounts();
 
       const hasData = allAccounts.some(
@@ -205,18 +204,20 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
 
       const onCancel = async () => {
         await updateAccounts();
+        console.log('\x1b[42m%s\x1b[0m', 'User cancelled login unsubscribe');
+
         unsubscribeFromEvents();
         reject('User cancelled login');
       };
 
       const onNextPageChanged = async () => {
-        const { startIndex } = manager.getAccountScreenData();
+        const startIndex = manager.getAccountScreenData()?.startIndex || 0;
         manager.updateStartIndex(startIndex + manager.addressesPerPage);
         await updateAccounts();
       };
 
       const onPrevPageChanged = async () => {
-        const { startIndex } = manager.getAccountScreenData();
+        const startIndex = manager.getAccountScreenData()?.startIndex || 0;
 
         if (startIndex > 0) {
           manager.updateStartIndex(
@@ -257,13 +258,13 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
           });
         } catch (err) {
           console.error('User rejected login:', err);
+          const shouldClose = Boolean(manager.getAccountScreenData());
+          if (shouldClose) {
+            return closeComponent();
+          }
           const shouldGoBack = Boolean(manager.getConfirmScreenData());
           if (shouldGoBack) {
             await updateAccounts();
-          }
-          const shouldClose = Boolean(manager.getAccountScreenData());
-          if (shouldClose) {
-            closeComponent();
           }
         }
       };

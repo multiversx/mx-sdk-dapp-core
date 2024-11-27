@@ -85,11 +85,10 @@ export class LedgerConnectStateManager<T extends IEventBus = IEventBus> {
   }
 
   public closeAndReset(): void {
+    console.log('Closing and resetting');
+    this.data.shouldClose = true;
+    this.notifyDataUpdate();
     this.resetData();
-    this.eventBus.publish(LedgerConnectEventsEnum.CLOSE, {
-      ...this.data,
-      shouldClose: true
-    });
   }
 
   public updateConnectScreen(members: Partial<IConnectScreenData>): void {
@@ -126,12 +125,12 @@ export class LedgerConnectStateManager<T extends IEventBus = IEventBus> {
     this.eventBus.publish(LedgerConnectEventsEnum.DATA_UPDATE, this.data);
   }
 
-  public getAccountScreenData(): IAccountScreenData {
-    return this.accountScreenData ?? this.initialAccountScreenData;
+  public getAccountScreenData(): IAccountScreenData | null {
+    return this.data.accountScreenData;
   }
 
-  public getConfirmScreenData(): IConfirmScreenData {
-    return this.confirmScreenData ?? this.initialConfirmScreenData;
+  public getConfirmScreenData(): IConfirmScreenData | null {
+    return this.data.confirmScreenData;
   }
 
   public getAllAccounts(): ILedgerAccount[] {

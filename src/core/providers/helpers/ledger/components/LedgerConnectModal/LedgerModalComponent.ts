@@ -176,8 +176,10 @@ export class LedgerConnectModal extends LitElement {
     this.eventBus.publish(LedgerConnectEventsEnum.PREV_PAGE);
   }
 
-  close() {
-    this.eventBus.publish(LedgerConnectEventsEnum.CLOSE);
+  close(props = { isUserClick: true }) {
+    if (props.isUserClick) {
+      this.eventBus.publish(LedgerConnectEventsEnum.CLOSE);
+    }
     // allow a final update before close
     setTimeout(() => {
       if (this.parentNode) {
@@ -188,7 +190,7 @@ export class LedgerConnectModal extends LitElement {
 
   private dataUpdate(payload: ILedgerConnectModalData) {
     if (payload.shouldClose) {
-      return this.close();
+      return this.close({ isUserClick: false });
     }
     this.data = payload;
     this.requestUpdate();
