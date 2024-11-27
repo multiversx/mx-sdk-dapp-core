@@ -204,8 +204,6 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
 
       const onCancel = async () => {
         await updateAccounts();
-        console.log('\x1b[42m%s\x1b[0m', 'User cancelled login unsubscribe');
-
         unsubscribeFromEvents();
         reject('User cancelled login');
       };

@@ -85,7 +85,6 @@ export class LedgerConnectStateManager<T extends IEventBus = IEventBus> {
   }
 
   public closeAndReset(): void {
-    console.log('Closing and resetting');
     this.data.shouldClose = true;
     this.notifyDataUpdate();
     this.resetData();
