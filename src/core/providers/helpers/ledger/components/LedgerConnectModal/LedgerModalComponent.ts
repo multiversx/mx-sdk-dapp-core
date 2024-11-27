@@ -1,49 +1,24 @@
 import { LitElement, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import { ledgerStyles } from './ldegerModalComponent.styles';
-import { ILedgerAccount } from '../../ledger.types';
+import { ledgerStyles } from './ledgerConnectModal.styles';
 import { EventBus } from '../EventBus';
 import { renderAccounts } from './components/renderAccounts';
 import { renderInModal } from './components/renderInModal';
-
-export interface IConnectScreenData {
-  customContentMarkup?: string;
-  disabled?: boolean;
-  error?: string;
-}
-
-export interface IAccountScreenData {
-  accounts: ILedgerAccount[];
-  startIndex: number;
-  addressesPerPage: number;
-  isLoading: boolean;
-}
-
-export interface IConfirmScreenData {
-  data?: string;
-  selectedAddress: string;
-  confirmAddressText?: string;
-  authText?: string;
-  areShownText?: string | null;
-}
-
-export interface ILedgerModalData {
-  connectScreenData: IConnectScreenData | null;
-  accountScreenData: IAccountScreenData | null;
-  shouldClose?: true;
-  confirmScreenData: IConfirmScreenData | null;
-}
+import {
+  ILedgerConnectModalData,
+  LedgerConnectEventsEnum
+} from './ledgerConnectModal.types';
 
 @customElement('ledger-connect-modal')
-export class LedgerModalComponent extends LitElement {
-  @property({ type: Object }) public data: ILedgerModalData = {
+export class LedgerConnectModal extends LitElement {
+  @property({ type: Object }) public data: ILedgerConnectModalData = {
     accountScreenData: null,
     confirmScreenData: null,
     connectScreenData: {}
   };
 
   @property({ type: Number }) private selectedIndex = 0;
-  @property({ type: Number }) private selectedAddress = '';
+  @property({ type: String }) private selectedAddress = '';
 
   static styles = ledgerStyles;
 
@@ -99,25 +74,33 @@ export class LedgerModalComponent extends LitElement {
       });
     }
 
-    // TODO: test simple ledger connection without token
     if (confirmScreenData) {
       return renderInModal({
         onClose: () => this.close(),
         title: html`Confirm`,
         subtitle: html`Confirm Ledger Address`,
-        body: html`<div data-testid="ledgerConfirmAddress">
-          <div>
+        body: html`<div
+          data-testid="ledgerConfirmAddress"
+          class="ledger-confirm-address-section"
+        >
+          <div class="ledger-confirm-address-section">
             <div>${confirmScreenData.confirmAddressText}</div>
             <div>${confirmScreenData.selectedAddress}</div>
           </div>
 
-          <div>
-            <div>${confirmScreenData?.authText}</div>
-            <div>${confirmScreenData?.data}</div>
-            <div>${confirmScreenData?.areShownText}</div>
+          <div class="ledger-confirm-address-section">
+            <div class="ledger-confirm-address-description">
+              ${confirmScreenData?.authText}
+            </div>
+            <div class="ledger-confirm-address-data">
+              ${confirmScreenData?.data}
+            </div>
+            <div class="ledger-confirm-address-description">
+              ${confirmScreenData?.areShownText}
+            </div>
           </div>
 
-          <div>
+          <div class="ledger-confirm-address-footer">
             <div>Select Approve on your device to confirm.</div>
 
             <div>
@@ -148,7 +131,8 @@ export class LedgerModalComponent extends LitElement {
 
         <button
           class="access-button"
-          @click=${() => this.eventBus.publish('CONNECT_DEVICE')}
+          @click=${() =>
+            this.eventBus.publish(LedgerConnectEventsEnum.CONNECT_DEVICE)}
           ?disabled=${connectScreenData?.disabled}
         >
           Connect Ledger
@@ -165,7 +149,7 @@ export class LedgerModalComponent extends LitElement {
   };
 
   private accessWallet() {
-    this.eventBus.publish('ACCESS_WALLET', {
+    this.eventBus.publish(LedgerConnectEventsEnum.ACCESS_WALLET, {
       addressIndex: this.selectedIndex,
       selectedAddress:
         this.selectedAddress ||
@@ -185,19 +169,17 @@ export class LedgerModalComponent extends LitElement {
   }
 
   async nextPage() {
-    this.eventBus.publish('PAGE_CHANGED', {
-      action: 'next'
-    });
+    this.eventBus.publish(LedgerConnectEventsEnum.NEXT_PAGE);
   }
 
   async prevPage() {
-    this.eventBus.publish('PAGE_CHANGED', {
-      action: 'prev'
-    });
+    this.eventBus.publish(LedgerConnectEventsEnum.PREV_PAGE);
   }
 
-  close() {
-    this.eventBus.publish('CLOSE');
+  close(props = { isUserClick: true }) {
+    if (props.isUserClick) {
+      this.eventBus.publish(LedgerConnectEventsEnum.CLOSE);
+    }
     // allow a final update before close
     setTimeout(() => {
       if (this.parentNode) {
@@ -206,9 +188,9 @@ export class LedgerModalComponent extends LitElement {
     });
   }
 
-  private dataUpdate(payload: ILedgerModalData) {
+  private dataUpdate(payload: ILedgerConnectModalData) {
     if (payload.shouldClose) {
-      return this.close();
+      return this.close({ isUserClick: false });
     }
     this.data = payload;
     this.requestUpdate();
@@ -216,11 +198,17 @@ export class LedgerModalComponent extends LitElement {
 
   connectedCallback() {
     super.connectedCallback();
-    this.eventBus.subscribe('DATA_UPDATE', this.dataUpdate.bind(this));
+    this.eventBus.subscribe(
+      LedgerConnectEventsEnum.DATA_UPDATE,
+      this.dataUpdate.bind(this)
+    );
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
-    this.eventBus.unsubscribe('DATA_UPDATE', this.dataUpdate.bind(this));
+    this.eventBus.unsubscribe(
+      LedgerConnectEventsEnum.DATA_UPDATE,
+      this.dataUpdate.bind(this)
+    );
   }
 }

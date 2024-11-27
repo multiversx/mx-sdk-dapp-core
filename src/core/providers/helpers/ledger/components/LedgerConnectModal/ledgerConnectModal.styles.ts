@@ -103,4 +103,68 @@ export const ledgerStyles = css`
       transform: rotate(360deg);
     }
   }
+
+  .ledger-confirm-address {
+    text-align: center;
+    padding: 48px 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  @media (min-width: 768px) {
+    .ledger-confirm-address {
+      padding: 48px 40px;
+    }
+  }
+
+  .ledger-confirm-address-heading {
+    font-weight: 500;
+    font-size: 24px;
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+
+  .ledger-confirm-address-section {
+    line-height: 1.5;
+    margin-top: 40px;
+    font-size: 16px;
+  }
+
+  .ledger-confirm-address-section .ledger-confirm-address-description {
+    color: variables.$gray-700;
+  }
+
+  .ledger-confirm-address-section .ledger-confirm-address-data {
+    color: variables.$black;
+    margin: 8px 0;
+    word-break: break-word;
+    background-color: variables.$gray-500;
+    padding: 12px;
+    border-radius: 8px;
+  }
+
+  .ledger-confirm-address-footer {
+    font-size: 14px;
+    color: variables.$gray-700;
+    line-height: 1.5;
+    position: relative;
+    margin-top: 40px;
+    padding-top: 40px;
+  }
+
+  .ledger-confirm-address-footer::before {
+    height: 1px;
+    content: '';
+    left: 0;
+    bottom: 100%;
+    right: 0;
+    position: absolute;
+    background-color: variables.$gray-700;
+  }
+
+  .ledger-confirm-address-footer a {
+    color: variables.$primary;
+  }
 `;

@@ -9,70 +9,39 @@ import { setLedgerLogin } from 'store/actions/loginInfo/loginInfoActions';
 import { fetchAccount } from 'utils/account/fetchAccount';
 import { EventBus } from './components/EventBus';
 import { initiateLedgerLogin } from './components/initiateLedgerLogin';
-import { getAuthTokenText } from './components/LedgerModalComponent/helpers/getAuthTokenText';
-import {
-  IAccountScreenData,
-  IConfirmScreenData,
-  IConnectScreenData,
-  ILedgerModalData
-} from './components/LedgerModalComponent/LedgerModalComponent';
+import { getAuthTokenText } from './components/LedgerConnectModal/helpers/getAuthTokenText';
 import { getLedgerErrorCodes } from './getLedgerErrorCodes';
 import { getLedgerProvider } from './getLedgerProvider';
+import { LedgerConnectStateManager } from './helpers/LedgerConnectStateManager';
+import { LedgerConnectEventsEnum } from './ledger.types';
 import { ILedgerAccount } from './ledger.types';
 
 const failInitializeErrorText = 'Check if the MultiversX App is open on Ledger';
-const addressesPerPage = 10;
-let allAccounts: ILedgerAccount[] = [];
-
-let accountScreenData: IAccountScreenData = {
-  accounts: allAccounts,
-  startIndex: 0,
-  addressesPerPage,
-  isLoading: true
-};
-
-let confirmScreenData: IConfirmScreenData = {
-  selectedAddress: ''
-};
-
-let connectScreenData: IConnectScreenData = {};
-
-const initialData: ILedgerModalData = {
-  connectScreenData: {},
-  accountScreenData: null,
-  confirmScreenData: null
-};
-
-let data = initialData;
 
 export async function createLedgerProvider(): Promise<IProvider | null> {
   const shouldInitiateLogin = !getIsLoggedIn();
   const eventBus = EventBus.getInstance();
+  const manager = LedgerConnectStateManager.getInstance(eventBus);
 
   if (shouldInitiateLogin) {
     initiateLedgerLogin();
   }
 
-  const updateConnectScreen = (members: Partial<IConnectScreenData>) => {
-    connectScreenData = {
-      ...connectScreenData,
-      ...members
-    };
-    data.confirmScreenData = null;
-    data.accountScreenData = null;
-    eventBus.publish('DATA_UPDATE', data);
-  };
-
   const { ledgerProvider: provider, ledgerConfig } = await new Promise<
     Awaited<ReturnType<typeof getLedgerProvider>>
   >(async function buildLedgerProvider(resolve, reject) {
     const onRetry = () => buildLedgerProvider(resolve, reject);
-    const onCancel = () => reject('User cancelled login');
+    const onCancel = () => reject('Device unavailable');
 
     try {
+      manager.updateAccountScreen({
+        isLoading: true
+      });
+
       const data = await getLedgerProvider();
-      eventBus.unsubscribe('CONNECT_DEVICE', onRetry);
-      eventBus.unsubscribe('CLOSE', onCancel);
+
+      eventBus.unsubscribe(LedgerConnectEventsEnum.CONNECT_DEVICE, onRetry);
+      eventBus.unsubscribe(LedgerConnectEventsEnum.CLOSE, onCancel);
       resolve(data);
     } catch (err) {
       if (!shouldInitiateLogin) {
@@ -80,15 +49,12 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
       }
 
       const { errorMessage, defaultErrorMessage } = getLedgerErrorCodes(err);
-
-      updateConnectScreen({
+      manager.updateConnectScreen({
         error: errorMessage ?? defaultErrorMessage ?? failInitializeErrorText
       });
 
-      eventBus.publish('DATA_UPDATE', data);
-      eventBus.subscribe('CONNECT_DEVICE', onRetry);
-      eventBus.subscribe('CLOSE', onCancel);
-      // if user rejected on ledger search for error and reject
+      eventBus.subscribe(LedgerConnectEventsEnum.CONNECT_DEVICE, onRetry);
+      eventBus.subscribe(LedgerConnectEventsEnum.CLOSE, onCancel);
     }
   });
 
@@ -116,31 +82,9 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
       version: ledgerConfig.version
     });
 
-    const eventBus = EventBus.getInstance();
-
-    const updateAccountScreen = (members: Partial<IAccountScreenData>) => {
-      accountScreenData = {
-        ...accountScreenData,
-        ...members
-      };
-      data.confirmScreenData = null;
-      data.accountScreenData = accountScreenData;
-      eventBus.publish('DATA_UPDATE', data);
-    };
-
-    const updateConfirmScreen = (members: Partial<IConfirmScreenData>) => {
-      confirmScreenData = {
-        ...authData,
-        ...confirmScreenData,
-        ...members
-      };
-      data.accountScreenData = null;
-      data.confirmScreenData = confirmScreenData;
-      eventBus.publish('DATA_UPDATE', data);
-    };
-
     const updateAccounts = async () => {
-      const { startIndex } = accountScreenData;
+      const startIndex = manager.getAccountScreenData()?.startIndex || 0;
+      const allAccounts = manager.getAllAccounts();
 
       const hasData = allAccounts.some(
         ({ index, balance }) =>
@@ -149,18 +93,18 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
 
       const slicedAccounts = allAccounts.slice(
         startIndex,
-        startIndex + addressesPerPage
+        startIndex + manager.addressesPerPage
       );
 
       if (hasData) {
-        return updateAccountScreen({
+        return manager.updateAccountScreen({
           accounts: slicedAccounts,
           isLoading: false
         });
       }
 
       if (slicedAccounts.length === 0) {
-        updateAccountScreen({
+        manager.updateAccountScreen({
           isLoading: true
         });
       }
@@ -168,7 +112,7 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
       try {
         const accountsArray = await provider.getAccounts(
           startIndex,
-          addressesPerPage
+          manager.addressesPerPage
         );
 
         const accountsWithBalance: ILedgerAccount[] = accountsArray.map(
@@ -181,12 +125,14 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
           }
         );
 
-        allAccounts = [...allAccounts, ...accountsWithBalance];
+        const newAllAccounts = [...allAccounts, ...accountsWithBalance];
 
-        updateAccountScreen({
-          accounts: allAccounts.slice(
+        manager.updateAllAccounts(newAllAccounts);
+
+        manager.updateAccountScreen({
+          accounts: newAllAccounts.slice(
             startIndex,
-            startIndex + addressesPerPage
+            startIndex + manager.addressesPerPage
           ),
           isLoading: false
         });
@@ -202,17 +148,22 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
             return;
           }
           const accountArrayIndex = index + startIndex;
-          allAccounts[accountArrayIndex].balance = account.balance;
+          newAllAccounts[accountArrayIndex].balance = account.balance;
         });
 
-        updateAccountScreen({
-          accounts: allAccounts.slice(startIndex, startIndex + addressesPerPage)
+        manager.updateAllAccounts(newAllAccounts);
+
+        manager.updateAccountScreen({
+          accounts: newAllAccounts.slice(
+            startIndex,
+            startIndex + manager.addressesPerPage
+          )
         });
       } catch (error) {
-        updateAccountScreen({
+        manager.updateAccountScreen({
           accounts: allAccounts.slice(
             startIndex,
-            startIndex + addressesPerPage
+            startIndex + manager.addressesPerPage
           ),
           isLoading: false
         });
@@ -227,51 +178,60 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
       signature: string;
       addressIndex: number;
     }>(async (resolve, reject) => {
+      const unsubscribeFromEvents = () => {
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        eventBus.unsubscribe(LedgerConnectEventsEnum.CLOSE, onCancel);
+        eventBus.unsubscribe(
+          LedgerConnectEventsEnum.NEXT_PAGE,
+          // eslint-disable-next-line @typescript-eslint/no-use-before-define
+          onNextPageChanged
+        );
+        eventBus.unsubscribe(
+          LedgerConnectEventsEnum.PREV_PAGE,
+          // eslint-disable-next-line @typescript-eslint/no-use-before-define
+          onPrevPageChanged
+        );
+        eventBus.unsubscribe(
+          LedgerConnectEventsEnum.ACCESS_WALLET,
+          // eslint-disable-next-line @typescript-eslint/no-use-before-define
+          onAccessWallet
+        );
+      };
+
       const closeComponent = () => {
-        // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        eventBus.unsubscribe('CLOSE', onCancel);
-        // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        eventBus.unsubscribe('PAGE_CHANGED', onPageChanged);
-        // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        eventBus.unsubscribe('ACCESS_WALLET', onAccessWallet);
-        data = {
-          ...initialData,
-          shouldClose: true
-        };
-        eventBus.publish('DATA_UPDATE', data);
+        manager.closeAndReset();
       };
 
       const onCancel = async () => {
         await updateAccounts();
-        eventBus.unsubscribe('CLOSE', onCancel);
-        // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        eventBus.unsubscribe('PAGE_CHANGED', onPageChanged);
-        // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        eventBus.unsubscribe('ACCESS_WALLET', onAccessWallet);
+        unsubscribeFromEvents();
         reject('User cancelled login');
       };
 
-      const onPageChanged = async (payload: { action: 'next' | 'prev' }) => {
-        const { startIndex } = accountScreenData;
-
-        if (payload.action === 'next') {
-          accountScreenData.startIndex = startIndex + addressesPerPage;
-        }
-        if (payload.action === 'prev' && startIndex > 0) {
-          accountScreenData.startIndex = Math.max(
-            0,
-            startIndex - addressesPerPage
-          );
-        }
-
+      const onNextPageChanged = async () => {
+        const startIndex = manager.getAccountScreenData()?.startIndex || 0;
+        manager.updateStartIndex(startIndex + manager.addressesPerPage);
         await updateAccounts();
+      };
+
+      const onPrevPageChanged = async () => {
+        const startIndex = manager.getAccountScreenData()?.startIndex || 0;
+
+        if (startIndex > 0) {
+          manager.updateStartIndex(
+            Math.max(0, startIndex - manager.addressesPerPage)
+          );
+
+          await updateAccounts();
+        }
       };
 
       const onAccessWallet = async function tryAccessWallet(payload: {
         addressIndex: number;
         selectedAddress: string;
       }) {
-        updateConfirmScreen({
+        manager.updateConfirmScreen({
+          ...authData,
           selectedAddress: payload.selectedAddress
         });
 
@@ -296,20 +256,21 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
           });
         } catch (err) {
           console.error('User rejected login:', err);
-          const shouldGoBack = Boolean(confirmScreenData);
+          const shouldClose = Boolean(manager.getAccountScreenData());
+          if (shouldClose) {
+            return closeComponent();
+          }
+          const shouldGoBack = Boolean(manager.getConfirmScreenData());
           if (shouldGoBack) {
             await updateAccounts();
-          }
-          const shouldClose = Boolean(accountScreenData);
-          if (shouldClose) {
-            closeComponent();
           }
         }
       };
 
-      eventBus.subscribe('CLOSE', onCancel);
-      eventBus.subscribe('PAGE_CHANGED', onPageChanged);
-      eventBus.subscribe('ACCESS_WALLET', onAccessWallet);
+      eventBus.subscribe(LedgerConnectEventsEnum.CLOSE, onCancel);
+      eventBus.subscribe(LedgerConnectEventsEnum.NEXT_PAGE, onNextPageChanged);
+      eventBus.subscribe(LedgerConnectEventsEnum.PREV_PAGE, onPrevPageChanged);
+      eventBus.subscribe(LedgerConnectEventsEnum.ACCESS_WALLET, onAccessWallet);
     });
 
     const { version, dataEnabled } = ledgerConfig;
