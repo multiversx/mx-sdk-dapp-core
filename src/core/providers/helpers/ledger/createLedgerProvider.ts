@@ -144,11 +144,16 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
         const balances = await Promise.all(balancePromises);
 
         balances.forEach((account, index) => {
-          if (!account) {
+          const bNbalance = new BigNumber(String(account?.balance));
+          if (!account || bNbalance.isNaN()) {
             return;
           }
+          const balance = bNbalance
+            .dividedBy(BigNumber(10).pow(18))
+            .toFormat(4)
+            .toString();
           const accountArrayIndex = index + startIndex;
-          newAllAccounts[accountArrayIndex].balance = account.balance;
+          newAllAccounts[accountArrayIndex].balance = balance;
         });
 
         manager.updateAllAccounts(newAllAccounts);

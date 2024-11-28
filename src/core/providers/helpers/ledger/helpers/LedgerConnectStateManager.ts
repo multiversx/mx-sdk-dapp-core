@@ -121,6 +121,7 @@ export class LedgerConnectStateManager<T extends IEventBus = IEventBus> {
   }
 
   private notifyDataUpdate(): void {
+    console.log(JSON.stringify(this.data));
     this.eventBus.publish(LedgerConnectEventsEnum.DATA_UPDATE, this.data);
   }
 
