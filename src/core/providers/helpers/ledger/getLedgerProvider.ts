@@ -2,7 +2,7 @@ import { HWProvider } from '@multiversx/sdk-hw-provider';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import { ledgerLoginSelector } from 'store/selectors/loginInfoSelectors';
 import { getState } from 'store/store';
-import { getLedgerConfiguration } from './getLedgerConfiguration';
+import { getLedgerConfiguration } from './helpers/getLedgerConfiguration';
 import { getAccountProvider } from '../../accountProvider';
 
 export async function getLedgerProvider() {
