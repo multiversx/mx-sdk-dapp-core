@@ -16,6 +16,7 @@ export interface BaseNetworkType {
   xAliasAddress?: string;
   roundDuration: number;
   metamaskSnapWalletAddress?: string;
+  websocketUrl?: string;
 }
 
 export interface CurrentNetworkType extends BaseNetworkType {
@@ -40,13 +41,14 @@ export interface CustomNetworkType {
   walletConnectDeepLink?: string;
   walletConnectBridgeAddresses?: string[];
   walletAddress?: string;
-  metamaskSnapWalletAddress?: string;
   apiAddress?: string;
   explorerAddress?: string;
   skipFetchFromServer?: boolean;
   apiTimeout?: string;
   walletConnectV2ProjectId?: string;
   walletConnectV2Options?: any;
+  metamaskSnapWalletAddress?: string;
+  websocketUrl?: string;
 }
 
 export interface ApiNetworkConfigType {
