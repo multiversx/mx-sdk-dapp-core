@@ -27,7 +27,9 @@ type TimeoutType = NodeJS.Timeout | null;
 
 export async function initializeWebsocketConnection() {
   const { address } = getAccount();
-  const { apiAddress } = networkSelector(getStore().getState());
+  const { apiAddress, websocketUrl: customWebsocketUrl } = networkSelector(
+    getStore().getState()
+  );
 
   let messageTimeout: TimeoutType = null;
   let batchTimeout: TimeoutType = null;
@@ -55,7 +57,8 @@ export async function initializeWebsocketConnection() {
       // To avoid multiple connections to the same endpoint
       websocketConnection.status = WebsocketConnectionStatusEnum.PENDING;
 
-      const websocketUrl = await getWebsocketUrl(apiAddress);
+      const websocketUrl =
+        customWebsocketUrl ?? (await getWebsocketUrl(apiAddress));
 
       if (!websocketUrl) {
         console.warn('Cannot get websocket URL');
