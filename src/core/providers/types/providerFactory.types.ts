@@ -19,9 +19,25 @@ export interface IProvider extends IDAppProviderBase {
   // getExtraInfoData(): { multisig?: string; impersonate?: string } | undefined;
 }
 
+export interface IEventBus {
+  getInstance(): IEventBus;
+  subscribe(event: string, callback: Function): void;
+  publish(event: string, data?: any): void;
+  unsubscribe(event: string, callback: Function): void;
+}
+
+// type A = `${ProviderTypeEnum}`;
+// type B = Pick<A, ProviderTypeEnum>;
+
 export interface IProviderConfig {
   account?: {
     address: string;
+  };
+  ui?: {
+    ledger: {
+      eventBus: IEventBus;
+      mount: () => void;
+    };
   };
 }
 

@@ -18,7 +18,18 @@ import {
 export class ProviderFactory {
   public async create({
     type,
-    config,
+    config = {
+      ui: {
+        ledger: {
+          eventBus: {} as any,
+          mount: () => {
+            throw new Error(
+              'Ledger UI not implemented. See @multiversx/sdk-dapp-core-ui for more information'
+            );
+          }
+        }
+      }
+    },
     customProvider
   }: IProviderFactory): Promise<DappProvider> {
     let createdProvider: IProvider | null = null;
@@ -45,7 +56,10 @@ export class ProviderFactory {
       }
 
       case ProviderTypeEnum.ledger: {
-        const ledgerProvider = await createLedgerProvider();
+        const ledgerProvider = await createLedgerProvider(
+          config.ui?.ledger.eventBus,
+          config.ui?.ledger.mount
+        );
 
         if (!ledgerProvider) {
           throw new Error('Unable to create ledger provider');

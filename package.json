@@ -57,6 +57,9 @@
     "bignumber.js": "9.x",
     "immer": "10.x"
   },
+  "optionalDependencies": {
+    "@multiversx/sdk-dapp-core-ui": "https://github.com/multiversx/mx-sdk-dapp-core-ui#tm/feature/ldeger-ui"
+  },
   "resolutions": {
     "string-width": "4.1.0"
   },

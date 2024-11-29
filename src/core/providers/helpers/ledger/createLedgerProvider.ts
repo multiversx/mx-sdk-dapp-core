@@ -1,15 +1,14 @@
 import BigNumber from 'bignumber.js';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import {
+  IEventBus,
   IProvider,
   ProviderTypeEnum
 } from 'core/providers/types/providerFactory.types';
 import { setLedgerAccount } from 'store/actions/account/accountActions';
 import { setLedgerLogin } from 'store/actions/loginInfo/loginInfoActions';
 import { fetchAccount } from 'utils/account/fetchAccount';
-import { EventBus } from './components/EventBus';
-import { initiateLedgerLogin } from './components/initiateLedgerLogin';
-import { getAuthTokenText } from './components/LedgerConnectModal/helpers/getAuthTokenText';
+import { getAuthTokenText } from './helpers/getAuthTokenText';
 import { getLedgerErrorCodes } from './helpers/getLedgerErrorCodes';
 import { getLedgerProvider } from './helpers/getLedgerProvider';
 import { LedgerConnectStateManager } from './helpers/LedgerConnectStateManager';
@@ -18,14 +17,21 @@ import { ILedgerAccount } from './ledger.types';
 
 const failInitializeErrorText = 'Check if the MultiversX App is open on Ledger';
 
-export async function createLedgerProvider(): Promise<IProvider | null> {
+export async function createLedgerProvider(
+  eventBus?: IEventBus,
+  mount?: () => void
+): Promise<IProvider | null> {
+  if (!eventBus) {
+    throw new Error('Event bus not provided for Ledger provider');
+  }
+
   const shouldInitiateLogin = !getIsLoggedIn();
-  const eventBus = EventBus.getInstance();
-  const manager = LedgerConnectStateManager.getInstance(eventBus);
 
   if (shouldInitiateLogin) {
-    initiateLedgerLogin();
+    mount?.();
   }
+
+  const manager = LedgerConnectStateManager.getInstance(eventBus);
 
   const { ledgerProvider: provider, ledgerConfig } = await new Promise<
     Awaited<ReturnType<typeof getLedgerProvider>>
