@@ -1,10 +1,11 @@
-import { updateSignedTransactionStatus } from 'reduxStore/slices';
-import { store } from 'reduxStore/store';
-import { removeBatchTransactions } from 'services/transactions';
-import { SignedTransactionType, TransactionServerStatusesEnum } from 'types';
+import {
+  ServerTransactionType,
+  SignedTransactionType,
+  TransactionServerStatusesEnum
+} from 'types';
 import { sequentialToFlatArray } from './sequentialToFlatArray';
 
-export function updateBatchTransactionsStatuses({
+export const updateBatchTransactionsStatuses = ({
   batchId,
   sessionId,
   transactions
@@ -12,8 +13,10 @@ export function updateBatchTransactionsStatuses({
   batchId: string;
   sessionId: string;
   transactions: SignedTransactionType[] | SignedTransactionType[][];
-}) {
-  const transactionsArray = sequentialToFlatArray({ transactions });
+}) => {
+  const transactionsArray = sequentialToFlatArray<SignedTransactionType>({
+    transactions
+  });
 
   const batchIsSuccessful = transactionsArray.every(
     (transaction) =>
@@ -39,4 +42,4 @@ export function updateBatchTransactionsStatuses({
   if (batchIsSuccessful) {
     removeBatchTransactions(batchId);
   }
-}
+};

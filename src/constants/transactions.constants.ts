@@ -1,2 +1,16 @@
 export const WALLET_SIGN_SESSION = 'signSession';
 export const SDK_DAPP_VERSION = 'sdk-dapp-version';
+export const CANCEL_TRANSACTION_TOAST_ID = 'cancel-transaction-toast';
+export const AVERAGE_TX_DURATION_MS = 6000;
+export const CROSS_SHARD_ROUNDS = 5;
+export const TRANSACTIONS_STATUS_POLLING_INTERVAL_MS = 90 * 1000; // 90sec
+export const TRANSACTIONS_STATUS_DROP_INTERVAL_MS = 10 * 60 * 1000; // 10min
+export const CANCEL_TRANSACTION_TOAST_DEFAULT_DURATION = 20000;
+export const GAS_PRICE_MODIFIER = 0.01;
+export const GAS_PER_DATA_BYTE = 1_500;
+export const GAS_LIMIT = 50_000;
+export const EXTRA_GAS_LIMIT_GUARDED_TX = 50_000;
+export const GAS_PRICE = 1_000_000_000;
+export const DECIMALS = 18;
+export const DIGITS = 4;
+export const VERSION = 1;

@@ -1,8 +1,5 @@
-import { Transaction } from '@multiversx/sdk-core/out';
-import { SimpleTransactionType } from 'types';
-
-export const generateBatchTransactionsGrouping = (
-  transactions: (Transaction | SimpleTransactionType)[][]
+export const generateBatchTransactionsGrouping = <T>(
+  transactions: T[][]
 ) => {
   let indexInFlatArray = 0;
   return transactions.map((group) => {

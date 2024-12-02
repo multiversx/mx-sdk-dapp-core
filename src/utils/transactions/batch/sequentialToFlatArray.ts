@@ -1,12 +1,11 @@
-import { SignedTransactionType } from 'types';
 import { getIsSequential } from './getIsSequential';
 
-export function sequentialToFlatArray({
+export function sequentialToFlatArray<T>({
   transactions = []
 }: {
-  transactions?: SignedTransactionType[] | SignedTransactionType[][];
+  transactions?: T[] | T[][];
 }) {
-  return getIsSequential({ transactions })
+  return getIsSequential<T>({ transactions })
     ? transactions.flat()
-    : (transactions as SignedTransactionType[]);
+    : (transactions as T[]);
 }

@@ -1,6 +1,5 @@
-export * from './url/buildCallbackUrl';
+export * from './url';
 export * from './parsers/getAreTransactionsOnSameShard';
-export * from './getInterpretedTransaction';
 export * from './dataDecoders/getTokenFromData';
 export * from './parsers/getTransactionLink';
 export * from './dataDecoders/getUnHighlightedDataFieldParts';

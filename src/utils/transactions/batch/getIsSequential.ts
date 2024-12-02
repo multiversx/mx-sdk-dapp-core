@@ -1,9 +1,7 @@
-import { SignedTransactionType } from 'types';
-
-export function getIsSequential({
+export function getIsSequential<T>({
   transactions
 }: {
-  transactions?: SignedTransactionType[] | SignedTransactionType[][];
+  transactions?: T[] | T[][];
 }) {
   return transactions?.some((transaction) => Array.isArray(transaction));
 }

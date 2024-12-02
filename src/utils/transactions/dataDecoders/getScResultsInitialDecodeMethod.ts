@@ -1,4 +1,4 @@
-
+import { DecodeMethodEnum } from 'types';
 import { getWindowLocation } from 'utils/window/getWindowLocation';
 
 export const getInitialScResultsDecodeMethod = () => {

@@ -1,10 +1,10 @@
-import { SignedTransactionType, TransactionServerStatusesEnum } from 'types';
+import { TransactionServerStatusesEnum } from 'types';
 
 export const getTransactionsStatus = ({
   transactions,
   hasUnrelatedTransactions
 }: {
-  transactions: SignedTransactionType[];
+  transactions: { status: TransactionServerStatusesEnum }[];
   hasUnrelatedTransactions?: boolean;
 }) => {
   const allTxFailed = transactions.every(
@@ -24,7 +24,7 @@ export const getTransactionsStatus = ({
   );
 
   const isIncompleteFailed =
-    hasUnrelatedTransactions &&
+    Boolean(hasUnrelatedTransactions) &&
     Boolean(!isPending && !allTxFailed && someTxFailed);
 
   const isFailed = hasUnrelatedTransactions
