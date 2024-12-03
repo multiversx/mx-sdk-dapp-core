@@ -18,8 +18,8 @@ import { ILedgerAccount } from './ledger.types';
 const failInitializeErrorText = 'Check if the MultiversX App is open on Ledger';
 
 export async function createLedgerProvider(
-  eventBus?: IEventBus,
-  mount?: () => void
+  eventBus: IEventBus,
+  mount: () => void
 ): Promise<IProvider | null> {
   if (!eventBus) {
     throw new Error('Event bus not provided for Ledger provider');

@@ -7,6 +7,7 @@ import { setAccountProvider } from './accountProvider';
 import { DappProvider } from './DappProvider/DappProvider';
 import { createCrossWindowProvider } from './helpers/crossWindow/createCrossWindowProvider';
 import { createExtensionProvider } from './helpers/extension/createExtensionProvider';
+import { getConfig } from './helpers/getConfig';
 import { createIframeProvider } from './helpers/iframe/createIframeProvider';
 import { createLedgerProvider } from './helpers/ledger/createLedgerProvider';
 import {
@@ -18,21 +19,11 @@ import {
 export class ProviderFactory {
   public async create({
     type,
-    config = {
-      ui: {
-        ledger: {
-          eventBus: {} as any,
-          mount: () => {
-            throw new Error(
-              'Ledger UI not implemented. See @multiversx/sdk-dapp-core-ui for more information'
-            );
-          }
-        }
-      }
-    },
+    config: userConfig,
     customProvider
   }: IProviderFactory): Promise<DappProvider> {
     let createdProvider: IProvider | null = null;
+    const { account, ui } = await getConfig(userConfig);
 
     switch (type) {
       case ProviderTypeEnum.extension: {
@@ -46,7 +37,7 @@ export class ProviderFactory {
 
       case ProviderTypeEnum.crossWindow: {
         const provider = await createCrossWindowProvider({
-          address: config?.account?.address
+          address: account?.address
         });
         createdProvider = provider as unknown as IProvider;
 
@@ -57,8 +48,8 @@ export class ProviderFactory {
 
       case ProviderTypeEnum.ledger: {
         const ledgerProvider = await createLedgerProvider(
-          config.ui?.ledger.eventBus,
-          config.ui?.ledger.mount
+          ui.ledger.eventBus,
+          ui.ledger.mount
         );
 
         if (!ledgerProvider) {
@@ -83,7 +74,7 @@ export class ProviderFactory {
 
       case ProviderTypeEnum.metamask: {
         const provider = await createIframeProvider({
-          address: config?.account?.address,
+          address: account?.address,
           type: IframeLoginTypes.metamask
         });
 
@@ -100,7 +91,7 @@ export class ProviderFactory {
 
       case ProviderTypeEnum.passkey: {
         const provider = await createIframeProvider({
-          address: config?.account?.address,
+          address: account?.address,
           type: IframeLoginTypes.passkey
         });
 
