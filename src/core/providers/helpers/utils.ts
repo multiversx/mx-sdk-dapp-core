@@ -13,7 +13,7 @@ export function getProviderType<TProvider extends object>(
 ): ProviderTypeEnum {
   switch (provider?.constructor) {
     case WalletProvider:
-      return ProviderTypeEnum.webhook;
+      return ProviderTypeEnum.webhook; // TODO: remove?
     case WalletConnectV2Provider:
       return ProviderTypeEnum.walletConnect;
     case HWProvider:
