@@ -33,7 +33,7 @@ export interface UpdateSignedTransactionStatusPayloadType {
   inTransit?: boolean;
 }
 
-export interface TransactionsSliceStateType {
+export interface TransactionsSliceType {
   signedTransactions: SignedTransactionsType;
   transactionsToSign: TransactionsToSignType | null;
   signTransactionsError: string | null;

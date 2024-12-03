@@ -1,12 +1,12 @@
-import { TokenArgumentType } from 'types/serverTransactions.types';
 import {
   EgldValueDataType,
   NFTValueDataType,
   TokenValueDataType
-} from 'utils/transactions/getInterpretedTransaction/helpers/types';
-import { getTransactionActionNftText } from 'utils/transactions/parsers/getTransactionActionNftText';
-import { getTransactionActionTokenText } from 'utils/transactions/parsers/getTransactionActionTokenText';
-import { getIdentifierType } from 'utils/validation/getIdentifierType';
+} from '../../types';
+import { TokenArgumentType } from 'types';
+import { getIdentifierType } from 'utils';
+import { getTransactionActionNftText } from '../../../../getTransactionActionNftText';
+import { getTransactionActionTokenText } from '../../../../getTransactionActionTokenText';
 
 export interface GetTransactionValueReturnType {
   egldValueData?: EgldValueDataType;
@@ -14,9 +14,7 @@ export interface GetTransactionValueReturnType {
   nftValueData?: NFTValueDataType;
 }
 
-export const getTitleText = (
-  transactionTokens: TokenArgumentType[]
-): string => {
+export function getTitleText(transactionTokens: TokenArgumentType[]): string {
   const tokensArray = transactionTokens.map((transactionToken) => {
     const { isNft } = getIdentifierType(transactionToken.type);
     if (isNft) {
@@ -43,4 +41,4 @@ export const getTitleText = (
 
   const joinedTokensWithLineBreak = decodeURI(tokensArray.join('%0A'));
   return joinedTokensWithLineBreak;
-};
+}

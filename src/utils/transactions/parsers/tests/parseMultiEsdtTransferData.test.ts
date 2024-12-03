@@ -1,4 +1,4 @@
-import { parseMultiEsdtTransferData } from '../parsers/parseMultiEsdtTransferData';
+import { parseMultiEsdtTransferData } from '../parseMultiEsdtTransferData';
 
 const removeWhiteSpaces = (str: string) => str.replace(/\s/g, '');
 const one = {

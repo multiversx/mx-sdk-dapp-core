@@ -9,12 +9,12 @@ import { isStringBase64 } from '../../decoders';
  * @see The tests for this function are in src/utils/transactions/tests/getDataPayloadForTransaction.test.ts
  * @param data - data field from transaction
  */
-export const getDataPayloadForTransaction = (
+export function getDataPayloadForTransaction(
   data?: string
-): TransactionPayload => {
+): TransactionPayload {
   const defaultData = data ?? '';
 
   return isStringBase64(defaultData)
     ? TransactionPayload.fromEncoded(defaultData)
     : new TransactionPayload(defaultData);
-};
+}

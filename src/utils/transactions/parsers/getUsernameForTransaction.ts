@@ -1,6 +1,6 @@
 import { isStringBase64 } from '../../decoders';
 
-export const getUsernameForTransaction = (username?: string) => {
+export function getUsernameForTransaction(username?: string) {
   if (!username) {
     return;
   }
@@ -10,4 +10,4 @@ export const getUsernameForTransaction = (username?: string) => {
   return isStringBase64(defaultData)
     ? defaultData
     : Buffer.from(defaultData, 'base64').toString();
-};
+}

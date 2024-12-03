@@ -7,11 +7,11 @@ interface SmartDecodedPartsType {
   identifier?: string;
 }
 
-export const getSmartDecodedParts = ({
+export function getSmartDecodedParts({
   parts,
   decodedParts,
   identifier
-}: SmartDecodedPartsType) => {
+}: SmartDecodedPartsType) {
   const updatedParts = [...decodedParts];
 
   if (parts[0] === TransactionTypesEnum.ESDTNFTTransfer && parts[2]) {
@@ -27,4 +27,4 @@ export const getSmartDecodedParts = ({
   }
 
   return updatedParts;
-};
+}

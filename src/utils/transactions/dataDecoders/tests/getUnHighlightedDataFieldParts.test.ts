@@ -1,4 +1,4 @@
-import { getUnHighlightedDataFieldParts } from '../dataDecoders/getUnHighlightedDataFieldParts';
+import { getUnHighlightedDataFieldParts } from '../getUnHighlightedDataFieldParts';
 
 describe('getUnHighlightedDataFieldParts tests', () => {
   it('should show correctly for first occurrence when present in the middle', () => {

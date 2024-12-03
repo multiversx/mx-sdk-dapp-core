@@ -30,12 +30,12 @@ const decodeOptions = [
   }
 ];
 
-export const useDataDecode = ({
+export function useDataDecode({
   value,
   initialDecodeMethod,
   setDecodeMethod,
   identifier
-}: DataDecodeType) => {
+}: DataDecodeType) {
   const [activeKey, setActiveKey] = useState(
     initialDecodeMethod &&
       Object.values<string>(DecodeMethodEnum).includes(initialDecodeMethod)
@@ -61,4 +61,4 @@ export const useDataDecode = ({
     setActiveKey,
     decodeOptions
   };
-};
+}

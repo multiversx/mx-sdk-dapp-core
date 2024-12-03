@@ -3,7 +3,7 @@ import { PlainSignedTransaction } from '@multiversx/sdk-web-wallet-provider/out/
 import { newTransaction } from 'models';
 import { SignedTransactionType } from 'types';
 import { TransactionServerStatusesEnum } from 'types/enums.types';
-import { isGuardianTx } from '../isGuardianTx';
+import { isGuardianTx } from '../validation/isGuardianTx';
 
 export function parseTransactionAfterSigning(
   signedTransaction: Transaction | PlainSignedTransaction

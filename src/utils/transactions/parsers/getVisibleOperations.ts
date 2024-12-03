@@ -1,11 +1,9 @@
 import {
   InterpretedTransactionType,
   VisibleTransactionOperationType
-} from 'types/serverTransactions.types';
+} from 'types';
 
-export const getVisibleOperations = (
-  transaction: InterpretedTransactionType
-) => {
+export function getVisibleOperations(transaction: InterpretedTransactionType) {
   const operations =
     transaction?.operations?.filter((operation) =>
       Object.values<string>(VisibleTransactionOperationType).includes(
@@ -14,4 +12,4 @@ export const getVisibleOperations = (
     ) ?? [];
 
   return operations;
-};
+}

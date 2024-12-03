@@ -2,11 +2,11 @@ import {
   TransactionActionType,
   UnwrapperType,
   TransactionActionsEnum
-} from 'types/serverTransactions.types';
+} from 'types';
 
-export const esdtNftUnwrapper = (
+export function esdtNftUnwrapper(
   action: TransactionActionType
-): Array<string | UnwrapperType> => {
+): Array<string | UnwrapperType> {
   switch (action.name) {
     case TransactionActionsEnum.transfer:
       return [
@@ -19,4 +19,4 @@ export const esdtNftUnwrapper = (
     default:
       return [];
   }
-};
+}

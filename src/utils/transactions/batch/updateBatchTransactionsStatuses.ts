@@ -5,7 +5,7 @@ import {
 } from 'types';
 import { sequentialToFlatArray } from './sequentialToFlatArray';
 
-export const updateBatchTransactionsStatuses = ({
+export function updateBatchTransactionsStatuses({
   batchId,
   sessionId,
   transactions
@@ -13,7 +13,7 @@ export const updateBatchTransactionsStatuses = ({
   batchId: string;
   sessionId: string;
   transactions: SignedTransactionType[] | SignedTransactionType[][];
-}) => {
+}) {
   const transactionsArray = sequentialToFlatArray<SignedTransactionType>({
     transactions
   });
@@ -42,4 +42,4 @@ export const updateBatchTransactionsStatuses = ({
   if (batchIsSuccessful) {
     removeBatchTransactions(batchId);
   }
-};
+}

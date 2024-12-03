@@ -1,15 +1,13 @@
 import {
+  TransactionActionCategoryEnum,
   TransactionActionType,
-  UnwrapperType,
-  TransactionActionCategoryEnum
-} from 'types/serverTransactions.types';
-import { esdtNftUnwrapper } from './helpers/esdtNftUnwrapper';
-import { mexUnwrapper } from './helpers/mexUnwrapper';
-import { stakeUnwrapper } from './helpers/stakeUnwrapper';
+  UnwrapperType
+} from '../../../../types';
+import { esdtNftUnwrapper, mexUnwrapper, stakeUnwrapper } from './helpers';
 
-export const transactionActionUnwrapper = (
+export function transactionActionUnwrapper(
   action: TransactionActionType
-): Array<string | UnwrapperType> => {
+): Array<string | UnwrapperType> {
   if (!action.arguments) {
     return action.description ? [action.description] : [action.name];
   }
@@ -24,4 +22,4 @@ export const transactionActionUnwrapper = (
     default:
       return action.description ? [action.description] : [];
   }
-};
+}

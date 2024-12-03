@@ -1,4 +1,4 @@
-import { getDataPayloadForTransaction } from '../dataDecoders/getDataPayloadForTransaction';
+import { getDataPayloadForTransaction } from '../getDataPayloadForTransaction';
 
 describe('getDataPayloadForTransaction', () => {
   it('should return empty string when data is not provided', async () => {

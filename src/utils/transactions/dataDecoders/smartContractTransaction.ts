@@ -17,11 +17,7 @@ export const ESDTTransferTypes = [
   'ESDTFreeze'
 ];
 
-export const isContract = (
-  receiver: string,
-  sender?: string,
-  data = ''
-) => {
+export function isContract(receiver: string, sender?: string, data = '') {
   const isValid = addressIsValid(receiver);
 
   if (!isValid) {

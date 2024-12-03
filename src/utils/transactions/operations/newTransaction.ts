@@ -6,6 +6,8 @@ import {
 } from '@multiversx/sdk-core';
 import { GAS_LIMIT, GAS_PRICE, VERSION } from 'constants';
 import { RawTransactionType } from 'types';
+import { isGuardianTx } from '../validation';
+import { getDataPayloadForTransaction } from '../dataDecoders';
 
 export function newTransaction(rawTransaction: RawTransactionType) {
   const rawTx = { ...rawTransaction };

@@ -1,4 +1,4 @@
-import { buildCallbackUrl } from '../url/buildCallbackUrl';
+import { buildCallbackUrl } from '../buildCallbackUrl';
 
 describe('builtCallbackUrl tests', () => {
   const url = 'https://wallet.multiversx.com';

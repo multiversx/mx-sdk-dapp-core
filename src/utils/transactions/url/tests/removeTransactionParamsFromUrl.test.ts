@@ -1,4 +1,4 @@
-import { removeTransactionParamsFromUrl } from '../url/removeTransactionParamsFromUrl';
+import { removeTransactionParamsFromUrl } from '../removeTransactionParamsFromUrl';
 
 describe('removeTransactionParamsFromUrl tests', () => {
   test('removes all data from URL', () => {

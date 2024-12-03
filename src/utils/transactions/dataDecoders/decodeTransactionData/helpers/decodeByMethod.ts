@@ -1,17 +1,14 @@
 import { Address } from '@multiversx/sdk-core/out';
 import BigNumber from 'bignumber.js';
-import {
-  DecodeMethodEnum,
-  TransactionTokensType
-} from 'types/serverTransactions.types';
-import { addressIsValid } from 'utils/account/addressIsValid';
+import { DecodeMethodEnum, TransactionTokensType } from 'types';
 import { isUtf8 } from 'utils/decoders';
+import { addressIsValid } from 'utils/validation';
 
-export const decodeByMethod = (
+export function decodeByMethod(
   part: string,
   decodeMethod: DecodeMethodEnum | string,
   transactionTokens?: TransactionTokensType
-) => {
+) {
   switch (decodeMethod) {
     case DecodeMethodEnum.text:
       try {
@@ -58,4 +55,4 @@ export const decodeByMethod = (
     default:
       return part;
   }
-};
+}

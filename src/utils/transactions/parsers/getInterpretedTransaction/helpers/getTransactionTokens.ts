@@ -3,9 +3,9 @@ import {
   TokenArgumentType
 } from 'types/serverTransactions.types';
 
-export const getTransactionTokens = (
+export function getTransactionTokens(
   transaction: ServerTransactionType
-): TokenArgumentType[] => {
+): TokenArgumentType[] {
   if (transaction.action) {
     const merged = [
       transaction.action.arguments?.token,
@@ -18,4 +18,4 @@ export const getTransactionTokens = (
   }
 
   return [];
-};
+}

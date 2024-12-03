@@ -2,11 +2,11 @@ import {
   TransactionActionType,
   UnwrapperType,
   TransactionActionsEnum
-} from 'types/serverTransactions.types';
+} from 'types';
 
-export const stakeUnwrapper = (
+export function stakeUnwrapper(
   action: TransactionActionType
-): Array<string | UnwrapperType> => {
+): Array<string | UnwrapperType> {
   switch (action.name) {
     case TransactionActionsEnum.delegate:
     case TransactionActionsEnum.stake:
@@ -57,4 +57,4 @@ export const stakeUnwrapper = (
     default:
       return [];
   }
-};
+}

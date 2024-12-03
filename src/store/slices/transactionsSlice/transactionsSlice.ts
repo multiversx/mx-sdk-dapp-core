@@ -1,8 +1,8 @@
-import { TransactionsSliceStateType } from './transactionsSlice.types';
+import { TransactionsSliceType } from './transactionsSlice.types';
 import { StateCreator } from 'zustand/vanilla';
 import { MutatorsIn, StoreType } from 'store/store.types';
 
-export const initialState: TransactionsSliceStateType = {
+export const initialState: TransactionsSliceType = {
   signedTransactions: {},
   transactionsToSign: null,
   signTransactionsError: null,
@@ -14,7 +14,7 @@ function getTransactionsSlice(): StateCreator<
   StoreType,
   MutatorsIn,
   [],
-  TransactionsSliceStateType
+  TransactionsSliceType
 > {
   return () => initialState;
 }

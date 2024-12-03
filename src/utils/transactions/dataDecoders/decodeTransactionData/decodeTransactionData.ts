@@ -1,8 +1,8 @@
 import {
   DecodedDisplayType,
-  DecodeForDisplayPropsType,
+  DecodeForDisplayParamsType,
   DecodeMethodEnum
-} from 'types/serverTransactions.types';
+} from 'types';
 
 import {
   decodeByMethod,
@@ -10,11 +10,11 @@ import {
   getSmartDecodedParts
 } from './helpers';
 
-export const decodeTransactionData = ({
+export function decodeTransactionData({
   input,
   decodeMethod,
   identifier
-}: DecodeForDisplayPropsType) => {
+}: DecodeForDisplayParamsType) {
   const display: DecodedDisplayType = {
     displayValue: '',
     validationWarnings: []
@@ -63,4 +63,4 @@ export const decodeTransactionData = ({
   }
 
   return display;
-};
+}

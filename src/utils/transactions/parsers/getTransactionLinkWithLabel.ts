@@ -9,10 +9,10 @@ export interface GetTransactionLinkWithLabelParamsType {
   direction: TransactionDirectionEnum;
 }
 
-export const getTransactionLinkWithLabel = ({
+export function getTransactionLinkWithLabel({
   transaction,
   direction
-}: GetTransactionLinkWithLabelParamsType): TransactionLinkType => {
+}: GetTransactionLinkWithLabelParamsType): TransactionLinkType {
   const isSmartContract = direction === TransactionDirectionEnum.INTERNAL;
   let address = transaction.sender;
 
@@ -46,4 +46,4 @@ export const getTransactionLinkWithLabel = ({
     address,
     link: link ?? ''
   };
-};
+}

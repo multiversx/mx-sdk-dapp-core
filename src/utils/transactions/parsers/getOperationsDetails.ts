@@ -1,7 +1,7 @@
 import { InterpretedTransactionType, OperationType } from 'types';
-import { getVisibleOperations } from 'utils/transactions/index';
+import { getVisibleOperations } from './getVisibleOperations';
 
-export type OperationDetailsPropsType = {
+export type OperationDetailsParamsType = {
   transaction: InterpretedTransactionType;
   filterBy?: {
     action?: OperationType['action'];
@@ -10,10 +10,10 @@ export type OperationDetailsPropsType = {
   };
 };
 
-export const getOperationsDetails = ({
+export function getOperationsDetails({
   transaction,
   filterBy
-}: OperationDetailsPropsType): OperationType[] => {
+}: OperationDetailsParamsType): OperationType[] {
   if (!transaction.operations) {
     return [];
   }
@@ -47,4 +47,4 @@ export const getOperationsDetails = ({
   });
 
   return filteredOperations;
-};
+}

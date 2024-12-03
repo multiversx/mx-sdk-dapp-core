@@ -3,19 +3,19 @@ import { decodeByMethod } from './decodeByMethod';
 import { getHexValidationWarnings } from './getHexValidationWarnings';
 import { getSmartDecodedParts } from './getSmartDecodedParts';
 
-interface GetDecodedPartsPropsType {
+interface GetDecodedPartsParamsType {
   parts: string[];
   decodeMethod: DecodeMethodEnum;
   identifier?: string;
   display: DecodedDisplayType;
 }
 
-export const getDisplayValueAndValidationWarnings = ({
+export function getDisplayValueAndValidationWarnings({
   parts,
   decodeMethod,
   identifier,
   display
-}: GetDecodedPartsPropsType) => {
+}: GetDecodedPartsParamsType) {
   const initialDecodedParts = parts.map((part, index) => {
     if (
       parts.length >= 2 &&
@@ -49,4 +49,4 @@ export const getDisplayValueAndValidationWarnings = ({
       : initialDecodedParts;
 
   return decodedParts;
-};
+}

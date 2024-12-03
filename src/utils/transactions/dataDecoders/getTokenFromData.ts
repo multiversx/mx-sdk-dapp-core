@@ -4,13 +4,12 @@ import { decodePart } from '../../decoders';
 import { TransactionTypesEnum } from '../../../types';
 import { addressIsValid } from '../../validation';
 
-
 const noData = {
   tokenId: '',
   amount: ''
 };
 
-export const decodeData = (data: string) => {
+export function decodeData(data: string) {
   const nonceIndex = 2;
   const amountIndex = 3;
   const parts = data.split('@');
@@ -18,7 +17,7 @@ export const decodeData = (data: string) => {
     [nonceIndex, amountIndex].includes(i) ? part : decodePart(part)
   );
   return decodedParts;
-};
+}
 
 export function getTokenFromData(data?: string): {
   tokenId: string;

@@ -1,10 +1,12 @@
 import { DECIMALS } from 'constants/index';
-import { formatAmount } from 'utils/operations/formatAmount';
+import { formatAmount } from 'utils';
 
-export const getEgldValueData = (value: string) => ({
-  egldValueData: {
-    value,
-    formattedValue: formatAmount({ input: value }),
-    decimals: DECIMALS
-  }
-});
+export function getEgldValueData(value: string) {
+  return {
+    egldValueData: {
+      value,
+      formattedValue: formatAmount({ input: value }),
+      decimals: DECIMALS
+    }
+  };
+}

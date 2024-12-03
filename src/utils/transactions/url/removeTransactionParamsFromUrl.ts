@@ -1,16 +1,16 @@
 import { WALLET_PROVIDER_CALLBACK_PARAM } from '@multiversx/sdk-web-wallet-provider';
-import { SDK_DAPP_VERSION, WALLET_SIGN_SESSION } from 'constants';
-import { removeSearchParamsFromUrl } from '../removeSearchParamsFromUrl';
+import { SDK_DAPP_VERSION, WALLET_SIGN_SESSION } from 'constants/index';
+import { removeSearchParamsFromUrl } from '../../window';
 
 interface RemoveTransactionParamsFromUrlParamsType {
   transaction: any;
   search?: string;
 }
 
-export const removeTransactionParamsFromUrl = ({
+export function removeTransactionParamsFromUrl({
   transaction,
   search
-}: RemoveTransactionParamsFromUrlParamsType) => {
+}: RemoveTransactionParamsFromUrlParamsType) {
   return removeSearchParamsFromUrl({
     removeParams: [
       ...Object.keys(transaction),
@@ -20,4 +20,4 @@ export const removeTransactionParamsFromUrl = ({
     ],
     search
   });
-};
+}

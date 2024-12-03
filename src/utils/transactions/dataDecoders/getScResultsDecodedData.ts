@@ -1,6 +1,6 @@
 import { decodePart } from 'utils/decoders/decodePart';
 
-export const getScResultsDecodedData = (data: string) => {
+export function getScResultsDecodedData(data: string) {
   const parts = Buffer.from(data, 'base64').toString().split('@');
 
   if (parts.length >= 2) {
@@ -12,4 +12,4 @@ export const getScResultsDecodedData = (data: string) => {
   }
 
   return parts.join('@');
-};
+}

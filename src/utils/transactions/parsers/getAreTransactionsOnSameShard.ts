@@ -1,11 +1,10 @@
-import { isCrossShardTransaction } from 'services/transactions/isCrossShardTransaction';
-import { SignedTransactionType } from 'types';
-import { getAddressFromDataField } from 'utils/smartContracts';
+import { SignedTransactionType } from '../../../types';
+import { getAddressFromDataField } from '../dataDecoders';
 
-export const getAreTransactionsOnSameShard = (
+export function getAreTransactionsOnSameShard(
   transactions?: SignedTransactionType[],
   accountShard = 1
-): boolean => {
+): boolean {
   if (!transactions?.length) {
     return true;
   }
@@ -31,4 +30,4 @@ export const getAreTransactionsOnSameShard = (
     },
     true
   );
-};
+}

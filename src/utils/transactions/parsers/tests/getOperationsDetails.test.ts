@@ -7,7 +7,7 @@ import {
   VisibleTransactionOperationType
 } from 'types';
 import { NftEnumType } from 'types/tokens.types';
-import { getOperationsDetails } from '../parsers/getOperationsDetails';
+import { getOperationsDetails } from '../getOperationsDetails';
 
 const TRANSACTION: InterpretedTransactionType = {
   txHash: 'f6e4f89f693ba8da573b448ea89a295aa4f2db8f3160019a7b3e25b852bdfcf0',

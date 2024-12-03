@@ -1,0 +1,26 @@
+import { Address } from '@multiversx/sdk-core/out';
+import { getShardOfAddress } from 'utils';
+
+export interface IsCrossShardTransactionParamsType {
+  receiverAddress: string;
+  senderShard?: number;
+  senderAddress?: string;
+}
+
+export function isCrossShardTransaction({
+  receiverAddress,
+  senderShard,
+  senderAddress
+}: IsCrossShardTransactionParamsType) {
+  try {
+    const receiver = new Address(receiverAddress);
+    const receiverShard = getShardOfAddress(receiver.pubkey());
+    if (senderShard == null && senderAddress != null) {
+      const sender = new Address(senderAddress);
+      return getShardOfAddress(sender) === receiverShard;
+    }
+    return receiverShard === senderShard;
+  } catch (err) {
+    return false;
+  }
+}

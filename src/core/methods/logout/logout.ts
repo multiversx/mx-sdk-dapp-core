@@ -24,7 +24,7 @@ const broadcastLogoutAcrossTabs = (address: string) => {
   storage.local.removeItem(localStorageKeys.logoutEvent);
 };
 
-export type LogoutPropsType = {
+export type LogoutParamsType = {
   shouldAttemptReLogin?: boolean;
   shouldBroadcastLogoutAcrossTabs?: boolean;
   /*

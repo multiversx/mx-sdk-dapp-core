@@ -300,7 +300,7 @@ export interface InterpretedTransactionType extends ServerTransactionType {
   };
 }
 
-export interface DecodeForDisplayPropsType {
+export interface DecodeForDisplayParamsType {
   input: string;
   decodeMethod: DecodeMethodEnum;
   identifier?: string;
@@ -351,6 +351,51 @@ export interface TransactionsToSignType {
   transactions: IPlainTransactionObject[];
   callbackRoute?: string;
   sessionId: string;
+  customTransactionInformation: CustomTransactionInformation;
+}
+
+export interface SendSimpleTransactionParamsType {
+  transactions: SimpleTransactionType[];
+  minGasLimit?: number;
+}
+
+export interface SendTransactionsParamsType {
+  transactions:
+    | Transaction
+    | SimpleTransactionType
+    | (Transaction | SimpleTransactionType)[];
+  redirectAfterSign?: boolean;
+  signWithoutSending: boolean;
+  skipGuardian?: boolean;
+  completedTransactionsDelay?: number;
+  callbackRoute?: string;
+  transactionsDisplayInfo: TransactionsDisplayInfoType;
+  minGasLimit?: number;
+  sessionInformation?: any;
+  hasConsentPopup?: boolean;
+}
+
+export interface SendBatchTransactionsParamsType {
+  transactions: (Transaction | SimpleTransactionType)[][];
+  redirectAfterSign?: boolean;
+  signWithoutSending?: boolean;
+  skipGuardian?: boolean;
+  /**
+   * For Cross-Window provider in Safari browser, performing async calls before signing transactions needs a consent popup in order to open a new tab.
+   */
+  hasConsentPopup?: boolean;
+  completedTransactionsDelay?: number;
+  callbackRoute?: string;
+  transactionsDisplayInfo: TransactionsDisplayInfoType;
+  minGasLimit?: number;
+  sessionInformation?: any;
+}
+
+export interface SignTransactionsParamsType {
+  transactions: Transaction[] | Transaction;
+  minGasLimit?: number; // unused, will be removed in v3.0.0
+  callbackRoute?: string;
+  transactionsDisplayInfo: TransactionsDisplayInfoType;
   customTransactionInformation: CustomTransactionInformation;
 }
 
@@ -450,7 +495,7 @@ export interface TransactionsDisplayInfoType {
   invalidMessage?: string;
 }
 
-export interface SendSimpleTransactionPropsType {
+export interface SendSimpleTransactionParamsType {
   transactions: SimpleTransactionType[];
   minGasLimit?: number;
 }

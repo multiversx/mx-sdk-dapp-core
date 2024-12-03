@@ -1,6 +1,6 @@
 import { getWindowLocation } from 'utils/window/getWindowLocation';
 
-export const getScResultsHighlight = (resultHash: string) => {
+export function getScResultsHighlight(resultHash: string) {
   const { hash } = getWindowLocation();
   const formattedHash = hash
     .substring(0, hash.indexOf('/') > 0 ? hash.indexOf('/') : hash.length)
@@ -8,4 +8,4 @@ export const getScResultsHighlight = (resultHash: string) => {
   const highlight = formattedHash === resultHash;
 
   return highlight;
-};
+}

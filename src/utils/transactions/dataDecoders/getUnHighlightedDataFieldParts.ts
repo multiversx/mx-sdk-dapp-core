@@ -1,4 +1,4 @@
-export const getUnHighlightedDataFieldParts = ({
+export function getUnHighlightedDataFieldParts({
   data,
   highlight,
   occurrences,
@@ -8,7 +8,7 @@ export const getUnHighlightedDataFieldParts = ({
   highlight: string;
   occurrences: number[];
   transactionIndex: number;
-}) => {
+}) {
   const highlightIndex =
     occurrences[transactionIndex] || data.indexOf(highlight);
   const highlightLength = highlight.length;
@@ -19,4 +19,4 @@ export const getUnHighlightedDataFieldParts = ({
     start,
     end
   };
-};
+}

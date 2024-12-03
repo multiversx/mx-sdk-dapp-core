@@ -1,11 +1,10 @@
-import { Transaction } from '@multiversx/sdk-core';
-
 import { StoreType } from 'store/store.types';
 import {
   getIsTransactionFailed,
   getIsTransactionPending,
   getIsTransactionSuccessful,
-  getIsTransactionTimedOut
+  getIsTransactionTimedOut,
+  newTransaction
 } from 'utils/transactions';
 import {
   CustomTransactionInformation,
@@ -13,79 +12,68 @@ import {
   SignedTransactionsType
 } from '../../types';
 
-export const accountSelector = ({
-  transactions: { accounts, address }
-}: StoreType) => accounts[address];
+export const signedTransactionsSelector = ({ transactions }: StoreType) =>
+  transactions.signedTransactions;
 
-export const signedTransactionsSelector = createDeepEqualSelector(
-  transactionsSelectors,
-  (state) => state.signedTransactions as SignedTransactionsType
-);
+export const signTransactionsErrorSelector = ({ transactions }: StoreType) =>
+  transactions.signTransactionsError;
 
-export const signTransactionsErrorSelector = createDeepEqualSelector(
-  transactionsSelectors,
-  (state) => state.signTransactionsError
-);
-
-export const signTransactionsCancelMessageSelector = createDeepEqualSelector(
-  transactionsSelectors,
-  (state) => state.signTransactionsCancelMessage
-);
+export const signTransactionsCancelMessageSelector = ({
+  transactions
+}: StoreType) => transactions.signTransactionsCancelMessage;
 
 const selectTxByStatus =
-  (txStatusVerifier: typeof getIsTransactionPending) =>
-  (signedTransactions: SignedTransactionsType) =>
-    Object.entries(signedTransactions).reduce((acc, [sessionId, txBody]) => {
-      if (txStatusVerifier(txBody.status)) {
-        acc[sessionId] = txBody;
-      }
-      return acc;
-    }, {} as SignedTransactionsType);
+  (txStatusVerifier: typeof getIsTransactionPending) => (store: StoreType) => {
+    const signedTransactions = signedTransactionsSelector(store);
 
-export const pendingSignedTransactionsSelector = createDeepEqualSelector(
-  signedTransactionsSelector,
-  selectTxByStatus(getIsTransactionPending)
+    return Object.entries(signedTransactions).reduce(
+      (acc, [sessionId, txBody]) => {
+        if (txStatusVerifier(txBody.status)) {
+          acc[sessionId] = txBody;
+        }
+        return acc;
+      },
+      {} as SignedTransactionsType
+    );
+  };
+
+export const pendingSignedTransactionsSelector = selectTxByStatus(
+  getIsTransactionPending
 );
 
-export const successfulTransactionsSelector = createDeepEqualSelector(
-  signedTransactionsSelector,
-  selectTxByStatus(getIsTransactionSuccessful)
+export const successfulTransactionsSelector = selectTxByStatus(
+  getIsTransactionSuccessful
 );
 
-export const failedTransactionsSelector = createDeepEqualSelector(
-  signedTransactionsSelector,
-  selectTxByStatus(getIsTransactionFailed)
+export const failedTransactionsSelector = selectTxByStatus(
+  getIsTransactionFailed
 );
 
-export const timedOutTransactionsSelector = createDeepEqualSelector(
-  signedTransactionsSelector,
-  selectTxByStatus(getIsTransactionTimedOut)
+export const timedOutTransactionsSelector = selectTxByStatus(
+  getIsTransactionTimedOut
 );
 
-export const transactionsToSignSelector = createDeepEqualSelector(
-  transactionsSelectors,
-  (state): TransactionsToSignReturnType | null => {
-    if (state?.transactionsToSign == null) {
-      return null;
-    }
-    return {
-      ...state.transactionsToSign,
-      transactions:
-        state?.transactionsToSign?.transactions.map((tx: RawTransactionType) =>
-          newTransaction(tx)
-        ) || []
-    };
+export const transactionsToSignSelector = ({ transactions }: StoreType) => {
+  const transactionsToSign = transactions.transactionsToSign;
+
+  if (transactionsToSign == null) {
+    return null;
   }
-);
 
-export const transactionStatusSelector = createDeepEqualSelector(
-  signedTransactionsSelector,
-  (_: RootState, transactionSessionId: string | null) => transactionSessionId,
-  (
-    signedTransactions: SignedTransactionsType,
-    transactionSessionId: string | null
-  ) =>
-    transactionSessionId != null
+  return {
+    ...transactionsToSign,
+    transactions:
+      transactionsToSign?.transactions.map((tx: RawTransactionType) =>
+        newTransaction(tx)
+      ) || []
+  };
+};
+
+export const transactionStatusSelector =
+  (transactionSessionId: number) => (store: StoreType) => {
+    const signedTransactions = signedTransactionsSelector(store);
+
+    return signedTransactions.transactionSessionId != null
       ? signedTransactions?.[transactionSessionId] || {}
-      : {}
-);
+      : {};
+  };

@@ -1,12 +1,12 @@
-export const isHexValidCharacters = (str: string) => {
+export function isHexValidCharacters(str: string) {
   return str.toLowerCase().match(/^[0-9a-f]+$/i);
-};
+}
 
-export const isHexValidLength = (str: string) => {
+export function isHexValidLength(str: string) {
   return str.length % 2 === 0;
-};
+}
 
-export const getHexValidationWarnings = (str: string) => {
+export function getHexValidationWarnings(str: string) {
   const warnings = [];
 
   if (str && !isHexValidCharacters(str)) {
@@ -18,4 +18,4 @@ export const getHexValidationWarnings = (str: string) => {
   }
 
   return warnings;
-};
+}

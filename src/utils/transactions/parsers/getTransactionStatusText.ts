@@ -1,9 +1,9 @@
 import { TransactionServerStatusesEnum } from 'types/enums.types';
-import { InterpretedTransactionType } from 'types/serverTransactions.types';
+import { InterpretedTransactionType } from 'types';
 
-export const getTransactionStatusText = (
+export function getTransactionStatusText(
   transaction: InterpretedTransactionType
-) => {
+) {
   switch (true) {
     case transaction.pendingResults:
       return 'Pending (Smart Contract Execution)';
@@ -12,4 +12,4 @@ export const getTransactionStatusText = (
     default:
       return transaction.status.toString();
   }
-};
+}

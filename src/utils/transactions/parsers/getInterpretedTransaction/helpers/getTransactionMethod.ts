@@ -4,7 +4,7 @@ import {
   ServerTransactionType
 } from 'types/serverTransactions.types';
 
-export const getTransactionMethod = (transaction: ServerTransactionType) => {
+export function getTransactionMethod(transaction: ServerTransactionType) {
   let transactionAction = 'Transaction';
   const transactionHasAction =
     transaction.action?.name && transaction.action?.category;
@@ -25,4 +25,4 @@ export const getTransactionMethod = (transaction: ServerTransactionType) => {
   }
 
   return transactionAction;
-};
+}

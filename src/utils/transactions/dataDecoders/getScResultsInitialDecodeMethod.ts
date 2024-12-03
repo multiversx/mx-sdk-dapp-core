@@ -1,7 +1,7 @@
 import { DecodeMethodEnum } from 'types';
 import { getWindowLocation } from 'utils/window/getWindowLocation';
 
-export const getInitialScResultsDecodeMethod = () => {
+export function getInitialScResultsDecodeMethod() {
   const { hash } = getWindowLocation();
 
   const initialDecodeMethod =
@@ -14,4 +14,4 @@ export const getInitialScResultsDecodeMethod = () => {
     Object.values<string>(DecodeMethodEnum).includes(initialDecodeMethod);
 
   return isInitialDecodedMethod ? initialDecodeMethod : DecodeMethodEnum.raw;
-};
+}

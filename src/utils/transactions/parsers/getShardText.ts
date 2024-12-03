@@ -1,6 +1,6 @@
 import { ALL_SHARDS_SHARD_ID, METACHAIN_SHARD_ID } from 'constants/index';
 
-export const getShardText = (shard: number | string) => {
+export function getShardText(shard: number | string) {
   let shardText = shard;
 
   if (typeof shardText === 'string' && shardText.includes('Shard')) {
@@ -23,4 +23,4 @@ export const getShardText = (shard: number | string) => {
   }
 
   return `Shard ${shardText}`;
-};
+}

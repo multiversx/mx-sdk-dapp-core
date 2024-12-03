@@ -4,11 +4,11 @@ import {
   TransactionActionType,
   UnwrapperType,
   TransactionActionsEnum
-} from 'types/serverTransactions.types';
+} from 'types';
 
-export const mexUnwrapper = (
+export function mexUnwrapper(
   action: TransactionActionType
-): Array<string | UnwrapperType> => {
+): Array<string | UnwrapperType> {
   switch (action.name) {
     // distribution
     case TransactionActionsEnum.claimLockedAssets:
@@ -74,4 +74,4 @@ export const mexUnwrapper = (
     default:
       return action.description ? [action.description] : [];
   }
-};
+}

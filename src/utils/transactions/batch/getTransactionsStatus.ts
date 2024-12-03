@@ -1,12 +1,12 @@
 import { TransactionServerStatusesEnum } from 'types';
 
-export const getTransactionsStatus = ({
+export function getTransactionsStatus({
   transactions,
   hasUnrelatedTransactions
 }: {
   transactions: { status: TransactionServerStatusesEnum }[];
   hasUnrelatedTransactions?: boolean;
-}) => {
+}) {
   const allTxFailed = transactions.every(
     ({ status }) => status === TransactionServerStatusesEnum.fail
   );
@@ -34,4 +34,4 @@ export const getTransactionsStatus = ({
     : someTxFailed;
 
   return { isPending, isSuccessful, isFailed, isIncompleteFailed };
-};
+}

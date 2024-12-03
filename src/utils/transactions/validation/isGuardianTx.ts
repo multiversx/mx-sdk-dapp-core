@@ -1,12 +1,12 @@
 import { GuardianActionsEnum } from 'types';
 
-export const isGuardianTx = ({
+export function isGuardianTx({
   data,
   onlySetGuardian
 }: {
   data?: string;
   onlySetGuardian?: boolean;
-}) => {
+}) {
   if (!data) {
     return false;
   }
@@ -18,4 +18,4 @@ export const isGuardianTx = ({
   return Object.values(GuardianActionsEnum).some((action) =>
     data.startsWith(action)
   );
-};
+}

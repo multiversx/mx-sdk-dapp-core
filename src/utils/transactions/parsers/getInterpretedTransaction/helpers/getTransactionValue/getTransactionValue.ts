@@ -1,16 +1,6 @@
 import { DECIMALS } from 'constants/index';
 import { NftEnumType } from 'types/tokens.types';
 
-import { getTransactionTokens } from 'utils/transactions/getInterpretedTransaction/helpers/getTransactionTokens';
-import {
-  EgldValueDataType,
-  NFTValueDataType,
-  TokenValueDataType
-} from 'utils/transactions/getInterpretedTransaction/helpers/types';
-import { getTransactionActionNftText } from 'utils/transactions/parsers/getTransactionActionNftText';
-import { getTransactionActionTokenText } from 'utils/transactions/parsers/getTransactionActionTokenText';
-
-import { WithTransactionType } from '../../../../../UI/types';
 import {
   ACTIONS_WITH_EGLD_VALUE,
   ACTIONS_WITH_MANDATORY_OPERATIONS,
@@ -23,8 +13,16 @@ import {
   getValueFromDataField,
   getValueFromOperations
 } from './helpers';
-import { getEgldValueData } from './helpers/getEgldValueData';
-import { getTitleText } from './helpers/getTitleText';
+import { getEgldValueData, getTitleText } from './helpers';
+import {
+  EgldValueDataType,
+  NFTValueDataType,
+  TokenValueDataType
+} from '../types';
+import { InterpretedTransactionType } from 'types';
+import { getTransactionTokens } from '../getTransactionTokens';
+import { getTransactionActionNftText } from '../../../getTransactionActionNftText';
+import { getTransactionActionTokenText } from '../../../getTransactionActionTokenText';
 
 export interface GetTransactionValueReturnType {
   egldValueData?: EgldValueDataType;
@@ -32,14 +30,15 @@ export interface GetTransactionValueReturnType {
   nftValueData?: NFTValueDataType;
 }
 
-export interface GetTransactionValueType extends WithTransactionType {
+export interface GetTransactionValueType {
   hideMultipleBadge?: boolean;
+  transaction: InterpretedTransactionType;
 }
 
-export const getTransactionValue = ({
+export function getTransactionValue({
   transaction,
   hideMultipleBadge
-}: GetTransactionValueType): GetTransactionValueReturnType => {
+}: GetTransactionValueType): GetTransactionValueReturnType {
   if (transaction.action) {
     if (ACTIONS_WITH_EGLD_VALUE.includes(transaction.action.name)) {
       return getEgldValueData(transaction.value);
@@ -118,4 +117,4 @@ export const getTransactionValue = ({
   }
 
   return getEgldValueData(transaction.value);
-};
+}

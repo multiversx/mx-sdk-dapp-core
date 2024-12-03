@@ -1,6 +1,6 @@
 import {
   DecodeMethodEnum,
-  DecodeForDisplayPropsType
+  DecodeForDisplayParamsType
 } from 'types/serverTransactions.types';
 import { decodeTransactionData } from '../decodeTransactionData';
 import {
@@ -29,7 +29,7 @@ describe('decodeForDisplay', () => {
 
   it('should handle input with @ symbol', () => {
     const input = 'part1@part2';
-    const props: DecodeForDisplayPropsType = {
+    const props: DecodeForDisplayParamsType = {
       input,
       decodeMethod: DecodeMethodEnum.text,
       identifier: 'test'
@@ -50,7 +50,7 @@ describe('decodeForDisplay', () => {
   it('should handle input with newline character using raw decode method', () => {
     const input = 'part1\npart2';
 
-    const props: DecodeForDisplayPropsType = {
+    const props: DecodeForDisplayParamsType = {
       input,
       decodeMethod: DecodeMethodEnum.raw,
       identifier: 'test'
@@ -64,7 +64,7 @@ describe('decodeForDisplay', () => {
 
   it('should handle input with newline character using smart decode method', () => {
     const input = 'part1\npart2';
-    const props: DecodeForDisplayPropsType = {
+    const props: DecodeForDisplayParamsType = {
       input,
       decodeMethod: DecodeMethodEnum.smart,
       identifier: 'test'
@@ -84,7 +84,7 @@ describe('decodeForDisplay', () => {
 
   it('should handle input with both @ and newline characters', () => {
     const input = 'part1@part2\npart3';
-    const props: DecodeForDisplayPropsType = {
+    const props: DecodeForDisplayParamsType = {
       input,
       decodeMethod: DecodeMethodEnum.text,
       identifier: 'test'
@@ -99,7 +99,7 @@ describe('decodeForDisplay', () => {
 
   it('should handle simple input without @ or newline', () => {
     const input = 'simpleInput';
-    const props: DecodeForDisplayPropsType = {
+    const props: DecodeForDisplayParamsType = {
       input,
       decodeMethod: DecodeMethodEnum.text,
       identifier: 'test'
@@ -122,7 +122,7 @@ describe('decodeForDisplay', () => {
       }
     );
 
-    const props: DecodeForDisplayPropsType = {
+    const props: DecodeForDisplayParamsType = {
       input,
       decodeMethod: DecodeMethodEnum.text,
       identifier: 'test'
@@ -134,7 +134,7 @@ describe('decodeForDisplay', () => {
   });
 
   it('should handle empty input', () => {
-    const props: DecodeForDisplayPropsType = {
+    const props: DecodeForDisplayParamsType = {
       input: '',
       decodeMethod: DecodeMethodEnum.text,
       identifier: 'test'
