@@ -7,6 +7,10 @@ import {
 } from '../types/providerFactory.types';
 
 export const getConfig = async (config: IProviderConfig = {}) => {
+  if (!safeWindow.document) {
+    return config;
+  }
+
   defineCustomElements(safeWindow);
   const ledgerModalElement = document.createElement(
     'ledger-connect-modal'
