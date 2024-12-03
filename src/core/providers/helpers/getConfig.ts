@@ -6,8 +6,6 @@ import {
 } from '../types/providerFactory.types';
 
 export const getConfig = async (config: IProviderConfig = {}) => {
-  console.log('\x1b[42m%s\x1b[0m', ' getConfig 11', 16);
-
   defineCustomElements(window);
   const ledgerModalElement = document.createElement(
     'ledger-connect-modal'
