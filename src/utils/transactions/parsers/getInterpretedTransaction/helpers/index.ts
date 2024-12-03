@@ -13,3 +13,4 @@ export * from './getReceiptMessage';
 export * from './getScResultsMessages';
 export * from './getExplorerLink';
 export * from './getTransactionValue';
+export * from './types';

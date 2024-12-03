@@ -1,7 +1,4 @@
-import {
-  ResultType,
-  ServerTransactionType
-} from 'types/serverTransactions.types';
+import { ResultType, ServerTransactionType } from 'types';
 import getScResultsMessages from '../getScResultsMessages';
 import { baseTransactionMock } from './base-transaction-mock';
 

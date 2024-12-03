@@ -1,5 +1,4 @@
 import { DECIMALS } from 'constants/index';
-import { NftEnumType } from 'types/tokens.types';
 
 import {
   ACTIONS_WITH_EGLD_VALUE,
@@ -11,15 +10,16 @@ import {
 import {
   getValueFromActions,
   getValueFromDataField,
-  getValueFromOperations
+  getValueFromOperations,
+  getEgldValueData,
+  getTitleText
 } from './helpers';
-import { getEgldValueData, getTitleText } from './helpers';
 import {
   EgldValueDataType,
   NFTValueDataType,
   TokenValueDataType
 } from '../types';
-import { InterpretedTransactionType } from 'types';
+import { NftEnumType, InterpretedTransactionType } from 'types';
 import { getTransactionTokens } from '../getTransactionTokens';
 import { getTransactionActionNftText } from '../../../getTransactionActionNftText';
 import { getTransactionActionTokenText } from '../../../getTransactionActionTokenText';

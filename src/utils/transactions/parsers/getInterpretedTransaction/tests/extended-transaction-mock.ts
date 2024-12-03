@@ -4,7 +4,7 @@ import {
   TransactionActionCategoryEnum,
   TransactionActionsEnum,
   VisibleTransactionOperationType
-} from 'types/serverTransactions.types';
+} from 'types';
 import { EsdtEnumType } from 'types/tokens.types';
 import { baseTransactionMock } from '../helpers/tests/base-transaction-mock';
 

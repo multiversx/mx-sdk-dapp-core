@@ -1,7 +1,7 @@
-import { TokenArgumentType } from 'types/serverTransactions.types';
+import { TokenArgumentType } from 'types';
 import { NftEnumType } from 'types/tokens.types';
 import { formatAmount } from 'utils/operations';
-import { explorerUrlBuilder } from '../getInterpretedTransaction/helpers/explorerUrlBuilder';
+import { explorerUrlBuilder } from './getInterpretedTransaction';
 
 export interface TransactionActionNftType {
   token: TokenArgumentType;

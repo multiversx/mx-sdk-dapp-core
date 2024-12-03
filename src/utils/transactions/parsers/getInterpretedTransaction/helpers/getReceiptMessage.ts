@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js';
 import { DECIMALS, DIGITS, REFUNDED_GAS } from 'constants/index';
-import { ServerTransactionType } from 'types/serverTransactions.types';
+import { ServerTransactionType } from 'types';
 import { formatAmount } from 'utils/operations/formatAmount';
 
 const getReceiptValue = (transaction: ServerTransactionType) => {

@@ -1,4 +1,4 @@
-import { EventType } from 'types/serverTransactions.types';
+import { EventType } from 'types';
 
 export function getEventListDataHexValue(event: EventType) {
   const dataBase64Buffer = Buffer.from(String(event?.data), 'base64');

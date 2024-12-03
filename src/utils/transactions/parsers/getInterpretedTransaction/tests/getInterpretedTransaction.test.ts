@@ -1,11 +1,5 @@
-import {
-  InterpretedTransactionType,
-  TransactionDirectionEnum
-} from 'types/serverTransactions.types';
-import {
-  ServerTransactionType,
-  TransactionActionsEnum
-} from 'types/serverTransactions.types';
+import { InterpretedTransactionType, TransactionDirectionEnum } from 'types';
+import { ServerTransactionType, TransactionActionsEnum } from 'types';
 import { getInterpretedTransaction } from '../getInterpretedTransaction';
 
 import { explorerUrlBuilder } from '../helpers/explorerUrlBuilder';

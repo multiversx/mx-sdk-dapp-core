@@ -1,7 +1,7 @@
 import { DECIMALS } from 'constants/index';
-import { TokenArgumentType } from 'types/serverTransactions.types';
+import { TokenArgumentType } from 'types';
 import { formatAmount } from 'utils/operations';
-import { explorerUrlBuilder } from '../getInterpretedTransaction/helpers/explorerUrlBuilder';
+import { explorerUrlBuilder } from './getInterpretedTransaction';
 
 export interface TransactionActionTokenType {
   token: TokenArgumentType;

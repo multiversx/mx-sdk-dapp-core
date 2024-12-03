@@ -1,4 +1,4 @@
-import { ServerTransactionType } from 'types/serverTransactions.types';
+import { ServerTransactionType } from 'types';
 
 export function getTransactionReceiver(transaction: ServerTransactionType) {
   let receiver = transaction.receiver;

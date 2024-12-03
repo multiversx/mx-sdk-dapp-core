@@ -1,5 +1,5 @@
 import { DECIMALS } from 'constants/index';
-import { formatAmount } from 'utils';
+import { formatAmount } from 'utils/operations';
 
 export function getEgldValueData(value: string) {
   return {

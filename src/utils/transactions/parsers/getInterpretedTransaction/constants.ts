@@ -1,4 +1,4 @@
-import { TransactionActionsEnum } from 'types/serverTransactions.types';
+import { TransactionActionsEnum } from 'types';
 
 /**
  * If `action.name` or `function` is in `ACTIONS_WITH_MANDATORY_OPERATIONS[]`, transaction value will be computed based `operations` field

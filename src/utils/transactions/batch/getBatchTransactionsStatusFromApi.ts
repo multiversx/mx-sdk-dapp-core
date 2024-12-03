@@ -3,6 +3,7 @@ import { TRANSACTIONS_BATCH } from 'apiCalls';
 import { BatchTransactionsResponseType } from 'types';
 import { networkSelector } from 'store/selectors';
 import { getState } from 'store/store';
+import { TIMEOUT } from 'constants/index';
 
 export interface SendBatchTransactionsParamsType {
   batchId: string;

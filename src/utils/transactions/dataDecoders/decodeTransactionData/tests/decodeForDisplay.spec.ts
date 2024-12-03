@@ -1,7 +1,4 @@
-import {
-  DecodeMethodEnum,
-  DecodeForDisplayParamsType
-} from 'types/serverTransactions.types';
+import { DecodeMethodEnum, DecodeForDisplayParamsType } from 'types';
 import { decodeTransactionData } from '../decodeTransactionData';
 import {
   decodeByMethod,

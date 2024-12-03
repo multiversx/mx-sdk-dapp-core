@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js';
-import { InterpretedTransactionType } from 'types/serverTransactions.types';
+import { InterpretedTransactionType } from 'types';
 import { decodeBase64 } from 'utils/decoders';
 import { getEgldValueData } from './getEgldValueData';
 

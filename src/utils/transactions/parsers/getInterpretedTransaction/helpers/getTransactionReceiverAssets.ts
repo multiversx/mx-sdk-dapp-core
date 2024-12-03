@@ -1,4 +1,4 @@
-import { ServerTransactionType } from 'types/serverTransactions.types';
+import { ServerTransactionType } from 'types';
 import { getTransactionReceiver } from './getTransactionReceiver';
 
 /**

@@ -1,7 +1,4 @@
-import {
-  ServerTransactionType,
-  TokenArgumentType
-} from 'types/serverTransactions.types';
+import { ServerTransactionType, TokenArgumentType } from 'types';
 
 export function getTransactionTokens(
   transaction: ServerTransactionType

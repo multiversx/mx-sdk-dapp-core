@@ -4,7 +4,7 @@ import {
   TransactionDataTokenType,
   TransactionsDataTokensType
 } from 'types';
-import { getTokenFromData } from '../dataDecoders/getTokenFromData';
+import { getTokenFromData } from '../dataDecoders';
 import { parseMultiEsdtTransferData } from './parseMultiEsdtTransferData';
 
 function addTransactionDataToParsedInfo({

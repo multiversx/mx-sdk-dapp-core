@@ -1,4 +1,4 @@
-import { EventType } from 'types/serverTransactions.types';
+import { EventType } from 'types';
 import { getWindowLocation } from 'utils/window/getWindowLocation';
 
 export function getEventListHighlight(event: EventType, id?: string) {

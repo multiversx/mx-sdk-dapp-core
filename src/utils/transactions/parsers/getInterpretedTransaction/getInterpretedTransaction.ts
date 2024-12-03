@@ -1,8 +1,5 @@
-import {
-  InterpretedTransactionType,
-  ServerTransactionType
-} from 'types/serverTransactions.types';
-import { TokenArgumentType } from 'types/serverTransactions.types';
+import { InterpretedTransactionType, ServerTransactionType } from 'types';
+import { TokenArgumentType } from 'types';
 import { isContract } from '../../dataDecoders/smartContractTransaction';
 import { getTokenFromData } from 'utils/transactions/dataDecoders/getTokenFromData';
 import {

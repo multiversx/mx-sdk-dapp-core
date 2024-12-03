@@ -17,6 +17,7 @@ export interface GetTransactionValueReturnType {
 export function getTitleText(transactionTokens: TokenArgumentType[]): string {
   const tokensArray = transactionTokens.map((transactionToken) => {
     const { isNft } = getIdentifierType(transactionToken.type);
+
     if (isNft) {
       const { badgeText, tokenFormattedAmount, tokenLinkText } =
         getTransactionActionNftText({
@@ -28,6 +29,7 @@ export function getTitleText(transactionTokens: TokenArgumentType[]): string {
       const value = `${badge}${tokenFormattedAmount} ${tokenLinkText}`;
       return value;
     }
+
     const { tokenFormattedAmount, tokenLinkText, token } =
       getTransactionActionTokenText({
         token: transactionToken as TokenArgumentType

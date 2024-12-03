@@ -2,7 +2,7 @@ import {
   OperationType,
   TransactionOperationActionTypeEnum,
   VisibleTransactionOperationType
-} from 'types/serverTransactions.types';
+} from 'types';
 import { getOperationsMessages } from '../getOperationsMessages';
 import { baseTransactionMock } from './base-transaction-mock';
 

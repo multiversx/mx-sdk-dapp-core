@@ -15,11 +15,11 @@
     },
     settings: {
       'import/parsers': {
-        '@typescript-eslint/parser': ['.ts', '.tsx']
+        '@typescript-eslint/parser': ['.ts']
       },
       'import/resolver': {
         node: {
-          extensions: ['.js', '.jsx', '.ts', '.tsx'],
+          extensions: ['.js', '.ts'],
           moduleDirectory: ['node_modules', 'src/']
         },
         typescript: {

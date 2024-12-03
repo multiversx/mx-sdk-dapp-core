@@ -5,5 +5,6 @@ export * from './decoders';
 export * from './operations';
 export * from './retryMultipleTimes';
 export * from './validation';
+export * from './transactions';
 export * from './walletconnect';
 export * from './window';
