@@ -299,7 +299,7 @@ export interface InterpretedTransactionType extends ServerTransactionType {
   };
 }
 
-export interface DecodeForDisplayPropsType {
+export interface DecodeForDisplayParamsType {
   input: string;
   decodeMethod: DecodeMethodEnum;
   identifier?: string;

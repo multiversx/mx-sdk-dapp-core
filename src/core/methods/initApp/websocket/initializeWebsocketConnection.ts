@@ -7,7 +7,7 @@ import {
 } from 'store/actions/account/accountActions';
 import { networkSelector } from 'store/selectors';
 import { getStore } from 'store/store';
-import { retryMultipleTimes } from 'utils/retryMultipleTimes';
+import { retryMultipleTimes } from 'utils/misc/retryMultipleTimes';
 import {
   BatchTransactionsWSResponseType,
   websocketConnection,

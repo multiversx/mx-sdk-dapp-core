@@ -1,9 +1,8 @@
-import { Transaction } from '@multiversx/sdk-core/out';
+import { Transaction, TransactionPayload } from '@multiversx/sdk-core/out';
 import { PlainSignedTransaction } from '@multiversx/sdk-web-wallet-provider/out/plainSignedTransaction';
-import { newTransaction } from 'models';
 import { SignedTransactionType } from 'types';
 import { TransactionServerStatusesEnum } from 'types/enums.types';
-import { isGuardianTx } from '../validation/isGuardianTx';
+import { isGuardianTx } from '../validation';
 
 export function parseTransactionAfterSigning(
   signedTransaction: Transaction | PlainSignedTransaction
@@ -11,9 +10,17 @@ export function parseTransactionAfterSigning(
   const isComplexTransaction =
     Object.getPrototypeOf(signedTransaction).toPlainObject != null;
 
+  const plainSignedTx = signedTransaction as PlainSignedTransaction;
+  const encoder = new TextEncoder();
+
   const transaction = isComplexTransaction
     ? (signedTransaction as Transaction)
-    : newTransaction(signedTransaction as PlainSignedTransaction);
+    : new Transaction({
+        ...plainSignedTx,
+        data: new TransactionPayload(plainSignedTx.data),
+        signature: encoder.encode(plainSignedTx.signature),
+        guardianSignature: encoder.encode(plainSignedTx.guardianSignature)
+      });
 
   const parsedTransaction: SignedTransactionType = {
     ...transaction.toPlainObject(),

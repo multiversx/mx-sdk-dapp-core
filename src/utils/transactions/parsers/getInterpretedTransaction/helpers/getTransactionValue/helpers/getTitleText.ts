@@ -1,12 +1,12 @@
+import { TokenArgumentType } from 'types';
+import { getIdentifierType } from 'utils/validation';
+import { getTransactionActionNftText } from '../../../../getTransactionActionNftText';
+import { getTransactionActionTokenText } from '../../../../getTransactionActionTokenText';
 import {
   EgldValueDataType,
   NFTValueDataType,
   TokenValueDataType
 } from '../../types';
-import { TokenArgumentType } from 'types';
-import { getIdentifierType } from 'utils';
-import { getTransactionActionNftText } from '../../../../getTransactionActionNftText';
-import { getTransactionActionTokenText } from '../../../../getTransactionActionTokenText';
 
 export interface GetTransactionValueReturnType {
   egldValueData?: EgldValueDataType;

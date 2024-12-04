@@ -1,9 +1,9 @@
-import { explorerAddressSelector } from 'reduxStore/selectors';
-import { store } from 'reduxStore/store';
+import { explorerAddressSelector } from 'store/selectors';
+import { getState } from 'store/store';
 
 export function getTransactionLink(
   transactionHash: string,
-  explorerAddress: string = explorerAddressSelector(store.getState())
+  explorerAddress: string = explorerAddressSelector(getState())
 ) {
   return `${explorerAddress}/transactions/${transactionHash}`;
 }

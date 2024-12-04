@@ -1,7 +1,7 @@
 import { Address } from '@multiversx/sdk-core/out';
-import { DecodeMethodEnum } from 'types';
-import { addressIsValid } from 'utils/account/addressIsValid';
+import { DecodeMethodEnum } from 'types/serverTransactions.types';
 import { isUtf8 } from 'utils/decoders';
+import { addressIsValid } from 'utils/validation';
 import { decodeByMethod } from '../helpers';
 
 jest.mock('@multiversx/sdk-core/out', () => ({
@@ -10,8 +10,8 @@ jest.mock('@multiversx/sdk-core/out', () => ({
   }
 }));
 
-jest.mock('utils/account/addressIsValid');
-jest.mock('utils/decoders');
+jest.mock('utils/validation/addressIsValid');
+jest.mock('utils/decoders/isUtf8');
 
 describe('decodeByMethod', () => {
   beforeEach(() => {
@@ -88,15 +88,16 @@ describe('decodeByMethod', () => {
         DecodeMethodEnum.smart,
         mockTokens
       );
+
       expect(result).toBe('token1');
     });
 
-    it('should convert to decimal when no other conditions met', () => {
+    it('should return the string unchanged', () => {
       (Address.fromHex as jest.Mock).mockImplementation(() => {
         throw new Error();
       });
-      (isUtf8 as jest.Mock).mockReturnValue(false);
 
+      (isUtf8 as jest.Mock).mockReturnValue(false);
       const result = decodeByMethod('a', DecodeMethodEnum.smart);
       expect(result).toBe('10');
     });

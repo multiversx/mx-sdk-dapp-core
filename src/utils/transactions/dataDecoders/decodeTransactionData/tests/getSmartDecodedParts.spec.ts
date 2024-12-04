@@ -1,4 +1,5 @@
-import { DecodeMethodEnum, TransactionTypesEnum } from 'types';
+import { TransactionTypesEnum } from 'types';
+import { DecodeMethodEnum } from '../../../../../types/serverTransactions.types';
 import { decodeByMethod, getSmartDecodedParts } from '../helpers';
 
 jest.mock('../helpers/decodeByMethod');
@@ -34,6 +35,7 @@ describe('getSmartDecodedParts', () => {
       'hexValue',
       DecodeMethodEnum.decimal
     );
+
     expect(result).toEqual(['decoded1', 'decoded2', mockDecodedValue]);
   });
 

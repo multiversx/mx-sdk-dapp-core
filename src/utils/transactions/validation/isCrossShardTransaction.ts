@@ -20,7 +20,7 @@ export function isCrossShardTransaction({
       return getShardOfAddress(sender) === receiverShard;
     }
     return receiverShard === senderShard;
-  } catch (err) {
+  } catch {
     return false;
   }
 }

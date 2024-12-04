@@ -48,8 +48,8 @@ export class ProviderFactory {
 
       case ProviderTypeEnum.ledger: {
         const ledgerProvider = await createLedgerProvider(
-          ui.ledger.eventBus,
-          ui.ledger.mount
+          ui?.ledger.eventBus,
+          ui?.ledger.mount
         );
 
         if (!ledgerProvider) {

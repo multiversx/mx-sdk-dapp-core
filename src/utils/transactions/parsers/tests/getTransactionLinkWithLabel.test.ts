@@ -1,6 +1,9 @@
-import { ServerTransactionType, TransactionDirectionEnum } from 'types';
-import { getInterpretedTransaction } from 'utils/transactions/getInterpretedTransaction';
-import { transactionMock } from '../../getInterpretedTransaction/tests/extended-transaction-mock';
+import {
+  ServerTransactionType,
+  TransactionDirectionEnum
+} from 'types/serverTransactions.types';
+import { getInterpretedTransaction } from '../getInterpretedTransaction';
+import { transactionMock } from '../getInterpretedTransaction/tests/extended-transaction-mock';
 import { getTransactionLinkWithLabel } from '../getTransactionLinkWithLabel';
 const explorerAddress = 'https://testing.devnet.com';
 

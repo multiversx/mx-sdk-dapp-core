@@ -1,8 +1,11 @@
-import { InterpretedTransactionType, TransactionDirectionEnum } from 'types';
-import { ServerTransactionType, TransactionActionsEnum } from 'types';
+import {
+  ServerTransactionType,
+  TransactionActionsEnum,
+  InterpretedTransactionType,
+  TransactionDirectionEnum
+} from 'types/serverTransactions.types';
 import { getInterpretedTransaction } from '../getInterpretedTransaction';
-
-import { explorerUrlBuilder } from '../helpers/explorerUrlBuilder';
+import { explorerUrlBuilder } from '../helpers';
 
 import { transactionMock } from './extended-transaction-mock';
 

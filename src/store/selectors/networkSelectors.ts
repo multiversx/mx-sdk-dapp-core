@@ -16,3 +16,6 @@ export const roundDurationSelectorSelector = ({
 
 export const apiAddressSelector = ({ network: { network } }: StoreType) =>
   network.apiAddress;
+
+export const explorerAddressSelector = ({ network: { network } }: StoreType) =>
+  network.explorerAddress;

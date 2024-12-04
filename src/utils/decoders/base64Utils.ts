@@ -17,6 +17,7 @@
  * @see The tests for this function are in src/utils/decoders/tests/base64Utils.test.ts
  * @param str
  */
+// TODO: Move to utils
 export function isStringBase64(str: string) {
   try {
     // Try to decode the string and encode it back using base64 functions

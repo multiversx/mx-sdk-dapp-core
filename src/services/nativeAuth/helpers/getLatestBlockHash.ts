@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { BLOCKS_ENDPOINT } from 'apiCalls/endpoints';
-import { retryMultipleTimes } from 'utils/retryMultipleTimes';
+import { retryMultipleTimes } from 'utils/misc/retryMultipleTimes';
 
 export interface LatestBlockHashType {
   hash: string;

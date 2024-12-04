@@ -13,7 +13,7 @@ export type InitializeNetworkParamsType = {
 export const initializeNetwork = async ({
   customNetworkConfig = {},
   environment
-}: InitializeNetworkParamsType): Promise<NetworkType> => {
+}: InitializeNetworkParamsType) => {
   const fetchConfigFromServer = !customNetworkConfig?.skipFetchFromServer;
   const customNetworkApiAddress = customNetworkConfig?.apiAddress;
 

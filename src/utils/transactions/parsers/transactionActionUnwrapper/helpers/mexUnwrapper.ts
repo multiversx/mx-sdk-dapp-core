@@ -1,14 +1,16 @@
 import BigNumber from 'bignumber.js';
 import { ZERO } from 'constants/index';
 import {
+  TransactionActionsEnum,
   TransactionActionType,
-  UnwrapperType,
-  TransactionActionsEnum
-} from 'types';
+  UnwrapperType
+} from 'types/serverTransactions.types';
 
 export function mexUnwrapper(
   action: TransactionActionType
 ): Array<string | UnwrapperType> {
+  let value = ZERO;
+
   switch (action.name) {
     // distribution
     case TransactionActionsEnum.claimLockedAssets:
@@ -54,7 +56,6 @@ export function mexUnwrapper(
         { token: action.arguments?.transfers }
       ];
     case TransactionActionsEnum.mergeLockedAssetTokens:
-      let value = ZERO;
       if (action.arguments?.transfers) {
         const values = action.arguments.transfers.map(
           ({ value }: { value: string }) => value

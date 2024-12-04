@@ -37,7 +37,7 @@ export type LogoutParamsType = {
 
 interface IProviderLogout {
   provider: IProvider;
-  options?: LogoutPropsType;
+  options?: LogoutParamsType;
 }
 
 export async function logout({

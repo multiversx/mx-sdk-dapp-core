@@ -1,7 +1,7 @@
 import { Address } from '@multiversx/sdk-core';
 import BigNumber from 'bignumber.js';
-import { decodePart } from '../../decoders';
 import { TransactionTypesEnum } from '../../../types';
+import { decodePart } from '../../decoders';
 import { addressIsValid } from '../../validation';
 
 const noData = {
@@ -74,7 +74,9 @@ export function getTokenFromData(data?: string): {
           receiver: new Address(receiver).bech32()
         };
       }
-    } catch (err) {}
+    } catch (e) {
+      console.error('Error getting NFT from transaction data', e);
+    }
   }
 
   if (isNftBurn) {
@@ -88,7 +90,9 @@ export function getTokenFromData(data?: string): {
           nonce
         };
       }
-    } catch (err) {}
+    } catch (e) {
+      console.error('Error getting NFT from transaction data', e);
+    }
   }
 
   return noData;

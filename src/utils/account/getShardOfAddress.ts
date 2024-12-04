@@ -12,7 +12,8 @@ const isAddressOfMetachain = (pubKey: Buffer) => {
   const zeroAddress = Buffer.alloc(32).fill(0);
   return pubKey.equals(zeroAddress);
 };
-export const getShardOfAddress = (hexPubKey: any) => {
+
+export function getShardOfAddress(hexPubKey: any) {
   try {
     const numShards = 3;
     const maskHigh = parseInt('11', 2);
@@ -27,7 +28,7 @@ export const getShardOfAddress = (hexPubKey: any) => {
       shard = lastByteOfPubKey & maskLow;
     }
     return shard;
-  } catch (err) {
+  } catch {
     return -1;
   }
-};
+}

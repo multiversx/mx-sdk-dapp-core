@@ -2,7 +2,7 @@ import {
   TransactionActionCategoryEnum,
   TransactionActionsEnum,
   ServerTransactionType
-} from 'types';
+} from 'types/serverTransactions.types';
 
 export function getTransactionMethod(transaction: ServerTransactionType) {
   let transactionAction = 'Transaction';

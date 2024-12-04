@@ -1,9 +1,9 @@
+import { esdtNftUnwrapper, mexUnwrapper, stakeUnwrapper } from './helpers';
 import {
   TransactionActionCategoryEnum,
   TransactionActionType,
   UnwrapperType
 } from '../../../../types';
-import { esdtNftUnwrapper, mexUnwrapper, stakeUnwrapper } from './helpers';
 
 export function transactionActionUnwrapper(
   action: TransactionActionType

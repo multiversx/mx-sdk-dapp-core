@@ -1,4 +1,4 @@
-import { InterpretedTransactionType } from 'types';
+import { InterpretedTransactionType } from 'types/serverTransactions.types';
 import { getEgldValueData } from './getEgldValueData';
 import { getVisibleOperations } from '../../../../getVisibleOperations';
 
@@ -24,8 +24,9 @@ export function getValueFromOperations(
     } else {
       logError(transaction.txHash);
     }
-  } catch (err) {
+  } catch {
     logError(transaction.txHash);
   }
+
   return getEgldValueData(transaction.value);
 }

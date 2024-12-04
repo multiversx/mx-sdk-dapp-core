@@ -1,4 +1,7 @@
-export const maxDecimals = (amount: string, decimals = 18) => {
+// TODO: Move to utils
+import { DECIMALS } from 'constants/index';
+
+export function maxDecimals(amount: string, decimals = DECIMALS) {
   if (
     amount != null &&
     amount.toString().indexOf('.') >= 0 &&
@@ -7,4 +10,4 @@ export const maxDecimals = (amount: string, decimals = 18) => {
     return false;
   }
   return true;
-};
+}

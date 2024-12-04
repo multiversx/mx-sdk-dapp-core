@@ -1,5 +1,5 @@
-import { getTransactionsStatus } from '../getTransactionsStatus';
 import { TransactionServerStatusesEnum } from 'types';
+import { getTransactionsStatus } from '../getTransactionsStatus';
 
 describe('getTransactionsStatus', () => {
   it('should identify all transactions as successful', () => {

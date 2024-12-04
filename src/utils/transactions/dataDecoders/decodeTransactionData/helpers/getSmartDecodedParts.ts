@@ -1,4 +1,5 @@
-import { DecodeMethodEnum, TransactionTypesEnum } from 'types';
+import { TransactionTypesEnum } from 'types';
+import { DecodeMethodEnum } from 'types/serverTransactions.types';
 import { decodeByMethod } from './decodeByMethod';
 
 interface SmartDecodedPartsType {

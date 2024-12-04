@@ -4,7 +4,7 @@ import { getAccountProvider } from 'core/providers/accountProvider';
 import { setAccount } from 'store/actions';
 import { fetchAccount } from './fetchAccount';
 
-const setNewAccount = async () => {
+async function setNewAccount() {
   try {
     const address = getAddress();
 
@@ -29,7 +29,7 @@ const setNewAccount = async () => {
   }
 
   return null;
-};
+}
 
 export async function refreshAccount() {
   const provider = getAccountProvider();

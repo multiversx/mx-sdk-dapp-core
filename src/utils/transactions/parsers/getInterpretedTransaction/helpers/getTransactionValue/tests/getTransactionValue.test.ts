@@ -1,11 +1,12 @@
-import { NftEnumType, TransactionActionsEnum } from 'types';
 import { DECIMALS } from 'constants/index';
-import { getTransactionValue } from '../getTransactionValue';
+import { NftEnumType } from 'types';
+import { TransactionActionsEnum } from 'types/serverTransactions.types';
 import {
   ACTIONS_WITH_EGLD_VALUE,
   ACTIONS_WITH_MANDATORY_OPERATIONS,
   ACTIONS_WITH_VALUE_IN_DATA_FIELD
 } from '../../../constants';
+import { getTransactionValue } from '../getTransactionValue';
 
 describe('getTransactionValue', () => {
   const baseTransaction = {
@@ -74,7 +75,7 @@ describe('getTransactionValue', () => {
 
   test('handles NFT transactions', () => {
     const mockNftToken = {
-      type: NftEnumType.NonFungibleESDT,
+      type: NftEnumType.SemiFungibleESDT,
       value: '1',
       decimals: 0,
       identifier: 'TEST-123-01'
@@ -86,13 +87,9 @@ describe('getTransactionValue', () => {
         ...baseAction,
         category: 'nft',
         arguments: {
-          tokenId: mockNftToken.identifier,
-          amount: mockNftToken.value
+          token: mockNftToken
         }
-      },
-      tokens: [mockNftToken],
-      tokenIdentifier: mockNftToken.identifier,
-      tokenValue: mockNftToken.value
+      }
     };
 
     const result = getTransactionValue({ transaction });
@@ -117,13 +114,9 @@ describe('getTransactionValue', () => {
         ...baseAction,
         category: 'esdt',
         arguments: {
-          tokenId: mockToken.identifier,
-          amount: mockToken.value
+          token: mockToken
         }
       },
-      tokens: [mockToken],
-      tokenIdentifier: mockToken.identifier,
-      tokenValue: mockToken.value,
       function: 'transfer',
       operations: [],
       results: []
@@ -143,15 +136,25 @@ describe('getTransactionValue', () => {
         type: 'FungibleESDT',
         value: '1000000000000000000',
         decimals: 18,
-        identifier: 'TEST-123'
+        identifier: 'TEST-123',
+        amount: '1000000000000000000',
+        tokenId: 'TEST-123'
       },
       {
         type: 'FungibleESDT',
         value: '2000000000000000000',
         decimals: 18,
-        identifier: 'TEST-456'
+        identifier: 'TEST-456',
+        amount: '2000000000000000000',
+        tokenId: 'TEST-456'
       }
     ];
+
+    const transfers = mockTokens.map((token) => ({
+      ...token,
+      tokenId: token.identifier,
+      amount: token.value
+    }));
 
     const transaction = {
       ...baseTransaction,
@@ -159,10 +162,7 @@ describe('getTransactionValue', () => {
         ...baseAction,
         category: 'multiToken',
         arguments: {
-          tokens: mockTokens.map((token) => ({
-            tokenId: token.identifier,
-            amount: token.value
-          }))
+          transfers
         }
       },
       tokens: mockTokens
@@ -171,7 +171,7 @@ describe('getTransactionValue', () => {
     const result = getTransactionValue({ transaction });
 
     expect(result.tokenValueData?.titleText).toBeDefined();
-    expect(result.tokenValueData?.transactionTokens).toEqual(mockTokens);
+    expect(result.tokenValueData?.transactionTokens).toEqual(transfers);
   });
 
   test('handles actions with value in data field', () => {

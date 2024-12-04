@@ -9,7 +9,7 @@ describe('clearNavigationHistory', () => {
     jest.spyOn(window.history, 'replaceState').mockImplementation();
     (getWindowLocation as jest.Mock).mockReturnValue({
       pathname: '/test',
-      hash: '#section1',
+      hash: '#section1'
     });
   });
 
@@ -46,7 +46,7 @@ describe('clearNavigationHistory', () => {
   test('should use default path when pathname is empty', () => {
     (getWindowLocation as jest.Mock).mockReturnValue({
       pathname: '',
-      hash: '',
+      hash: ''
     });
 
     clearNavigationHistory({});

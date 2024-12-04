@@ -1,3 +1,4 @@
+// TODO: Move to utils
 export function pipe<ValueType>(previous: ValueType) {
   return {
     if: function (condition: boolean) {

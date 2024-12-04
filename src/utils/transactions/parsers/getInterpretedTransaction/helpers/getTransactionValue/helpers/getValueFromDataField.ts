@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js';
-import { InterpretedTransactionType } from 'types';
+import { InterpretedTransactionType } from 'types/serverTransactions.types';
 import { decodeBase64 } from 'utils/decoders';
 import { getEgldValueData } from './getEgldValueData';
 
@@ -13,7 +13,7 @@ export function getValueFromDataField(transaction: InterpretedTransactionType) {
     if (!value.isNaN()) {
       return getEgldValueData(value.toString(10));
     }
-  } catch (err) {
+  } catch {
     if (!warningLogged) {
       console.error(
         `Unable to extract value for txHash: ${transaction.txHash}`

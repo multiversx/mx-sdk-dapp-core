@@ -1,3 +1,5 @@
 import { getAccountFromApi } from 'apiCalls/account/getAccountFromApi';
 
-export const fetchAccount = (address?: string) => getAccountFromApi(address);
+export function fetchAccount(address?: string) {
+  return getAccountFromApi(address);
+}

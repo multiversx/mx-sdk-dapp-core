@@ -1,7 +1,8 @@
 import BigNumber from 'bignumber.js';
 import { ZERO } from 'constants/index';
 
-export const stringIsFloat = (amount: string) => {
+// TODO: Move to utils
+export function stringIsFloat(amount: string) {
   if (isNaN(amount as any)) {
     return false;
   }
@@ -21,4 +22,4 @@ export const stringIsFloat = (amount: string) => {
   const number = decimals ? [wholes, decimals].join('.') : wholes;
   const bNparsed = new BigNumber(number);
   return bNparsed.toString(10) === number && bNparsed.comparedTo(0) >= 0;
-};
+}

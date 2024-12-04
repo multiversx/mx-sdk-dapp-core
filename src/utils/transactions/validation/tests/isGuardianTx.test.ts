@@ -1,4 +1,4 @@
-import { GuardianActionsEnum } from 'constants';
+import { GuardianActionsEnum } from 'types';
 import { isGuardianTx } from '../isGuardianTx';
 
 describe('isGuardianTx Function', () => {

@@ -1,9 +1,9 @@
 import axios from 'axios';
 import { TRANSACTIONS_BATCH } from 'apiCalls';
-import { BatchTransactionsResponseType } from 'types';
+import { TIMEOUT } from 'constants/index';
 import { networkSelector } from 'store/selectors';
 import { getState } from 'store/store';
-import { TIMEOUT } from 'constants/index';
+import { BatchTransactionsResponseType } from 'types';
 
 export interface SendBatchTransactionsParamsType {
   batchId: string;

@@ -19,7 +19,7 @@ import { getPendingTransactions } from './getPendingTransactions';
 import { manageFailedTransactions } from './manageFailedTransactions';
 import { TransactionsTrackerType } from '../../trackTransactions.types';
 
-export interface TransactionStatusTrackerPropsType
+export interface TransactionStatusTrackerParamsType
   extends TransactionsTrackerType {
   sessionId: string;
   transactionBatch: SignedTransactionType[];
@@ -126,7 +126,7 @@ export async function checkBatch({
   isSequential,
   onSuccess,
   onFail
-}: TransactionStatusTrackerPropsType) {
+}: TransactionStatusTrackerParamsType) {
   try {
     if (transactions == null) {
       return;

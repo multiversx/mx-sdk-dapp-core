@@ -5,7 +5,7 @@ import {
   TransactionActionsEnum,
   TransactionOperationActionTypeEnum,
   VisibleTransactionOperationType
-} from 'types';
+} from 'types/serverTransactions.types';
 import { NftEnumType } from 'types/tokens.types';
 import { getOperationsDetails } from '../getOperationsDetails';
 
@@ -187,29 +187,25 @@ describe('getOperationsDetails tests', () => {
     expect(getOperationsDetails({ transaction: TRANSACTION }).length).toBe(4);
   });
 
-  test('returns operations without hidden operation type and with create action type', () => {
+  test('returns operations filtered by create action type', () => {
     expect(
       getOperationsDetails({
         transaction: TRANSACTION,
-        filterBy: {
-          action: TransactionOperationActionTypeEnum.create
-        }
+        filterBy: { action: TransactionOperationActionTypeEnum.create }
       }).length
     ).toBe(3);
   });
 
-  test('returns operations without hidden operation type and with transfer action type', () => {
+  test('returns operations filtered by transfer action type', () => {
     expect(
       getOperationsDetails({
         transaction: TRANSACTION,
-        filterBy: {
-          action: TransactionOperationActionTypeEnum.transfer
-        }
+        filterBy: { action: TransactionOperationActionTypeEnum.transfer }
       }).length
     ).toBe(1);
   });
 
-  test('returns operations without hidden operation type and with transfer action type', () => {
+  test('returns operations filtered by transfer action type and receiver', () => {
     expect(
       getOperationsDetails({
         transaction: TRANSACTION,
@@ -221,7 +217,7 @@ describe('getOperationsDetails tests', () => {
     ).toBe(1);
   });
 
-  test('returns operations without hidden operation type and with create action type', () => {
+  test('returns operations filtered by create action type and receiver', () => {
     expect(
       getOperationsDetails({
         transaction: TRANSACTION,
@@ -233,7 +229,7 @@ describe('getOperationsDetails tests', () => {
     ).toBe(0);
   });
 
-  test('returns operations without hidden operation type and with create action type, sender and receiver', () => {
+  test('returns operations filtered by create action type with matching sender and receiver', () => {
     expect(
       getOperationsDetails({
         transaction: TRANSACTION,

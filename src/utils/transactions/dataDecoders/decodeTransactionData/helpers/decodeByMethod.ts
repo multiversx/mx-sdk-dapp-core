@@ -13,9 +13,10 @@ export function decodeByMethod(
     case DecodeMethodEnum.text:
       try {
         return Buffer.from(part, 'hex').toString('utf8');
-      } catch {}
+      } catch {
+        return part;
+      }
 
-      return part;
     case DecodeMethodEnum.decimal:
       return part !== '' ? new BigNumber(part, 16).toString(10) : '';
     case DecodeMethodEnum.smart:
@@ -25,7 +26,9 @@ export function decodeByMethod(
         if (addressIsValid(bech32Encoded)) {
           return bech32Encoded;
         }
-      } catch {}
+      } catch (e) {
+        console.info('Decoded data is not an address: ', e);
+      }
 
       try {
         const decoded = Buffer.from(part, 'hex').toString('utf8');
@@ -48,9 +51,9 @@ export function decodeByMethod(
         } else {
           return decoded;
         }
-      } catch {}
-
-      return part;
+      } catch {
+        return part;
+      }
     case DecodeMethodEnum.raw:
     default:
       return part;

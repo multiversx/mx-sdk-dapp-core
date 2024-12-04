@@ -1,5 +1,7 @@
-import { getTransactionByHashPromise } from 'apiCalls';
-import { ServerTransactionType } from 'types';
+import { TransactionStatus } from '@multiversx/sdk-core/out';
+import { getTransactionByHash } from 'apiCalls';
+import { ServerTransactionType } from 'types/serverTransactions.types';
+import { sleep } from '../../asyncActions';
 
 export async function getTransactionsDetails(txHashes: string[]) {
   const delayMs = 3000;
@@ -12,10 +14,10 @@ export async function getTransactionsDetails(txHashes: string[]) {
 
   while (transactions === undefined && retries > 0) {
     try {
-      await delayWithPromise(delayMs);
+      await sleep(delayMs);
 
       const promiseResponse = await Promise.allSettled(
-        txHashes.map((hash) => getTransactionByHashPromise(hash))
+        txHashes.map((hash) => getTransactionByHash(hash))
       );
 
       const apiTransactions = promiseResponse
@@ -43,7 +45,7 @@ export async function getTransactionsDetails(txHashes: string[]) {
       } else {
         retries -= 1;
       }
-    } catch (e) {
+    } catch {
       retries -= 1;
     }
   }

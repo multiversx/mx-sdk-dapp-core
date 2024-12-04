@@ -43,31 +43,11 @@ export enum ESDTTransferTypesEnum {
   ESDTFreeze = 'ESDTFreeze'
 }
 
-export enum TransactionServerStatusesEnum {
-  pending = 'pending',
-  fail = 'fail',
-  invalid = 'invalid',
-  success = 'success',
-  executed = 'executed',
-  notExecuted = 'not executed',
-  rewardReverted = 'reward-reverted'
-}
-
 export enum SignedMessageStatusesEnum {
   pending = 'pending',
   failed = 'failed',
   signed = 'signed',
   cancelled = 'cancelled'
-}
-
-export enum TransactionBatchStatusesEnum {
-  signed = 'signed',
-  cancelled = 'cancelled',
-  success = 'success',
-  sent = 'sent',
-  fail = 'fail',
-  timedOut = 'timedOut',
-  invalid = 'invalid'
 }
 
 export enum LoginMethodsEnum {

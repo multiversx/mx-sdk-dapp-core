@@ -1,17 +1,23 @@
 import BigNumber from 'bignumber.js';
 import { MultiEsdtTransactionType, TransactionTypesEnum } from 'types';
 import { decodePart } from 'utils/decoders/decodePart';
-import { getAllStringOccurrences } from '../getAllStringOccurrences';
+import { getAllStringOccurrences } from '../../misc';
 
 export function parseMultiEsdtTransferData(data?: string) {
   const transactions: MultiEsdtTransactionType[] = [];
+
+  if (!data) {
+    return transactions;
+  }
+
   let contractCallDataIndex = 0;
+
   try {
     if (
-      data?.startsWith(TransactionTypesEnum.MultiESDTNFTTransfer) &&
-      data?.includes('@')
+      data.startsWith(TransactionTypesEnum.MultiESDTNFTTransfer) &&
+      data.includes('@')
     ) {
-      const [, receiver, encodedTxCount, ...rest] = data?.split('@');
+      const [, receiver, encodedTxCount, ...rest] = data.split('@');
 
       if (receiver) {
         const txCount = new BigNumber(encodedTxCount, 16).toNumber();
@@ -90,7 +96,7 @@ export function parseMultiEsdtTransferData(data?: string) {
     }
   } catch (err) {
     console.error('failed parsing tx', err);
-    return transactions;
   }
+
   return transactions;
 }

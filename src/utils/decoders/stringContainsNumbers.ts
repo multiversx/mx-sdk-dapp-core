@@ -1,1 +1,4 @@
-export const stringContainsNumbers = (str: string) => /\d/.test(str);
+// TODO: Move to utils
+export function stringContainsNumbers(str: string) {
+  return /\d/.test(str);
+}

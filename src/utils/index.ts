@@ -3,7 +3,7 @@ export * from './asyncActions';
 export * from './dateTime';
 export * from './decoders';
 export * from './operations';
-export * from './retryMultipleTimes';
+export * from './misc/retryMultipleTimes';
 export * from './validation';
 export * from './transactions';
 export * from './walletconnect';

@@ -1,6 +1,8 @@
-import { InterpretedTransactionType, ServerTransactionType } from 'types';
-import { TokenArgumentType } from 'types';
-import { isContract } from '../../dataDecoders/smartContractTransaction';
+import {
+  InterpretedTransactionType,
+  ServerTransactionType,
+  TokenArgumentType
+} from 'types/serverTransactions.types';
 import { getTokenFromData } from 'utils/transactions/dataDecoders/getTokenFromData';
 import {
   getExplorerLink,
@@ -11,6 +13,7 @@ import {
   getTransactionTransferType,
   explorerUrlBuilder
 } from './helpers';
+import { isContract } from '../../dataDecoders';
 
 export interface GetInterpretedTransactionType {
   address: string;

@@ -1,4 +1,7 @@
-import { DecodeMethodEnum, DecodedDisplayType } from 'types';
+import {
+  DecodedDisplayType,
+  DecodeMethodEnum
+} from 'types/serverTransactions.types';
 import {
   decodeByMethod,
   getHexValidationWarnings,

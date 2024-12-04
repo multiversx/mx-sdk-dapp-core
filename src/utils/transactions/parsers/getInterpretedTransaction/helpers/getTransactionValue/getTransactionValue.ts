@@ -1,12 +1,6 @@
 import { DECIMALS } from 'constants/index';
 
-import {
-  ACTIONS_WITH_EGLD_VALUE,
-  ACTIONS_WITH_MANDATORY_OPERATIONS,
-  ACTIONS_WITH_VALUE_IN_ACTION_FIELD,
-  ACTIONS_WITH_VALUE_IN_DATA_FIELD
-} from '../../constants';
-
+import { NftEnumType, InterpretedTransactionType } from 'types';
 import {
   getValueFromActions,
   getValueFromDataField,
@@ -14,15 +8,20 @@ import {
   getEgldValueData,
   getTitleText
 } from './helpers';
+import { getTransactionActionNftText } from '../../../getTransactionActionNftText';
+import { getTransactionActionTokenText } from '../../../getTransactionActionTokenText';
+import {
+  ACTIONS_WITH_EGLD_VALUE,
+  ACTIONS_WITH_MANDATORY_OPERATIONS,
+  ACTIONS_WITH_VALUE_IN_ACTION_FIELD,
+  ACTIONS_WITH_VALUE_IN_DATA_FIELD
+} from '../../constants';
+import { getTransactionTokens } from '../getTransactionTokens';
 import {
   EgldValueDataType,
   NFTValueDataType,
   TokenValueDataType
 } from '../types';
-import { NftEnumType, InterpretedTransactionType } from 'types';
-import { getTransactionTokens } from '../getTransactionTokens';
-import { getTransactionActionNftText } from '../../../getTransactionActionNftText';
-import { getTransactionActionTokenText } from '../../../getTransactionActionTokenText';
 
 export interface GetTransactionValueReturnType {
   egldValueData?: EgldValueDataType;

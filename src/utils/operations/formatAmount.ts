@@ -15,6 +15,7 @@ export interface FormatAmountType {
   addCommas?: boolean;
 }
 
+// TODO: Move to utils
 export function formatAmount({
   input,
   decimals = DECIMALS,

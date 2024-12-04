@@ -1,7 +1,7 @@
 import {
   InterpretedTransactionType,
   VisibleTransactionOperationType
-} from 'types';
+} from 'types/serverTransactions.types';
 
 export function getVisibleOperations(transaction: InterpretedTransactionType) {
   const operations =
