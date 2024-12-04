@@ -26,16 +26,18 @@ export interface IEventBus {
   unsubscribe(event: string, callback: Function): void;
 }
 
+export interface IProviderConfigUI {
+  ledger: {
+    eventBus: IEventBus;
+    mount: () => void;
+  };
+}
+
 export interface IProviderConfig {
   account?: {
     address: string;
   };
-  ui?: {
-    ledger: {
-      eventBus: IEventBus;
-      mount: () => void;
-    };
-  };
+  UI?: IProviderConfigUI;
 }
 
 export enum ProviderTypeEnum {
@@ -47,7 +49,6 @@ export enum ProviderTypeEnum {
   opera = 'opera',
   metamask = 'metamask',
   passkey = 'passkey',
-  webhook = 'webhook',
   custom = 'custom',
   none = ''
 }
