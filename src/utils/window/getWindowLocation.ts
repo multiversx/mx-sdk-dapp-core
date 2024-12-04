@@ -8,7 +8,7 @@ type GetWindowLocationType = {
   search: string;
 };
 
-export const getWindowLocation = (): GetWindowLocationType => {
+export function getWindowLocation(): GetWindowLocationType {
   const isAvailable = isWindowAvailable();
 
   if (!isAvailable) {
@@ -32,4 +32,4 @@ export const getWindowLocation = (): GetWindowLocationType => {
     href,
     search
   };
-};
+}

@@ -16,10 +16,10 @@ const defaultOptions: ParseNavigationParamsOptionsType = {
  * @param options.removeParams allows removing params from URL search object
  * @returns the selected params, search object with removed params, and the `clearNavigationHistory` helper
  */
-export const parseNavigationParams = (
+export function parseNavigationParams(
   preserveParams: string[],
   options = defaultOptions
-) => {
+) {
   let params: Record<string, string> = {};
   const defaultSearch = isWindowAvailable() ? window.location.search : '';
   const search = options.search ?? defaultSearch;
@@ -54,4 +54,4 @@ export const parseNavigationParams = (
     params,
     clearNavigationHistory: () => clearNavigationHistory(params)
   };
-};
+}

@@ -11,15 +11,12 @@ import { matchPath } from './matchPath';
     }
 ]
  */
-export const getIsAuthRoute = <
+export function getIsAuthRoute<
   T extends {
     authenticatedRoute: boolean;
     path: string;
   }
->(
-  routes: Array<T>,
-  pathname: string
-) => {
+>(routes: Array<T>, pathname: string) {
   const authenticatedRoutes = routes.filter(({ authenticatedRoute }) =>
     Boolean(authenticatedRoute)
   );
@@ -29,4 +26,4 @@ export const getIsAuthRoute = <
   );
 
   return isOnAuthenticatedRoute;
-};
+}

@@ -1,6 +1,6 @@
 import { getWindowLocation } from './getWindowLocation';
 
-export const clearNavigationHistory = (remainingParams: any) => {
+export function clearNavigationHistory(remainingParams: any) {
   const newUrlParams = new URLSearchParams(remainingParams).toString();
   const { pathname, hash } = getWindowLocation();
   const newSearch = newUrlParams ? `?${newUrlParams}` : '';
@@ -9,4 +9,4 @@ export const clearNavigationHistory = (remainingParams: any) => {
   setTimeout(() => {
     window?.history.replaceState({}, document?.title, fullPath);
   });
-};
+}

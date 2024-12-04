@@ -8,10 +8,10 @@ interface RemoveSearchParamsFromUrlParamsType {
   search?: string;
 }
 
-export const removeSearchParamsFromUrl = ({
+export function removeSearchParamsFromUrl({
   removeParams,
   search
-}: RemoveSearchParamsFromUrlParamsType) => {
+}: RemoveSearchParamsFromUrlParamsType) {
   const windowSearch = isWindowAvailable() ? window.location.search : '';
   const defaultSearch = search ?? windowSearch;
 
@@ -33,4 +33,4 @@ export const removeSearchParamsFromUrl = ({
   clearNavigationHistory(remainingParams);
 
   return remainingParams;
-};
+}

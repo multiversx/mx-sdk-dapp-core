@@ -1,6 +1,6 @@
 import { getWindowLocation } from './getWindowLocation';
 
-export const addOriginToLocationPath = (path = '') => {
+export function addOriginToLocationPath(path = '') {
   const location = getWindowLocation();
   const isHrefUrl = path.startsWith('http') || path.startsWith('www.');
 
@@ -12,4 +12,4 @@ export const addOriginToLocationPath = (path = '') => {
   }
 
   return `${location.origin}/${path.replace('/', '')}`;
-};
+}

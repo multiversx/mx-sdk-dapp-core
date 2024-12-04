@@ -1,7 +1,7 @@
-export const sanitizeCallbackUrl = (
+export function sanitizeCallbackUrl(
   targetURL: string,
   vulnerableItems: string[] = ['address']
-) => {
+) {
   const url = new URL(targetURL);
   const params = new URLSearchParams(url.search);
 
@@ -19,4 +19,4 @@ export const sanitizeCallbackUrl = (
   return `${url.origin}${pathname}${questionMark}${params.toString()}${
     url.hash
   }`;
-};
+}

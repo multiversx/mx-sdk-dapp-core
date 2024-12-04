@@ -1,7 +1,7 @@
 import { getWindowLocation } from './index';
 
-export const getDefaultCallbackUrl = () => {
+export function getDefaultCallbackUrl() {
   const { pathname, search, hash } = getWindowLocation();
 
   return `${pathname ?? ''}${search ?? ''}${hash ?? ''}`;
-};
+}
