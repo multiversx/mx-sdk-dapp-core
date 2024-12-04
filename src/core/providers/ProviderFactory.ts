@@ -130,3 +130,58 @@ export class ProviderFactory {
     return dappProvider;
   }
 }
+
+// // package.ts
+// enum ProviderTypeEnum {
+//   passkey = 'passkey',
+//   metamask = 'metamask'
+// }
+
+// type IProviderConstructor<T extends typeof ProviderTypeEnum> = {
+//   customProviderEnum: T,
+//   constructors?: Partial<Record<keyof T, (day: T[keyof T]) => void>>;
+// };
+
+// const create = <T extends typeof ProviderTypeEnum>({
+//   customProviderEnum,
+//   constructors = {} }: IProviderConstructor<T>
+// ) => {
+//   return (prop: T[keyof T]) => {
+//     switch (prop) {
+//       case customProviderEnum.passkey:
+//         console.log("Suppose return passkey", prop);
+//         break;
+//       case customProviderEnum.metamask:
+//         console.log("Suppose return metamask", prop);
+//         break;
+//       default: {
+//         const customConstructor = constructors?.[
+//           Object.keys(customProviderEnum).find((key) => customProviderEnum[key as keyof T] === prop) as keyof T
+//         ];
+//         if (customConstructor) {
+//           return customConstructor(prop);
+//         }
+//         console.log("Suppose return Cusotm provider", prop);
+//         break;
+//       }
+//     }
+//   };
+// };
+
+// // app.ts
+// const ADDITIONAL_PROVIDERS = {
+//   IFRAME: 'iframe'
+// } as const;
+
+// const ExtendedProviders = {
+//   ...ProviderTypeEnum,
+//   ...ADDITIONAL_PROVIDERS
+// } as const;
+
+// const SampleFactory = create({customProviderEnum: ExtendedProviders, constructors: {
+//     IFRAME: (name) => console.log("Doing custom iframe logic, and Suppose return", name)
+// }});
+
+// SampleFactory(ExtendedProviders.passkey);
+// SampleFactory(ExtendedProviders.metamask);
+// SampleFactory(ExtendedProviders.IFRAME);
