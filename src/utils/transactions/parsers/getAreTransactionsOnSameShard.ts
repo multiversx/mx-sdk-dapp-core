@@ -1,5 +1,6 @@
 import { SignedTransactionType } from '../../../types';
 import { getAddressFromDataField } from '../dataDecoders';
+import { isCrossShardTransaction } from '../validation';
 
 export function getAreTransactionsOnSameShard(
   transactions?: SignedTransactionType[],
