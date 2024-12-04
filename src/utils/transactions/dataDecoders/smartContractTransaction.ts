@@ -1,7 +1,7 @@
 import { Address, TransactionPayload } from '@multiversx/sdk-core';
 import { ESDTTransferTypesEnum, TypesOfSmartContractCallsEnum } from 'types';
 import { isStringBase64 } from 'utils/decoders/base64Utils';
-import { addressIsValid } from './addressIsValid';
+import { addressIsValid } from '../../validation';
 
 export function isContract(
   receiver: string,

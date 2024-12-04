@@ -6,5 +6,3 @@ export * from './getScResultsInitialDecodeMethod';
 export * from './getTokenFromData';
 export * from './getUnHighlightedDataFieldParts';
 export * from './smartContractTransaction';
-export * from './useDataDecode';
-export * from './useDataDecodeMethod';
