@@ -7,5 +7,12 @@ export const networkSelector = ({ network }: StoreType) => network.network;
 export const chainIdSelector = ({ network: { network } }: StoreType) =>
   network.chainId;
 
+export const walletAddressSelector = ({ network: { network } }: StoreType) =>
+  network.walletAddress;
+
+export const roundDurationSelectorSelector = ({
+  network: { network }
+}: StoreType) => network.roundDuration;
+
 export const apiAddressSelector = ({ network: { network } }: StoreType) =>
   network.apiAddress;

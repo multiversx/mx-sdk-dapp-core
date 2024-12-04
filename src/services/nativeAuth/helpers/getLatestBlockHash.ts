@@ -92,7 +92,7 @@ export async function getLatestBlockHash(
 
     requestPromise.current = null;
     return response;
-  } catch (err) {
+  } catch (_error) {
     requestPromise.current = null;
     return null as any;
   }

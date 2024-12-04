@@ -1,23 +1,13 @@
 import { Address, TransactionPayload } from '@multiversx/sdk-core';
-import { TypesOfSmartContractCallsEnum } from 'types';
-import { addressIsValid } from '../../validation';
-import { isStringBase64 } from '../../decoders';
+import { ESDTTransferTypesEnum, TypesOfSmartContractCallsEnum } from 'types';
+import { isStringBase64 } from 'utils/decoders/base64Utils';
+import { addressIsValid } from './addressIsValid';
 
-export const ESDTTransferTypes = [
-  'ESDTNFTTransfer',
-  'ESDTNFTBurn',
-  'ESDTNFTAddQuantity',
-  'ESDTNFTCreate',
-  'MultiESDTNFTTransfer',
-  'ESDTTransfer',
-  'ESDTBurn',
-  'ESDTLocalMint',
-  'ESDTLocalBurn',
-  'ESDTWipe',
-  'ESDTFreeze'
-];
-
-export function isContract(receiver: string, sender?: string, data = '') {
+export function isContract(
+  receiver: string,
+  sender?: string,
+  data = ''
+): boolean {
   const isValid = addressIsValid(receiver);
 
   if (!isValid) {
@@ -64,7 +54,9 @@ export function isSelfESDTContract(
   const [type, ...restParts] = parts;
   const isSelfTransaction =
     sender != null && receiver != null && receiver === sender;
-  const isCorrectESDTType = ESDTTransferTypes.includes(type);
+  const isCorrectESDTType = Object.values(ESDTTransferTypesEnum).includes(
+    type as ESDTTransferTypesEnum
+  );
   const areDataPartsValid = restParts.every(
     (part) => isHexValidCharacters(part) && isHexValidLength(part)
   );

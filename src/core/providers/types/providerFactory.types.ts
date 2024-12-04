@@ -19,10 +19,22 @@ export interface IProvider extends IDAppProviderBase {
   // getExtraInfoData(): { multisig?: string; impersonate?: string } | undefined;
 }
 
+export interface IEventBus {
+  getInstance(): IEventBus;
+  subscribe(event: string, callback: Function): void;
+  publish(event: string, data?: any): void;
+  unsubscribe(event: string, callback: Function): void;
+}
+
 export interface IProviderConfig {
-  // TODO check if we have to pass the network object as argument here or it should be read from the state
-  network: {
-    walletAddress: string;
+  account?: {
+    address: string;
+  };
+  ui?: {
+    ledger: {
+      eventBus: IEventBus;
+      mount: () => void;
+    };
   };
 }
 
@@ -31,9 +43,10 @@ export enum ProviderTypeEnum {
   crossWindow = 'crossWindow',
   extension = 'extension',
   walletConnect = 'walletConnect',
-  hardware = 'hardware',
+  ledger = 'ledger',
   opera = 'opera',
   metamask = 'metamask',
+  passkey = 'passkey',
   webhook = 'webhook',
   custom = 'custom',
   none = ''
@@ -41,6 +54,6 @@ export enum ProviderTypeEnum {
 
 export interface IProviderFactory {
   type: ProviderTypeEnum;
-  config: IProviderConfig;
+  config?: IProviderConfig;
   customProvider?: IProvider;
 }

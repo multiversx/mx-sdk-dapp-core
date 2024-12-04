@@ -1,9 +1,10 @@
 import { getWindowLocation } from 'utils/window/getWindowLocation';
 
-export const getWebviewToken = () => {
+// TODO: also get from store
+export function getWebviewToken() {
   const { search } = getWindowLocation();
   const urlSearchParams = new URLSearchParams(search) as any;
   const searchParams = Object.fromEntries(urlSearchParams);
 
   return searchParams?.accessToken;
-};
+}

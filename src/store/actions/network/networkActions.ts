@@ -9,11 +9,10 @@ export const initializeNetworkConfig = (newNetwork: NetworkType) =>
           Math.random() * newNetwork.walletConnectV2RelayAddresses.length
         )
       ];
-    const { walletConnectV2RelayAddresses, ...rest } = newNetwork;
 
     state.network = {
       ...state.network,
-      ...rest,
+      ...newNetwork,
       walletConnectV2RelayAddress
     };
   });

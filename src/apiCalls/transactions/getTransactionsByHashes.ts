@@ -1,18 +1,19 @@
 import axios from 'axios';
 import { TRANSACTIONS_ENDPOINT } from 'apiCalls/endpoints';
-import { ServerTransactionType } from 'types';
+
+import { networkSelector } from 'store/selectors';
+import { getState } from 'store/store';
 import {
   GetTransactionsByHashesReturnType,
   PendingTransactionsType
 } from 'types/transactions.types';
-import { apiAddressSelector } from 'store/selectors';
-import { getState } from 'store/store';
 
 export const getTransactionsByHashes = async (
   pendingTransactions: PendingTransactionsType
 ): Promise<GetTransactionsByHashesReturnType> => {
-  const apiAddress = apiAddressSelector(getState());
+  const { apiAddress } = networkSelector(getState());
   const hashes = pendingTransactions.map((tx) => tx.hash);
+
   const { data: responseData } = await axios.get(
     `${apiAddress}/${TRANSACTIONS_ENDPOINT}`,
     {
@@ -41,14 +42,3 @@ export const getTransactionsByHashes = async (
     };
   });
 };
-
-export function getTransactionByHashPromise(hash: string) {
-  const apiAddress = apiAddressSelector(getState());
-
-  return axios.get<ServerTransactionType>(
-    `${apiAddress}/transactions/${hash}`,
-    {
-      timeout: 10000 // 10sec
-    }
-  );
-}

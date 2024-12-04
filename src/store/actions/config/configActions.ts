@@ -1,5 +1,5 @@
-import { getStore } from 'store/store';
 import { NativeAuthConfigType } from 'services/nativeAuth/nativeAuth.types';
+import { getStore } from 'store/store';
 
 export const setNativeAuthConfig = (config: NativeAuthConfigType) =>
   getStore().setState(({ config: state }) => {

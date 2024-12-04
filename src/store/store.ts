@@ -1,16 +1,20 @@
-import { createStore } from 'zustand/vanilla';
 import { createJSONStorage, devtools, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
+import { createStore } from 'zustand/vanilla';
+import { applyMiddlewares } from './middleware';
+import {
+  networkSlice,
+  accountSlice,
+  loginInfoSlice,
+  transactionsSlice
+} from './slices';
+import { configSlice } from './slices';
 import {
   InMemoryStorage,
   defaultStorageCallback,
   StorageCallback
 } from './storage';
-import { networkSlice, accountSlice, loginInfoSlice } from './slices';
-import { createBoundedUseStore } from './createBoundedStore';
 import { StoreType } from './store.types';
-import { applyMiddlewares } from './middleware';
-import { configSlice } from './slices';
 
 export type MutatorsIn = [
   ['zustand/devtools', never],
@@ -30,6 +34,7 @@ export const createDAppStore = (getStorageCallback: StorageCallback) => {
       persist(
         immer((...args) => ({
           network: networkSlice(...args),
+          transactions: transactionsSlice(...args),
           account: accountSlice(...args),
           loginInfo: loginInfoSlice(...args),
           config: configSlice(...args)
@@ -49,15 +54,15 @@ export type StoreApi = ReturnType<typeof createDAppStore>;
 
 let store: StoreApi;
 
+export const setDAppStore = (_store: StoreApi) => {
+  store = _store;
+};
+
 export const getStore = () => {
   if (!store) {
     setDAppStore(createDAppStore(() => new InMemoryStorage()));
   }
   return store;
-};
-
-export const setDAppStore = (_store: StoreApi) => {
-  store = _store;
 };
 
 /**
@@ -78,5 +83,3 @@ export const initStore = (getStorageCallback = defaultStorageCallback) => {
 };
 
 export const getState = () => getStore().getState();
-
-export const getStoreHook = () => createBoundedUseStore(getStore());

@@ -1,65 +1,115 @@
-import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
-import { ExtensionProvider } from '@multiversx/sdk-extension-provider';
+import { IframeLoginTypes } from '@multiversx/sdk-web-wallet-iframe-provider/out/constants';
+import { SECOND_LOGIN_ATTEMPT_ERROR } from 'constants/errorMessages.constants';
+import { getAddress } from 'core/methods/account/getAddress';
+import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
+import { setProviderType } from 'store/actions/loginInfo/loginInfoActions';
+import { setAccountProvider } from './accountProvider';
+import { DappProvider } from './DappProvider/DappProvider';
+import { createCrossWindowProvider } from './helpers/crossWindow/createCrossWindowProvider';
+import { createExtensionProvider } from './helpers/extension/createExtensionProvider';
+import { getConfig } from './helpers/getConfig';
+import { createIframeProvider } from './helpers/iframe/createIframeProvider';
+import { createLedgerProvider } from './helpers/ledger/createLedgerProvider';
 import {
   IProvider,
-  IProviderConfig,
   IProviderFactory,
   ProviderTypeEnum
 } from './types/providerFactory.types';
-import { isBrowserWithPopupConfirmation } from '../../constants';
 
 export class ProviderFactory {
   public async create({
     type,
-    config,
+    config: userConfig,
     customProvider
-  }: IProviderFactory): Promise<IProvider | undefined> {
-    let createdProvider: IProvider | undefined;
+  }: IProviderFactory): Promise<DappProvider> {
+    let createdProvider: IProvider | null = null;
+    const { account, ui } = await getConfig(userConfig);
 
     switch (type) {
-      // case ProviderTypeEnum.iframe: {
-      //   const provider = await ProviderFactory.getIframeProvider({
-      //     walletAddress,
-      //   });
-      //   createdProvider = provider as unknown as IProvider;
-      //   break;
-      // }
-
       case ProviderTypeEnum.extension: {
-        const provider = await this.getExtensionProvider();
+        const provider = await createExtensionProvider();
         createdProvider = provider as unknown as IProvider;
 
-        createdProvider.getAddress = () => {
-          return Promise.resolve(provider.account.address);
-        };
-
-        createdProvider.getTokenLoginSignature = () => {
-          return provider.account.signature;
-        };
-
-        createdProvider.getType = () => {
-          return ProviderTypeEnum.extension;
-        };
+        createdProvider.getType = () => ProviderTypeEnum.extension;
 
         break;
       }
 
       case ProviderTypeEnum.crossWindow: {
-        const { walletAddress } = config.network;
-
-        const provider = await this.getCrossWindowProvider({
-          walletAddress
+        const provider = await createCrossWindowProvider({
+          address: account?.address
         });
         createdProvider = provider as unknown as IProvider;
 
-        createdProvider.getType = () => {
-          return ProviderTypeEnum.crossWindow;
-        };
+        createdProvider.getType = () => ProviderTypeEnum.crossWindow;
+
+        break;
+      }
+
+      case ProviderTypeEnum.ledger: {
+        const ledgerProvider = await createLedgerProvider(
+          ui.ledger.eventBus,
+          ui.ledger.mount
+        );
+
+        if (!ledgerProvider) {
+          throw new Error('Unable to create ledger provider');
+        }
+
+        createdProvider = ledgerProvider;
+
+        createdProvider.getType = () => ProviderTypeEnum.ledger;
+
+        const loggedIn = getIsLoggedIn();
+
+        if (loggedIn) {
+          console.warn('Already logged in with:', getAddress());
+          throw new Error(SECOND_LOGIN_ATTEMPT_ERROR);
+        }
+
+        await createdProvider.init?.();
+
+        break;
+      }
+
+      case ProviderTypeEnum.metamask: {
+        const provider = await createIframeProvider({
+          address: account?.address,
+          type: IframeLoginTypes.metamask
+        });
+
+        if (!provider) {
+          throw new Error('Unable to create metamask provider');
+        }
+
+        createdProvider = provider as unknown as IProvider;
+
+        createdProvider.getType = () => ProviderTypeEnum.metamask;
+
+        break;
+      }
+
+      case ProviderTypeEnum.passkey: {
+        const provider = await createIframeProvider({
+          address: account?.address,
+          type: IframeLoginTypes.passkey
+        });
+
+        if (!provider) {
+          throw new Error('Unable to create passkey provider');
+        }
+
+        createdProvider = provider as unknown as IProvider;
+
+        createdProvider.getType = () => ProviderTypeEnum.passkey;
 
         break;
       }
 
       case ProviderTypeEnum.custom: {
+        if (!customProvider) {
+          throw new Error('Unable to create custom provider provider');
+        }
         createdProvider = customProvider;
         break;
       }
@@ -68,27 +118,15 @@ export class ProviderFactory {
         break;
     }
 
-    return createdProvider;
-  }
-
-  private async getCrossWindowProvider({
-    walletAddress
-  }: Partial<IProviderConfig['network']>) {
-    // CrossWindowProvider.getInstance().clearInstance();
-    const provider = CrossWindowProvider.getInstance();
-    await provider.init();
-    provider.setWalletUrl(String(walletAddress));
-
-    if (isBrowserWithPopupConfirmation) {
-      provider.setShouldShowConsentPopup(true);
+    if (!createdProvider) {
+      throw new Error('Unable to create provider');
     }
 
-    return provider;
-  }
+    const dappProvider = new DappProvider(createdProvider);
 
-  private async getExtensionProvider() {
-    const provider = ExtensionProvider.getInstance();
-    await provider.init();
-    return provider;
+    setAccountProvider(dappProvider);
+    setProviderType(type);
+
+    return dappProvider;
   }
 }

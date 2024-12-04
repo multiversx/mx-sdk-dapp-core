@@ -1,23 +1,24 @@
-import { getStore } from 'store/store';
-import { AccountType } from 'types/account.types';
-import { emptyAccount } from 'store/slices/account/emptyAccount';
 import {
   BatchTransactionsWSResponseType,
   LedgerAccountType
 } from 'store/slices/account/account.types';
+import { emptyAccount } from 'store/slices/account/emptyAccount';
+import { getStore } from 'store/store';
+import { AccountType } from 'types/account.types';
 
 export const setAddress = (address: string) =>
   getStore().setState(({ account: state }) => {
     state.address = address;
   });
 
-export const setAccount = (account: AccountType) =>
+export const setAccount = (account: AccountType) => {
   getStore().setState(({ account: state }) => {
     const isSameAddress = state.address === account.address;
     state.accounts = {
       [state.address]: isSameAddress ? account : emptyAccount
     };
   });
+};
 
 // TODO: check if needed
 export const setLedgerAccount = (ledgerAccount: LedgerAccountType | null) =>
