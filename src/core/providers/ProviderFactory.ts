@@ -10,11 +10,7 @@ import { createExtensionProvider } from './helpers/extension/createExtensionProv
 import { getConfig } from './helpers/getConfig';
 import { createIframeProvider } from './helpers/iframe/createIframeProvider';
 import { createLedgerProvider } from './helpers/ledger/createLedgerProvider';
-import {
-  IProvider,
-  IProviderFactory,
-  ProviderTypeEnum
-} from './types/providerFactory.types';
+import { IProvider, ProviderTypeEnum } from './types/providerFactory.types';
 
 export class ProviderFactory {
   public async create({
@@ -23,7 +19,7 @@ export class ProviderFactory {
     customProvider
   }: IProviderFactory): Promise<DappProvider> {
     let createdProvider: IProvider | null = null;
-    const { account, ui } = await getConfig(userConfig);
+    const { account, UI } = await getConfig(userConfig);
 
     switch (type) {
       case ProviderTypeEnum.extension: {
@@ -48,8 +44,8 @@ export class ProviderFactory {
 
       case ProviderTypeEnum.ledger: {
         const ledgerProvider = await createLedgerProvider(
-          ui.ledger.eventBus,
-          ui.ledger.mount
+          UI.ledger.eventBus,
+          UI.ledger.mount
         );
 
         if (!ledgerProvider) {
