@@ -1,5 +1,4 @@
 import { getAddress } from 'core/methods/account/getAddress';
-import { getProviderType } from 'core/providers/helpers/utils';
 import {
   IProvider,
   ProviderTypeEnum
@@ -48,7 +47,6 @@ export async function logout({
   }
 }: IProviderLogout) {
   let address = getAddress();
-  const providerType = getProviderType(provider);
 
   if (options.shouldBroadcastLogoutAcrossTabs) {
     broadcastLogoutAcrossTabs(address);
@@ -59,7 +57,7 @@ export async function logout({
 
     if (
       options.hasConsentPopup &&
-      providerType === ProviderTypeEnum.crossWindow
+      provider.getType() === ProviderTypeEnum.crossWindow
     ) {
       (provider as unknown as CrossWindowProvider).setShouldShowConsentPopup(
         true

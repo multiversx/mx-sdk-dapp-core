@@ -19,9 +19,7 @@ export async function restoreProvider() {
     }
   };
 
-  const factory = new ProviderFactory();
-
-  const provider = await factory.create({
+  const provider = await ProviderFactory.create({
     type,
     config
   });

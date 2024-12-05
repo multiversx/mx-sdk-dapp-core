@@ -4,9 +4,11 @@ import { resetStore } from 'store/middleware/logoutMiddleware';
 import { getStore } from '../../store';
 
 export const logoutAction = () => getStore().setState(resetStore);
-export interface LoginActionPayloadType {
+export interface LoginActionPayloadType<
+  T extends ProviderTypeEnum = ProviderTypeEnum
+> {
   address: string;
-  providerType: ProviderTypeEnum;
+  providerType: T[keyof T];
 }
 
 export const loginAction = ({

@@ -17,8 +17,10 @@ export interface LoginInfoType {
   expires: number;
 }
 
-export interface LoginInfoSliceType {
-  providerType: ProviderTypeEnum | null;
+export interface LoginInfoSliceType<
+  T extends ProviderTypeEnum = ProviderTypeEnum
+> {
+  providerType: T[keyof T] | null;
   walletConnectLogin: WalletConnectLoginType | null;
   ledgerLogin: LedgerLoginType | null;
   tokenLogin: TokenLoginType | null;
