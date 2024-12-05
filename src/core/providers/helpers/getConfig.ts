@@ -2,7 +2,6 @@ import type { LedgerConnectModal } from '@multiversx/sdk-dapp-core-ui/dist/compo
 import { defineCustomElements } from '@multiversx/sdk-dapp-core-ui/loader';
 import { safeWindow } from 'constants/index';
 import {
-  IEventBus,
   IProviderConfig,
   IProviderConfigUI,
   ProviderTypeEnum
@@ -10,7 +9,6 @@ import {
 
 const UI: IProviderConfigUI = {
   [ProviderTypeEnum.ledger]: {
-    eventBus: {} as IEventBus,
     mount: () => {
       throw new Error('mount not implemented');
     }
@@ -24,19 +22,18 @@ export const getConfig = async (config: IProviderConfig = defaultConfig) => {
     return { ...defaultConfig, ...config };
   }
 
-  defineCustomElements(safeWindow);
-  const ledgerModalElement = document.createElement(
-    'ledger-connect-modal'
-  ) as LedgerConnectModal;
-  document.body.appendChild(ledgerModalElement);
-  await customElements.whenDefined('ledger-connect-modal');
-  const eventBus = await ledgerModalElement.getEventBus();
-
   const UI = {
     [ProviderTypeEnum.ledger]: {
-      eventBus,
-      mount: () => {
+      mount: async () => {
+        defineCustomElements(safeWindow);
+        const ledgerModalElement = document.createElement(
+          'ledger-connect-modal'
+        ) as LedgerConnectModal;
+
         document.body.appendChild(ledgerModalElement);
+
+        const eventBus = await ledgerModalElement.getEventBus();
+        return eventBus;
       }
     }
   };
@@ -44,8 +41,8 @@ export const getConfig = async (config: IProviderConfig = defaultConfig) => {
   return {
     ...config,
     UI: {
-      ...UI,
-      ...config.UI
+      ...defaultConfig.UI,
+      ...UI
     }
   };
 };

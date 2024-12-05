@@ -29,8 +29,7 @@ export interface IEventBus {
 
 export interface IProviderConfigUI {
   ledger: {
-    eventBus: IEventBus;
-    mount: () => void;
+    mount: () => Promise<IEventBus>;
   };
 }
 
@@ -50,6 +49,5 @@ export enum ProviderTypeEnum {
   opera = 'opera',
   metamask = 'metamask',
   passkey = 'passkey',
-  custom = 'custom',
   none = ''
 }

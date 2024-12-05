@@ -1,4 +1,5 @@
 import { restoreProvider } from 'core/providers/helpers/restoreProvider';
+import { ProviderFactory } from 'core/providers/ProviderFactory';
 import { getDefaultNativeAuthConfig } from 'services/nativeAuth/methods/getDefaultNativeAuthConfig';
 import { NativeAuthConfigType } from 'services/nativeAuth/nativeAuth.types';
 import { initializeNetwork } from 'store/actions';
@@ -30,7 +31,8 @@ const defaultInitAppProps = {
  * */
 export async function initApp({
   storage = defaultInitAppProps.storage,
-  dAppConfig
+  dAppConfig,
+  customProviders
 }: InitAppType) {
   initStore(storage.getStorageCallback);
 
@@ -56,6 +58,8 @@ export async function initApp({
   }
 
   const isLoggedIn = getIsLoggedIn();
+
+  ProviderFactory.customProviders(customProviders || []);
 
   if (isLoggedIn) {
     await restoreProvider();

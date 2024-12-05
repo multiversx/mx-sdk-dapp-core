@@ -13,11 +13,28 @@ import { createLedgerProvider } from './helpers/ledger/createLedgerProvider';
 import { IProvider, ProviderTypeEnum } from './types/providerFactory.types';
 
 export class ProviderFactory {
-  public async create({
+  private static _customProviders: Array<{
+    name: string;
+    icon: string;
+    class: IProvider;
+  }> = [];
+
+  public static customProviders(
+    providers: {
+      name: string;
+      icon: string;
+      class: IProvider;
+    }[]
+  ) {
+    this._customProviders = providers;
+  }
+
+  public static async create({
     type,
-    config: userConfig,
-    customProvider
-  }: IProviderFactory): Promise<DappProvider> {
+    config: userConfig
+  }: any): Promise<DappProvider> {
+    // IProviderFactory
+
     let createdProvider: IProvider | null = null;
     const { account, UI } = await getConfig(userConfig);
 
@@ -43,10 +60,7 @@ export class ProviderFactory {
       }
 
       case ProviderTypeEnum.ledger: {
-        const ledgerProvider = await createLedgerProvider(
-          UI.ledger.eventBus,
-          UI.ledger.mount
-        );
+        const ledgerProvider = await createLedgerProvider(UI.ledger.mount);
 
         if (!ledgerProvider) {
           throw new Error('Unable to create ledger provider');
@@ -102,16 +116,15 @@ export class ProviderFactory {
         break;
       }
 
-      case ProviderTypeEnum.custom: {
-        if (!customProvider) {
-          throw new Error('Unable to create custom provider provider');
-        }
-        createdProvider = customProvider;
+      default: {
+        this._customProviders.forEach((customProvider) => {
+          if (customProvider.name === type) {
+            createdProvider = customProvider.class;
+            createdProvider.getType = () => type;
+          }
+        });
         break;
       }
-
-      default:
-        break;
     }
 
     if (!createdProvider) {

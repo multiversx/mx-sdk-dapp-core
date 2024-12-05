@@ -1,3 +1,4 @@
+import { IProvider } from 'core/providers/types/providerFactory.types';
 import { NativeAuthConfigType } from 'services/nativeAuth/nativeAuth.types';
 import { StorageCallback } from 'store/storage';
 import { EnvironmentsEnum } from 'types/enums.types';
@@ -49,4 +50,9 @@ export type InitAppType = {
     getStorageCallback: StorageCallback;
   };
   dAppConfig: DappConfigType;
+  customProviders?: Array<{
+    name: string;
+    icon: string;
+    class: IProvider;
+  }>;
 };
