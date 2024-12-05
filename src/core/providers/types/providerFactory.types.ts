@@ -1,7 +1,8 @@
 import type { IDAppProviderBase } from '@multiversx/sdk-dapp-utils';
 
 // @ts-ignore
-export interface IProvider extends IDAppProviderBase {
+export interface IProvider<T extends ProviderTypeEnum = ProviderTypeEnum>
+  extends IDAppProviderBase {
   init: () => Promise<boolean>;
   login: (options?: { callbackUrl?: string; token?: string }) => Promise<{
     address: string;
@@ -12,7 +13,7 @@ export interface IProvider extends IDAppProviderBase {
   }>;
   logout: () => Promise<boolean>;
   setShouldShowConsentPopup?: (shouldShow: boolean) => void;
-  getType: () => ProviderTypeEnum;
+  getType: () => T[keyof T] | string;
   getAddress(): Promise<string | undefined>;
   // TODO will be removed as soon as the new login method is implemented in the same way for all providers
   getTokenLoginSignature(): string | undefined;
@@ -26,16 +27,17 @@ export interface IEventBus {
   unsubscribe(event: string, callback: Function): void;
 }
 
+export interface IProviderConfigUI {
+  ledger: {
+    mount: () => Promise<IEventBus>;
+  };
+}
+
 export interface IProviderConfig {
   account?: {
     address: string;
   };
-  ui?: {
-    ledger: {
-      eventBus: IEventBus;
-      mount: () => void;
-    };
-  };
+  UI?: IProviderConfigUI;
 }
 
 export enum ProviderTypeEnum {
@@ -47,13 +49,21 @@ export enum ProviderTypeEnum {
   opera = 'opera',
   metamask = 'metamask',
   passkey = 'passkey',
-  webhook = 'webhook',
-  custom = 'custom',
   none = ''
 }
 
-export interface IProviderFactory {
-  type: ProviderTypeEnum;
+export interface IProviderFactory<
+  T extends ProviderTypeEnum = ProviderTypeEnum
+> {
+  type: T[keyof T];
   config?: IProviderConfig;
-  customProvider?: IProvider;
+}
+
+export interface ICustomProvider<
+  T extends ProviderTypeEnum = ProviderTypeEnum
+> {
+  name: string;
+  type: T[keyof T];
+  icon: string;
+  constructor: (config: IProviderConfig) => Promise<IProvider>;
 }

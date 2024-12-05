@@ -11,19 +11,26 @@ import { getConfig } from './helpers/getConfig';
 import { createIframeProvider } from './helpers/iframe/createIframeProvider';
 import { createLedgerProvider } from './helpers/ledger/createLedgerProvider';
 import {
+  ICustomProvider,
   IProvider,
   IProviderFactory,
   ProviderTypeEnum
 } from './types/providerFactory.types';
 
 export class ProviderFactory {
-  public async create({
+  private static _customProviders: ICustomProvider[] = [];
+
+  public static customProviders(providers: ICustomProvider[]) {
+    this._customProviders = providers;
+  }
+
+  public static async create({
     type,
-    config: userConfig,
-    customProvider
+    config: userConfig
   }: IProviderFactory): Promise<DappProvider> {
     let createdProvider: IProvider | null = null;
-    const { account, ui } = await getConfig(userConfig);
+    const config = await getConfig(userConfig);
+    const { account, UI } = config;
 
     switch (type) {
       case ProviderTypeEnum.extension: {
@@ -47,10 +54,7 @@ export class ProviderFactory {
       }
 
       case ProviderTypeEnum.ledger: {
-        const ledgerProvider = await createLedgerProvider(
-          ui?.ledger.eventBus,
-          ui?.ledger.mount
-        );
+        const ledgerProvider = await createLedgerProvider(UI.ledger.mount);
 
         if (!ledgerProvider) {
           throw new Error('Unable to create ledger provider');
@@ -106,16 +110,15 @@ export class ProviderFactory {
         break;
       }
 
-      case ProviderTypeEnum.custom: {
-        if (!customProvider) {
-          throw new Error('Unable to create custom provider provider');
-        }
-        createdProvider = customProvider;
+      default: {
+        this._customProviders.forEach(async (customProvider) => {
+          if (customProvider.type === type) {
+            createdProvider = await customProvider.constructor(config);
+            createdProvider.getType = () => type;
+          }
+        });
         break;
       }
-
-      default:
-        break;
     }
 
     if (!createdProvider) {
@@ -125,7 +128,7 @@ export class ProviderFactory {
     const dappProvider = new DappProvider(createdProvider);
 
     setAccountProvider(dappProvider);
-    setProviderType(type);
+    setProviderType(type as ProviderTypeEnum);
 
     return dappProvider;
   }
