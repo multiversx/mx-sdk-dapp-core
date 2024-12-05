@@ -1,3 +1,4 @@
+import { safeWindow } from 'constants/index';
 import { restoreProvider } from 'core/providers/helpers/restoreProvider';
 import { ProviderFactory } from 'core/providers/ProviderFactory';
 import { getDefaultNativeAuthConfig } from 'services/nativeAuth/methods/getDefaultNativeAuthConfig';
@@ -59,7 +60,12 @@ export async function initApp({
 
   const isLoggedIn = getIsLoggedIn();
 
-  ProviderFactory.customProviders(customProviders || []);
+  const usedProviders = [
+    ...((safeWindow as any)?.multiversx?.providers || []),
+    ...(customProviders || [])
+  ];
+
+  ProviderFactory.customProviders(usedProviders || []);
 
   if (isLoggedIn) {
     await restoreProvider();

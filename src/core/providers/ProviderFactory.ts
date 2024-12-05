@@ -10,7 +10,11 @@ import { createExtensionProvider } from './helpers/extension/createExtensionProv
 import { getConfig } from './helpers/getConfig';
 import { createIframeProvider } from './helpers/iframe/createIframeProvider';
 import { createLedgerProvider } from './helpers/ledger/createLedgerProvider';
-import { IProvider, ProviderTypeEnum } from './types/providerFactory.types';
+import {
+  IProvider,
+  IProviderFactory,
+  ProviderTypeEnum
+} from './types/providerFactory.types';
 
 export class ProviderFactory {
   private static _customProviders: Array<{
@@ -32,9 +36,7 @@ export class ProviderFactory {
   public static async create({
     type,
     config: userConfig
-  }: any): Promise<DappProvider> {
-    // IProviderFactory
-
+  }: IProviderFactory): Promise<DappProvider> {
     let createdProvider: IProvider | null = null;
     const { account, UI } = await getConfig(userConfig);
 

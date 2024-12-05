@@ -51,3 +51,8 @@ export enum ProviderTypeEnum {
   passkey = 'passkey',
   none = ''
 }
+
+export interface IProviderFactory {
+  type: ProviderTypeEnum;
+  config?: IProviderConfig;
+}
