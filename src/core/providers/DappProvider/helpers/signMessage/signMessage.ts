@@ -1,6 +1,5 @@
 import { Message, Address } from '@multiversx/sdk-core';
 import { getAddress } from 'core/methods/account/getAddress';
-import { getProviderType } from 'core/providers/helpers/utils';
 import {
   IProvider,
   ProviderTypeEnum
@@ -22,7 +21,6 @@ export async function signMessage({
   options
 }: SignMessageType): Promise<Nullable<Message>> {
   const address = getAddress();
-  const providerType = getProviderType(provider);
 
   const messageToSign = new Message({
     address: new Address(address),
@@ -31,7 +29,7 @@ export async function signMessage({
 
   if (
     options?.hasConsentPopup &&
-    providerType === ProviderTypeEnum.crossWindow
+    provider.getType() === ProviderTypeEnum.crossWindow
   ) {
     (provider as unknown as CrossWindowProvider).setShouldShowConsentPopup(
       true

@@ -57,8 +57,11 @@ export interface IProviderFactory {
   config?: IProviderConfig;
 }
 
-export interface ICustomProvider {
+export interface ICustomProvider<
+  T extends ProviderTypeEnum = ProviderTypeEnum
+> {
   name: string;
+  type: T[keyof T];
   icon: string;
-  class: IProvider;
+  constructor: (config: IProviderConfig) => Promise<IProvider>;
 }

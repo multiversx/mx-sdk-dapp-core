@@ -29,7 +29,8 @@ export class ProviderFactory {
     config: userConfig
   }: IProviderFactory): Promise<DappProvider> {
     let createdProvider: IProvider | null = null;
-    const { account, UI } = await getConfig(userConfig);
+    const config = await getConfig(userConfig);
+    const { account, UI } = config;
 
     switch (type) {
       case ProviderTypeEnum.extension: {
@@ -110,9 +111,9 @@ export class ProviderFactory {
       }
 
       default: {
-        this._customProviders.forEach((customProvider) => {
-          if (customProvider.name === type) {
-            createdProvider = customProvider.class;
+        this._customProviders.forEach(async (customProvider) => {
+          if (customProvider.name !== type) {
+            createdProvider = await customProvider.constructor(config);
             createdProvider.getType = () => type;
           }
         });
