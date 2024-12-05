@@ -11,25 +11,16 @@ import { getConfig } from './helpers/getConfig';
 import { createIframeProvider } from './helpers/iframe/createIframeProvider';
 import { createLedgerProvider } from './helpers/ledger/createLedgerProvider';
 import {
+  ICustomProvider,
   IProvider,
   IProviderFactory,
   ProviderTypeEnum
 } from './types/providerFactory.types';
 
 export class ProviderFactory {
-  private static _customProviders: Array<{
-    name: string;
-    icon: string;
-    class: IProvider;
-  }> = [];
+  private static _customProviders: ICustomProvider[] = [];
 
-  public static customProviders(
-    providers: {
-      name: string;
-      icon: string;
-      class: IProvider;
-    }[]
-  ) {
+  public static customProviders(providers: ICustomProvider[]) {
     this._customProviders = providers;
   }
 

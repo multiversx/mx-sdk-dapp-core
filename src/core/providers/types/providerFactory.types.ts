@@ -56,3 +56,9 @@ export interface IProviderFactory {
   type: ProviderTypeEnum;
   config?: IProviderConfig;
 }
+
+export interface ICustomProvider {
+  name: string;
+  icon: string;
+  class: IProvider;
+}
