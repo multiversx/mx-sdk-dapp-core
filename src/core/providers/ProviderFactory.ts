@@ -112,7 +112,7 @@ export class ProviderFactory {
 
       default: {
         this._customProviders.forEach(async (customProvider) => {
-          if (customProvider.name !== type) {
+          if (customProvider.type === type) {
             createdProvider = await customProvider.constructor(config);
             createdProvider.getType = () => type;
           }
@@ -128,7 +128,7 @@ export class ProviderFactory {
     const dappProvider = new DappProvider(createdProvider);
 
     setAccountProvider(dappProvider);
-    setProviderType(type);
+    setProviderType(type as ProviderTypeEnum);
 
     return dappProvider;
   }

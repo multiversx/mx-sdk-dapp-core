@@ -7,7 +7,9 @@ import {
 import { getStore } from 'store/store';
 import { TokenLoginType } from 'types/login.types';
 
-export const setProviderType = (providerType: ProviderTypeEnum) =>
+export const setProviderType = <T extends ProviderTypeEnum = ProviderTypeEnum>(
+  providerType: T
+) =>
   getStore().setState(({ loginInfo: state }) => {
     state.providerType = providerType;
   });

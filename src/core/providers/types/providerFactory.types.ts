@@ -13,7 +13,7 @@ export interface IProvider<T extends ProviderTypeEnum = ProviderTypeEnum>
   }>;
   logout: () => Promise<boolean>;
   setShouldShowConsentPopup?: (shouldShow: boolean) => void;
-  getType: () => T;
+  getType: () => T[keyof T] | string;
   getAddress(): Promise<string | undefined>;
   // TODO will be removed as soon as the new login method is implemented in the same way for all providers
   getTokenLoginSignature(): string | undefined;
@@ -52,8 +52,10 @@ export enum ProviderTypeEnum {
   none = ''
 }
 
-export interface IProviderFactory {
-  type: ProviderTypeEnum;
+export interface IProviderFactory<
+  T extends ProviderTypeEnum = ProviderTypeEnum
+> {
+  type: T[keyof T];
   config?: IProviderConfig;
 }
 
