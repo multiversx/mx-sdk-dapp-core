@@ -106,7 +106,6 @@ export class LedgerDappProvider extends DappProvider {
     this.provider.getType = () => ProviderTypeEnum.ledger;
 
     this.hwProvider = provider;
-    console.log('\x1b[42m%s\x1b[0m', 'setting now provider', provider);
 
     return true;
   }
@@ -139,7 +138,6 @@ export class LedgerDappProvider extends DappProvider {
       });
 
       const manager = LedgerConnectStateManager.getInstance(this.eventBus);
-      console.log('\x1b[42m%s\x1b[0m', 'this is setAccounts');
 
       const updateAccounts = async () => {
         const startIndex = manager.getAccountScreenData()?.startIndex || 0;

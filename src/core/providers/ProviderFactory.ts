@@ -62,7 +62,6 @@ export class ProviderFactory {
           throw new Error(SECOND_LOGIN_ATTEMPT_ERROR);
         }
         dappProvider = new LedgerDappProvider();
-        console.log('\x1b[42m%s\x1b[0m', '---1---');
 
         await dappProvider.init?.();
 
