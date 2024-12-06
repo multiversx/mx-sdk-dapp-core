@@ -5,15 +5,17 @@ import { getState } from 'store/store';
 
 interface ICreateCrossWindowProviderProps {
   address?: string;
+  walletAddress?: string;
 }
 
 export async function createCrossWindowProvider({
-  address = ''
+  address = '',
+  walletAddress = ''
 }: ICreateCrossWindowProviderProps) {
   const network = networkSelector(getState());
   const provider = CrossWindowProvider.getInstance();
   await provider.init();
-  provider.setWalletUrl(String(network.walletAddress));
+  provider.setWalletUrl(walletAddress || network.walletAddress);
   provider.setAddress(address);
 
   if (isBrowserWithPopupConfirmation) {

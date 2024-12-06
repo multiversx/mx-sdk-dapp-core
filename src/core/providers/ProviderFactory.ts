@@ -111,12 +111,12 @@ export class ProviderFactory {
       }
 
       default: {
-        this._customProviders.forEach(async (customProvider) => {
+        for (const customProvider of this._customProviders) {
           if (customProvider.type === type) {
             createdProvider = await customProvider.constructor(config);
             createdProvider.getType = () => type;
           }
-        });
+        }
         break;
       }
     }
