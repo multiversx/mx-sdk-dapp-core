@@ -9,22 +9,11 @@ import { BatchTransactionsResponseType } from 'types/serverTransactions.types';
 import { SignedTransactionType } from 'types/transactions.types';
 
 export class TransactionManager {
-  private static instance: TransactionManager | null = null;
-
-  private constructor() {}
-
-  public static getInstance(): TransactionManager {
-    if (!TransactionManager.instance) {
-      TransactionManager.instance = new TransactionManager();
-    }
-    return TransactionManager.instance;
-  }
-
-  public send = async (
+  public static send = async (
     signedTransactions: Transaction[] | Transaction[][]
-  ): Promise<string[] | null> => {
+  ): Promise<string[]> => {
     if (signedTransactions.length === 0) {
-      return null;
+      throw new Error('No transactions to send');
     }
 
     try {
@@ -45,7 +34,8 @@ export class TransactionManager {
         return flatSentTransactions.map((transaction) => transaction.hash);
       }
 
-      return await this.sendSignedTransactions(signedTransactions);
+      const hashes = await this.sendSignedTransactions(signedTransactions);
+      return hashes;
     } catch (error) {
       const responseData = <{ message: string }>(
         (error as AxiosError).response?.data
@@ -54,7 +44,7 @@ export class TransactionManager {
     }
   };
 
-  private sendSignedTransactions = async (
+  private static sendSignedTransactions = async (
     signedTransactions: Transaction[]
   ): Promise<string[]> => {
     const { apiAddress, apiTimeout } = networkSelector(getState());
@@ -70,7 +60,7 @@ export class TransactionManager {
     return response.map(({ data }) => data.txHash);
   };
 
-  private sendSignedBatchTransactions = async (
+  private static sendSignedBatchTransactions = async (
     signedTransactions: Transaction[][]
   ) => {
     const { address } = getAccount();
@@ -95,7 +85,7 @@ export class TransactionManager {
       id: batchId
     };
 
-    const response = await axios.post<BatchTransactionsResponseType>(
+    const { data } = await axios.post<BatchTransactionsResponseType>(
       `${apiAddress}/batch`,
       payload,
       {
@@ -103,32 +93,32 @@ export class TransactionManager {
       }
     );
 
-    return { data: response.data };
+    return { data };
   };
 
-  private buildBatchId = (address: string) => {
+  private static buildBatchId = (address: string) => {
     const sessionId = Date.now().toString();
     return `${sessionId}${BATCH_TRANSACTIONS_ID_SEPARATOR}${address}`;
   };
 
-  private sequentialToFlatArray = (
+  private static sequentialToFlatArray = (
     transactions: SignedTransactionType[] | SignedTransactionType[][] = []
   ) =>
     this.getIsSequential(transactions)
       ? transactions.flat()
       : (transactions as SignedTransactionType[]);
 
-  private getIsSequential = (
+  private static getIsSequential = (
     transactions?: SignedTransactionType[] | SignedTransactionType[][]
-  ) => transactions?.some((transaction) => Array.isArray(transaction));
+  ) => transactions?.every((transaction) => Array.isArray(transaction));
 
-  private isBatchTransaction = (
+  private static isBatchTransaction = (
     transactions: Transaction[] | Transaction[][]
   ): transactions is Transaction[][] => {
     return Array.isArray(transactions[0]);
   };
 
-  private parseSignedTransaction = (signedTransaction: Transaction) => {
+  private static parseSignedTransaction = (signedTransaction: Transaction) => {
     const parsedTransaction = {
       ...signedTransaction.toPlainObject(),
       hash: signedTransaction.getHash().hex()
@@ -143,7 +133,7 @@ export class TransactionManager {
     return parsedTransaction;
   };
 
-  private isGuardianTx = (transactionData?: string) =>
+  private static isGuardianTx = (transactionData?: string) =>
     transactionData &&
     transactionData.startsWith(GuardianActionsEnum.SetGuardian);
 }
