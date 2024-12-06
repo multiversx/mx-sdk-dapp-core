@@ -55,8 +55,10 @@ export const initializeNetwork = async ({
       };
 
       initializeNetworkConfig(apiConfig);
+      return apiConfig;
     }
   }
 
   initializeNetworkConfig(localConfig);
+  return localConfig;
 };
