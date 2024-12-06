@@ -1,4 +1,5 @@
 import type { IDAppProviderBase } from '@multiversx/sdk-dapp-utils';
+import { DappProvider } from '../DappProvider';
 
 // @ts-ignore
 export interface IProvider<T extends ProviderTypeEnum = ProviderTypeEnum>
@@ -69,5 +70,5 @@ export interface ICustomProvider<
   name: string;
   type: T[keyof T];
   icon: string;
-  constructor: (config: IProviderConfig) => Promise<IProvider>;
+  constructor: typeof DappProvider;
 }

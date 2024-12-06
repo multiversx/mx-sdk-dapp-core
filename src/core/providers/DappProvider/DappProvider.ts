@@ -16,9 +16,11 @@ import {
 
 export class DappProvider {
   protected provider: IProvider;
+  protected address: string = '';
 
-  constructor() {
+  constructor(address?: string) {
     this.provider = emptyProvider;
+    this.address = address || '';
   }
 
   init() {

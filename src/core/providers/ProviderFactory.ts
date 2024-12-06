@@ -23,7 +23,7 @@ export class ProviderFactory {
 
   public static async create({
     type,
-    config: userConfig
+    config: userConfig // TODO: remove config and get address from store
   }: IProviderFactory): Promise<DappProvider> {
     let createdProvider: IProvider | null = null;
     const config = await getConfig(userConfig);
@@ -32,9 +32,8 @@ export class ProviderFactory {
 
     switch (type) {
       case ProviderTypeEnum.extension: {
-        const provider = await createExtensionProvider();
+        const provider = await createExtensionProvider(); // TODO: make classes
         createdProvider = provider as unknown as IProvider;
-
         createdProvider.getType = () => ProviderTypeEnum.extension;
 
         break;
@@ -95,8 +94,8 @@ export class ProviderFactory {
       default: {
         for (const customProvider of this._customProviders) {
           if (customProvider.type === type) {
-            createdProvider = await customProvider.constructor(config);
-            createdProvider.getType = () => type;
+            dappProvider = new customProvider.constructor();
+            dappProvider.getType = () => type;
           }
         }
         break;
