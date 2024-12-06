@@ -58,11 +58,6 @@ export class LedgerDappProvider extends DappProvider {
       this.eventBus = await ledgerModalElement.getEventBus();
     }
 
-    if (!this.eventBus) {
-      throw new Error('Event bus not provided for Ledger init');
-    }
-
-    const manager = LedgerConnectStateManager.getInstance(this.eventBus);
     const _self = this;
 
     const { ledgerProvider: provider, ledgerConfig } = await new Promise<
@@ -71,8 +66,13 @@ export class LedgerDappProvider extends DappProvider {
       const onRetry = () => buildLedgerProvider(resolve, reject);
       const onCancel = () => reject('Device unavailable');
 
+      let manager: LedgerConnectStateManager | null = null;
+      if (_self.eventBus) {
+        manager = LedgerConnectStateManager.getInstance(_self.eventBus);
+      }
+
       try {
-        manager.updateAccountScreen({
+        manager?.updateAccountScreen({
           isLoading: true
         });
 
@@ -90,7 +90,7 @@ export class LedgerDappProvider extends DappProvider {
         }
 
         const { errorMessage, defaultErrorMessage } = getLedgerErrorCodes(err);
-        manager.updateConnectScreen({
+        manager?.updateConnectScreen({
           error: errorMessage ?? defaultErrorMessage ?? failInitializeErrorText
         });
 

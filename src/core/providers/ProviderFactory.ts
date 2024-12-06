@@ -1,7 +1,4 @@
 import { IframeLoginTypes } from '@multiversx/sdk-web-wallet-iframe-provider/out/constants';
-import { SECOND_LOGIN_ATTEMPT_ERROR } from 'constants/errorMessages.constants';
-import { getAddress } from 'core/methods/account/getAddress';
-import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import { setProviderType } from 'store/actions/loginInfo/loginInfoActions';
 import { setAccountProvider } from './accountProvider';
 import { DappProvider } from './DappProvider/DappProvider';
@@ -55,14 +52,7 @@ export class ProviderFactory {
       }
 
       case ProviderTypeEnum.ledger: {
-        const loggedIn = getIsLoggedIn();
-
-        if (loggedIn) {
-          console.warn('Already logged in with:', getAddress());
-          throw new Error(SECOND_LOGIN_ATTEMPT_ERROR);
-        }
         dappProvider = new LedgerDappProvider();
-
         await dappProvider.init?.();
 
         break;
