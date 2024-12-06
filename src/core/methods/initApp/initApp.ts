@@ -40,19 +40,19 @@ export async function initApp({
   const shouldEnableTransactionTracker =
     dAppConfig.enableTansactionTracker !== false;
 
+  const { apiAddress } = await initializeNetwork({
+    customNetworkConfig: dAppConfig.network,
+    environment: dAppConfig.environment
+  });
+
   if (dAppConfig?.nativeAuth) {
     const nativeAuthConfig: NativeAuthConfigType =
       typeof dAppConfig.nativeAuth === 'boolean'
-        ? getDefaultNativeAuthConfig()
+        ? getDefaultNativeAuthConfig(apiAddress)
         : dAppConfig.nativeAuth;
 
     setNativeAuthConfig(nativeAuthConfig);
   }
-
-  await initializeNetwork({
-    customNetworkConfig: dAppConfig.network,
-    environment: dAppConfig.environment
-  });
 
   if (shouldEnableTransactionTracker) {
     trackTransactions();
