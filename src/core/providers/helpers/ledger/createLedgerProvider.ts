@@ -1,4 +1,7 @@
+import type { LedgerConnectModal } from '@multiversx/sdk-dapp-core-ui/dist/components/ledger-connect-modal';
+import { defineCustomElements } from '@multiversx/sdk-dapp-core-ui/loader';
 import BigNumber from 'bignumber.js';
+import { safeWindow } from 'constants/index';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import {
   IEventBus,
@@ -17,14 +20,17 @@ import { ILedgerAccount } from './ledger.types';
 
 const failInitializeErrorText = 'Check if the MultiversX App is open on Ledger';
 
-export async function createLedgerProvider(
-  mount: () => Promise<IEventBus>
-): Promise<IProvider | null> {
+export async function createLedgerProvider(): Promise<IProvider | null> {
   const shouldInitiateLogin = !getIsLoggedIn();
 
   let eventBus: IEventBus | undefined;
   if (shouldInitiateLogin) {
-    eventBus = await mount?.();
+    defineCustomElements(safeWindow);
+    const ledgerModalElement = document.createElement(
+      'ledger-connect-modal'
+    ) as LedgerConnectModal;
+    document.body.appendChild(ledgerModalElement);
+    eventBus = await ledgerModalElement.getEventBus();
   }
 
   if (!eventBus) {
@@ -68,10 +74,7 @@ export async function createLedgerProvider(
 
   const hwProviderLogin = provider.login;
 
-  createdProvider.getType = () => ProviderTypeEnum.ledger;
-
   createdProvider.login = async (options?: {
-    callbackUrl?: string;
     token?: string;
   }): Promise<{
     address: string;
@@ -303,6 +306,8 @@ export async function createLedgerProvider(
       signature: selectedAccount.signature
     };
   };
+
+  // createdProvider.signTransaction = ...
 
   return createdProvider;
 }

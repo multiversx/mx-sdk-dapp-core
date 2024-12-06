@@ -13,6 +13,8 @@ export interface IProvider<T extends ProviderTypeEnum = ProviderTypeEnum>
   }>;
   logout: () => Promise<boolean>;
   setShouldShowConsentPopup?: (shouldShow: boolean) => void;
+  mountConnectUI?: () => Promise<IEventBus>;
+  mountSignUI?: () => Promise<IEventBus>;
   getType: () => T[keyof T] | string;
   getAddress(): Promise<string | undefined>;
   // TODO will be removed as soon as the new login method is implemented in the same way for all providers
@@ -29,10 +31,12 @@ export interface IEventBus {
 
 export interface IProviderConfigUI {
   ledger: {
-    mount: () => Promise<IEventBus>;
+    connect: () => Promise<IEventBus>;
+    sign: () => Promise<IEventBus>;
   };
 }
 
+// TODO: remove
 export interface IProviderConfig {
   account?: {
     address: string;

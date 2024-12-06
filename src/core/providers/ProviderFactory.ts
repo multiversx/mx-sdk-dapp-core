@@ -9,7 +9,7 @@ import { createCrossWindowProvider } from './helpers/crossWindow/createCrossWind
 import { createExtensionProvider } from './helpers/extension/createExtensionProvider';
 import { getConfig } from './helpers/getConfig';
 import { createIframeProvider } from './helpers/iframe/createIframeProvider';
-import { createLedgerProvider } from './helpers/ledger/createLedgerProvider';
+import { LedgerDappProvider } from './helpers/ledger/LedgerDappProvider';
 import {
   ICustomProvider,
   IProvider,
@@ -30,7 +30,8 @@ export class ProviderFactory {
   }: IProviderFactory): Promise<DappProvider> {
     let createdProvider: IProvider | null = null;
     const config = await getConfig(userConfig);
-    const { account, UI } = config;
+    const { account } = config;
+    let dappProvider: DappProvider | null = null;
 
     switch (type) {
       case ProviderTypeEnum.extension: {
@@ -54,24 +55,16 @@ export class ProviderFactory {
       }
 
       case ProviderTypeEnum.ledger: {
-        const ledgerProvider = await createLedgerProvider(UI.ledger.mount);
-
-        if (!ledgerProvider) {
-          throw new Error('Unable to create ledger provider');
-        }
-
-        createdProvider = ledgerProvider;
-
-        createdProvider.getType = () => ProviderTypeEnum.ledger;
-
         const loggedIn = getIsLoggedIn();
 
         if (loggedIn) {
           console.warn('Already logged in with:', getAddress());
           throw new Error(SECOND_LOGIN_ATTEMPT_ERROR);
         }
+        dappProvider = new LedgerDappProvider();
+        console.log('\x1b[42m%s\x1b[0m', '---1---');
 
-        await createdProvider.init?.();
+        await dappProvider.init?.();
 
         break;
       }
@@ -121,11 +114,11 @@ export class ProviderFactory {
       }
     }
 
-    if (!createdProvider) {
+    if (dappProvider == null) {
       throw new Error('Unable to create provider');
     }
 
-    const dappProvider = new DappProvider(createdProvider);
+    // dappProvider = new DappProvider(createdProvider);
 
     setAccountProvider(dappProvider);
     setProviderType(type as ProviderTypeEnum);

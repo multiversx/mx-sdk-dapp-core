@@ -21,8 +21,11 @@ export async function getLedgerProvider() {
       return provider;
     }
 
+    console.log('\x1b[42m%s\x1b[0m', '---2---');
+
     const ledgerProvider = new HWProvider();
     const isInitialized = await ledgerProvider.init();
+    console.log('\x1b[42m%s\x1b[0m', '---3---');
 
     if (!isInitialized) {
       throw new Error('Failed to initialize Ledger Provider');

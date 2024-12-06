@@ -4,7 +4,7 @@ import { emptyProvider } from './helpers/emptyProvider';
 
 export type ProvidersType = IProvider;
 
-let accountProvider: DappProvider = new DappProvider(emptyProvider);
+let accountProvider: DappProvider = new DappProvider();
 
 export function setAccountProvider<TProvider extends DappProvider>(
   provider: TProvider

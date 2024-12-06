@@ -9,8 +9,11 @@ import {
 
 const UI: IProviderConfigUI = {
   [ProviderTypeEnum.ledger]: {
-    mount: () => {
-      throw new Error('mount not implemented');
+    connect: () => {
+      throw new Error('ledger connect UI not implemented');
+    },
+    sign: () => {
+      throw new Error('ledger sign UI not implemented');
     }
   }
 };
@@ -22,9 +25,20 @@ export const getConfig = async (config: IProviderConfig = defaultConfig) => {
     return { ...defaultConfig, ...config };
   }
 
-  const UI = {
+  const UI: IProviderConfigUI = {
     [ProviderTypeEnum.ledger]: {
-      mount: async () => {
+      connect: async () => {
+        defineCustomElements(safeWindow);
+        const ledgerModalElement = document.createElement(
+          'ledger-connect-modal'
+        ) as LedgerConnectModal;
+
+        document.body.appendChild(ledgerModalElement);
+
+        const eventBus = await ledgerModalElement.getEventBus();
+        return eventBus;
+      },
+      sign: async () => {
         defineCustomElements(safeWindow);
         const ledgerModalElement = document.createElement(
           'ledger-connect-modal'

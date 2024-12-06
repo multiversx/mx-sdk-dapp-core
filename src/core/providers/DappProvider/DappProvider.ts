@@ -1,5 +1,6 @@
 import { Message } from '@multiversx/sdk-core/out/message';
 import { Transaction } from '@multiversx/sdk-core/out/transaction';
+import { emptyProvider } from '../helpers/emptyProvider';
 import { IProvider } from '../types/providerFactory.types';
 import { login } from './helpers/login/login';
 import { logout } from './helpers/logout/logout';
@@ -14,10 +15,10 @@ import {
 } from './helpers/signTransactions/signTransactions';
 
 export class DappProvider {
-  private provider: IProvider;
+  protected provider: IProvider;
 
-  constructor(provider: IProvider) {
-    this.provider = provider;
+  constructor() {
+    this.provider = emptyProvider;
   }
 
   init() {
