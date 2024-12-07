@@ -124,9 +124,7 @@ export class LedgerDappProvider extends DappProvider {
       if (!this.eventBus) {
         throw new Error('Event bus not provided for Ledger login');
       }
-      const isConnected = (
-        this.hwProvider as unknown as HWProvider
-      ).isConnected();
+      const isConnected = this.hwProvider?.isConnected();
 
       if (!isConnected) {
         throw new Error('Ledger device is not connected');
