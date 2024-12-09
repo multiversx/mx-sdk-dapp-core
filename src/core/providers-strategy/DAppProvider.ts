@@ -1,25 +1,84 @@
-import { Strategy } from './models/Strategy';
-import { ProviderContainer } from './ProviderContainer';
-import { CrossWindowProviderStrategy } from './strategies/CrossWindowProviderStrategy';
-import { ExtensionProviderStrategy } from './strategies/ExtensionProviderStrategy';
-import { LedgerProviderStrategy } from './strategies/LedgerProviderStrategy';
-import { MetamaskProviderStrategy } from './strategies/MetamaskProviderStrategy';
-import { PasskeyProviderStrategy } from './strategies/PasskeyProviderStrategy';
+import { Message } from '@multiversx/sdk-core/out/message';
+import { Transaction } from '@multiversx/sdk-core/out/transaction';
+import { ProviderTypeEnum } from 'core/providers/types/providerFactory.types';
+import { login as genericLogin } from 'core/providers-strategy/helpers/login/login';
+import { logout as genericLogout } from 'core/providers-strategy/helpers/logout/logout';
+import { signMessage as genericSignMessage } from 'core/providers-strategy/helpers/signMessage/signMessage';
+import {
+  verifyMessage as genericVerifyMessage,
+  VerifyMessageReturnType
+} from 'core/providers-strategy/helpers/signMessage/verifyMessage';
+import {
+  signTransactions as genericSignTransactions,
+  SignTransactionsOptionsType
+} from 'core/providers-strategy/helpers/signTransactions/signTransactions';
+import { IProvider } from './models/Provider';
 
-export class DAppProvider {
-  static strategies = {
-    [Strategy.Extension]: new ExtensionProviderStrategy(),
-    [Strategy.CrossWindow]: new CrossWindowProviderStrategy(),
-    [Strategy.Ledger]: new LedgerProviderStrategy(),
-    [Strategy.Metamask]: new MetamaskProviderStrategy(),
-    [Strategy.Passkey]: new PasskeyProviderStrategy()
-  };
+export class DAppProvider<TProvider extends IProvider> {
+  constructor(
+    private provider: TProvider,
+    private providerType: ProviderTypeEnum,
+    public address?: string
+  ) {
+    this.address = address || '';
+  }
 
-  constructor(private address?: string) {}
+  public init() {
+    return this.provider.init();
+  }
 
-  public resolve = async (strategy: Strategy) => {
-    const provider = await DAppProvider.strategies[strategy].resolve();
+  public async login() {
+    return await genericLogin(this.provider);
+  }
 
-    return new ProviderContainer(provider, this.address);
-  };
+  public async logout(
+    options = {
+      shouldBroadcastLogoutAcrossTabs: true,
+      hasConsentPopup: false
+    }
+  ) {
+    return await genericLogout({ provider: this.provider, options });
+  }
+
+  public setShouldShowConsentPopup(shouldShow: boolean) {
+    this.provider.setShouldShowConsentPopup?.(shouldShow);
+  }
+
+  public getType() {
+    return this.providerType;
+  }
+
+  public getProvider() {
+    return this.provider;
+  }
+
+  public async signTransactions(
+    transactions: Transaction[],
+    options?: SignTransactionsOptionsType
+  ): Promise<Transaction[]> {
+    const signedTransactions = await genericSignTransactions({
+      provider: this.provider,
+      transactions,
+      options
+    });
+    return signedTransactions;
+  }
+
+  public async signMessage(
+    message: Message,
+    options?: {
+      hasConsentPopup?: boolean;
+    }
+  ): Promise<Message | null> {
+    const signedMessage = await genericSignMessage({
+      provider: this.provider,
+      message,
+      options
+    });
+    return signedMessage;
+  }
+
+  public verifyMessage(signedMessage: string): VerifyMessageReturnType {
+    return genericVerifyMessage(signedMessage);
+  }
 }

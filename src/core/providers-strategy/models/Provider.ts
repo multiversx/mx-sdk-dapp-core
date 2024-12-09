@@ -5,33 +5,26 @@ import type { Nullable } from '@multiversx/sdk-dapp-utils/out/types';
 import { IProviderAccount as IExtensionProviderAccount } from '@multiversx/sdk-extension-provider/out';
 import { IProviderAccount as IHWProviderAccount } from '@multiversx/sdk-hw-provider/out';
 import { IProviderAccount as ICrossWindowProviderAccount } from '@multiversx/sdk-web-wallet-cross-window-provider/out';
+// import { ProviderTypeEnum } from 'core/providers/types/providerFactory.types';
 
-export type IProviderAccount =
+export type IProviderAccount = (
   | IHWProviderAccount
   | IExtensionProviderAccount
   | ICrossWindowProviderAccount
-  | {
-      address: string;
-      signature: string;
-      multisig?: string;
-      impersonate?: string;
-      [key: string]: unknown;
-    };
+) & {
+  address: string;
+  signature?: string;
+  multisig?: string;
+  impersonate?: string;
+  // [key: string]: unknown;
+};
 
 export interface IProvider {
   init: () => Promise<boolean>;
-  login: (options?: { callbackUrl?: string; token?: string }) => Promise<
-    | IHWProviderAccount
-    | IExtensionProviderAccount
-    | ICrossWindowProviderAccount
-    | {
-        address: string;
-        signature: string;
-        multisig?: string;
-        impersonate?: string;
-        [key: string]: unknown;
-      }
-  >;
+  login: (options?: {
+    callbackUrl?: string;
+    token?: string;
+  }) => Promise<IProviderAccount | null>;
   logout: (options?: IDAppProviderOptions) => Promise<boolean>;
   getAccount(): IProviderAccount | null;
   setAccount(account: IProviderAccount): void;
@@ -53,6 +46,7 @@ export interface IProvider {
   mountConnectUI?: () => Promise<IEventBus>;
   mountSignUI?: () => Promise<IEventBus>;
   getAddress(): Promise<string | undefined>;
+  // getType: () => ProviderTypeEnum[keyof ProviderTypeEnum] | string;
 }
 
 export interface IEventBus {
