@@ -27,19 +27,6 @@ export interface IEventBus {
   unsubscribe(event: string, callback: Function): void;
 }
 
-export interface IProviderConfigUI {
-  ledger: {
-    mount: () => Promise<IEventBus>;
-  };
-}
-
-export interface IProviderConfig {
-  account?: {
-    address: string;
-  };
-  UI?: IProviderConfigUI;
-}
-
 export enum ProviderTypeEnum {
   iframe = 'iframe',
   crossWindow = 'crossWindow',
@@ -56,7 +43,6 @@ export interface IProviderFactory<
   T extends ProviderTypeEnum = ProviderTypeEnum
 > {
   type: T[keyof T];
-  config?: IProviderConfig;
 }
 
 export interface ICustomProvider<
@@ -65,5 +51,5 @@ export interface ICustomProvider<
   name: string;
   type: T[keyof T];
   icon: string;
-  constructor: (config: IProviderConfig) => Promise<IProvider>;
+  constructor: (_address?: string) => Promise<IProvider>;
 }

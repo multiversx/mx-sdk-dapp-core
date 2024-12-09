@@ -1,10 +1,12 @@
 import BigNumber from 'bignumber.js';
+import { safeWindow } from 'constants/window.constants';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import {
   IEventBus,
   IProvider,
   ProviderTypeEnum
 } from 'core/providers/types/providerFactory.types';
+import { defineCustomElements, LedgerConnectModal } from 'lib/sdkDappCoreUi';
 import { setLedgerAccount } from 'store/actions/account/accountActions';
 import { setLedgerLogin } from 'store/actions/loginInfo/loginInfoActions';
 import { fetchAccount } from 'utils/account/fetchAccount';
@@ -17,14 +19,18 @@ import { ILedgerAccount } from './ledger.types';
 
 const failInitializeErrorText = 'Check if the MultiversX App is open on Ledger';
 
-export async function createLedgerProvider(
-  mount: () => Promise<IEventBus>
-): Promise<IProvider | null> {
+export async function createLedgerProvider(): Promise<IProvider | null> {
   const shouldInitiateLogin = !getIsLoggedIn();
 
   let eventBus: IEventBus | undefined;
   if (shouldInitiateLogin) {
-    eventBus = await mount?.();
+    await defineCustomElements(safeWindow);
+    const ledgerModalElement = document.createElement(
+      'ledger-connect-modal'
+    ) as LedgerConnectModal;
+    document.body.appendChild(ledgerModalElement);
+    await customElements.whenDefined('ledger-connect-modal');
+    eventBus = await ledgerModalElement.getEventBus();
   }
 
   if (!eventBus) {
