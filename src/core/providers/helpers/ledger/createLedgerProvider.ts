@@ -23,6 +23,7 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
   const shouldInitiateLogin = !getIsLoggedIn();
 
   let eventBus: IEventBus | undefined;
+
   if (shouldInitiateLogin) {
     await defineCustomElements(safeWindow);
     const ledgerModalElement = document.createElement(
@@ -31,10 +32,6 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
     document.body.appendChild(ledgerModalElement);
     await customElements.whenDefined('ledger-connect-modal');
     eventBus = await ledgerModalElement.getEventBus();
-  }
-
-  if (!eventBus) {
-    throw new Error('Event bus not provided for Ledger provider');
   }
 
   const manager = LedgerConnectStateManager.getInstance(eventBus);
@@ -46,14 +43,17 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
     const onCancel = () => reject('Device unavailable');
 
     try {
-      manager.updateAccountScreen({
+      manager?.updateAccountScreen({
         isLoading: true
       });
 
       const data = await getLedgerProvider();
 
-      eventBus.unsubscribe(LedgerConnectEventsEnum.CONNECT_DEVICE, onRetry);
-      eventBus.unsubscribe(LedgerConnectEventsEnum.CLOSE, onCancel);
+      if (eventBus) {
+        eventBus.unsubscribe(LedgerConnectEventsEnum.CONNECT_DEVICE, onRetry);
+        eventBus.unsubscribe(LedgerConnectEventsEnum.CLOSE, onCancel);
+      }
+
       resolve(data);
     } catch (err) {
       if (!shouldInitiateLogin) {
@@ -61,12 +61,14 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
       }
 
       const { errorMessage, defaultErrorMessage } = getLedgerErrorCodes(err);
-      manager.updateConnectScreen({
+      manager?.updateConnectScreen({
         error: errorMessage ?? defaultErrorMessage ?? failInitializeErrorText
       });
 
-      eventBus.subscribe(LedgerConnectEventsEnum.CONNECT_DEVICE, onRetry);
-      eventBus.subscribe(LedgerConnectEventsEnum.CLOSE, onCancel);
+      if (eventBus) {
+        eventBus.subscribe(LedgerConnectEventsEnum.CONNECT_DEVICE, onRetry);
+        eventBus.subscribe(LedgerConnectEventsEnum.CLOSE, onCancel);
+      }
     }
   });
 
@@ -95,6 +97,9 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
     });
 
     const updateAccounts = async () => {
+      if (!manager) {
+        return;
+      }
       const startIndex = manager.getAccountScreenData()?.startIndex || 0;
       const allAccounts = manager.getAllAccounts();
 
@@ -196,6 +201,9 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
       addressIndex: number;
     }>(async (resolve, reject) => {
       const unsubscribeFromEvents = () => {
+        if (!eventBus) {
+          throw new Error('Event bus not provided for Ledger provider');
+        }
         // eslint-disable-next-line @typescript-eslint/no-use-before-define
         eventBus.unsubscribe(LedgerConnectEventsEnum.CLOSE, onCancel);
         eventBus.unsubscribe(
@@ -216,7 +224,7 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
       };
 
       const closeComponent = () => {
-        manager.closeAndReset();
+        manager?.closeAndReset();
       };
 
       const onCancel = async () => {
@@ -226,16 +234,16 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
       };
 
       const onNextPageChanged = async () => {
-        const startIndex = manager.getAccountScreenData()?.startIndex || 0;
-        manager.updateStartIndex(startIndex + manager.addressesPerPage);
+        const startIndex = manager?.getAccountScreenData()?.startIndex || 0;
+        manager?.updateStartIndex(startIndex + manager.addressesPerPage);
         await updateAccounts();
       };
 
       const onPrevPageChanged = async () => {
-        const startIndex = manager.getAccountScreenData()?.startIndex || 0;
+        const startIndex = manager?.getAccountScreenData()?.startIndex || 0;
 
         if (startIndex > 0) {
-          manager.updateStartIndex(
+          manager?.updateStartIndex(
             Math.max(0, startIndex - manager.addressesPerPage)
           );
 
@@ -247,7 +255,7 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
         addressIndex: number;
         selectedAddress: string;
       }) {
-        manager.updateConfirmScreen({
+        manager?.updateConfirmScreen({
           ...authData,
           selectedAddress: payload.selectedAddress
         });
@@ -273,17 +281,19 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
           });
         } catch (err) {
           console.error('User rejected login:', err);
-          const shouldClose = Boolean(manager.getAccountScreenData());
+          const shouldClose = Boolean(manager?.getAccountScreenData());
           if (shouldClose) {
             return closeComponent();
           }
-          const shouldGoBack = Boolean(manager.getConfirmScreenData());
+          const shouldGoBack = Boolean(manager?.getConfirmScreenData());
           if (shouldGoBack) {
             await updateAccounts();
           }
         }
       };
-
+      if (!eventBus) {
+        throw new Error('Event bus not provided for Ledger provider');
+      }
       eventBus.subscribe(LedgerConnectEventsEnum.CLOSE, onCancel);
       eventBus.subscribe(LedgerConnectEventsEnum.NEXT_PAGE, onNextPageChanged);
       eventBus.subscribe(LedgerConnectEventsEnum.PREV_PAGE, onPrevPageChanged);
