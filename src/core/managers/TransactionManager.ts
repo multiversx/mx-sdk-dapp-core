@@ -9,7 +9,18 @@ import { BatchTransactionsResponseType } from 'types/serverTransactions.types';
 import { SignedTransactionType } from 'types/transactions.types';
 
 export class TransactionManager {
-  public static send = async (
+  private static instance: TransactionManager | null = null;
+
+  private constructor() {}
+
+  public static getInstance(): TransactionManager {
+    if (!TransactionManager.instance) {
+      TransactionManager.instance = new TransactionManager();
+    }
+    return TransactionManager.instance;
+  }
+
+  public send = async (
     signedTransactions: Transaction[] | Transaction[][]
   ): Promise<string[]> => {
     if (signedTransactions.length === 0) {
@@ -44,7 +55,7 @@ export class TransactionManager {
     }
   };
 
-  private static sendSignedTransactions = async (
+  private sendSignedTransactions = async (
     signedTransactions: Transaction[]
   ): Promise<string[]> => {
     const { apiAddress, apiTimeout } = networkSelector(getState());
@@ -60,7 +71,7 @@ export class TransactionManager {
     return response.map(({ data }) => data.txHash);
   };
 
-  private static sendSignedBatchTransactions = async (
+  private sendSignedBatchTransactions = async (
     signedTransactions: Transaction[][]
   ) => {
     const { address } = getAccount();
@@ -96,29 +107,29 @@ export class TransactionManager {
     return { data };
   };
 
-  private static buildBatchId = (address: string) => {
+  private buildBatchId = (address: string) => {
     const sessionId = Date.now().toString();
     return `${sessionId}${BATCH_TRANSACTIONS_ID_SEPARATOR}${address}`;
   };
 
-  private static sequentialToFlatArray = (
+  private sequentialToFlatArray = (
     transactions: SignedTransactionType[] | SignedTransactionType[][] = []
   ) =>
     this.getIsSequential(transactions)
       ? transactions.flat()
       : (transactions as SignedTransactionType[]);
 
-  private static getIsSequential = (
+  private getIsSequential = (
     transactions?: SignedTransactionType[] | SignedTransactionType[][]
   ) => transactions?.every((transaction) => Array.isArray(transaction));
 
-  private static isBatchTransaction = (
+  private isBatchTransaction = (
     transactions: Transaction[] | Transaction[][]
   ): transactions is Transaction[][] => {
     return Array.isArray(transactions[0]);
   };
 
-  private static parseSignedTransaction = (signedTransaction: Transaction) => {
+  private parseSignedTransaction = (signedTransaction: Transaction) => {
     const parsedTransaction = {
       ...signedTransaction.toPlainObject(),
       hash: signedTransaction.getHash().hex()
@@ -133,7 +144,7 @@ export class TransactionManager {
     return parsedTransaction;
   };
 
-  private static isGuardianTx = (transactionData?: string) =>
+  private isGuardianTx = (transactionData?: string) =>
     transactionData &&
     transactionData.startsWith(GuardianActionsEnum.SetGuardian);
 }
