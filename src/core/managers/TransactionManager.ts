@@ -28,25 +28,25 @@ export class TransactionManager {
     }
 
     try {
-      if (this.isBatchTransaction(signedTransactions)) {
-        const sentTransactions =
-          await this.sendSignedBatchTransactions(signedTransactions);
-
-        if (!sentTransactions.data || sentTransactions.data.error) {
-          throw new Error(
-            sentTransactions.data?.error || 'Failed to send transactions'
-          );
-        }
-
-        const flatSentTransactions = this.sequentialToFlatArray(
-          sentTransactions.data.transactions
-        );
-
-        return flatSentTransactions.map((transaction) => transaction.hash);
+      if (!this.isBatchTransaction(signedTransactions)) {
+        const hashes = await this.sendSignedTransactions(signedTransactions);
+        return hashes;
       }
 
-      const hashes = await this.sendSignedTransactions(signedTransactions);
-      return hashes;
+      const sentTransactions =
+        await this.sendSignedBatchTransactions(signedTransactions);
+
+      if (!sentTransactions.data || sentTransactions.data.error) {
+        throw new Error(
+          sentTransactions.data?.error || 'Failed to send transactions'
+        );
+      }
+
+      const flatSentTransactions = this.sequentialToFlatArray(
+        sentTransactions.data.transactions
+      );
+
+      return flatSentTransactions.map((transaction) => transaction.hash);
     } catch (error) {
       const responseData = <{ message: string }>(
         (error as AxiosError).response?.data
