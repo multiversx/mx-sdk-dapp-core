@@ -42,3 +42,9 @@ export enum ESDTTransferTypesEnum {
   ESDTWipe = 'ESDTWipe',
   ESDTFreeze = 'ESDTFreeze'
 }
+
+export enum GuardianActionsEnum {
+  SetGuardian = 'SetGuardian',
+  GuardAccount = 'GuardAccount',
+  UnGuardAccount = 'UnGuardAccount'
+}
