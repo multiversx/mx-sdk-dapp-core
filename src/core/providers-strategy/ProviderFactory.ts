@@ -13,6 +13,7 @@ export class ProviderFactory {
     [Strategy.Ledger]: new LedgerProviderStrategy(),
     [Strategy.Metamask]: new MetamaskProviderStrategy(),
     [Strategy.Passkey]: new PasskeyProviderStrategy()
+    // TODO add support for other custom strategy
   };
 
   constructor(private address?: string) {}
