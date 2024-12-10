@@ -1,5 +1,6 @@
 import type { CustomElementsDefineOptions } from '@multiversx/sdk-dapp-core-ui/loader';
 export type { LedgerConnectModal } from '@multiversx/sdk-dapp-core-ui/dist/components/ledger-connect-modal';
+export type { SignTransactionsModal } from '@multiversx/sdk-dapp-core-ui/dist/components/sign-transactions-modal';
 
 export async function defineCustomElements(
   win?: Window,

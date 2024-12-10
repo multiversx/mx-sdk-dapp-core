@@ -1,3 +1,4 @@
+import { Transaction } from '@multiversx/sdk-core/out';
 import BigNumber from 'bignumber.js';
 import { safeWindow } from 'constants/window.constants';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
@@ -6,7 +7,11 @@ import {
   IProvider,
   ProviderTypeEnum
 } from 'core/providers/types/providerFactory.types';
-import { defineCustomElements, LedgerConnectModal } from 'lib/sdkDappCoreUi';
+import {
+  defineCustomElements,
+  LedgerConnectModal,
+  SignTransactionsModal
+} from 'lib/sdkDappCoreUi';
 import { setLedgerAccount } from 'store/actions/account/accountActions';
 import { setLedgerLogin } from 'store/actions/loginInfo/loginInfoActions';
 import { fetchAccount } from 'utils/account/fetchAccount';
@@ -16,6 +21,7 @@ import { getLedgerProvider } from './helpers/getLedgerProvider';
 import { LedgerConnectStateManager } from './helpers/LedgerConnectStateManager';
 import { LedgerConnectEventsEnum } from './ledger.types';
 import { ILedgerAccount } from './ledger.types';
+import { SignTransactionsStateManager } from '../components/SignTransactionsModal/SignTransactionsStateManager';
 
 const failInitializeErrorText = 'Check if the MultiversX App is open on Ledger';
 
@@ -23,9 +29,9 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
   const shouldInitiateLogin = !getIsLoggedIn();
 
   let eventBus: IEventBus | undefined;
+  await defineCustomElements(safeWindow);
 
   if (shouldInitiateLogin) {
-    await defineCustomElements(safeWindow);
     const ledgerModalElement = document.createElement(
       'ledger-connect-modal'
     ) as LedgerConnectModal;
@@ -77,6 +83,74 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
   const hwProviderLogin = provider.login;
 
   createdProvider.getType = () => ProviderTypeEnum.ledger;
+
+  createdProvider.signTransactions = async (
+    transactions: Transaction[]
+  ): Promise<Transaction[]> => {
+    // Create sign transactions modal web component
+    const signModalElement = document.createElement(
+      'sign-transactions-modal'
+    ) as SignTransactionsModal;
+
+    document.body.appendChild(signModalElement);
+
+    await customElements.whenDefined('sign-transactions-modal');
+
+    const eventBus = await signModalElement.getEventBus();
+
+    const manager = SignTransactionsStateManager.getInstance(eventBus);
+    if (!manager) {
+      throw new Error('Unable to establish connection with sign screens');
+    }
+
+    const data = new Promise<Transaction[]>((resolve, reject) => {
+      const signedTransactions: Transaction[] = [];
+      let currentTransactionIndex = 0;
+
+      const signNextTransaction = async () => {
+        // If all transactions are signed, resolve
+        if (currentTransactionIndex >= transactions.length) {
+          signModalElement.remove();
+          resolve(signedTransactions);
+        }
+
+        const currentTransaction = transactions[currentTransactionIndex];
+
+        manager.updateTransaction({
+          transaction: currentTransaction.toPlainObject()
+        });
+
+        const onCancel = () => {
+          reject(new Error('Transaction signing cancelled by user'));
+          signModalElement.remove();
+        };
+
+        const onSign = async () => {
+          try {
+            const signedTransaction =
+              await provider.signTransaction(currentTransaction);
+            signedTransactions.push(signedTransaction);
+
+            eventBus.unsubscribe('transaction-signed', onSign);
+            eventBus.unsubscribe('transaction-cancelled', onCancel);
+
+            currentTransactionIndex++;
+            signNextTransaction();
+          } catch (error) {
+            reject(error);
+            signModalElement.remove();
+          }
+        };
+
+        // Subscribe to sign and cancel events for this transaction
+        eventBus.subscribe('transaction-signed', onSign);
+        eventBus.subscribe('transaction-cancelled', onCancel);
+      };
+
+      signNextTransaction();
+    });
+    return data;
+  };
 
   createdProvider.login = async (options?: {
     callbackUrl?: string;
