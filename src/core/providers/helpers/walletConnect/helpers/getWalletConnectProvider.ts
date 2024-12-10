@@ -33,12 +33,9 @@ export async function getWalletConnectProvider(
     throw new Error(WalletConnectV2Error.invalidConfig);
   }
 
-  const handleOnLogin = () => {
-    console.log('WalletConnect Login Event: Logged In');
-  };
+  const handleOnLogin = () => {};
 
   const handleOnLogout = async () => {
-    console.log('Logging out..');
     if (config.onLogout) {
       await config.onLogout();
     }
@@ -46,9 +43,8 @@ export async function getWalletConnectProvider(
     logoutAction();
   };
 
-  const handleOnEvent = (event: SessionEventTypes['event']) => {
-    console.log('WalletConnect Session Event: ', event);
-  };
+  const handleOnEvent = (_event: SessionEventTypes['event']) => {};
+
   const providerHandlers = {
     onClientLogin: handleOnLogin,
     onClientLogout: handleOnLogout,
