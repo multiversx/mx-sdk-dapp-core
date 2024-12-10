@@ -11,8 +11,8 @@ export enum WalletConnectV2Error {
 }
 
 export enum WalletConnectEventsEnum {
-  'CLOSE' = 'CLOSE',
-  'DATA_UPDATE' = 'DATA_UPDATE'
+  'CLOSE' = 'CLOSE', //  close modal event
+  'DATA_UPDATE' = 'DATA_UPDATE' // update data event
 }
 
 export interface IWalletConnectModalData {
