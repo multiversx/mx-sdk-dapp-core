@@ -1,4 +1,5 @@
 import type { IDAppProviderBase } from '@multiversx/sdk-dapp-utils';
+import { WalletConnectV2ProviderOptionsType } from '@multiversx/sdk-wallet-connect-provider/out';
 
 // @ts-ignore
 export interface IProvider<T extends ProviderTypeEnum = ProviderTypeEnum>
@@ -31,6 +32,9 @@ export interface IProviderConfigUI {
   ledger: {
     mount: () => Promise<IEventBus>;
   };
+  walletConnect: {
+    mount: () => Promise<IEventBus>;
+  };
 }
 
 export interface IProviderConfig {
@@ -38,6 +42,13 @@ export interface IProviderConfig {
     address: string;
   };
   UI?: IProviderConfigUI;
+  walletConnect?: {
+    walletConnectV2ProjectId: string;
+    walletConnectV2RelayAddress?: string;
+    walletConnectV2Options?: WalletConnectV2ProviderOptionsType;
+    customRequestMethods?: Array<string>;
+    onLogout?: () => Promise<void>;
+  };
 }
 
 export enum ProviderTypeEnum {

@@ -10,6 +10,7 @@ import { createExtensionProvider } from './helpers/extension/createExtensionProv
 import { getConfig } from './helpers/getConfig';
 import { createIframeProvider } from './helpers/iframe/createIframeProvider';
 import { createLedgerProvider } from './helpers/ledger/createLedgerProvider';
+import { createWalletConnectProvider } from './helpers/walletConnect/createWalletConnectProvider';
 import {
   ICustomProvider,
   IProvider,
@@ -30,7 +31,7 @@ export class ProviderFactory {
   }: IProviderFactory): Promise<DappProvider> {
     let createdProvider: IProvider | null = null;
     const config = await getConfig(userConfig);
-    const { account, UI } = config;
+    const { account, UI, walletConnect } = config;
 
     switch (type) {
       case ProviderTypeEnum.extension: {
@@ -106,6 +107,22 @@ export class ProviderFactory {
         createdProvider = provider as unknown as IProvider;
 
         createdProvider.getType = () => ProviderTypeEnum.passkey;
+
+        break;
+      }
+      case ProviderTypeEnum.walletConnect: {
+        const provider = await createWalletConnectProvider({
+          mount: UI.walletConnect.mount,
+          config: walletConnect
+        });
+
+        if (!provider) {
+          throw new Error('Unable to create wallet connect provider');
+        }
+
+        createdProvider = provider as unknown as IProvider;
+
+        createdProvider.getType = () => ProviderTypeEnum.walletConnect;
 
         break;
       }
