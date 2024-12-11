@@ -248,8 +248,8 @@ export class WalletConnectProviderStrategy {
       this.manager.closeAndReset();
       this.unsubscribeEvents?.();
       return { address, signature };
-    } catch (err: any) {
-      console.error(WalletConnectV2Error.userRejected, err);
+    } catch (error) {
+      console.error(WalletConnectV2Error.userRejected, error);
       return await reconnect();
     }
   };
