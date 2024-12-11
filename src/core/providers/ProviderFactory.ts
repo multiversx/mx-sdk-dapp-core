@@ -110,7 +110,7 @@ export class ProviderFactory {
       default: {
         for (const customProvider of this._customProviders) {
           if (customProvider.type === type) {
-            createdProvider = await customProvider.constructor();
+            createdProvider = await customProvider.constructor(address);
             createdProvider.getType = () => type;
           }
         }
