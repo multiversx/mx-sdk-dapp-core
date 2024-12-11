@@ -109,7 +109,7 @@ export class ProviderFactory {
       default: {
         for (const customProvider of this._customProviders) {
           const providerInstance = new CustomProviderStrategy({
-            type: type as ProviderTypeEnum,
+            type: type as string,
             customProvider,
             config
           });
