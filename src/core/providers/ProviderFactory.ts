@@ -108,11 +108,11 @@ export class ProviderFactory {
 
       default: {
         for (const customProvider of this._customProviders) {
-          const providerInstance = new CustomProviderStrategy(
-            type as string,
+          const providerInstance = new CustomProviderStrategy({
+            type: type as ProviderTypeEnum,
             customProvider,
             config
-          );
+          });
 
           createdProvider = await providerInstance.createProvider();
         }
@@ -124,6 +124,7 @@ export class ProviderFactory {
       throw new Error('Unable to create provider');
     }
 
+    createdProvider.getType = () => type;
     const dappProvider = new DappProvider(createdProvider);
 
     setAccountProvider(dappProvider);

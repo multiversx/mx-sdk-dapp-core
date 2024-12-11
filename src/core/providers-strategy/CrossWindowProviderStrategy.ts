@@ -1,8 +1,5 @@
 import { isBrowserWithPopupConfirmation } from 'constants/browser.constants';
-import {
-  IProvider,
-  ProviderTypeEnum
-} from 'core/providers/types/providerFactory.types';
+import { IProvider } from 'core/providers/types/providerFactory.types';
 import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
 import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
@@ -47,12 +44,7 @@ export class CrossWindowProviderStrategy {
 
   private buildProvider = () => {
     const provider = this.provider as unknown as IProvider;
-    provider.getType = this.getType;
 
     return provider;
-  };
-
-  private getType = (): ProviderTypeEnum.crossWindow => {
-    return ProviderTypeEnum.crossWindow;
   };
 }

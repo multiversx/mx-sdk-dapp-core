@@ -10,11 +10,15 @@ export class CustomProviderStrategy {
   private type: string = '';
   private config: IProviderConfig = {};
 
-  constructor(
-    type: string,
-    customProvider: ICustomProvider<ProviderTypeEnum>,
-    config: IProviderConfig
-  ) {
+  constructor({
+    type,
+    customProvider,
+    config
+  }: {
+    type: string;
+    customProvider: ICustomProvider<ProviderTypeEnum>;
+    config: IProviderConfig;
+  }) {
     this.type = type;
     this.provider = customProvider;
     this.config = config;
@@ -37,12 +41,6 @@ export class CustomProviderStrategy {
       throw new Error('Provider is not initialized');
     }
 
-    provider.getType = this.getType;
-
     return provider;
-  };
-
-  private getType = () => {
-    return this.type;
   };
 }

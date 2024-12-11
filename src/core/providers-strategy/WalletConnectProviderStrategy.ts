@@ -14,8 +14,7 @@ import { WalletConnectStateManager } from 'core/providers/helpers/walletConnect/
 import {
   IEventBus,
   IProvider,
-  IProviderConfig,
-  ProviderTypeEnum
+  IProviderConfig
 } from 'core/providers/types/providerFactory.types';
 import { defineCustomElements, WalletConnectModal } from 'lib/sdkDappCoreUi';
 import { logoutAction } from 'store/actions';
@@ -82,7 +81,6 @@ export class WalletConnectProviderStrategy {
 
   private buildProvider = () => {
     const provider = { ...this.provider } as unknown as IProvider;
-    provider.getType = this.getType;
     provider.login = this.login;
     provider.logout = this.logout;
 
@@ -91,7 +89,7 @@ export class WalletConnectProviderStrategy {
 
   private validateConfig = () => {
     if (!this.config?.walletConnectV2ProjectId) {
-      throw new Error('Invalid walletConnect config');
+      throw new Error(WalletConnectV2Error.invalidConfig);
     }
   };
 
@@ -176,10 +174,6 @@ export class WalletConnectProviderStrategy {
 
       throw err;
     }
-  };
-
-  private getType = (): ProviderTypeEnum.walletConnect => {
-    return ProviderTypeEnum.walletConnect;
   };
 
   private login = async (options?: {
