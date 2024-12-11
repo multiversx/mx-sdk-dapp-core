@@ -20,7 +20,7 @@ export async function getGuardedTransactions({
   }
 
   const providerInstance = new CrossWindowProviderStrategy(address);
-  const provider = await providerInstance.createCrowssWindowProvider();
+  const provider = await providerInstance.createCrossWindowProvider();
   provider.setShouldShowConsentPopup(true);
 
   const guardedTransactions = await provider.guardTransactions(transactions);

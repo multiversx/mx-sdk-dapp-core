@@ -21,13 +21,13 @@ export class CrossWindowProviderStrategy {
   }
 
   public createProvider = async (): Promise<IProvider> => {
-    this.createCrowssWindowProvider();
+    this.createCrossWindowProvider();
 
     return this.buildProvider();
   };
 
   // Need to be used inside getGuardedTransactions
-  public createCrowssWindowProvider = async () => {
+  public createCrossWindowProvider = async () => {
     const network = networkSelector(getState());
 
     if (!this.provider) {
