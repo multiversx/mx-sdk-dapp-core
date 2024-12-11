@@ -2,15 +2,16 @@ import { IframeLoginTypes } from '@multiversx/sdk-web-wallet-iframe-provider/out
 import { SECOND_LOGIN_ATTEMPT_ERROR } from 'constants/errorMessages.constants';
 import { getAddress } from 'core/methods/account/getAddress';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
+import { CrossWindowProviderStrategy } from 'core/providers-strategy/CrossWindowProviderStrategy';
+import { CustomProviderStrategy } from 'core/providers-strategy/CustomProviderStrategy';
+import { ExtensionProviderStrategy } from 'core/providers-strategy/ExtensionProviderStrategy';
+import { IFrameProviderStrategy } from 'core/providers-strategy/IFrameProviderStrategy';
+import { WalletConnectProviderStrategy } from 'core/providers-strategy/WalletConnectProviderStrategy';
 import { setProviderType } from 'store/actions/loginInfo/loginInfoActions';
 import { setAccountProvider } from './accountProvider';
 import { DappProvider } from './DappProvider/DappProvider';
-import { createCrossWindowProvider } from './helpers/crossWindow/createCrossWindowProvider';
-import { createExtensionProvider } from './helpers/extension/createExtensionProvider';
 import { getConfig } from './helpers/getConfig';
-import { createIframeProvider } from './helpers/iframe/createIframeProvider';
 import { createLedgerProvider } from './helpers/ledger/createLedgerProvider';
-import { createWalletConnectProvider } from './helpers/walletConnect/createWalletConnectProvider';
 import {
   ICustomProvider,
   IProvider,
@@ -35,21 +36,18 @@ export class ProviderFactory {
 
     switch (type) {
       case ProviderTypeEnum.extension: {
-        const provider = await createExtensionProvider();
-        createdProvider = provider as unknown as IProvider;
-
-        createdProvider.getType = () => ProviderTypeEnum.extension;
+        const providerInstance = new ExtensionProviderStrategy();
+        createdProvider = await providerInstance.createProvider();
 
         break;
       }
 
       case ProviderTypeEnum.crossWindow: {
-        const provider = await createCrossWindowProvider({
-          address: account?.address
-        });
-        createdProvider = provider as unknown as IProvider;
+        const providerInstance = new CrossWindowProviderStrategy(
+          account?.address
+        );
 
-        createdProvider.getType = () => ProviderTypeEnum.crossWindow;
+        createdProvider = await providerInstance.createProvider();
 
         break;
       }
@@ -78,61 +76,45 @@ export class ProviderFactory {
       }
 
       case ProviderTypeEnum.metamask: {
-        const provider = await createIframeProvider({
-          address: account?.address,
-          type: IframeLoginTypes.metamask
-        });
+        const providerInstance = new IFrameProviderStrategy(
+          IframeLoginTypes.metamask,
+          account?.address
+        );
 
-        if (!provider) {
-          throw new Error('Unable to create metamask provider');
-        }
-
-        createdProvider = provider as unknown as IProvider;
-
-        createdProvider.getType = () => ProviderTypeEnum.metamask;
+        createdProvider = await providerInstance.createProvider();
 
         break;
       }
 
       case ProviderTypeEnum.passkey: {
-        const provider = await createIframeProvider({
-          address: account?.address,
-          type: IframeLoginTypes.passkey
-        });
+        const providerInstance = new IFrameProviderStrategy(
+          IframeLoginTypes.passkey,
+          account?.address
+        );
 
-        if (!provider) {
-          throw new Error('Unable to create passkey provider');
-        }
-
-        createdProvider = provider as unknown as IProvider;
-
-        createdProvider.getType = () => ProviderTypeEnum.passkey;
+        createdProvider = await providerInstance.createProvider();
 
         break;
       }
       case ProviderTypeEnum.walletConnect: {
-        const provider = await createWalletConnectProvider({
-          mount: UI.walletConnect.mount,
-          config: walletConnect
-        });
+        const providerInstance = new WalletConnectProviderStrategy(
+          walletConnect
+        );
 
-        if (!provider) {
-          throw new Error('Unable to create wallet connect provider');
-        }
-
-        createdProvider = provider as unknown as IProvider;
-
-        createdProvider.getType = () => ProviderTypeEnum.walletConnect;
+        createdProvider = await providerInstance.createProvider();
 
         break;
       }
 
       default: {
         for (const customProvider of this._customProviders) {
-          if (customProvider.type === type) {
-            createdProvider = await customProvider.constructor(config);
-            createdProvider.getType = () => type;
-          }
+          const providerInstance = new CustomProviderStrategy(
+            type as string,
+            customProvider,
+            config
+          );
+
+          createdProvider = await providerInstance.createProvider();
         }
         break;
       }

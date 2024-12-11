@@ -10,9 +10,10 @@ export enum WalletConnectV2Error {
   invalidChainID = 'Invalid chainID'
 }
 
+// types here need to be synced with the types in sdk-dapp-core-ui
 export enum WalletConnectEventsEnum {
-  'CLOSE' = 'CLOSE', //  close modal event
-  'DATA_UPDATE' = 'DATA_UPDATE' // update data event
+  'CLOSE' = 'CLOSE',
+  'DATA_UPDATE' = 'DATA_UPDATE'
 }
 
 export interface IWalletConnectModalData {
