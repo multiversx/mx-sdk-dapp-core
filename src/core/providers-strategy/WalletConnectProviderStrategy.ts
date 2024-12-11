@@ -1,3 +1,4 @@
+import { Message } from '@multiversx/sdk-core/out';
 import {
   SessionEventTypes,
   SessionTypes
@@ -83,6 +84,7 @@ export class WalletConnectProviderStrategy {
     const provider = { ...this.provider } as unknown as IProvider;
     provider.login = this.login;
     provider.logout = this.logout;
+    provider.signMessage = this.signMessage;
 
     return provider;
   };
@@ -266,5 +268,9 @@ export class WalletConnectProviderStrategy {
       console.error('Error logging out', error);
       return false;
     }
+  };
+
+  private signMessage = (messageToSign: Message) => {
+    return this.provider!.signMessage(messageToSign);
   };
 }
