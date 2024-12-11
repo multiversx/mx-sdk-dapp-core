@@ -27,6 +27,29 @@ export interface IEventBus {
   unsubscribe(event: string, callback: Function): void;
 }
 
+export interface IProviderConfigUI {
+  ledger: {
+    mount: () => Promise<IEventBus>;
+  };
+  walletConnect: {
+    mount: () => Promise<IEventBus>;
+  };
+}
+
+export interface IProviderConfig {
+  account?: {
+    address: string;
+  };
+  UI?: IProviderConfigUI;
+  walletConnect?: {
+    walletConnectV2ProjectId: string;
+    walletConnectV2RelayAddress?: string;
+    walletConnectV2Options?: any;
+    customRequestMethods?: Array<string>;
+    onLogout?: () => Promise<void>;
+  };
+}
+
 export enum ProviderTypeEnum {
   iframe = 'iframe',
   crossWindow = 'crossWindow',

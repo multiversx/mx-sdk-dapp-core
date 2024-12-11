@@ -9,6 +9,7 @@ import { createCrossWindowProvider } from './helpers/crossWindow/createCrossWind
 import { createExtensionProvider } from './helpers/extension/createExtensionProvider';
 import { createIframeProvider } from './helpers/iframe/createIframeProvider';
 import { createLedgerProvider } from './helpers/ledger/createLedgerProvider';
+import { createWalletConnectProvider } from './helpers/walletConnect/createWalletConnectProvider';
 import {
   ICustomProvider,
   IProvider,
@@ -103,6 +104,19 @@ export class ProviderFactory {
         createdProvider = provider as unknown as IProvider;
 
         createdProvider.getType = () => ProviderTypeEnum.passkey;
+
+        break;
+      }
+      case ProviderTypeEnum.walletConnect: {
+        const provider = await createWalletConnectProvider({} as any);
+
+        if (!provider) {
+          throw new Error('Unable to create wallet connect provider');
+        }
+
+        createdProvider = provider as unknown as IProvider;
+
+        createdProvider.getType = () => ProviderTypeEnum.walletConnect;
 
         break;
       }
