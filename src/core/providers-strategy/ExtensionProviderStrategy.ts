@@ -1,6 +1,6 @@
 import { ExtensionProvider } from '@multiversx/sdk-extension-provider/out/extensionProvider';
 import { IProvider } from 'core/providers/types/providerFactory.types';
-import { ProviderError } from 'types';
+import { ProviderErrorsEnum } from 'types';
 
 export class ExtensionProviderStrategy {
   private provider: ExtensionProvider | null = null;
@@ -16,7 +16,7 @@ export class ExtensionProviderStrategy {
 
   private buildProvider = () => {
     if (!this.provider) {
-      throw new Error(ProviderError.notInitialized);
+      throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
     return this.provider as unknown as IProvider;

@@ -5,7 +5,7 @@ import { IProvider } from 'core/providers/types/providerFactory.types';
 import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
 import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
-import { ProviderError } from 'types';
+import { ProviderErrorsEnum } from 'types';
 
 export class CrossWindowProviderStrategy {
   private provider: CrossWindowProvider | null = null;
@@ -47,7 +47,7 @@ export class CrossWindowProviderStrategy {
 
   private buildProvider = () => {
     if (!this.provider) {
-      throw new Error(ProviderError.notInitialized);
+      throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
     const provider = this.provider as unknown as IProvider;
@@ -64,7 +64,7 @@ export class CrossWindowProviderStrategy {
 
   private signTransactions = async (transactions: Transaction[]) => {
     if (!this.provider || !this._signTransactions) {
-      throw new Error(ProviderError.notInitialized);
+      throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
     this.setPopupConsent();
@@ -78,7 +78,7 @@ export class CrossWindowProviderStrategy {
 
   private signMessage = async (message: Message) => {
     if (!this.provider || !this._signMessage) {
-      throw new Error(ProviderError.notInitialized);
+      throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
     this.setPopupConsent();
@@ -87,7 +87,7 @@ export class CrossWindowProviderStrategy {
 
   private setPopupConsent = () => {
     if (!this.provider) {
-      throw new Error(ProviderError.notInitialized);
+      throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
     if (!isBrowserWithPopupConfirmation) {
@@ -99,7 +99,7 @@ export class CrossWindowProviderStrategy {
 
   private getTransactions = async (transactions: Transaction[]) => {
     if (!this.provider) {
-      throw new Error(ProviderError.notInitialized);
+      throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
     const { isGuarded } = getAccount();
@@ -109,14 +109,16 @@ export class CrossWindowProviderStrategy {
       transactions
     });
 
-    if (!isGuarded || allSignedByGuardian) {
-      return transactions;
+    const needs2FAsigning = isGuarded && !allSignedByGuardian;
+
+    if (needs2FAsigning) {
+      const guardedTransactions =
+        await this.provider.guardTransactions(transactions);
+
+      return guardedTransactions;
     }
 
-    const guardedTransactions =
-      await this.provider.guardTransactions(transactions);
-
-    return guardedTransactions;
+    return transactions;
   };
 
   private getAreAllTransactionsSignedByGuardian = ({

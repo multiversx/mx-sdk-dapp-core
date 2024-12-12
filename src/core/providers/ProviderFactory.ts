@@ -3,7 +3,6 @@ import { SECOND_LOGIN_ATTEMPT_ERROR } from 'constants/errorMessages.constants';
 import { getAddress } from 'core/methods/account/getAddress';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import { CrossWindowProviderStrategy } from 'core/providers-strategy/CrossWindowProviderStrategy';
-import { CustomProviderStrategy } from 'core/providers-strategy/CustomProviderStrategy';
 import { ExtensionProviderStrategy } from 'core/providers-strategy/ExtensionProviderStrategy';
 import { IFrameProviderStrategy } from 'core/providers-strategy/IFrameProviderStrategy';
 import { WalletConnectProviderStrategy } from 'core/providers-strategy/WalletConnectProviderStrategy';
@@ -34,6 +33,7 @@ export class ProviderFactory {
     const config = await getConfig(userConfig);
     const { account, UI, walletConnect } = config;
 
+    console.log('TYPPPPE', type);
     switch (type) {
       case ProviderTypeEnum.extension: {
         const providerInstance = new ExtensionProviderStrategy();
@@ -108,13 +108,10 @@ export class ProviderFactory {
 
       default: {
         for (const customProvider of this._customProviders) {
-          const providerInstance = new CustomProviderStrategy({
-            type,
-            customProvider,
-            config
-          });
-
-          createdProvider = await providerInstance.createProvider();
+          if (customProvider.type === type) {
+            createdProvider = await customProvider.constructor(config);
+            createdProvider.getType = () => type;
+          }
         }
         break;
       }

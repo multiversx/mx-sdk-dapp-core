@@ -20,7 +20,7 @@ import { defineCustomElements, WalletConnectModal } from 'lib/sdkDappCoreUi';
 import { logoutAction } from 'store/actions';
 import { chainIdSelector, nativeAuthConfigSelector } from 'store/selectors';
 import { getState } from 'store/store';
-import { ProviderError } from 'types';
+import { ProviderErrorsEnum } from 'types';
 import {
   WalletConnectOptionalMethodsEnum,
   WalletConnectV2Provider
@@ -95,7 +95,7 @@ export class WalletConnectProviderStrategy {
 
   private buildProvider = () => {
     if (!this.provider) {
-      throw new Error(ProviderError.notInitialized);
+      throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
     const provider = this.provider as unknown as IProvider;
@@ -216,7 +216,7 @@ export class WalletConnectProviderStrategy {
       signature: string;
     }> => {
       if (!this.provider || !this.manager) {
-        throw new Error(ProviderError.notInitialized);
+        throw new Error(ProviderErrorsEnum.notInitialized);
       }
 
       if (!this._login) {

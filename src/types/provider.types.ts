@@ -1,3 +1,3 @@
-export enum ProviderError {
+export enum ProviderErrorsEnum {
   notInitialized = 'Provider is not initialized.'
 }
