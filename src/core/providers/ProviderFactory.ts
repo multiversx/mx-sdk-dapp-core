@@ -76,10 +76,10 @@ export class ProviderFactory {
       }
 
       case ProviderTypeEnum.metamask: {
-        const providerInstance = new IFrameProviderStrategy(
-          IframeLoginTypes.metamask,
-          account?.address
-        );
+        const providerInstance = new IFrameProviderStrategy({
+          type: IframeLoginTypes.metamask,
+          address: account?.address
+        });
 
         createdProvider = await providerInstance.createProvider();
 
@@ -87,10 +87,10 @@ export class ProviderFactory {
       }
 
       case ProviderTypeEnum.passkey: {
-        const providerInstance = new IFrameProviderStrategy(
-          IframeLoginTypes.passkey,
-          account?.address
-        );
+        const providerInstance = new IFrameProviderStrategy({
+          type: IframeLoginTypes.passkey,
+          address: account?.address
+        });
 
         createdProvider = await providerInstance.createProvider();
 
@@ -109,7 +109,7 @@ export class ProviderFactory {
       default: {
         for (const customProvider of this._customProviders) {
           const providerInstance = new CustomProviderStrategy({
-            type: type as string,
+            type,
             customProvider,
             config
           });

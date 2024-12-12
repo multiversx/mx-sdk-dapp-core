@@ -4,10 +4,11 @@ import {
   IProviderConfig,
   ProviderTypeEnum
 } from 'core/providers/types/providerFactory.types';
+import { ProviderError } from 'types';
 
 export class CustomProviderStrategy {
   private provider: ICustomProvider<ProviderTypeEnum> | null = null;
-  private type: string = '';
+  private type: ICustomProvider['type'] = '';
   private config: IProviderConfig = {};
 
   constructor({
@@ -15,7 +16,7 @@ export class CustomProviderStrategy {
     customProvider,
     config
   }: {
-    type: string;
+    type: ICustomProvider['type'];
     customProvider: ICustomProvider<ProviderTypeEnum>;
     config: IProviderConfig;
   }) {
@@ -38,7 +39,7 @@ export class CustomProviderStrategy {
     const provider = await this.provider?.constructor(this.config);
 
     if (!provider) {
-      throw new Error('Provider is not initialized');
+      throw new Error(ProviderError.notInitialized);
     }
 
     return provider;

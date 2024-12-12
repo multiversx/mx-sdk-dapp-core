@@ -1,5 +1,6 @@
 import { ExtensionProvider } from '@multiversx/sdk-extension-provider/out/extensionProvider';
 import { IProvider } from 'core/providers/types/providerFactory.types';
+import { ProviderError } from 'types';
 
 export class ExtensionProviderStrategy {
   private provider: ExtensionProvider | null = null;
@@ -14,8 +15,10 @@ export class ExtensionProviderStrategy {
   };
 
   private buildProvider = () => {
-    const provider = this.provider as unknown as IProvider;
+    if (!this.provider) {
+      throw new Error(ProviderError.notInitialized);
+    }
 
-    return provider;
+    return this.provider as unknown as IProvider;
   };
 }

@@ -15,7 +15,7 @@ export interface BaseNetworkType {
   walletConnectV2Options?: Record<string, any>;
   xAliasAddress?: string;
   roundDuration: number;
-  metamaskSnapWalletAddress?: string;
+  iframeWalletAddress?: string;
   websocketUrl?: string;
 }
 

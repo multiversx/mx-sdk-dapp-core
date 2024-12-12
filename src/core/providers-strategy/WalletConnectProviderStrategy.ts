@@ -1,12 +1,11 @@
-import { Message } from '@multiversx/sdk-core/out';
 import {
+  IProviderAccount,
   SessionEventTypes,
   SessionTypes
 } from '@multiversx/sdk-wallet-connect-provider/out';
 import { safeWindow } from 'constants/window.constants';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import { getAccountProvider } from 'core/providers/accountProvider';
-import { logout } from 'core/providers/DappProvider/helpers/logout/logout';
 import {
   WalletConnectEventsEnum,
   WalletConnectV2Error
@@ -21,6 +20,7 @@ import { defineCustomElements, WalletConnectModal } from 'lib/sdkDappCoreUi';
 import { logoutAction } from 'store/actions';
 import { chainIdSelector, nativeAuthConfigSelector } from 'store/selectors';
 import { getState } from 'store/store';
+import { ProviderError } from 'types';
 import {
   WalletConnectOptionalMethodsEnum,
   WalletConnectV2Provider
@@ -31,15 +31,26 @@ const dappMethods: string[] = [
   WalletConnectOptionalMethodsEnum.SIGN_LOGIN_TOKEN
 ];
 
+type WalletConnectConfigType = Pick<
+  IProviderConfig,
+  'walletConnect'
+>['walletConnect'];
+
 export class WalletConnectProviderStrategy {
   private provider: WalletConnectV2Provider | null = null;
-  private config: IProviderConfig['walletConnect'];
+  private config: WalletConnectConfigType;
   private methods: string[] = [];
   private manager: WalletConnectStateManager<IEventBus> | null = null;
   private approval: (() => Promise<SessionTypes.Struct>) | null = null;
   private unsubscribeEvents: (() => void) | null = null;
+  private wcLogin:
+    | ((options?: {
+        approval?: () => Promise<SessionTypes.Struct>;
+        token?: string;
+      }) => Promise<IProviderAccount | null>)
+    | null = null;
 
-  constructor(config: IProviderConfig['walletConnect']) {
+  constructor(config: WalletConnectConfigType) {
     this.config = config;
   }
 
@@ -56,6 +67,8 @@ export class WalletConnectProviderStrategy {
       const { walletConnectProvider, dappMethods } =
         await this.createWalletConnectProvider(this.config);
 
+      // Bind in order to break reference
+      this.wcLogin = walletConnectProvider.login.bind(walletConnectProvider);
       this.provider = walletConnectProvider;
       this.methods = dappMethods;
     }
@@ -81,10 +94,12 @@ export class WalletConnectProviderStrategy {
   };
 
   private buildProvider = () => {
-    const provider = { ...this.provider } as unknown as IProvider;
+    if (!this.provider) {
+      throw new Error(ProviderError.notInitialized);
+    }
+
+    const provider = this.provider as unknown as IProvider;
     provider.login = this.login;
-    provider.logout = this.logout;
-    provider.signMessage = this.signMessage;
 
     return provider;
   };
@@ -168,7 +183,7 @@ export class WalletConnectProviderStrategy {
 
       return { walletConnectProvider, dappMethods };
     } catch (err) {
-      console.error('Could not initialize walletConnect', err);
+      console.error(WalletConnectV2Error.connectError, err);
 
       if (isLoggedIn) {
         await provider.logout();
@@ -179,7 +194,6 @@ export class WalletConnectProviderStrategy {
   };
 
   private login = async (options?: {
-    callbackUrl?: string;
     token?: string;
   }): Promise<{
     address: string;
@@ -202,9 +216,11 @@ export class WalletConnectProviderStrategy {
       signature: string;
     }> => {
       if (!this.provider || !this.manager) {
-        throw new Error(
-          'Provider or manager is not initialized. Call createProvider first.'
-        );
+        throw new Error(ProviderError.notInitialized);
+      }
+
+      if (!this.wcLogin) {
+        throw new Error('Login method is not initialized.');
       }
 
       try {
@@ -216,7 +232,7 @@ export class WalletConnectProviderStrategy {
 
         this.manager.updateWcURI(uri);
 
-        const providerInfo = await this.provider.login({
+        const providerInfo = await this.wcLogin({
           approval: wcApproval,
           token: options?.token
         });
@@ -231,14 +247,12 @@ export class WalletConnectProviderStrategy {
       }
     };
 
-    if (!this.approval) {
-      throw new Error(
-        'Approval is not initialized. Call createProvider first.'
-      );
+    if (!this.approval || !this.wcLogin) {
+      throw new Error('Approval or wcLogin is not initialized');
     }
 
     try {
-      const providerData = await this.provider.login({
+      const providerData = await this.wcLogin({
         approval: this.approval,
         token: options?.token
       });
@@ -252,25 +266,5 @@ export class WalletConnectProviderStrategy {
       console.error(WalletConnectV2Error.userRejected, error);
       return await reconnect();
     }
-  };
-
-  private logout = async (): Promise<boolean> => {
-    if (!this.provider) {
-      throw new Error(
-        'Provider is not initialized. Call createProvider first.'
-      );
-    }
-
-    try {
-      await logout({ provider: this.provider as unknown as IProvider });
-      return true;
-    } catch (error) {
-      console.error('Error logging out', error);
-      return false;
-    }
-  };
-
-  private signMessage = (messageToSign: Message) => {
-    return this.provider!.signMessage(messageToSign);
   };
 }
