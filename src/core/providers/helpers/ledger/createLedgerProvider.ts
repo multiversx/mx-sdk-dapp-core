@@ -1,3 +1,4 @@
+import { Transaction } from '@multiversx/sdk-core/out';
 import BigNumber from 'bignumber.js';
 import { safeWindow } from 'constants/window.constants';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
@@ -6,7 +7,11 @@ import {
   IProvider,
   ProviderTypeEnum
 } from 'core/providers/types/providerFactory.types';
-import { defineCustomElements, LedgerConnectModal } from 'lib/sdkDappCoreUi';
+import {
+  defineCustomElements,
+  LedgerConnectModal,
+  SignTransactionsModal
+} from 'lib/sdkDappCoreUi';
 import { setLedgerAccount } from 'store/actions/account/accountActions';
 import { setLedgerLogin } from 'store/actions/loginInfo/loginInfoActions';
 import { fetchAccount } from 'utils/account/fetchAccount';
@@ -16,6 +21,8 @@ import { getLedgerProvider } from './helpers/getLedgerProvider';
 import { LedgerConnectStateManager } from './helpers/LedgerConnectStateManager';
 import { LedgerConnectEventsEnum } from './ledger.types';
 import { ILedgerAccount } from './ledger.types';
+import { SignEventsEnum } from '../components/SignTransactionsModal/signTransactionsModal.types';
+import { SignTransactionsStateManager } from '../components/SignTransactionsModal/SignTransactionsStateManager';
 
 const failInitializeErrorText = 'Check if the MultiversX App is open on Ledger';
 
@@ -77,6 +84,77 @@ export async function createLedgerProvider(): Promise<IProvider | null> {
   const hwProviderLogin = provider.login;
 
   createdProvider.getType = () => ProviderTypeEnum.ledger;
+
+  createdProvider.signTransactions = async (
+    transactions: Transaction[]
+  ): Promise<Transaction[]> => {
+    const { ledgerProvider: customProvider } = await getLedgerProvider();
+
+    // TODO: extract to method what is below
+    const signModalElement = document.createElement(
+      'sign-transactions-modal'
+    ) as SignTransactionsModal;
+
+    document.body.appendChild(signModalElement);
+    await customElements.whenDefined('sign-transactions-modal');
+
+    const eventBus = await signModalElement.getEventBus();
+
+    const manager = SignTransactionsStateManager.getInstance(eventBus);
+    if (!manager) {
+      throw new Error('Unable to establish connection with sign screens');
+    }
+
+    return new Promise<Transaction[]>(async (resolve, reject) => {
+      const signedTransactions: Transaction[] = [];
+      let currentTransactionIndex = 0;
+
+      const signNextTransaction = async () => {
+        const currentTransaction = transactions[currentTransactionIndex];
+
+        manager.updateTransaction({
+          transaction: currentTransaction.toPlainObject()
+        });
+
+        const onCancel = () => {
+          reject(new Error('Transaction signing cancelled by user'));
+          signModalElement.remove();
+        };
+
+        const onSign = async () => {
+          try {
+            // TODO: check if it's a real transaction or multitransfer step
+            const [signedTransaction] = await customProvider.signTransactions([
+              currentTransaction
+            ]);
+
+            if (signedTransaction) {
+              signedTransactions.push(signedTransaction);
+            }
+
+            eventBus.unsubscribe(SignEventsEnum.SIGN_TRANSACTION, onSign);
+            eventBus.unsubscribe(SignEventsEnum.CLOSE, onCancel);
+
+            if (signedTransactions.length == transactions.length) {
+              signModalElement.remove();
+              resolve(signedTransactions);
+            } else {
+              currentTransactionIndex++;
+              signNextTransaction();
+            }
+          } catch (error) {
+            reject('Error signing transactions: ' + error);
+            signModalElement.remove();
+          }
+        };
+
+        eventBus.subscribe(SignEventsEnum.SIGN_TRANSACTION, onSign);
+        eventBus.subscribe(SignEventsEnum.CLOSE, onCancel);
+      };
+
+      signNextTransaction();
+    });
+  };
 
   createdProvider.login = async (options?: {
     callbackUrl?: string;
