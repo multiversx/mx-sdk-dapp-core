@@ -53,6 +53,11 @@ export class CrossWindowProviderStrategy {
     }
 
     const provider = this.provider as unknown as IProvider;
+
+    if (this.address) {
+      provider.setAccount({ address: this.address });
+    }
+
     provider.signTransactions = this.signTransactions;
     provider.signMessage = this.signMessage;
 
