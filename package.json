@@ -57,7 +57,7 @@
     "immer": "10.x"
   },
   "optionalDependencies": {
-    "@multiversx/sdk-dapp-core-ui": "file:../mx-sdk-dapp-core-ui"
+    "@multiversx/sdk-dapp-core-ui": "0.0.0"
   },
   "resolutions": {
     "string-width": "4.1.0"
