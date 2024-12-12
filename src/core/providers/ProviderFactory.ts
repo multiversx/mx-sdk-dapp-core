@@ -33,7 +33,6 @@ export class ProviderFactory {
     const config = await getConfig(userConfig);
     const { account, UI, walletConnect } = config;
 
-    console.log('TYPPPPE', type);
     switch (type) {
       case ProviderTypeEnum.extension: {
         const providerInstance = new ExtensionProviderStrategy();
@@ -109,7 +108,9 @@ export class ProviderFactory {
       default: {
         for (const customProvider of this._customProviders) {
           if (customProvider.type === type) {
-            createdProvider = await customProvider.constructor(config);
+            createdProvider = await customProvider.constructor(
+              config.account?.address
+            );
             createdProvider.getType = () => type;
           }
         }

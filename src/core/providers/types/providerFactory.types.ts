@@ -76,5 +76,5 @@ export interface ICustomProvider<
   name: string;
   type: T[keyof T];
   icon: string;
-  constructor: (config: IProviderConfig) => Promise<IProvider>;
+  constructor: (address?: string) => Promise<IProvider>;
 }
