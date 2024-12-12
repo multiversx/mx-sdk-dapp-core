@@ -11,10 +11,10 @@ export class CrossWindowProviderStrategy {
   private provider: CrossWindowProvider | null = null;
   private address: string = '';
   private walletAddress: string = '';
-  private cwSignTransactions:
+  private _signTransactions:
     | ((transactions: Transaction[]) => Promise<Transaction[]>)
     | null = null;
-  private cwSignMessage: ((messageToSign: Message) => Promise<Message>) | null =
+  private _signMessage: ((messageToSign: Message) => Promise<Message>) | null =
     null;
 
   constructor(
@@ -34,10 +34,8 @@ export class CrossWindowProviderStrategy {
     }
 
     // Bind in order to break reference
-    this.cwSignTransactions = this.provider.signTransactions.bind(
-      this.provider
-    );
-    this.cwSignMessage = this.provider.signMessage.bind(this.provider);
+    this._signTransactions = this.provider.signTransactions.bind(this.provider);
+    this._signMessage = this.provider.signMessage.bind(this.provider);
 
     this.provider.setWalletUrl(this.walletAddress || network.walletAddress);
     this.provider.setAddress(this.address);
@@ -65,26 +63,26 @@ export class CrossWindowProviderStrategy {
   };
 
   private signTransactions = async (transactions: Transaction[]) => {
-    if (!this.provider || !this.cwSignTransactions) {
+    if (!this.provider || !this._signTransactions) {
       throw new Error(ProviderError.notInitialized);
     }
 
     this.setPopupConsent();
 
     const signedTransactions: Transaction[] =
-      (await this.cwSignTransactions(transactions)) ?? [];
+      (await this._signTransactions(transactions)) ?? [];
 
     // Guarded Transactions or Signed Transactions
     return this.getTransactions(signedTransactions);
   };
 
   private signMessage = async (message: Message) => {
-    if (!this.provider || !this.cwSignMessage) {
+    if (!this.provider || !this._signMessage) {
       throw new Error(ProviderError.notInitialized);
     }
 
     this.setPopupConsent();
-    return this.cwSignMessage(message);
+    return this._signMessage(message);
   };
 
   private setPopupConsent = () => {

@@ -43,7 +43,7 @@ export class WalletConnectProviderStrategy {
   private manager: WalletConnectStateManager<IEventBus> | null = null;
   private approval: (() => Promise<SessionTypes.Struct>) | null = null;
   private unsubscribeEvents: (() => void) | null = null;
-  private wcLogin:
+  private _login:
     | ((options?: {
         approval?: () => Promise<SessionTypes.Struct>;
         token?: string;
@@ -68,7 +68,7 @@ export class WalletConnectProviderStrategy {
         await this.createWalletConnectProvider(this.config);
 
       // Bind in order to break reference
-      this.wcLogin = walletConnectProvider.login.bind(walletConnectProvider);
+      this._login = walletConnectProvider.login.bind(walletConnectProvider);
       this.provider = walletConnectProvider;
       this.methods = dappMethods;
     }
@@ -219,7 +219,7 @@ export class WalletConnectProviderStrategy {
         throw new Error(ProviderError.notInitialized);
       }
 
-      if (!this.wcLogin) {
+      if (!this._login) {
         throw new Error('Login method is not initialized.');
       }
 
@@ -232,7 +232,7 @@ export class WalletConnectProviderStrategy {
 
         this.manager.updateWcURI(uri);
 
-        const providerInfo = await this.wcLogin({
+        const providerInfo = await this._login({
           approval: wcApproval,
           token: options?.token
         });
@@ -247,12 +247,12 @@ export class WalletConnectProviderStrategy {
       }
     };
 
-    if (!this.approval || !this.wcLogin) {
-      throw new Error('Approval or wcLogin is not initialized');
+    if (!this.approval || !this._login) {
+      throw new Error('Approval or login is not initialized');
     }
 
     try {
-      const providerData = await this.wcLogin({
+      const providerData = await this._login({
         approval: this.approval,
         token: options?.token
       });
