@@ -11,11 +11,18 @@ export interface IEventBus {
   publish(event: string, data: any): void;
 }
 
+const notInitializedError = () => new Error('Event bus not initialized');
+
 export class LedgerConnectStateManager<T extends IEventBus = IEventBus> {
   private static instance: LedgerConnectStateManager<IEventBus> | null = null;
   public readonly addressesPerPage = 10;
 
-  private eventBus: T;
+  private eventBus: T = {
+    publish: notInitializedError,
+    subscribe: notInitializedError,
+    unsubscribe: notInitializedError
+  } as unknown as T;
+
   private allAccounts: ILedgerAccount[] = [];
 
   // first screen data
@@ -58,8 +65,11 @@ export class LedgerConnectStateManager<T extends IEventBus = IEventBus> {
   }
 
   public static getInstance<U extends IEventBus>(
-    eventBus: U
-  ): LedgerConnectStateManager<U> {
+    eventBus?: U
+  ): LedgerConnectStateManager<U> | null {
+    if (!eventBus) {
+      return null;
+    }
     if (!LedgerConnectStateManager.instance) {
       LedgerConnectStateManager.instance = new LedgerConnectStateManager(
         eventBus

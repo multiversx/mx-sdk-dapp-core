@@ -1,7 +1,5 @@
 import { IframeLoginTypes } from '@multiversx/sdk-web-wallet-iframe-provider/out/constants';
-import { SECOND_LOGIN_ATTEMPT_ERROR } from 'constants/errorMessages.constants';
 import { getAddress } from 'core/methods/account/getAddress';
-import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import { CrossWindowProviderStrategy } from 'core/providers-strategy/CrossWindowProviderStrategy';
 import { ExtensionProviderStrategy } from 'core/providers-strategy/ExtensionProviderStrategy';
 import { IFrameProviderStrategy } from 'core/providers-strategy/IFrameProviderStrategy';
@@ -9,7 +7,6 @@ import { WalletConnectProviderStrategy } from 'core/providers-strategy/WalletCon
 import { setProviderType } from 'store/actions/loginInfo/loginInfoActions';
 import { setAccountProvider } from './accountProvider';
 import { DappProvider } from './DappProvider/DappProvider';
-import { getConfig } from './helpers/getConfig';
 import { createLedgerProvider } from './helpers/ledger/createLedgerProvider';
 import {
   ICustomProvider,
@@ -27,11 +24,10 @@ export class ProviderFactory {
 
   public static async create({
     type,
-    config: userConfig
+    config
   }: IProviderFactory): Promise<DappProvider> {
     let createdProvider: IProvider | null = null;
-    const config = await getConfig(userConfig);
-    const { account, UI, walletConnect } = config;
+    const address = getAddress();
 
     switch (type) {
       case ProviderTypeEnum.extension: {
@@ -42,9 +38,7 @@ export class ProviderFactory {
       }
 
       case ProviderTypeEnum.crossWindow: {
-        const providerInstance = new CrossWindowProviderStrategy(
-          account?.address
-        );
+        const providerInstance = new CrossWindowProviderStrategy(address);
 
         createdProvider = await providerInstance.createProvider();
 
@@ -52,7 +46,7 @@ export class ProviderFactory {
       }
 
       case ProviderTypeEnum.ledger: {
-        const ledgerProvider = await createLedgerProvider(UI.ledger.mount);
+        const ledgerProvider = await createLedgerProvider();
 
         if (!ledgerProvider) {
           throw new Error('Unable to create ledger provider');
@@ -62,13 +56,6 @@ export class ProviderFactory {
 
         createdProvider.getType = () => ProviderTypeEnum.ledger;
 
-        const loggedIn = getIsLoggedIn();
-
-        if (loggedIn) {
-          console.warn('Already logged in with:', getAddress());
-          throw new Error(SECOND_LOGIN_ATTEMPT_ERROR);
-        }
-
         await createdProvider.init?.();
 
         break;
@@ -77,7 +64,7 @@ export class ProviderFactory {
       case ProviderTypeEnum.metamask: {
         const providerInstance = new IFrameProviderStrategy({
           type: IframeLoginTypes.metamask,
-          address: account?.address
+          address
         });
 
         createdProvider = await providerInstance.createProvider();
@@ -88,7 +75,7 @@ export class ProviderFactory {
       case ProviderTypeEnum.passkey: {
         const providerInstance = new IFrameProviderStrategy({
           type: IframeLoginTypes.passkey,
-          address: account?.address
+          address
         });
 
         createdProvider = await providerInstance.createProvider();
@@ -97,7 +84,7 @@ export class ProviderFactory {
       }
       case ProviderTypeEnum.walletConnect: {
         const providerInstance = new WalletConnectProviderStrategy(
-          walletConnect
+          config.walletConnect
         );
 
         createdProvider = await providerInstance.createProvider();
@@ -108,9 +95,7 @@ export class ProviderFactory {
       default: {
         for (const customProvider of this._customProviders) {
           if (customProvider.type === type) {
-            createdProvider = await customProvider.constructor(
-              config.account?.address
-            );
+            createdProvider = await customProvider.constructor(address);
             createdProvider.getType = () => type;
           }
         }

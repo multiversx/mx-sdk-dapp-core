@@ -67,7 +67,7 @@ export interface IProviderFactory<
   T extends ProviderTypeEnum = ProviderTypeEnum
 > {
   type: T[keyof T];
-  config?: IProviderConfig;
+  config: IProviderConfig;
 }
 
 export interface ICustomProvider<

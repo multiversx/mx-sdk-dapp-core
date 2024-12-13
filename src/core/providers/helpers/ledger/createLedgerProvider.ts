@@ -1,10 +1,17 @@
+import { Transaction } from '@multiversx/sdk-core/out';
 import BigNumber from 'bignumber.js';
+import { safeWindow } from 'constants/window.constants';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import {
   IEventBus,
   IProvider,
   ProviderTypeEnum
 } from 'core/providers/types/providerFactory.types';
+import {
+  defineCustomElements,
+  LedgerConnectModal,
+  SignTransactionsModal
+} from 'lib/sdkDappCoreUi';
 import { setLedgerAccount } from 'store/actions/account/accountActions';
 import { setLedgerLogin } from 'store/actions/loginInfo/loginInfoActions';
 import { fetchAccount } from 'utils/account/fetchAccount';
@@ -14,21 +21,24 @@ import { getLedgerProvider } from './helpers/getLedgerProvider';
 import { LedgerConnectStateManager } from './helpers/LedgerConnectStateManager';
 import { LedgerConnectEventsEnum } from './ledger.types';
 import { ILedgerAccount } from './ledger.types';
+import { SignEventsEnum } from '../components/SignTransactionsModal/signTransactionsModal.types';
+import { SignTransactionsStateManager } from '../components/SignTransactionsModal/SignTransactionsStateManager';
 
 const failInitializeErrorText = 'Check if the MultiversX App is open on Ledger';
 
-export async function createLedgerProvider(
-  mount: () => Promise<IEventBus>
-): Promise<IProvider | null> {
+export async function createLedgerProvider(): Promise<IProvider | null> {
   const shouldInitiateLogin = !getIsLoggedIn();
 
   let eventBus: IEventBus | undefined;
-  if (shouldInitiateLogin) {
-    eventBus = await mount?.();
-  }
+  await defineCustomElements(safeWindow);
 
-  if (!eventBus) {
-    throw new Error('Event bus not provided for Ledger provider');
+  if (shouldInitiateLogin) {
+    const ledgerModalElement = document.createElement(
+      'ledger-connect-modal'
+    ) as LedgerConnectModal;
+    document.body.appendChild(ledgerModalElement);
+    await customElements.whenDefined('ledger-connect-modal');
+    eventBus = await ledgerModalElement.getEventBus();
   }
 
   const manager = LedgerConnectStateManager.getInstance(eventBus);
@@ -40,14 +50,17 @@ export async function createLedgerProvider(
     const onCancel = () => reject('Device unavailable');
 
     try {
-      manager.updateAccountScreen({
+      manager?.updateAccountScreen({
         isLoading: true
       });
 
       const data = await getLedgerProvider();
 
-      eventBus.unsubscribe(LedgerConnectEventsEnum.CONNECT_DEVICE, onRetry);
-      eventBus.unsubscribe(LedgerConnectEventsEnum.CLOSE, onCancel);
+      if (eventBus) {
+        eventBus.unsubscribe(LedgerConnectEventsEnum.CONNECT_DEVICE, onRetry);
+        eventBus.unsubscribe(LedgerConnectEventsEnum.CLOSE, onCancel);
+      }
+
       resolve(data);
     } catch (err) {
       if (!shouldInitiateLogin) {
@@ -55,12 +68,14 @@ export async function createLedgerProvider(
       }
 
       const { errorMessage, defaultErrorMessage } = getLedgerErrorCodes(err);
-      manager.updateConnectScreen({
+      manager?.updateConnectScreen({
         error: errorMessage ?? defaultErrorMessage ?? failInitializeErrorText
       });
 
-      eventBus.subscribe(LedgerConnectEventsEnum.CONNECT_DEVICE, onRetry);
-      eventBus.subscribe(LedgerConnectEventsEnum.CLOSE, onCancel);
+      if (eventBus) {
+        eventBus.subscribe(LedgerConnectEventsEnum.CONNECT_DEVICE, onRetry);
+        eventBus.subscribe(LedgerConnectEventsEnum.CLOSE, onCancel);
+      }
     }
   });
 
@@ -69,6 +84,77 @@ export async function createLedgerProvider(
   const hwProviderLogin = provider.login;
 
   createdProvider.getType = () => ProviderTypeEnum.ledger;
+
+  createdProvider.signTransactions = async (
+    transactions: Transaction[]
+  ): Promise<Transaction[]> => {
+    const { ledgerProvider: customProvider } = await getLedgerProvider();
+
+    // TODO: extract to method what is below
+    const signModalElement = document.createElement(
+      'sign-transactions-modal'
+    ) as SignTransactionsModal;
+
+    document.body.appendChild(signModalElement);
+    await customElements.whenDefined('sign-transactions-modal');
+
+    const eventBus = await signModalElement.getEventBus();
+
+    const manager = SignTransactionsStateManager.getInstance(eventBus);
+    if (!manager) {
+      throw new Error('Unable to establish connection with sign screens');
+    }
+
+    return new Promise<Transaction[]>(async (resolve, reject) => {
+      const signedTransactions: Transaction[] = [];
+      let currentTransactionIndex = 0;
+
+      const signNextTransaction = async () => {
+        const currentTransaction = transactions[currentTransactionIndex];
+
+        manager.updateTransaction({
+          transaction: currentTransaction.toPlainObject()
+        });
+
+        const onCancel = () => {
+          reject(new Error('Transaction signing cancelled by user'));
+          signModalElement.remove();
+        };
+
+        const onSign = async () => {
+          try {
+            // TODO: check if it's a real transaction or multitransfer step
+            const [signedTransaction] = await customProvider.signTransactions([
+              currentTransaction
+            ]);
+
+            if (signedTransaction) {
+              signedTransactions.push(signedTransaction);
+            }
+
+            eventBus.unsubscribe(SignEventsEnum.SIGN_TRANSACTION, onSign);
+            eventBus.unsubscribe(SignEventsEnum.CLOSE, onCancel);
+
+            if (signedTransactions.length == transactions.length) {
+              signModalElement.remove();
+              resolve(signedTransactions);
+            } else {
+              currentTransactionIndex++;
+              signNextTransaction();
+            }
+          } catch (error) {
+            reject('Error signing transactions: ' + error);
+            signModalElement.remove();
+          }
+        };
+
+        eventBus.subscribe(SignEventsEnum.SIGN_TRANSACTION, onSign);
+        eventBus.subscribe(SignEventsEnum.CLOSE, onCancel);
+      };
+
+      signNextTransaction();
+    });
+  };
 
   createdProvider.login = async (options?: {
     callbackUrl?: string;
@@ -89,6 +175,9 @@ export async function createLedgerProvider(
     });
 
     const updateAccounts = async () => {
+      if (!manager) {
+        return;
+      }
       const startIndex = manager.getAccountScreenData()?.startIndex || 0;
       const allAccounts = manager.getAllAccounts();
 
@@ -190,6 +279,9 @@ export async function createLedgerProvider(
       addressIndex: number;
     }>(async (resolve, reject) => {
       const unsubscribeFromEvents = () => {
+        if (!eventBus) {
+          throw new Error('Event bus not provided for Ledger provider');
+        }
         // eslint-disable-next-line @typescript-eslint/no-use-before-define
         eventBus.unsubscribe(LedgerConnectEventsEnum.CLOSE, onCancel);
         eventBus.unsubscribe(
@@ -210,7 +302,7 @@ export async function createLedgerProvider(
       };
 
       const closeComponent = () => {
-        manager.closeAndReset();
+        manager?.closeAndReset();
       };
 
       const onCancel = async () => {
@@ -220,16 +312,16 @@ export async function createLedgerProvider(
       };
 
       const onNextPageChanged = async () => {
-        const startIndex = manager.getAccountScreenData()?.startIndex || 0;
-        manager.updateStartIndex(startIndex + manager.addressesPerPage);
+        const startIndex = manager?.getAccountScreenData()?.startIndex || 0;
+        manager?.updateStartIndex(startIndex + manager.addressesPerPage);
         await updateAccounts();
       };
 
       const onPrevPageChanged = async () => {
-        const startIndex = manager.getAccountScreenData()?.startIndex || 0;
+        const startIndex = manager?.getAccountScreenData()?.startIndex || 0;
 
         if (startIndex > 0) {
-          manager.updateStartIndex(
+          manager?.updateStartIndex(
             Math.max(0, startIndex - manager.addressesPerPage)
           );
 
@@ -241,7 +333,7 @@ export async function createLedgerProvider(
         addressIndex: number;
         selectedAddress: string;
       }) {
-        manager.updateConfirmScreen({
+        manager?.updateConfirmScreen({
           ...authData,
           selectedAddress: payload.selectedAddress
         });
@@ -267,17 +359,19 @@ export async function createLedgerProvider(
           });
         } catch (err) {
           console.error('User rejected login:', err);
-          const shouldClose = Boolean(manager.getAccountScreenData());
+          const shouldClose = Boolean(manager?.getAccountScreenData());
           if (shouldClose) {
             return closeComponent();
           }
-          const shouldGoBack = Boolean(manager.getConfirmScreenData());
+          const shouldGoBack = Boolean(manager?.getConfirmScreenData());
           if (shouldGoBack) {
             await updateAccounts();
           }
         }
       };
-
+      if (!eventBus) {
+        throw new Error('Event bus not provided for Ledger provider');
+      }
       eventBus.subscribe(LedgerConnectEventsEnum.CLOSE, onCancel);
       eventBus.subscribe(LedgerConnectEventsEnum.NEXT_PAGE, onNextPageChanged);
       eventBus.subscribe(LedgerConnectEventsEnum.PREV_PAGE, onPrevPageChanged);
