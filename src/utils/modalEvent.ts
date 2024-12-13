@@ -2,7 +2,7 @@ import { IEventBus } from '@multiversx/sdk-dapp-core-ui/loader';
 import { safeWindow } from 'constants/index';
 import { defineCustomElements } from 'lib/sdkDappCoreUi';
 
-export const getEventBus = async <
+export const getModalElement = async <
   T extends HTMLElement & { getEventBus: () => Promise<IEventBus | undefined> }
 >(
   tagName: string
@@ -10,6 +10,18 @@ export const getEventBus = async <
   await defineCustomElements(safeWindow);
 
   const modalElement = document.createElement(tagName) as T;
+  document.body.appendChild(modalElement);
+  await customElements.whenDefined(tagName);
+
+  return modalElement;
+};
+
+export const getEventBus = async <
+  T extends HTMLElement & { getEventBus: () => Promise<IEventBus | undefined> }
+>(
+  tagName: string
+) => {
+  const modalElement = await getModalElement<T>(tagName);
   document.body.appendChild(modalElement);
   await customElements.whenDefined(tagName);
 

@@ -3,13 +3,13 @@ import { getAddress } from 'core/methods/account/getAddress';
 import { CrossWindowProviderStrategy } from 'core/providers-strategy/CrossWindowProviderStrategy';
 import { ExtensionProviderStrategy } from 'core/providers-strategy/ExtensionProviderStrategy';
 import { IFrameProviderStrategy } from 'core/providers-strategy/IFrameProviderStrategy';
+import { LedgerProviderStrategy } from 'core/providers-strategy/LedgerProviderStrategy';
 import { WalletConnectProviderStrategy } from 'core/providers-strategy/WalletConnectProviderStrategy';
 import { setProviderType } from 'store/actions/loginInfo/loginInfoActions';
 import { walletConnectConfigSelector } from 'store/selectors';
 import { getState } from 'store/store';
 import { setAccountProvider } from './accountProvider';
 import { DappProvider } from './DappProvider/DappProvider';
-import { createLedgerProvider } from './helpers/ledger/createLedgerProvider';
 import {
   ICustomProvider,
   IProvider,
@@ -48,17 +48,8 @@ export class ProviderFactory {
       }
 
       case ProviderTypeEnum.ledger: {
-        const ledgerProvider = await createLedgerProvider();
-
-        if (!ledgerProvider) {
-          throw new Error('Unable to create ledger provider');
-        }
-
-        createdProvider = ledgerProvider;
-
-        createdProvider.getType = () => ProviderTypeEnum.ledger;
-
-        await createdProvider.init?.();
+        const providerInstance = new LedgerProviderStrategy(address);
+        createdProvider = await providerInstance.createProvider();
 
         break;
       }
