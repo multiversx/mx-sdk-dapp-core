@@ -1,3 +1,5 @@
+import { WalletConnectV2ProviderOptionsType } from '@multiversx/sdk-wallet-connect-provider/out';
+
 export enum WalletConnectV2Error {
   invalidAddress = 'Invalid address',
   invalidConfig = 'Invalid WalletConnect setup',
@@ -19,4 +21,12 @@ export enum WalletConnectEventsEnum {
 export interface IWalletConnectModalData {
   wcURI: string;
   shouldClose?: boolean;
+}
+
+export interface WalletConnectConfig {
+  walletConnectV2ProjectId: string;
+  walletConnectV2RelayAddress?: string;
+  walletConnectV2Options?: WalletConnectV2ProviderOptionsType;
+  customRequestMethods?: Array<string>;
+  logoutRoute?: string;
 }

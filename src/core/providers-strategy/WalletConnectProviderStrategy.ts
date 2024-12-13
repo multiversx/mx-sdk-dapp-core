@@ -8,13 +8,13 @@ import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import { getAccountProvider } from 'core/providers/accountProvider';
 import {
   WalletConnectEventsEnum,
-  WalletConnectV2Error
+  WalletConnectV2Error,
+  WalletConnectConfig
 } from 'core/providers/helpers/walletConnect/walletConnect.types';
 import { WalletConnectStateManager } from 'core/providers/helpers/walletConnect/WalletConnectStateManagement';
 import {
   IEventBus,
-  IProvider,
-  IProviderConfig
+  IProvider
 } from 'core/providers/types/providerFactory.types';
 import { defineCustomElements, WalletConnectModal } from 'lib/sdkDappCoreUi';
 import { logoutAction } from 'store/actions';
@@ -32,14 +32,9 @@ const dappMethods: string[] = [
   WalletConnectOptionalMethodsEnum.SIGN_LOGIN_TOKEN
 ];
 
-type WalletConnectConfigType = Pick<
-  IProviderConfig,
-  'walletConnect'
->['walletConnect'];
-
 export class WalletConnectProviderStrategy {
   private provider: WalletConnectV2Provider | null = null;
-  private config: WalletConnectConfigType;
+  private config: WalletConnectConfig | null;
   private methods: string[] = [];
   private manager: WalletConnectStateManager<IEventBus> | null = null;
   private approval: (() => Promise<SessionTypes.Struct>) | null = null;
@@ -51,7 +46,7 @@ export class WalletConnectProviderStrategy {
       }) => Promise<IProviderAccount | null>)
     | null = null;
 
-  constructor(config: WalletConnectConfigType) {
+  constructor(config: WalletConnectConfig | null) {
     this.config = config;
   }
 
@@ -64,11 +59,9 @@ export class WalletConnectProviderStrategy {
     if (eventBus) {
       const manager = WalletConnectStateManager.getInstance(eventBus);
       this.manager = manager;
-
-      setWalletConnectConfig(this.config);
     }
 
-    if (!this.provider) {
+    if (!this.provider && this.config) {
       const { walletConnectProvider, dappMethods } =
         await this.createWalletConnectProvider(this.config);
 
@@ -94,7 +87,7 @@ export class WalletConnectProviderStrategy {
       eventBus.unsubscribe(WalletConnectEventsEnum.CLOSE, onClose);
     };
 
-    if (eventBus && this.manager) {
+    if (eventBus && this.manager && this.provider) {
       const { uri = '', approval } = await this.provider.connect({
         methods: this.methods
       });
@@ -123,6 +116,8 @@ export class WalletConnectProviderStrategy {
     if (!this.config?.walletConnectV2ProjectId) {
       throw new Error(WalletConnectV2Error.invalidConfig);
     }
+
+    setWalletConnectConfig(this.config);
   };
 
   private createEventBus = async () => {
@@ -146,9 +141,7 @@ export class WalletConnectProviderStrategy {
     return eventBus;
   };
 
-  private createWalletConnectProvider = async (
-    config: IProviderConfig['walletConnect']
-  ) => {
+  private createWalletConnectProvider = async (config: WalletConnectConfig) => {
     const isLoggedIn = getIsLoggedIn();
     const chainId = chainIdSelector(getState());
     const provider = getAccountProvider();

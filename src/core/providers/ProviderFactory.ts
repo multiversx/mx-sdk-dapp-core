@@ -5,6 +5,8 @@ import { ExtensionProviderStrategy } from 'core/providers-strategy/ExtensionProv
 import { IFrameProviderStrategy } from 'core/providers-strategy/IFrameProviderStrategy';
 import { WalletConnectProviderStrategy } from 'core/providers-strategy/WalletConnectProviderStrategy';
 import { setProviderType } from 'store/actions/loginInfo/loginInfoActions';
+import { walletConnectConfigSelector } from 'store/selectors';
+import { getState } from 'store/store';
 import { setAccountProvider } from './accountProvider';
 import { DappProvider } from './DappProvider/DappProvider';
 import { createLedgerProvider } from './helpers/ledger/createLedgerProvider';
@@ -23,11 +25,11 @@ export class ProviderFactory {
   }
 
   public static async create({
-    type,
-    config
+    type
   }: IProviderFactory): Promise<DappProvider> {
     let createdProvider: IProvider | null = null;
     const address = getAddress();
+    const walletConnectConfig = walletConnectConfigSelector(getState());
 
     switch (type) {
       case ProviderTypeEnum.extension: {
@@ -84,7 +86,7 @@ export class ProviderFactory {
       }
       case ProviderTypeEnum.walletConnect: {
         const providerInstance = new WalletConnectProviderStrategy(
-          config.walletConnect
+          walletConnectConfig
         );
 
         createdProvider = await providerInstance.createProvider();
