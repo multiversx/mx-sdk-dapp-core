@@ -16,4 +16,29 @@ In your project, make sure to use the `preserveSymlinks` option in the server co
 ```
 
 // TODO: DEMONSTRATE API
+
+
+```mermaid
+flowchart TB;
+    id1{index.tsx} 
+    
+    -- sdk-dpp-core config --> 
+    
+    F(
+        persistance
+        network
+        custom providers
+    )
+        
+    -- await config --> 
+    
+    id2{/unlock}  
+    
+    -- user presses login --> 
+    
+    Provider.login
+
+    -- redirect --> 
+    
+    /dashboard
 ```

@@ -15,6 +15,7 @@ export async function createCrossWindowProvider({
   const network = networkSelector(getState());
   const provider = CrossWindowProvider.getInstance();
   await provider.init();
+
   provider.setWalletUrl(walletAddress || network.walletAddress);
   provider.setAddress(address);
 

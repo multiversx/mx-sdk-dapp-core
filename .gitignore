@@ -6,6 +6,7 @@ node_modules
 .cache
 *.log
 .DS_Store
+**/.DS_Store
 
 # builds
 build
@@ -18,7 +19,6 @@ out
 .husky
 
 # misc
-.DS_Store
 .env
 .env.local
 .env.development.local
