@@ -46,16 +46,15 @@ export class CrossWindowProviderStrategy {
   };
 
   private buildProvider = () => {
+    const { address } = getAccount();
+
     if (!this.provider) {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
     const provider = this.provider as unknown as IProvider;
 
-    if (this.address) {
-      provider.setAccount({ address: this.address });
-    }
-
+    provider.setAccount({ address: this.address || address });
     provider.signTransactions = this.signTransactions;
     provider.signMessage = this.signMessage;
 

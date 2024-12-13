@@ -18,6 +18,7 @@ import {
 } from 'core/providers/types/providerFactory.types';
 import { defineCustomElements, WalletConnectModal } from 'lib/sdkDappCoreUi';
 import { logoutAction } from 'store/actions';
+import { setWalletConnectConfig } from 'store/actions/config/configActions';
 import { chainIdSelector, nativeAuthConfigSelector } from 'store/selectors';
 import { getState } from 'store/store';
 import { ProviderErrorsEnum } from 'types';
@@ -60,8 +61,12 @@ export class WalletConnectProviderStrategy {
 
     const eventBus = await this.createEventBus();
 
-    const manager = WalletConnectStateManager.getInstance(eventBus);
-    this.manager = manager;
+    if (eventBus) {
+      const manager = WalletConnectStateManager.getInstance(eventBus);
+      this.manager = manager;
+
+      setWalletConnectConfig(this.config);
+    }
 
     if (!this.provider) {
       const { walletConnectProvider, dappMethods } =
@@ -74,21 +79,31 @@ export class WalletConnectProviderStrategy {
     }
 
     const onClose = () => {
-      manager.closeAndReset();
+      if (!this.manager) {
+        throw new Error('State manager is not initialized');
+      }
+
+      this.manager.closeAndReset();
     };
 
     this.unsubscribeEvents = () => {
+      if (!eventBus) {
+        throw new Error('Event bus is not initialized');
+      }
+
       eventBus.unsubscribe(WalletConnectEventsEnum.CLOSE, onClose);
     };
 
-    const { uri = '', approval } = await this.provider.connect({
-      methods: this.methods
-    });
+    if (eventBus && this.manager) {
+      const { uri = '', approval } = await this.provider.connect({
+        methods: this.methods
+      });
 
-    this.approval = approval;
-    manager.updateWcURI(uri);
+      this.approval = approval;
+      this.manager.updateWcURI(uri);
 
-    eventBus.subscribe(WalletConnectEventsEnum.CLOSE, onClose);
+      eventBus.subscribe(WalletConnectEventsEnum.CLOSE, onClose);
+    }
 
     return this.buildProvider();
   };
@@ -122,10 +137,10 @@ export class WalletConnectProviderStrategy {
       await customElements.whenDefined('wallet-connect-modal');
 
       eventBus = await walletConnectModalElement.getEventBus();
-    }
 
-    if (!eventBus) {
-      throw new Error('Event bus not provided for WalletConnect provider');
+      if (!eventBus) {
+        throw new Error('Event bus not provided for WalletConnect provider');
+      }
     }
 
     return eventBus;
@@ -150,11 +165,11 @@ export class WalletConnectProviderStrategy {
     const handleOnLogin = () => {};
 
     const handleOnLogout = async () => {
-      if (config.onLogout) {
-        await config.onLogout();
-      }
-
       logoutAction();
+
+      if (config.logoutRoute) {
+        safeWindow.location.replace(config.logoutRoute);
+      }
     };
 
     const handleOnEvent = (_event: SessionEventTypes['event']) => {};

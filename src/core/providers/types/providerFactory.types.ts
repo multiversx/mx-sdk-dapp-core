@@ -47,7 +47,7 @@ export interface IProviderConfig {
     walletConnectV2RelayAddress?: string;
     walletConnectV2Options?: WalletConnectV2ProviderOptionsType;
     customRequestMethods?: Array<string>;
-    onLogout?: () => Promise<void>;
+    logoutRoute?: string;
   };
 }
 
