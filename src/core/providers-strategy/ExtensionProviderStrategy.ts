@@ -3,7 +3,12 @@ import { IProvider } from 'core/providers/types/providerFactory.types';
 import { ProviderErrorsEnum } from 'types';
 
 export class ExtensionProviderStrategy {
+  private address: string = '';
   private provider: ExtensionProvider | null = null;
+
+  constructor(address: string) {
+    this.address = address;
+  }
 
   public createProvider = async (): Promise<IProvider> => {
     if (!this.provider) {
@@ -19,6 +24,8 @@ export class ExtensionProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    return this.provider as unknown as IProvider;
+    const provider = this.provider as unknown as IProvider;
+    provider.setAccount({ address: this.address });
+    return provider;
   };
 }

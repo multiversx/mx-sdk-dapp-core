@@ -33,7 +33,7 @@ export class ProviderFactory {
 
     switch (type) {
       case ProviderTypeEnum.extension: {
-        const providerInstance = new ExtensionProviderStrategy();
+        const providerInstance = new ExtensionProviderStrategy(address);
         createdProvider = await providerInstance.createProvider();
 
         break;
