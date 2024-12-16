@@ -2,12 +2,19 @@ import { Message, Transaction } from '@multiversx/sdk-core/out';
 import { isBrowserWithPopupConfirmation } from 'constants/browser.constants';
 import { getAccount } from 'core/methods/account/getAccount';
 import { getAddress } from 'core/methods/account/getAddress';
-import { IProvider } from 'core/providers/types/providerFactory.types';
+import { PendingTransactionsEventsEnum } from 'core/providers/helpers/pendingTransactions/pendingTransactions.types';
+import { PendingTransactionsStateManager } from 'core/providers/helpers/pendingTransactions/PendingTransactionsStateManagement';
+import {
+  IProvider,
+  ProviderTypeEnum
+} from 'core/providers/types/providerFactory.types';
+import { PendingTransactionsModal } from 'lib/sdkDappCoreUi';
 import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
 import { crossWindowConfigSelector } from 'store/selectors';
 import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
 import { ProviderErrorsEnum } from 'types';
+import { createModalElement } from 'utils/createModalElement';
 
 type CrossWindowProviderProps = {
   address?: string;
@@ -83,13 +90,49 @@ export class CrossWindowProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
+    const { eventBus } = await createModalElement<PendingTransactionsModal>({
+      name: 'pending-transactions-modal',
+      withEventBus: true
+    });
+
+    if (!eventBus) {
+      throw new Error('Event bus is not initialized');
+    }
+
+    const manager = PendingTransactionsStateManager.getInstance(eventBus);
+
+    const onClose = (cancelAction = true) => {
+      if (cancelAction && this.provider) {
+        this.provider.cancelAction();
+      }
+
+      manager.closeAndReset();
+    };
+
+    eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
+
+    manager.updateData({
+      isPending: true,
+      title: 'Confirm on MultiversX Web Wallet',
+      subtitle: 'Check your MultiversX Web Wallet to sign the transaction',
+      type: ProviderTypeEnum.extension
+    });
+
     this.setPopupConsent();
 
-    const signedTransactions: Transaction[] =
-      (await this._signTransactions(transactions)) ?? [];
+    try {
+      const signedTransactions: Transaction[] =
+        (await this._signTransactions(transactions)) ?? [];
 
-    // Guarded Transactions or Signed Transactions
-    return this.getTransactions(signedTransactions);
+      // Guarded Transactions or Signed Transactions
+      return this.getTransactions(signedTransactions);
+    } catch (error) {
+      this.provider.cancelAction();
+      throw error;
+    } finally {
+      onClose(false);
+      eventBus.unsubscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
+    }
   };
 
   private signMessage = async (message: Message) => {
@@ -97,8 +140,51 @@ export class CrossWindowProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
+    const { eventBus } = await createModalElement<PendingTransactionsModal>({
+      name: 'pending-transactions-modal',
+      withEventBus: true
+    });
+
+    if (!eventBus) {
+      throw new Error('Event bus is not initialized');
+    }
+
+    const manager = PendingTransactionsStateManager.getInstance(eventBus);
+
+    const onClose = (cancelAction = true) => {
+      if (!this.provider) {
+        throw new Error(ProviderErrorsEnum.notInitialized);
+      }
+
+      if (cancelAction) {
+        this.provider.cancelAction();
+      }
+
+      manager.closeAndReset();
+    };
+
+    eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
+
+    manager.updateData({
+      isPending: true,
+      title: 'Message Signing',
+      subtitle: 'Check your MultiversX Web Wallet to sign the message',
+      type: ProviderTypeEnum.crossWindow
+    });
+
     this.setPopupConsent();
-    return this._signMessage(message);
+
+    try {
+      const signedMessage: Message = await this._signMessage(message);
+
+      return signedMessage;
+    } catch (error) {
+      this.provider.cancelAction();
+      throw error;
+    } finally {
+      onClose(false);
+      eventBus.unsubscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
+    }
   };
 
   private setPopupConsent = () => {
