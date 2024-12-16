@@ -6,8 +6,6 @@ import { IFrameProviderStrategy } from 'core/providers-strategy/IFrameProviderSt
 import { LedgerProviderStrategy } from 'core/providers-strategy/LedgerProviderStrategy';
 import { WalletConnectProviderStrategy } from 'core/providers-strategy/WalletConnectProviderStrategy';
 import { setProviderType } from 'store/actions/loginInfo/loginInfoActions';
-import { walletConnectConfigSelector } from 'store/selectors';
-import { getState } from 'store/store';
 import { setAccountProvider } from './accountProvider';
 import { DappProvider } from './DappProvider/DappProvider';
 import {
@@ -28,27 +26,24 @@ export class ProviderFactory {
     type
   }: IProviderFactory): Promise<DappProvider> {
     let createdProvider: IProvider | null = null;
-    const address = getAddress();
-    const walletConnectConfig = walletConnectConfigSelector(getState());
 
     switch (type) {
       case ProviderTypeEnum.extension: {
-        const providerInstance = new ExtensionProviderStrategy(address);
+        const providerInstance = new ExtensionProviderStrategy();
         createdProvider = await providerInstance.createProvider();
 
         break;
       }
 
       case ProviderTypeEnum.crossWindow: {
-        const providerInstance = new CrossWindowProviderStrategy(address);
-
+        const providerInstance = new CrossWindowProviderStrategy();
         createdProvider = await providerInstance.createProvider();
 
         break;
       }
 
       case ProviderTypeEnum.ledger: {
-        const providerInstance = new LedgerProviderStrategy(address);
+        const providerInstance = new LedgerProviderStrategy();
         createdProvider = await providerInstance.createProvider();
 
         break;
@@ -56,8 +51,7 @@ export class ProviderFactory {
 
       case ProviderTypeEnum.metamask: {
         const providerInstance = new IFrameProviderStrategy({
-          type: IframeLoginTypes.metamask,
-          address
+          type: IframeLoginTypes.metamask
         });
 
         createdProvider = await providerInstance.createProvider();
@@ -67,25 +61,22 @@ export class ProviderFactory {
 
       case ProviderTypeEnum.passkey: {
         const providerInstance = new IFrameProviderStrategy({
-          type: IframeLoginTypes.passkey,
-          address
+          type: IframeLoginTypes.passkey
         });
-
         createdProvider = await providerInstance.createProvider();
 
         break;
       }
       case ProviderTypeEnum.walletConnect: {
-        const providerInstance = new WalletConnectProviderStrategy(
-          walletConnectConfig
-        );
-
+        const providerInstance = new WalletConnectProviderStrategy();
         createdProvider = await providerInstance.createProvider();
 
         break;
       }
 
       default: {
+        const address = getAddress();
+
         for (const customProvider of this._customProviders) {
           if (customProvider.type === type) {
             createdProvider = await customProvider.constructor(address);

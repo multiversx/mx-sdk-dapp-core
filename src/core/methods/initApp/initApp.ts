@@ -4,7 +4,11 @@ import { ProviderFactory } from 'core/providers/ProviderFactory';
 import { getDefaultNativeAuthConfig } from 'services/nativeAuth/methods/getDefaultNativeAuthConfig';
 import { NativeAuthConfigType } from 'services/nativeAuth/nativeAuth.types';
 import { initializeNetwork } from 'store/actions';
-import { setNativeAuthConfig } from 'store/actions/config/configActions';
+import {
+  setCrossWindowConfig,
+  setNativeAuthConfig,
+  setWalletConnectConfig
+} from 'store/actions/config/configActions';
 import { defaultStorageCallback } from 'store/storage';
 import { initStore } from 'store/store';
 import { InitAppType } from './initApp.types';
@@ -52,6 +56,14 @@ export async function initApp({
         : dAppConfig.nativeAuth;
 
     setNativeAuthConfig(nativeAuthConfig);
+  }
+
+  if (dAppConfig?.walletConnect) {
+    setWalletConnectConfig(dAppConfig.walletConnect);
+  }
+
+  if (dAppConfig?.crossWindow) {
+    setCrossWindowConfig(dAppConfig.crossWindow);
   }
 
   if (shouldEnableTransactionTracker) {

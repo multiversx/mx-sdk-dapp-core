@@ -8,3 +8,7 @@ export const nativeAuthConfigSelector = ({ config }: StoreType) =>
 export const walletConnectConfigSelector = ({ config }: StoreType) => {
   return config.walletConnectConfig;
 };
+
+export const crossWindowConfigSelector = ({ config }: StoreType) => {
+  return config.crossWindowConfig;
+};

@@ -1,31 +1,31 @@
 import { Message, Transaction } from '@multiversx/sdk-core/out';
 import { isBrowserWithPopupConfirmation } from 'constants/browser.constants';
 import { getAccount } from 'core/methods/account/getAccount';
+import { getAddress } from 'core/methods/account/getAddress';
 import { IProvider } from 'core/providers/types/providerFactory.types';
 import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
+import { crossWindowConfigSelector } from 'store/selectors';
 import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
 import { ProviderErrorsEnum } from 'types';
 
 export class CrossWindowProviderStrategy {
   private provider: CrossWindowProvider | null = null;
-  private address: string = '';
-  private walletAddress: string = '';
+  private address: string;
+  private walletAddress?: string;
   private _signTransactions:
     | ((transactions: Transaction[]) => Promise<Transaction[]>)
     | null = null;
   private _signMessage: ((messageToSign: Message) => Promise<Message>) | null =
     null;
 
-  constructor(
-    address: string | undefined,
-    walletAddress: string | undefined = ''
-  ) {
+  constructor(address?: string, walletAddress?: string) {
     this.address = address || '';
     this.walletAddress = walletAddress;
   }
 
   public createProvider = async (): Promise<IProvider> => {
+    this.validateConfig();
     const network = networkSelector(getState());
 
     if (!this.provider) {
@@ -38,7 +38,7 @@ export class CrossWindowProviderStrategy {
     this._signMessage = this.provider.signMessage.bind(this.provider);
 
     this.provider.setWalletUrl(this.walletAddress || network.walletAddress);
-    this.provider.setAddress(this.address);
+    this.provider.setAddress(this.address || '');
 
     this.setPopupConsent();
 
@@ -46,19 +46,27 @@ export class CrossWindowProviderStrategy {
   };
 
   private buildProvider = () => {
-    const { address } = getAccount();
-
     if (!this.provider) {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
     const provider = this.provider as unknown as IProvider;
 
-    provider.setAccount({ address: this.address || address });
+    provider.setAccount({ address: this.address });
     provider.signTransactions = this.signTransactions;
     provider.signMessage = this.signMessage;
 
     return provider;
+  };
+
+  private validateConfig = () => {
+    if (!this.address) {
+      const address = getAddress();
+
+      if (address) {
+        this.address = address;
+      }
+    }
   };
 
   private signTransactions = async (transactions: Transaction[]) => {
@@ -85,15 +93,18 @@ export class CrossWindowProviderStrategy {
   };
 
   private setPopupConsent = () => {
+    const crossWindowDappConfig = crossWindowConfigSelector(getState());
+
     if (!this.provider) {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    if (!isBrowserWithPopupConfirmation) {
-      return;
+    if (
+      crossWindowDappConfig?.isBrowserWithPopupConfirmation ||
+      isBrowserWithPopupConfirmation
+    ) {
+      this.provider.setShouldShowConsentPopup(true);
     }
-
-    this.provider.setShouldShowConsentPopup(true);
   };
 
   private getTransactions = async (transactions: Transaction[]) => {

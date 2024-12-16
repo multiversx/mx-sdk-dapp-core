@@ -1,3 +1,5 @@
+import { CrossWindowConfig } from 'core/providers/helpers/crossWindow/crossWindow.type';
+import { WalletConnectConfig } from 'core/providers/helpers/walletConnect/walletConnect.types';
 import { ICustomProvider } from 'core/providers/types/providerFactory.types';
 import { NativeAuthConfigType } from 'services/nativeAuth/nativeAuth.types';
 import { StorageCallback } from 'store/storage';
@@ -16,6 +18,8 @@ type BaseDappConfigType = {
    * default: `true`
    */
   enableTansactionTracker?: boolean;
+  crossWindow?: CrossWindowConfig;
+  walletConnect?: WalletConnectConfig;
 };
 
 export type EnvironmentDappConfigType = BaseDappConfigType & {

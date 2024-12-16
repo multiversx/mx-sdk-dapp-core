@@ -3,6 +3,7 @@ import { IDAppProviderOptions } from '@multiversx/sdk-dapp-utils/out';
 import { HWProvider, IProviderAccount } from '@multiversx/sdk-hw-provider';
 import BigNumber from 'bignumber.js';
 import { safeWindow } from 'constants/index';
+import { getAddress } from 'core/methods/account/getAddress';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import { SignEventsEnum } from 'core/providers/helpers/components/SignTransactionsModal/signTransactionsModal.types';
 import { SignTransactionsStateManager } from 'core/providers/helpers/components/SignTransactionsModal/SignTransactionsStateManager';
@@ -19,12 +20,16 @@ import {
   IProvider,
   ProviderTypeEnum
 } from 'core/providers/types/providerFactory.types';
-import { defineCustomElements, SignTransactionsModal } from 'lib/sdkDappCoreUi';
+import {
+  defineCustomElements,
+  LedgerConnectModal,
+  SignTransactionsModal
+} from 'lib/sdkDappCoreUi';
 import { setLedgerAccount } from 'store/actions';
 import { setLedgerLogin } from 'store/actions/loginInfo/loginInfoActions';
 import { ProviderErrorsEnum } from 'types';
 import { fetchAccount } from 'utils/account/fetchAccount';
-import { getEventBus, getModalElement } from 'utils/modalEvent';
+import { createModalElement } from 'utils/modalEvent';
 
 const failInitializeErrorText = 'Check if the MultiversX App is open on Ledger';
 
@@ -47,11 +52,12 @@ export class LedgerProviderStrategy {
       ) => Promise<Transaction[]>)
     | null = null;
 
-  constructor(address: string) {
-    this.address = address;
+  constructor(address?: string) {
+    this.address = address || '';
   }
 
   public createProvider = async (): Promise<IProvider> => {
+    this.validateConfig();
     await defineCustomElements(safeWindow);
 
     const eventBus = await this.createEventBus();
@@ -75,13 +81,11 @@ export class LedgerProviderStrategy {
 
           const data = await getLedgerProvider();
 
-          if (eventBus) {
-            eventBus.unsubscribe(
-              LedgerConnectEventsEnum.CONNECT_DEVICE,
-              onRetry
-            );
-            eventBus.unsubscribe(LedgerConnectEventsEnum.CLOSE, onCancel);
-          }
+          eventBus?.unsubscribe(
+            LedgerConnectEventsEnum.CONNECT_DEVICE,
+            onRetry
+          );
+          eventBus?.unsubscribe(LedgerConnectEventsEnum.CLOSE, onCancel);
 
           resolve(data);
         } catch (err) {
@@ -96,10 +100,8 @@ export class LedgerProviderStrategy {
               errorMessage ?? defaultErrorMessage ?? failInitializeErrorText
           });
 
-          if (eventBus) {
-            eventBus.subscribe(LedgerConnectEventsEnum.CONNECT_DEVICE, onRetry);
-            eventBus.subscribe(LedgerConnectEventsEnum.CLOSE, onCancel);
-          }
+          eventBus?.subscribe(LedgerConnectEventsEnum.CONNECT_DEVICE, onRetry);
+          eventBus?.subscribe(LedgerConnectEventsEnum.CLOSE, onCancel);
         }
       });
 
@@ -127,30 +129,47 @@ export class LedgerProviderStrategy {
     return provider;
   };
 
+  private validateConfig = () => {
+    if (!this.address) {
+      const address = getAddress();
+
+      if (address) {
+        this.address = address;
+      }
+    }
+  };
+
   private createEventBus = async () => {
     const shouldInitiateLogin = !getIsLoggedIn();
 
-    let eventBus: IEventBus | undefined;
-
-    if (shouldInitiateLogin) {
-      eventBus = await getEventBus('ledger-connect-modal');
-
-      if (!eventBus) {
-        throw new Error('Event bus not provided for Ledger provider');
-      }
-
-      this.eventBus = eventBus;
+    if (!shouldInitiateLogin) {
+      return;
     }
 
-    return eventBus;
+    const { eventBus: modalEventBus } =
+      await createModalElement<LedgerConnectModal>({
+        name: 'ledger-connect-modal',
+        withEventBus: true
+      });
+
+    if (!modalEventBus) {
+      throw new Error('Event bus not provided for Ledger provider');
+    }
+
+    this.eventBus = modalEventBus;
+    return modalEventBus;
   };
 
   private signTransactions = async (transactions: Transaction[]) => {
-    const signModalElement = await getModalElement<SignTransactionsModal>(
-      'sign-transactions-modal'
-    );
+    const { modalElement: signModalElement, eventBus } =
+      await createModalElement<SignTransactionsModal>({
+        name: 'sign-transactions-modal',
+        withEventBus: true
+      });
 
-    const eventBus = await signModalElement.getEventBus();
+    if (!eventBus) {
+      throw new Error('Event bus not provided for Ledger provider');
+    }
 
     const manager = SignTransactionsStateManager.getInstance(eventBus);
     if (!manager) {

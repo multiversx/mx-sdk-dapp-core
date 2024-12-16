@@ -1,3 +1,4 @@
 export enum ProviderErrorsEnum {
-  notInitialized = 'Provider is not initialized.'
+  notInitialized = 'Provider is not initialized.',
+  invalidConfig = 'Invalid config.'
 }

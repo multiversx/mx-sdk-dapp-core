@@ -18,10 +18,14 @@ import {
 } from 'core/providers/types/providerFactory.types';
 import { defineCustomElements, WalletConnectModal } from 'lib/sdkDappCoreUi';
 import { logoutAction } from 'store/actions';
-import { setWalletConnectConfig } from 'store/actions/config/configActions';
-import { chainIdSelector, nativeAuthConfigSelector } from 'store/selectors';
+import {
+  chainIdSelector,
+  nativeAuthConfigSelector,
+  walletConnectConfigSelector
+} from 'store/selectors';
 import { getState } from 'store/store';
 import { ProviderErrorsEnum } from 'types';
+import { createModalElement } from 'utils/modalEvent';
 import {
   WalletConnectOptionalMethodsEnum,
   WalletConnectV2Provider
@@ -34,7 +38,7 @@ const dappMethods: string[] = [
 
 export class WalletConnectProviderStrategy {
   private provider: WalletConnectV2Provider | null = null;
-  private config: WalletConnectConfig | null;
+  private config: WalletConnectConfig | undefined;
   private methods: string[] = [];
   private manager: WalletConnectStateManager<IEventBus> | null = null;
   private approval: (() => Promise<SessionTypes.Struct>) | null = null;
@@ -46,7 +50,7 @@ export class WalletConnectProviderStrategy {
       }) => Promise<IProviderAccount | null>)
     | null = null;
 
-  constructor(config: WalletConnectConfig | null) {
+  constructor(config?: WalletConnectConfig) {
     this.config = config;
   }
 
@@ -114,29 +118,28 @@ export class WalletConnectProviderStrategy {
 
   private validateConfig = () => {
     if (!this.config?.walletConnectV2ProjectId) {
+      const walletConnectConfig = walletConnectConfigSelector(getState());
+
+      if (walletConnectConfig) {
+        this.config = walletConnectConfig;
+        return;
+      }
+
       throw new Error(WalletConnectV2Error.invalidConfig);
     }
-
-    setWalletConnectConfig(this.config);
   };
 
   private createEventBus = async () => {
     const shouldInitiateLogin = !getIsLoggedIn();
 
-    let eventBus: IEventBus | undefined;
-    if (shouldInitiateLogin) {
-      const walletConnectModalElement = document.createElement(
-        'wallet-connect-modal'
-      ) as WalletConnectModal;
-      document.body.appendChild(walletConnectModalElement);
-      await customElements.whenDefined('wallet-connect-modal');
-
-      eventBus = await walletConnectModalElement.getEventBus();
-
-      if (!eventBus) {
-        throw new Error('Event bus not provided for WalletConnect provider');
-      }
+    if (!shouldInitiateLogin) {
+      return;
     }
+
+    const { eventBus } = await createModalElement<WalletConnectModal>({
+      name: 'wallet-connect-modal',
+      withEventBus: true
+    });
 
     return eventBus;
   };
@@ -158,11 +161,8 @@ export class WalletConnectProviderStrategy {
     const handleOnLogin = () => {};
 
     const handleOnLogout = async () => {
+      await config.onLogout?.();
       logoutAction();
-
-      if (config.logoutRoute) {
-        safeWindow.location.replace(config.logoutRoute);
-      }
     };
 
     const handleOnEvent = (_event: SessionEventTypes['event']) => {};

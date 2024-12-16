@@ -1,6 +1,7 @@
 import { IframeProvider } from '@multiversx/sdk-web-wallet-iframe-provider/out';
 import { IframeLoginTypes } from '@multiversx/sdk-web-wallet-iframe-provider/out/constants';
 import { getAccount } from 'core/methods/account/getAccount';
+import { getAddress } from 'core/methods/account/getAddress';
 import { IProvider } from 'core/providers/types/providerFactory.types';
 import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
@@ -12,19 +13,20 @@ type IFrameProviderType = {
 };
 export class IFrameProviderStrategy {
   private provider: IframeProvider | null = null;
-  private address: string = '';
+  private address?: string;
   private type: IframeLoginTypes | null = null;
 
-  constructor({ type, address = '' }: IFrameProviderType) {
+  constructor({ type, address }: IFrameProviderType) {
     this.type = type;
     this.address = address;
   }
 
   public createProvider = async (): Promise<IProvider> => {
+    this.validateConfig();
     const network = networkSelector(getState());
 
     if (!this.type) {
-      throw new Error('Provider type is not configured.');
+      throw new Error(ProviderErrorsEnum.invalidConfig);
     }
 
     if (!this.provider) {
@@ -50,5 +52,22 @@ export class IFrameProviderStrategy {
     provider.setAccount({ address: this.address || address });
 
     return provider;
+  };
+
+  private validateConfig = () => {
+    if (!this.type) {
+      throw new Error(ProviderErrorsEnum.invalidConfig);
+    }
+
+    if (!this.address) {
+      const address = getAddress();
+
+      if (address) {
+        this.address = address;
+        return;
+      }
+
+      throw new Error(ProviderErrorsEnum.invalidConfig);
+    }
   };
 }

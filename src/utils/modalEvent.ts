@@ -2,34 +2,32 @@ import { IEventBus } from '@multiversx/sdk-dapp-core-ui/loader';
 import { safeWindow } from 'constants/index';
 import { defineCustomElements } from 'lib/sdkDappCoreUi';
 
-export const getModalElement = async <
-  T extends HTMLElement & { getEventBus: () => Promise<IEventBus | undefined> }
->(
-  tagName: string
-) => {
-  await defineCustomElements(safeWindow);
-
-  const modalElement = document.createElement(tagName) as T;
-  document.body.appendChild(modalElement);
-  await customElements.whenDefined(tagName);
-
-  return modalElement;
+type CreateModalElementType = {
+  name: string;
+  withEventBus?: boolean;
 };
 
-export const getEventBus = async <
+export const createModalElement = async <
   T extends HTMLElement & { getEventBus: () => Promise<IEventBus | undefined> }
->(
-  tagName: string
-) => {
-  const modalElement = await getModalElement<T>(tagName);
+>({
+  name,
+  withEventBus = false
+}: CreateModalElementType) => {
+  let eventBus: IEventBus | undefined;
+
+  await defineCustomElements(safeWindow);
+
+  const modalElement = document.createElement(name) as T;
   document.body.appendChild(modalElement);
-  await customElements.whenDefined(tagName);
+  await customElements.whenDefined(name);
 
-  const eventBus = await modalElement.getEventBus();
+  if (withEventBus) {
+    eventBus = await modalElement.getEventBus();
 
-  if (!eventBus) {
-    throw new Error('Event bus not provided.');
+    if (!eventBus) {
+      throw new Error(`Event bus not provided for ${name}.`);
+    }
   }
 
-  return eventBus;
+  return { modalElement, eventBus };
 };

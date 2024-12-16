@@ -8,7 +8,8 @@ import { ConfigSliceType } from './config.types';
 // Preferably, the config should be set at the dApp initialization and not changed during the dApp lifecycle. (e.g. when the user logs in/log out)
 const initialState: ConfigSliceType = {
   nativeAuthConfig: null,
-  walletConnectConfig: null
+  walletConnectConfig: null,
+  crossWindowConfig: null
 };
 
 function getConfigSlice(): StateCreator<

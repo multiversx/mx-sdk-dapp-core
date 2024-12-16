@@ -26,21 +26,10 @@ export interface IEventBus {
   publish(event: string, data?: any): void;
   unsubscribe(event: string, callback: Function): void;
 }
-
-export interface IProviderConfigUI {
-  ledger: {
-    mount: () => Promise<IEventBus>;
-  };
-  walletConnect: {
-    mount: () => Promise<IEventBus>;
-  };
-}
-
 export interface IProviderConfig {
   account?: {
     address: string;
   };
-  UI?: IProviderConfigUI;
 }
 
 export enum ProviderTypeEnum {
