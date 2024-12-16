@@ -25,7 +25,7 @@ import {
 } from 'store/selectors';
 import { getState } from 'store/store';
 import { ProviderErrorsEnum } from 'types';
-import { createModalElement } from 'utils/modalEvent';
+import { createModalElement } from 'utils/createModalElement';
 import {
   WalletConnectOptionalMethodsEnum,
   WalletConnectV2Provider

@@ -58,12 +58,12 @@ export async function initApp({
     setNativeAuthConfig(nativeAuthConfig);
   }
 
-  if (dAppConfig?.walletConnect) {
-    setWalletConnectConfig(dAppConfig.walletConnect);
+  if (dAppConfig?.providers?.walletConnect) {
+    setWalletConnectConfig(dAppConfig.providers.walletConnect);
   }
 
-  if (dAppConfig?.crossWindow) {
-    setCrossWindowConfig(dAppConfig.crossWindow);
+  if (dAppConfig?.providers?.crossWindow) {
+    setCrossWindowConfig(dAppConfig.providers.crossWindow);
   }
 
   if (shouldEnableTransactionTracker) {

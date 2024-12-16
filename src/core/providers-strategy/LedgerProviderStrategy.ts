@@ -29,7 +29,7 @@ import { setLedgerAccount } from 'store/actions';
 import { setLedgerLogin } from 'store/actions/loginInfo/loginInfoActions';
 import { ProviderErrorsEnum } from 'types';
 import { fetchAccount } from 'utils/account/fetchAccount';
-import { createModalElement } from 'utils/modalEvent';
+import { createModalElement } from 'utils/createModalElement';
 
 const failInitializeErrorText = 'Check if the MultiversX App is open on Ledger';
 

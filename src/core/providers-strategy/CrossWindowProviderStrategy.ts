@@ -9,6 +9,11 @@ import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
 import { ProviderErrorsEnum } from 'types';
 
+type CrossWindowProviderProps = {
+  address?: string;
+  walletAddress?: string;
+};
+
 export class CrossWindowProviderStrategy {
   private provider: CrossWindowProvider | null = null;
   private address: string;
@@ -19,8 +24,8 @@ export class CrossWindowProviderStrategy {
   private _signMessage: ((messageToSign: Message) => Promise<Message>) | null =
     null;
 
-  constructor(address?: string, walletAddress?: string) {
-    this.address = address || '';
+  constructor({ address = '', walletAddress }: CrossWindowProviderProps) {
+    this.address = address;
     this.walletAddress = walletAddress;
   }
 
@@ -38,7 +43,7 @@ export class CrossWindowProviderStrategy {
     this._signMessage = this.provider.signMessage.bind(this.provider);
 
     this.provider.setWalletUrl(this.walletAddress || network.walletAddress);
-    this.provider.setAddress(this.address || '');
+    this.provider.setAddress(this.address);
 
     this.setPopupConsent();
 

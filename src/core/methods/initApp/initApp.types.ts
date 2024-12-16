@@ -18,8 +18,10 @@ type BaseDappConfigType = {
    * default: `true`
    */
   enableTansactionTracker?: boolean;
-  crossWindow?: CrossWindowConfig;
-  walletConnect?: WalletConnectConfig;
+  providers?: {
+    crossWindow?: CrossWindowConfig;
+    walletConnect?: WalletConnectConfig;
+  };
 };
 
 export type EnvironmentDappConfigType = BaseDappConfigType & {
