@@ -6,7 +6,6 @@ import {
 } from '@multiversx/sdk-core/out';
 import { getAccount } from 'core/methods/account/getAccount';
 import { IProvider } from 'core/providers/types/providerFactory.types';
-import { getGuardedTransactions } from './helpers/getGuardedTransactions';
 
 export type SignTransactionsOptionsType = {
   skipGuardian?: boolean;
@@ -25,7 +24,7 @@ export async function signTransactions({
 }: SignTransactionsType): Promise<Transaction[]> {
   const { isGuarded, activeGuardianAddress } = getAccount();
 
-  const transacitonsToSign =
+  const transactionsToSign =
     activeGuardianAddress && isGuarded && !options.skipGuardian
       ? transactions?.map((transaction) => {
           transaction.setVersion(TransactionVersion.withTxOptions());
@@ -38,11 +37,7 @@ export async function signTransactions({
       : transactions;
 
   const signedTransactions: Transaction[] =
-    (await provider.signTransactions(transacitonsToSign)) ?? [];
+    (await provider.signTransactions(transactionsToSign)) ?? [];
 
-  const guardedTransactions = isGuarded
-    ? await getGuardedTransactions({ transactions: signedTransactions })
-    : signedTransactions;
-
-  return guardedTransactions;
+  return signedTransactions;
 }

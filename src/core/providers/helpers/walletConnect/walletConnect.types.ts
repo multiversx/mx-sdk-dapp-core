@@ -1,3 +1,5 @@
+import { WalletConnectV2ProviderOptionsType } from '@multiversx/sdk-wallet-connect-provider/out';
+
 export enum WalletConnectV2Error {
   invalidAddress = 'Invalid address',
   invalidConfig = 'Invalid WalletConnect setup',
@@ -10,12 +12,25 @@ export enum WalletConnectV2Error {
   invalidChainID = 'Invalid chainID'
 }
 
+// types here need to be synced with the types in sdk-dapp-core-ui
 export enum WalletConnectEventsEnum {
-  'CLOSE' = 'CLOSE', //  close modal event
-  'DATA_UPDATE' = 'DATA_UPDATE' // update data event
+  'CLOSE' = 'CLOSE',
+  'DATA_UPDATE' = 'DATA_UPDATE'
 }
 
 export interface IWalletConnectModalData {
   wcURI: string;
   shouldClose?: boolean;
+}
+
+export interface WalletConnectConfig {
+  walletConnectV2ProjectId: string;
+  /**
+   * Function to be called when disconnecting the dApp from xPortal.
+   * Handles user redirection or cleanup after logout.
+   */
+  onLogout: () => Promise<void>;
+  walletConnectV2RelayAddress?: string;
+  walletConnectV2Options?: WalletConnectV2ProviderOptionsType;
+  customRequestMethods?: Array<string>;
 }
