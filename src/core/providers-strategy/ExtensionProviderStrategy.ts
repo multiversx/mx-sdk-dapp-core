@@ -82,7 +82,7 @@ export class ExtensionProviderStrategy {
     });
 
     if (!eventBus) {
-      throw new Error('Event bus is not initialized');
+      throw new Error(ProviderErrorsEnum.eventBusError);
     }
 
     const manager = PendingTransactionsStateManager.getInstance(eventBus);
@@ -129,7 +129,7 @@ export class ExtensionProviderStrategy {
     });
 
     if (!eventBus) {
-      throw new Error('Event bus is not initialized');
+      throw new Error(ProviderErrorsEnum.eventBusError);
     }
 
     const manager = PendingTransactionsStateManager.getInstance(eventBus);

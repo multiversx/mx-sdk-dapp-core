@@ -96,7 +96,7 @@ export class CrossWindowProviderStrategy {
     });
 
     if (!eventBus) {
-      throw new Error('Event bus is not initialized');
+      throw new Error(ProviderErrorsEnum.eventBusError);
     }
 
     const manager = PendingTransactionsStateManager.getInstance(eventBus);
@@ -146,7 +146,7 @@ export class CrossWindowProviderStrategy {
     });
 
     if (!eventBus) {
-      throw new Error('Event bus is not initialized');
+      throw new Error(ProviderErrorsEnum.eventBusError);
     }
 
     const manager = PendingTransactionsStateManager.getInstance(eventBus);
