@@ -57,7 +57,7 @@ export class LedgerProviderStrategy {
   }
 
   public createProvider = async (): Promise<IProvider> => {
-    this.validateConfig();
+    this.initialize();
     await defineCustomElements(safeWindow);
 
     const eventBus = await this.createEventBus();
@@ -129,14 +129,18 @@ export class LedgerProviderStrategy {
     return provider;
   };
 
-  private validateConfig = () => {
-    if (!this.address) {
-      const address = getAddress();
-
-      if (address) {
-        this.address = address;
-      }
+  private initialize = () => {
+    if (this.address) {
+      return;
     }
+
+    const address = getAddress();
+
+    if (!address) {
+      return;
+    }
+
+    this.address = address;
   };
 
   private createEventBus = async () => {

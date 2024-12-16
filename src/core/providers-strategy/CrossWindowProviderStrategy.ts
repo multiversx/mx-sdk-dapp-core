@@ -25,7 +25,7 @@ export class CrossWindowProviderStrategy {
   }
 
   public createProvider = async (): Promise<IProvider> => {
-    this.validateConfig();
+    this.initialize();
     const network = networkSelector(getState());
 
     if (!this.provider) {
@@ -59,14 +59,18 @@ export class CrossWindowProviderStrategy {
     return provider;
   };
 
-  private validateConfig = () => {
-    if (!this.address) {
-      const address = getAddress();
-
-      if (address) {
-        this.address = address;
-      }
+  private initialize = () => {
+    if (this.address) {
+      return;
     }
+
+    const address = getAddress();
+
+    if (!address) {
+      return;
+    }
+
+    this.address = address;
   };
 
   private signTransactions = async (transactions: Transaction[]) => {

@@ -55,7 +55,7 @@ export class WalletConnectProviderStrategy {
   }
 
   public createProvider = async (): Promise<IProvider> => {
-    this.validateConfig();
+    this.initialize();
     await defineCustomElements(safeWindow);
 
     const eventBus = await this.createEventBus();
@@ -116,17 +116,18 @@ export class WalletConnectProviderStrategy {
     return provider;
   };
 
-  private validateConfig = () => {
-    if (!this.config?.walletConnectV2ProjectId) {
-      const walletConnectConfig = walletConnectConfigSelector(getState());
+  private initialize = () => {
+    if (this.config?.walletConnectV2ProjectId) {
+      return;
+    }
 
-      if (walletConnectConfig) {
-        this.config = walletConnectConfig;
-        return;
-      }
+    const walletConnectConfig = walletConnectConfigSelector(getState());
 
+    if (!walletConnectConfig) {
       throw new Error(WalletConnectV2Error.invalidConfig);
     }
+
+    this.config = walletConnectConfig;
   };
 
   private createEventBus = async () => {

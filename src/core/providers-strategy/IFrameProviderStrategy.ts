@@ -8,7 +8,7 @@ import { getState } from 'store/store';
 import { ProviderErrorsEnum } from 'types';
 
 type IFrameProviderType = {
-  type: IframeLoginTypes | null;
+  type: IframeLoginTypes;
   address?: string;
 };
 export class IFrameProviderStrategy {
@@ -22,11 +22,11 @@ export class IFrameProviderStrategy {
   }
 
   public createProvider = async (): Promise<IProvider> => {
-    this.validateConfig();
+    this.initialize();
     const network = networkSelector(getState());
 
     if (!this.type) {
-      throw new Error(ProviderErrorsEnum.invalidConfig);
+      throw new Error(ProviderErrorsEnum.invalidType);
     }
 
     if (!this.provider) {
@@ -54,20 +54,17 @@ export class IFrameProviderStrategy {
     return provider;
   };
 
-  private validateConfig = () => {
-    if (!this.type) {
-      throw new Error(ProviderErrorsEnum.invalidConfig);
+  private initialize = () => {
+    if (this.address) {
+      return;
     }
 
-    if (!this.address) {
-      const address = getAddress();
+    const address = getAddress();
 
-      if (address) {
-        this.address = address;
-        return;
-      }
-
-      throw new Error(ProviderErrorsEnum.invalidConfig);
+    if (!address) {
+      return;
     }
+
+    this.address = address;
   };
 }

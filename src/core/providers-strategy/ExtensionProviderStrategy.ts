@@ -12,7 +12,7 @@ export class ExtensionProviderStrategy {
   }
 
   public createProvider = async (): Promise<IProvider> => {
-    this.validateConfig();
+    this.initialize();
 
     if (!this.provider) {
       this.provider = ExtensionProvider.getInstance();
@@ -32,13 +32,17 @@ export class ExtensionProviderStrategy {
     return provider;
   };
 
-  private validateConfig = () => {
-    if (!this.address) {
-      const address = getAddress();
-
-      if (address) {
-        this.address = address;
-      }
+  private initialize = () => {
+    if (this.address) {
+      return;
     }
+
+    const address = getAddress();
+
+    if (!address) {
+      return;
+    }
+
+    this.address = address;
   };
 }
