@@ -24,9 +24,9 @@ export class CrossWindowProviderStrategy {
   private _signMessage: ((messageToSign: Message) => Promise<Message>) | null =
     null;
 
-  constructor({ address = '', walletAddress }: CrossWindowProviderProps) {
-    this.address = address;
-    this.walletAddress = walletAddress;
+  constructor(config?: CrossWindowProviderProps) {
+    this.address = config?.address || '';
+    this.walletAddress = config?.walletAddress;
   }
 
   public createProvider = async (): Promise<IProvider> => {
