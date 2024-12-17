@@ -6,6 +6,10 @@ import {
   OptionalOperation
 } from '@multiversx/sdk-wallet-connect-provider/out';
 import { safeWindow } from 'constants/window.constants';
+import {
+  PendingTransactionsStateManager,
+  PendingTransactionsEventsEnum
+} from 'core/managers';
 import { WalletConnectStateManager } from 'core/managers/WalletConnectStateManager/WalletConnectStateManager';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import { getAccountProvider } from 'core/providers/helpers/accountProvider';
@@ -37,8 +41,6 @@ import {
   WalletConnectV2Error,
   WalletConnectConfig
 } from './types';
-import { PendingTransactionsEventsEnum } from 'core/providers/helpers/pendingTransactions/pendingTransactions.types';
-import { PendingTransactionsStateManager } from 'core/providers/helpers/pendingTransactions/PendingTransactionsStateManagement';
 
 const dappMethods: string[] = [
   WalletConnectOptionalMethodsEnum.CANCEL_ACTION,

@@ -2,9 +2,9 @@ import { ProviderTypeEnum } from 'core/providers/types/providerFactory.types';
 import {
   IPendingTransactionsModalData,
   PendingTransactionsEventsEnum
-} from './pendingTransactions.types';
+} from './types';
 
-export interface IEventBus {
+interface IEventBus {
   publish(event: string, data: any): void;
 }
 
