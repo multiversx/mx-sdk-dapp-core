@@ -14,11 +14,8 @@ import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
 import { ProviderErrorsEnum } from 'types';
 import { createModalElement } from 'utils/createModalElement';
+import { IFrameProviderType } from './types';
 
-type IFrameProviderType = {
-  type: IframeLoginTypes;
-  address?: string;
-};
 export class IFrameProviderStrategy {
   private provider: IframeProvider | null = null;
   private address?: string;

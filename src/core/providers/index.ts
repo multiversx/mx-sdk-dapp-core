@@ -1,4 +1,5 @@
-export { getAccountProvider } from './accountProvider';
+export { getAccountProvider } from './helpers/accountProvider';
+export * from './strategies';
 
 /*
 // TODO: create detectProvider function

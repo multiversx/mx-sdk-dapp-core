@@ -1,6 +1,6 @@
 import { getAddress } from 'core/methods/account/getAddress';
 import { getLatestNonce } from 'core/methods/account/getLatestNonce';
-import { getAccountProvider } from 'core/providers/accountProvider';
+import { getAccountProvider } from 'core/providers/helpers/accountProvider';
 import { setAccount } from 'store/actions';
 import { fetchAccount } from './fetchAccount';
 
