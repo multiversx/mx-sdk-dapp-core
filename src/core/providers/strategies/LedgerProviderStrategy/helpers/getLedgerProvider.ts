@@ -1,6 +1,6 @@
 import { HWProvider } from '@multiversx/sdk-hw-provider';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
-import { getAccountProvider } from 'core/providers/accountProvider';
+import { getAccountProvider } from 'core/providers/helpers/accountProvider';
 import { ledgerLoginSelector } from 'store/selectors/loginInfoSelectors';
 import { getState } from 'store/store';
 import { getLedgerConfiguration } from './getLedgerConfiguration';

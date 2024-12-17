@@ -6,7 +6,7 @@ import {
 import { safeWindow } from 'constants/window.constants';
 import { WalletConnectStateManager } from 'core/managers/WalletConnectStateManager/WalletConnectStateManager';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
-import { getAccountProvider } from 'core/providers/accountProvider';
+import { getAccountProvider } from 'core/providers/helpers/accountProvider';
 import {
   IEventBus,
   IProvider

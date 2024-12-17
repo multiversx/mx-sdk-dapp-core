@@ -8,8 +8,8 @@ import {
   WalletConnectProviderStrategy
 } from 'core/providers/strategies';
 import { setProviderType } from 'store/actions/loginInfo/loginInfoActions';
-import { setAccountProvider } from './accountProvider';
 import { DappProvider } from './DappProvider/DappProvider';
+import { setAccountProvider } from './helpers/accountProvider';
 import {
   ICustomProvider,
   IProvider,
