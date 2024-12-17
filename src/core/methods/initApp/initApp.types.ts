@@ -1,5 +1,5 @@
-import { CrossWindowConfig } from 'core/providers/strategies/CrossWindowProviderStrategy/types/crossWindow.type';
-import { WalletConnectConfig } from 'core/providers/strategies/WalletConnectProviderStrategy/types/walletConnect.types';
+import { CrossWindowConfig } from 'core/providers/strategies/CrossWindowProviderStrategy/types';
+import { WalletConnectConfig } from 'core/providers/strategies/WalletConnectProviderStrategy/types';
 import { ICustomProvider } from 'core/providers/types/providerFactory.types';
 import { NativeAuthConfigType } from 'services/nativeAuth/nativeAuth.types';
 import { StorageCallback } from 'store/storage';
