@@ -1,6 +1,6 @@
 import { IProvider } from 'core/providers/types/providerFactory.types';
-import { DappProvider } from './DappProvider';
-import { emptyProvider } from './helpers/emptyProvider';
+import { DappProvider } from '../DappProvider';
+import { emptyProvider } from './emptyProvider';
 
 export type ProvidersType = IProvider;
 

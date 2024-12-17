@@ -5,7 +5,7 @@ import {
   ILedgerAccount,
   ILedgerConnectModalData,
   LedgerConnectEventsEnum
-} from '../ledger.types';
+} from 'core/providers/strategies/LedgerProviderStrategy/types';
 
 export interface IEventBus {
   publish(event: string, data: any): void;

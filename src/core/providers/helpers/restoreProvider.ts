@@ -1,6 +1,6 @@
 import { providerTypeSelector } from 'store/selectors';
 import { getState } from 'store/store';
-import { setAccountProvider } from '../accountProvider';
+import { setAccountProvider } from './accountProvider';
 import { ProviderFactory } from '../ProviderFactory';
 
 export async function restoreProvider() {

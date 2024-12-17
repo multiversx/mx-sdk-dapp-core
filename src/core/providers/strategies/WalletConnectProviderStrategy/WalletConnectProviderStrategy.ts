@@ -4,14 +4,9 @@ import {
   SessionTypes
 } from '@multiversx/sdk-wallet-connect-provider/out';
 import { safeWindow } from 'constants/window.constants';
+import { WalletConnectStateManager } from 'core/managers/WalletConnectStateManager/WalletConnectStateManager';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
-import { getAccountProvider } from 'core/providers/accountProvider';
-import {
-  WalletConnectEventsEnum,
-  WalletConnectV2Error,
-  WalletConnectConfig
-} from 'core/providers/helpers/walletConnect/walletConnect.types';
-import { WalletConnectStateManager } from 'core/providers/helpers/walletConnect/WalletConnectStateManagement';
+import { getAccountProvider } from 'core/providers/helpers/accountProvider';
 import {
   IEventBus,
   IProvider
@@ -30,6 +25,11 @@ import {
   WalletConnectOptionalMethodsEnum,
   WalletConnectV2Provider
 } from 'utils/walletconnect/__sdkWalletconnectProvider';
+import {
+  WalletConnectEventsEnum,
+  WalletConnectV2Error,
+  WalletConnectConfig
+} from './types';
 
 const dappMethods: string[] = [
   WalletConnectOptionalMethodsEnum.CANCEL_ACTION,
