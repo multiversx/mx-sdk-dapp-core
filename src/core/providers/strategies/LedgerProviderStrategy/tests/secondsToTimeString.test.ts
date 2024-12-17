@@ -1,4 +1,4 @@
-import { secondsToTimeString } from '../secondsToTimeString';
+import { secondsToTimeString } from '../helpers/secondsToTimeString';
 
 describe('secondsToTimeString tests', () => {
   it('converts 0 seconds to "N/A time"', () => {

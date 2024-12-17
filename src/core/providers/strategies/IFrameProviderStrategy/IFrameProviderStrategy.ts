@@ -6,11 +6,8 @@ import { IProvider } from 'core/providers/types/providerFactory.types';
 import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
 import { ProviderErrorsEnum } from 'types';
+import { IFrameProviderType } from './types/iframe.types';
 
-type IFrameProviderType = {
-  type: IframeLoginTypes;
-  address?: string;
-};
 export class IFrameProviderStrategy {
   private provider: IframeProvider | null = null;
   private address?: string;

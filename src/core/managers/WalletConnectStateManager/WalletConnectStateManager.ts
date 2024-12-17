@@ -1,9 +1,9 @@
 import {
   IWalletConnectModalData,
   WalletConnectEventsEnum
-} from './walletConnect.types';
+} from '../../providers/strategies/WalletConnectProviderStrategy/types/walletConnect.types';
 
-export interface IEventBus {
+interface IEventBus {
   publish(event: string, data: any): void;
 }
 

@@ -1,9 +1,9 @@
 import {
   ISignTransactionsModalData,
   SignEventsEnum
-} from './signTransactionsModal.types';
+} from './types/signTransactionsModal.types';
 
-export interface IEventBus {
+interface IEventBus {
   publish(event: string, data: any): void;
 }
 

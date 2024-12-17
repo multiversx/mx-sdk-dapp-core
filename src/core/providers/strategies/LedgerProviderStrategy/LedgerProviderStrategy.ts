@@ -3,18 +3,11 @@ import { IDAppProviderOptions } from '@multiversx/sdk-dapp-utils/out';
 import { HWProvider, IProviderAccount } from '@multiversx/sdk-hw-provider';
 import BigNumber from 'bignumber.js';
 import { safeWindow } from 'constants/index';
+import { LedgerConnectStateManager } from 'core/managers';
+import { SignTransactionsStateManager } from 'core/managers';
+import { SignEventsEnum } from 'core/managers/SignTransactionsStateManager/types/signTransactionsModal.types';
 import { getAddress } from 'core/methods/account/getAddress';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
-import { SignEventsEnum } from 'core/providers/helpers/components/SignTransactionsModal/signTransactionsModal.types';
-import { SignTransactionsStateManager } from 'core/providers/helpers/components/SignTransactionsModal/SignTransactionsStateManager';
-import { getAuthTokenText } from 'core/providers/helpers/ledger/helpers/getAuthTokenText';
-import { getLedgerErrorCodes } from 'core/providers/helpers/ledger/helpers/getLedgerErrorCodes';
-import { getLedgerProvider } from 'core/providers/helpers/ledger/helpers/getLedgerProvider';
-import { LedgerConnectStateManager } from 'core/providers/helpers/ledger/helpers/LedgerConnectStateManager';
-import {
-  ILedgerAccount,
-  LedgerConnectEventsEnum
-} from 'core/providers/helpers/ledger/ledger.types';
 import {
   IEventBus,
   IProvider,
@@ -30,6 +23,12 @@ import { setLedgerLogin } from 'store/actions/loginInfo/loginInfoActions';
 import { ProviderErrorsEnum } from 'types';
 import { fetchAccount } from 'utils/account/fetchAccount';
 import { createModalElement } from 'utils/createModalElement';
+import {
+  getLedgerProvider,
+  getLedgerErrorCodes,
+  getAuthTokenText
+} from './helpers';
+import { ILedgerAccount, LedgerConnectEventsEnum } from './types';
 
 const failInitializeErrorText = 'Check if the MultiversX App is open on Ledger';
 

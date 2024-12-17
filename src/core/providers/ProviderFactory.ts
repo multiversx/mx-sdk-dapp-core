@@ -1,10 +1,12 @@
 import { IframeLoginTypes } from '@multiversx/sdk-web-wallet-iframe-provider/out/constants';
 import { getAddress } from 'core/methods/account/getAddress';
-import { CrossWindowProviderStrategy } from 'core/providers-strategy/CrossWindowProviderStrategy';
-import { ExtensionProviderStrategy } from 'core/providers-strategy/ExtensionProviderStrategy';
-import { IFrameProviderStrategy } from 'core/providers-strategy/IFrameProviderStrategy';
-import { LedgerProviderStrategy } from 'core/providers-strategy/LedgerProviderStrategy';
-import { WalletConnectProviderStrategy } from 'core/providers-strategy/WalletConnectProviderStrategy';
+import {
+  CrossWindowProviderStrategy,
+  ExtensionProviderStrategy,
+  IFrameProviderStrategy,
+  LedgerProviderStrategy,
+  WalletConnectProviderStrategy
+} from 'core/providers/strategies';
 import { setProviderType } from 'store/actions/loginInfo/loginInfoActions';
 import { setAccountProvider } from './accountProvider';
 import { DappProvider } from './DappProvider/DappProvider';

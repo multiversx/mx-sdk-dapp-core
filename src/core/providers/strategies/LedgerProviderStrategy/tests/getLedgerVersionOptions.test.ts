@@ -1,4 +1,4 @@
-import ledgerVersionOptions from '../getLedgerVersionOptions';
+import ledgerVersionOptions from '../helpers/getLedgerVersionOptions';
 
 describe('ledgerOptions tests', () => {
   test('detects ledger without multiAccount', () => {
