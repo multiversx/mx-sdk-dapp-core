@@ -319,7 +319,7 @@ export class WalletConnectProviderStrategy {
 
     const onClose = (cancelAction = true) => {
       if (cancelAction && this.provider) {
-        this.sendWcRequest({
+        this.sendCustomRequest({
           method: WalletConnectOptionalMethodsEnum.CANCEL_ACTION,
           action: OptionalOperation.CANCEL_ACTION
         });
@@ -342,7 +342,7 @@ export class WalletConnectProviderStrategy {
 
       return signedTransactions;
     } catch (error) {
-      this.sendWcRequest({
+      this.sendCustomRequest({
         method: WalletConnectOptionalMethodsEnum.CANCEL_ACTION,
         action: OptionalOperation.CANCEL_ACTION
       });
@@ -375,7 +375,7 @@ export class WalletConnectProviderStrategy {
       }
 
       if (cancelAction) {
-        await this.sendWcRequest({
+        await this.sendCustomRequest({
           method: WalletConnectOptionalMethodsEnum.CANCEL_ACTION,
           action: OptionalOperation.CANCEL_ACTION
         });
@@ -398,7 +398,7 @@ export class WalletConnectProviderStrategy {
 
       return signedMessage;
     } catch (error) {
-      this.sendWcRequest({
+      this.sendCustomRequest({
         method: WalletConnectOptionalMethodsEnum.CANCEL_ACTION,
         action: OptionalOperation.CANCEL_ACTION
       });
@@ -409,7 +409,7 @@ export class WalletConnectProviderStrategy {
     }
   };
 
-  private sendWcRequest = async ({
+  private sendCustomRequest = async ({
     action,
     method
   }: {
