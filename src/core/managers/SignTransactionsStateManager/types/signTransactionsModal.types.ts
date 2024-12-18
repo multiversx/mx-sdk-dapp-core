@@ -5,6 +5,8 @@ export interface ITransactionData {
 
 export interface ISignTransactionsModalData {
   transaction: ITransactionData | null;
+  total: number;
+  currentIndex: number;
   shouldClose?: true;
 }
 

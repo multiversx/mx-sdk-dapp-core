@@ -5,7 +5,10 @@ import {
   TransactionVersion
 } from '@multiversx/sdk-core/out';
 import { getAccount } from 'core/methods/account/getAccount';
-import { IProvider } from 'core/providers/types/providerFactory.types';
+import {
+  IProvider,
+  ProviderTypeEnum
+} from 'core/providers/types/providerFactory.types';
 
 export type SignTransactionsOptionsType = {
   skipGuardian?: boolean;
@@ -23,15 +26,19 @@ export async function signTransactions({
   options = {}
 }: SignTransactionsType): Promise<Transaction[]> {
   const { isGuarded, activeGuardianAddress } = getAccount();
+  const isLedger = provider.getType() === ProviderTypeEnum.ledger;
 
   const transactionsToSign =
     activeGuardianAddress && isGuarded && !options.skipGuardian
       ? transactions?.map((transaction) => {
           transaction.setVersion(TransactionVersion.withTxOptions());
-          transaction.setOptions(
-            TransactionOptions.withOptions({ guarded: true })
-          );
+          const options = {
+            guarded: true,
+            ...(isLedger ? { hashSign: true } : {})
+          };
+          transaction.setOptions(TransactionOptions.withOptions(options));
           transaction.setGuardian(Address.fromBech32(activeGuardianAddress));
+
           return transaction;
         })
       : transactions;

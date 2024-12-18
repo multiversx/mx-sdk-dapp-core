@@ -22,7 +22,9 @@ export class SignTransactionsStateManager<T extends IEventBus = IEventBus> {
 
   // whole data to be sent on update events
   private initialData: ISignTransactionsModalData = {
-    transaction: null
+    transaction: null,
+    total: 0,
+    currentIndex: 0
   };
 
   private data: ISignTransactionsModalData = { ...this.initialData };
