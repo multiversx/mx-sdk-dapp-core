@@ -47,8 +47,8 @@ export class PendingTransactionsStateManager<T extends IEventBus = IEventBus> {
     this.data = { ...this.initialData };
   }
 
-  public updateData(data: IPendingTransactionsModalData): void {
-    this.data = { ...this.data, ...data };
+  public updateData(newData: IPendingTransactionsModalData): void {
+    this.data = { ...this.data, ...newData };
     this.notifyDataUpdate();
   }
 
