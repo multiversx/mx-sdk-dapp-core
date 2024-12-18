@@ -36,9 +36,7 @@ export class ExtensionProviderStrategy {
     }
 
     // Bind in order to break reference
-    this._signTransactions = this.provider.signTransactions.bind(
-      this.provider
-    ) as any;
+    this._signTransactions = this.provider.signTransactions.bind(this.provider);
     this._signMessage = this.provider.signMessage.bind(this.provider);
 
     return this.buildProvider();
