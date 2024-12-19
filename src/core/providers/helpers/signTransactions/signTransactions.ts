@@ -1,5 +1,6 @@
 import { Transaction } from '@multiversx/sdk-core/out';
 import { getAccountFromApi } from 'apiCalls/account';
+import { getPersistedTokenDetails } from 'apiCalls/tokens/getPersistedTokenDetails';
 import { getScamAddressData } from 'apiCalls/utils/getScamAddressData';
 import { SENDER_DIFFERENT_THAN_LOGGED_IN_ADDRESS } from 'constants/errorMessages.constants';
 import { SignTransactionsStateManager } from 'core/managers/SignTransactionsStateManager/SignTransactionsStateManager';
@@ -8,6 +9,10 @@ import { getAddress } from 'core/methods/account/getAddress';
 import { getEgldLabel } from 'core/methods/network/getEgldLabel';
 import { IProvider } from 'core/providers/types/providerFactory.types';
 import { SignTransactionsModal } from 'lib/sdkDappCoreUi';
+import { formatAmount } from 'lib/sdkDappUtils';
+import { networkSelector } from 'store/selectors/networkSelectors';
+import { getState } from 'store/store';
+// import { NftEnumType } from 'types/tokens.types';
 import { MultiSignTransactionType } from 'types/transactions.types';
 import { createModalElement } from 'utils/createModalElement';
 import { checkIsValidSender } from './helpers/checkIsValidSender';
@@ -27,6 +32,8 @@ export async function signTransactions({
   handleSign: IProvider['signTransactions'];
 }) {
   const address = getAddress();
+  const network = networkSelector(getState());
+
   const egldLabel = getEgldLabel();
   const { modalElement: signModalElement, eventBus } =
     await createModalElement<SignTransactionsModal>({
@@ -108,8 +115,55 @@ export async function signTransactions({
         };
       };
 
+      const plainTransaction = currentTransaction.transaction.toPlainObject();
+
+      const txInfo = await extractTransactionsInfo(currentTransaction);
+
+      let tokenIdForTokenDetails = txInfo?.transactionTokenInfo?.tokenId;
+      const isEgld = !tokenIdForTokenDetails;
+      let tokenAmount = '0';
+
+      if (txInfo?.transactionTokenInfo) {
+        const { tokenId, nonce, amount } = txInfo.transactionTokenInfo;
+        tokenIdForTokenDetails =
+          nonce && nonce.length > 0 ? `${tokenId}-${nonce}` : tokenId;
+        tokenAmount = amount;
+      }
+
+      const tokenDetails = await getPersistedTokenDetails({
+        tokenId: tokenIdForTokenDetails
+      });
+
+      const {
+        //type, esdtPrice,
+        tokenDecimals
+      } = tokenDetails;
+
+      const getFormattedAmount = ({ addCommas }: { addCommas: boolean }) =>
+        formatAmount({
+          input: isEgld
+            ? currentTransaction.transaction.getValue().toString()
+            : tokenAmount,
+          decimals: isEgld ? Number(network.decimals) : tokenDecimals,
+          digits: Number(network.digits),
+          showLastNonZeroDecimal: false,
+          addCommas
+        });
+
+      const formattedAmount = getFormattedAmount({ addCommas: true });
+
+      console.log(network.decimals, network.digits, {
+        network,
+        isEgld,
+        formattedAmount
+      });
+
+      //   const rawAmount = getFormattedAmount({ addCommas: false });
+
+      const value = `${formattedAmount} ${isEgld ? egldLabel : tokenIdForTokenDetails}`;
+
       manager.updateTransaction({
-        transaction: currentTransaction.transaction.toPlainObject(),
+        transaction: { ...plainTransaction, value },
         total: allTransactions.length,
         currentIndex: currentTransactionIndex
       });
@@ -120,7 +174,6 @@ export async function signTransactions({
       };
 
       const onSign = async () => {
-        const txInfo = await extractTransactionsInfo(currentTransaction);
         const shouldContinueWithoutSigning = Boolean(
           txInfo?.transactionTokenInfo?.type &&
             txInfo?.transactionTokenInfo?.multiTxData &&
