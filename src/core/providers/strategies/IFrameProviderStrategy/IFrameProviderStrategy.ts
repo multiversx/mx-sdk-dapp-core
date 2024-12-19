@@ -87,21 +87,8 @@ export class IFrameProviderStrategy {
     const modalElement = await createModalElement<PendingTransactionsModal>(
       'pending-transactions-modal'
     );
-    const eventBus = await modalElement.getEventBus();
-
-    if (!eventBus) {
-      throw new Error(ProviderErrorsEnum.eventBusError);
-    }
-
-    const manager = PendingTransactionsStateManager.getInstance(eventBus);
-
-    const onClose = (cancelAction = true) => {
-      if (cancelAction && this.provider) {
-        this.provider.cancelAction();
-      }
-
-      manager.closeAndReset();
-    };
+    const { eventBus, manager, onClose } =
+      await this.getModalHandlers(modalElement);
 
     eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
 
@@ -132,25 +119,8 @@ export class IFrameProviderStrategy {
     const modalElement = await createModalElement<PendingTransactionsModal>(
       'pending-transactions-modal'
     );
-    const eventBus = await modalElement.getEventBus();
-
-    if (!eventBus) {
-      throw new Error(ProviderErrorsEnum.eventBusError);
-    }
-
-    const manager = PendingTransactionsStateManager.getInstance(eventBus);
-
-    const onClose = (cancelAction = true) => {
-      if (!this.provider) {
-        throw new Error(ProviderErrorsEnum.notInitialized);
-      }
-
-      if (cancelAction) {
-        this.provider.cancelAction();
-      }
-
-      manager.closeAndReset();
-    };
+    const { eventBus, manager, onClose } =
+      await this.getModalHandlers(modalElement);
 
     eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
 
@@ -171,5 +141,29 @@ export class IFrameProviderStrategy {
       onClose(false);
       eventBus.unsubscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
     }
+  };
+
+  private getModalHandlers = async (modalElement: PendingTransactionsModal) => {
+    const eventBus = await modalElement.getEventBus();
+
+    if (!eventBus) {
+      throw new Error(ProviderErrorsEnum.eventBusError);
+    }
+
+    const manager = PendingTransactionsStateManager.getInstance(eventBus);
+
+    const onClose = (cancelAction = true) => {
+      if (!this.provider) {
+        throw new Error(ProviderErrorsEnum.notInitialized);
+      }
+
+      if (cancelAction) {
+        this.provider.cancelAction();
+      }
+
+      manager.closeAndReset();
+    };
+
+    return { eventBus, manager, onClose };
   };
 }

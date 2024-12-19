@@ -308,24 +308,8 @@ export class WalletConnectProviderStrategy {
     const modalElement = await createModalElement<PendingTransactionsModal>(
       'pending-transactions-modal'
     );
-    const eventBus = await modalElement.getEventBus();
-
-    if (!eventBus) {
-      throw new Error(ProviderErrorsEnum.eventBusError);
-    }
-
-    const manager = PendingTransactionsStateManager.getInstance(eventBus);
-
-    const onClose = (cancelAction = true) => {
-      if (cancelAction && this.provider) {
-        this.sendCustomRequest({
-          method: WalletConnectOptionalMethodsEnum.CANCEL_ACTION,
-          action: OptionalOperation.CANCEL_ACTION
-        });
-      }
-
-      manager.closeAndReset();
-    };
+    const { eventBus, manager, onClose } =
+      await this.getModalHandlers(modalElement);
 
     eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
 
@@ -359,28 +343,8 @@ export class WalletConnectProviderStrategy {
     const modalElement = await createModalElement<PendingTransactionsModal>(
       'pending-transactions-modal'
     );
-    const eventBus = await modalElement.getEventBus();
-
-    if (!eventBus) {
-      throw new Error(ProviderErrorsEnum.eventBusError);
-    }
-
-    const manager = PendingTransactionsStateManager.getInstance(eventBus);
-
-    const onClose = async (cancelAction = true) => {
-      if (!this.provider) {
-        throw new Error(ProviderErrorsEnum.notInitialized);
-      }
-
-      if (cancelAction) {
-        await this.sendCustomRequest({
-          method: WalletConnectOptionalMethodsEnum.CANCEL_ACTION,
-          action: OptionalOperation.CANCEL_ACTION
-        });
-      }
-
-      manager.closeAndReset();
-    };
+    const { eventBus, manager, onClose } =
+      await this.getModalHandlers(modalElement);
 
     eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
 
@@ -427,5 +391,32 @@ export class WalletConnectProviderStrategy {
     } catch (error) {
       console.error(WalletConnectV2Error.actionError, error);
     }
+  };
+
+  private getModalHandlers = async (modalElement: PendingTransactionsModal) => {
+    const eventBus = await modalElement.getEventBus();
+
+    if (!eventBus) {
+      throw new Error(ProviderErrorsEnum.eventBusError);
+    }
+
+    const manager = PendingTransactionsStateManager.getInstance(eventBus);
+
+    const onClose = async (cancelAction = true) => {
+      if (!this.provider) {
+        throw new Error(ProviderErrorsEnum.notInitialized);
+      }
+
+      if (cancelAction) {
+        await this.sendCustomRequest({
+          method: WalletConnectOptionalMethodsEnum.CANCEL_ACTION,
+          action: OptionalOperation.CANCEL_ACTION
+        });
+      }
+
+      manager.closeAndReset();
+    };
+
+    return { eventBus, manager, onClose };
   };
 }
