@@ -72,10 +72,10 @@ export class ExtensionProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    const { eventBus } = await createModalElement<PendingTransactionsModal>({
-      name: 'pending-transactions-modal',
-      withEventBus: true
-    });
+    const modalElement = await createModalElement<PendingTransactionsModal>(
+      'pending-transactions-modal'
+    );
+    const eventBus = await modalElement.getEventBus();
 
     if (!eventBus) {
       throw new Error(ProviderErrorsEnum.eventBusError);
@@ -117,10 +117,10 @@ export class ExtensionProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    const { eventBus } = await createModalElement<PendingTransactionsModal>({
-      name: 'pending-transactions-modal',
-      withEventBus: true
-    });
+    const modalElement = await createModalElement<PendingTransactionsModal>(
+      'pending-transactions-modal'
+    );
+    const eventBus = await modalElement.getEventBus();
 
     if (!eventBus) {
       throw new Error(ProviderErrorsEnum.eventBusError);
