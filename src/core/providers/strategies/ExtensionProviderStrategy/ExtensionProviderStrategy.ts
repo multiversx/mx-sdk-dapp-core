@@ -149,7 +149,7 @@ export class ExtensionProviderStrategy {
     });
 
     try {
-      const signedMessage: Message = await this._signMessage(message);
+      const signedMessage = await this._signMessage(message);
 
       return signedMessage;
     } catch (error) {
