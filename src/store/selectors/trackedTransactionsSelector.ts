@@ -3,8 +3,9 @@ import { StoreType } from 'store/store.types';
 import { TransactionServerStatusesEnum } from 'types/enums.types';
 import { SignedTransactionType } from 'types/transactions.types';
 
-export const transactionsSliceSelector = ({ trackedTransactions }: StoreType) =>
-  trackedTransactions;
+export const trackedTransactionsSliceSelector = ({
+  trackedTransactions
+}: StoreType) => trackedTransactions;
 
 export const pendingTrackedSessionsSelector = ({
   trackedTransactions: state

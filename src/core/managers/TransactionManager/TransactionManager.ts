@@ -58,14 +58,14 @@ export class TransactionManager {
 
   public track = async (
     signedTransactions: Transaction[],
-    options?: { enableToasts: boolean }
+    options: { enableToasts: boolean } = { enableToasts: true }
   ) => {
     const parsedTransactions = signedTransactions.map((transaction) =>
       this.parseSignedTransaction(transaction)
     );
     createTrackedTransactionsSession({
       transactions: parsedTransactions,
-      enableToasts: options?.enableToasts ?? true
+      enableToasts: options.enableToasts
     });
   };
 

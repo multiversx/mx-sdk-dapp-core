@@ -1,4 +1,3 @@
-import { getTransactionsByHashes } from 'apiCalls/transactions/getTransactionsByHashes';
 import { websocketEventSelector } from 'store/selectors/accountSelectors';
 import { getStore } from 'store/store';
 import { checkTransactionStatus } from './helpers/checkTransactionStatus';
@@ -24,8 +23,7 @@ export async function trackTransactions() {
 
   const recheckStatus = () => {
     checkTransactionStatus({
-      shouldRefreshBalance: isWebsocketCompleted,
-      getTransactionsByHash: getTransactionsByHashes
+      shouldRefreshBalance: isWebsocketCompleted
     });
   };
 

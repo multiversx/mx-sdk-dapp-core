@@ -10,8 +10,15 @@ export const addCustomToast = (
   currentToastId?: string
 ) => {
   getStore().setState(({ toasts: state }) => {
-    const toastId =
-      currentToastId || `custom-toast-${state.customToasts.length + 1}`;
+    const lastToastIndex =
+      state.customToasts.length > 0
+        ? Math.max(
+            ...state.customToasts.map((toast) =>
+              parseInt(toast.toastId.split('-').pop() || '0')
+            )
+          )
+        : 0;
+    const toastId = currentToastId || `custom-toast-${lastToastIndex + 1}`;
 
     const existingToastIndex = state.customToasts.findIndex(
       (toast) => toast.toastId === toastId
@@ -45,11 +52,20 @@ export const removeCustomToast = (toastId: string) => {
 
 export const addTransactionToast = (toastId: string) => {
   getStore().setState(({ toasts: state }) => {
+    const lastToastIndex =
+      state.transactionToasts.length > 0
+        ? Math.max(
+            ...state.transactionToasts.map((toast) =>
+              parseInt(toast.toastId.split('-').pop() || '0')
+            )
+          )
+        : 0;
+    const newToastId = toastId || `transaction-toast-${lastToastIndex + 1}`;
+
     state.transactionToasts.push({
       type: ToastsEnum.transaction,
       startTimestamp: getUnixTimestamp(),
-      toastId:
-        toastId || `transaction-toast-${state.transactionToasts.length + 1}`
+      toastId: newToastId
     });
   });
 };
