@@ -1,9 +1,15 @@
+import { Message, Transaction } from '@multiversx/sdk-core/out';
 import {
   IProviderAccount,
   SessionEventTypes,
-  SessionTypes
+  SessionTypes,
+  OptionalOperation
 } from '@multiversx/sdk-wallet-connect-provider/out';
 import { safeWindow } from 'constants/window.constants';
+import {
+  PendingTransactionsStateManager,
+  PendingTransactionsEventsEnum
+} from 'core/managers';
 import { WalletConnectStateManager } from 'core/managers/WalletConnectStateManager/WalletConnectStateManager';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import { getAccountProvider } from 'core/providers/helpers/accountProvider';
@@ -11,7 +17,11 @@ import {
   IEventBus,
   IProvider
 } from 'core/providers/types/providerFactory.types';
-import { defineCustomElements, WalletConnectModal } from 'lib/sdkDappCoreUi';
+import {
+  defineCustomElements,
+  PendingTransactionsModal,
+  WalletConnectModal
+} from 'lib/sdkDappCoreUi';
 import { logoutAction } from 'store/actions';
 import {
   chainIdSelector,
@@ -49,6 +59,10 @@ export class WalletConnectProviderStrategy {
         token?: string;
       }) => Promise<IProviderAccount | null>)
     | null = null;
+  private _signTransactions:
+    | ((transactions: Transaction[]) => Promise<Transaction[]>)
+    | null = null;
+  private _signMessage: ((message: Message) => Promise<Message>) | null = null;
 
   constructor(config?: WalletConnectConfig) {
     this.config = config;
@@ -71,6 +85,13 @@ export class WalletConnectProviderStrategy {
 
       // Bind in order to break reference
       this._login = walletConnectProvider.login.bind(walletConnectProvider);
+      this._signTransactions = walletConnectProvider.signTransactions.bind(
+        walletConnectProvider
+      );
+      this._signMessage = walletConnectProvider.signMessage.bind(
+        walletConnectProvider
+      );
+
       this.provider = walletConnectProvider;
       this.methods = dappMethods;
     }
@@ -85,7 +106,7 @@ export class WalletConnectProviderStrategy {
 
     this.unsubscribeEvents = () => {
       if (!eventBus) {
-        throw new Error('Event bus is not initialized');
+        throw new Error(ProviderErrorsEnum.eventBusError);
       }
 
       eventBus.unsubscribe(WalletConnectEventsEnum.CLOSE, onClose);
@@ -112,6 +133,8 @@ export class WalletConnectProviderStrategy {
 
     const provider = this.provider as unknown as IProvider;
     provider.login = this.login;
+    provider.signTransactions = this.signTransactions;
+    provider.signMessage = this.signMessage;
 
     return provider;
   };
@@ -137,11 +160,11 @@ export class WalletConnectProviderStrategy {
       return;
     }
 
-    const { eventBus } = await createModalElement<WalletConnectModal>({
-      name: 'wallet-connect-modal',
-      withEventBus: true
-    });
+    const modalElement = await createModalElement<WalletConnectModal>(
+      'wallet-connect-modal'
+    );
 
+    const eventBus = await modalElement.getEventBus();
     return eventBus;
   };
 
@@ -275,5 +298,125 @@ export class WalletConnectProviderStrategy {
       console.error(WalletConnectV2Error.userRejected, error);
       return await reconnect();
     }
+  };
+
+  private signTransactions = async (transactions: Transaction[]) => {
+    if (!this.provider || !this._signTransactions) {
+      throw new Error(ProviderErrorsEnum.notInitialized);
+    }
+
+    const modalElement = await createModalElement<PendingTransactionsModal>(
+      'pending-transactions-modal'
+    );
+    const { eventBus, manager, onClose } =
+      await this.getModalHandlers(modalElement);
+
+    eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
+
+    manager.updateData({
+      isPending: true,
+      title: 'Confirm on the xPortal App',
+      subtitle: 'Check your phone to sign the transaction'
+    });
+    try {
+      const signedTransactions: Transaction[] =
+        await this._signTransactions(transactions);
+
+      return signedTransactions;
+    } catch (error) {
+      await this.sendCustomRequest({
+        method: WalletConnectOptionalMethodsEnum.CANCEL_ACTION,
+        action: OptionalOperation.CANCEL_ACTION
+      });
+      throw error;
+    } finally {
+      onClose(false);
+      eventBus.unsubscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
+    }
+  };
+
+  private signMessage = async (message: Message) => {
+    if (!this.provider || !this._signMessage) {
+      throw new Error(ProviderErrorsEnum.notInitialized);
+    }
+
+    const modalElement = await createModalElement<PendingTransactionsModal>(
+      'pending-transactions-modal'
+    );
+    const { eventBus, manager, onClose } =
+      await this.getModalHandlers(modalElement);
+
+    eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
+
+    manager.updateData({
+      isPending: true,
+      title: 'Message Signing',
+      subtitle: 'Check your MultiversX xPortal App to sign the message'
+    });
+
+    try {
+      const signedMessage = await this._signMessage(message);
+
+      return signedMessage;
+    } catch (error) {
+      await this.sendCustomRequest({
+        method: WalletConnectOptionalMethodsEnum.CANCEL_ACTION,
+        action: OptionalOperation.CANCEL_ACTION
+      });
+      throw error;
+    } finally {
+      onClose(false);
+      eventBus.unsubscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
+    }
+  };
+
+  private sendCustomRequest = async ({
+    action,
+    method
+  }: {
+    action: OptionalOperation;
+    method: WalletConnectOptionalMethodsEnum;
+  }) => {
+    if (!this.provider) {
+      throw new Error(ProviderErrorsEnum.notInitialized);
+    }
+
+    try {
+      await this.provider.sendCustomRequest?.({
+        request: {
+          method,
+          params: { action }
+        }
+      });
+    } catch (error) {
+      console.error(WalletConnectV2Error.actionError, error);
+    }
+  };
+
+  private getModalHandlers = async (modalElement: PendingTransactionsModal) => {
+    const eventBus = await modalElement.getEventBus();
+
+    if (!eventBus) {
+      throw new Error(ProviderErrorsEnum.eventBusError);
+    }
+
+    const manager = PendingTransactionsStateManager.getInstance(eventBus);
+
+    const onClose = async (cancelAction = true) => {
+      if (!this.provider) {
+        throw new Error(ProviderErrorsEnum.notInitialized);
+      }
+
+      if (cancelAction) {
+        await this.sendCustomRequest({
+          method: WalletConnectOptionalMethodsEnum.CANCEL_ACTION,
+          action: OptionalOperation.CANCEL_ACTION
+        });
+      }
+
+      manager.closeAndReset();
+    };
+
+    return { eventBus, manager, onClose };
   };
 }

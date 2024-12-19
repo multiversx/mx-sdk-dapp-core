@@ -2,32 +2,23 @@ import { IEventBus } from '@multiversx/sdk-dapp-core-ui/loader';
 import { safeWindow } from 'constants/index';
 import { defineCustomElements } from 'lib/sdkDappCoreUi';
 
-type CreateModalElementType = {
-  name: string;
-  withEventBus?: boolean;
-};
-
+//TODO: allow override createModalElement similar to accountProvider and add typed name for all webcomponents
 export const createModalElement = async <
-  T extends HTMLElement & { getEventBus: () => Promise<IEventBus | undefined> }
->({
-  name,
-  withEventBus = false
-}: CreateModalElementType) => {
-  let eventBus: IEventBus | undefined;
-
+  T extends HTMLElement & {
+    getEventBus: () => Promise<IEventBus | undefined>;
+  }
+>(
+  name: string
+) => {
   await defineCustomElements(safeWindow);
 
-  const modalElement = document.createElement(name) as T;
-  document.body.appendChild(modalElement);
-  await customElements.whenDefined(name);
-
-  if (withEventBus) {
-    eventBus = await modalElement.getEventBus();
-
-    if (!eventBus) {
-      throw new Error(`Event bus not provided for ${name}.`);
-    }
+  if (!safeWindow.document) {
+    return {} as T;
   }
 
-  return { modalElement, eventBus };
+  const modalElement = safeWindow.document.createElement(name) as T;
+  safeWindow.document.body.appendChild(modalElement);
+  await customElements.whenDefined(name);
+
+  return modalElement;
 };
