@@ -1,8 +1,8 @@
 import { getTransactionsByHashes } from 'apiCalls/transactions/getTransactionsByHashes';
 import {
-  updateSignedTransactionStatus,
-  updateTransactionsSession
-} from 'store/actions/transactions/transactionsActions';
+  updateTrackedTransactionStatus,
+  updateTrackedTransactionsSession
+} from 'store/actions/trackedTransactions/trackedTransactionsActions';
 import { getIsTransactionFailed } from 'store/actions/transactions/transactionStateByStatus';
 import {
   TransactionBatchStatusesEnum,
@@ -63,7 +63,7 @@ function manageTransaction({
     const retriesForThisHash = retries[hash];
     if (retriesForThisHash > 30) {
       // consider transaction as stuck after 1 minute
-      updateTransactionsSession({
+      updateTrackedTransactionsSession({
         sessionId,
         status: TransactionBatchStatusesEnum.timedOut
       });
@@ -81,7 +81,7 @@ function manageTransaction({
     // The tx is from a sequential batch.
     // If the transactions before this are not successful then it means that no other tx will be processed
     if (isSequential && !status) {
-      updateSignedTransactionStatus({
+      updateTrackedTransactionStatus({
         sessionId,
         status,
         transactionHash: hash,
@@ -92,7 +92,7 @@ function manageTransaction({
     }
 
     if (hasStatusChanged) {
-      updateSignedTransactionStatus({
+      updateTrackedTransactionStatus({
         sessionId,
         status,
         transactionHash: hash,
@@ -111,7 +111,7 @@ function manageTransaction({
     }
   } catch (error) {
     console.error(error);
-    updateTransactionsSession({
+    updateTrackedTransactionsSession({
       sessionId,
       status: TransactionBatchStatusesEnum.timedOut
     });
@@ -159,7 +159,7 @@ export async function checkBatch({
       );
 
       if (isSuccessful) {
-        updateTransactionsSession({
+        updateTrackedTransactionsSession({
           sessionId,
           status: TransactionBatchStatusesEnum.success
         });
@@ -171,7 +171,7 @@ export async function checkBatch({
       );
 
       if (isFailed) {
-        updateTransactionsSession({
+        updateTrackedTransactionsSession({
           sessionId,
           status: TransactionBatchStatusesEnum.fail
         });
