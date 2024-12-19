@@ -324,7 +324,7 @@ export class WalletConnectProviderStrategy {
 
       return signedTransactions;
     } catch (error) {
-      this.sendCustomRequest({
+      await this.sendCustomRequest({
         method: WalletConnectOptionalMethodsEnum.CANCEL_ACTION,
         action: OptionalOperation.CANCEL_ACTION
       });
@@ -359,7 +359,7 @@ export class WalletConnectProviderStrategy {
 
       return signedMessage;
     } catch (error) {
-      this.sendCustomRequest({
+      await this.sendCustomRequest({
         method: WalletConnectOptionalMethodsEnum.CANCEL_ACTION,
         action: OptionalOperation.CANCEL_ACTION
       });
