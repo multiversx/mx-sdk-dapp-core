@@ -35,7 +35,7 @@
     "@lifeomic/axios-fetch": "3.0.1",
     "@multiversx/sdk-extension-provider": "4.0.0",
     "@multiversx/sdk-hw-provider": "7.0.0",
-    "@multiversx/sdk-metamask-provider": "0.0.7",
+    "@multiversx/sdk-metamask-provider": "1.0.0",
     "@multiversx/sdk-native-auth-client": "^1.0.8",
     "@multiversx/sdk-opera-provider": "1.0.0-alpha.1",
     "@multiversx/sdk-wallet": "4.5.1",
@@ -51,7 +51,7 @@
   "peerDependencies": {
     "@multiversx/sdk-core": ">= 13.5.0",
     "@multiversx/sdk-dapp-utils": ">= 1.0.0",
-    "@multiversx/sdk-web-wallet-cross-window-provider": ">= 2.0.1",
+    "@multiversx/sdk-web-wallet-cross-window-provider": ">= 2.0.4",
     "axios": ">=1.6.5",
     "bignumber.js": "9.x",
     "immer": "10.x"
@@ -66,7 +66,7 @@
     "@eslint/js": "9.15.0",
     "@multiversx/sdk-core": ">= 13.5.0",
     "@multiversx/sdk-dapp-utils": "1.0.0",
-    "@multiversx/sdk-web-wallet-cross-window-provider": ">= 2.0.1",
+    "@multiversx/sdk-web-wallet-cross-window-provider": ">= 2.0.4",
     "@swc/core": "^1.4.17",
     "@swc/jest": "^0.2.36",
     "@types/jest": "29.5.13",

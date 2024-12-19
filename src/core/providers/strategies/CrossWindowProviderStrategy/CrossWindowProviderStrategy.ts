@@ -1,13 +1,19 @@
 import { Message, Transaction } from '@multiversx/sdk-core/out';
 import { isBrowserWithPopupConfirmation } from 'constants/browser.constants';
+import {
+  PendingTransactionsStateManager,
+  PendingTransactionsEventsEnum
+} from 'core/managers';
 import { getAccount } from 'core/methods/account/getAccount';
 import { getAddress } from 'core/methods/account/getAddress';
 import { IProvider } from 'core/providers/types/providerFactory.types';
+import { PendingTransactionsModal } from 'lib/sdkDappCoreUi';
 import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
 import { crossWindowConfigSelector } from 'store/selectors';
 import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
 import { ProviderErrorsEnum } from 'types';
+import { createModalElement } from 'utils/createModalElement';
 
 type CrossWindowProviderProps = {
   address?: string;
@@ -83,13 +89,35 @@ export class CrossWindowProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
+    const modalElement = await createModalElement<PendingTransactionsModal>(
+      'pending-transactions-modal'
+    );
+    const { eventBus, onClose, manager } =
+      await this.getModalHandlers(modalElement);
+
+    eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
+
+    manager.updateData({
+      isPending: true,
+      title: 'Confirm on MultiversX Web Wallet',
+      subtitle: 'Check your MultiversX Web Wallet to sign the transaction'
+    });
+
     this.setPopupConsent();
 
-    const signedTransactions: Transaction[] =
-      (await this._signTransactions(transactions)) ?? [];
+    try {
+      const signedTransactions: Transaction[] =
+        (await this._signTransactions(transactions)) ?? [];
 
-    // Guarded Transactions or Signed Transactions
-    return this.getTransactions(signedTransactions);
+      // Guarded Transactions or Signed Transactions
+      return this.getTransactions(signedTransactions);
+    } catch (error) {
+      this.provider.cancelAction();
+      throw error;
+    } finally {
+      onClose(false);
+      eventBus.unsubscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
+    }
   };
 
   private signMessage = async (message: Message) => {
@@ -97,8 +125,33 @@ export class CrossWindowProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
+    const modalElement = await createModalElement<PendingTransactionsModal>(
+      'pending-transactions-modal'
+    );
+    const { eventBus, onClose, manager } =
+      await this.getModalHandlers(modalElement);
+
+    eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
+
+    manager.updateData({
+      isPending: true,
+      title: 'Message Signing',
+      subtitle: 'Check your MultiversX Web Wallet to sign the message'
+    });
+
     this.setPopupConsent();
-    return this._signMessage(message);
+
+    try {
+      const signedMessage = await this._signMessage(message);
+
+      return signedMessage;
+    } catch (error) {
+      this.provider.cancelAction();
+      throw error;
+    } finally {
+      onClose(false);
+      eventBus.unsubscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
+    }
   };
 
   private setPopupConsent = () => {
@@ -158,5 +211,28 @@ export class CrossWindowProviderStrategy {
     return transactions.every((tx) =>
       Boolean(tx.getGuardianSignature().toString('hex'))
     );
+  };
+
+  private getModalHandlers = async (modalElement: PendingTransactionsModal) => {
+    const eventBus = await modalElement.getEventBus();
+
+    if (!eventBus) {
+      throw new Error(ProviderErrorsEnum.eventBusError);
+    }
+
+    const manager = PendingTransactionsStateManager.getInstance(eventBus);
+
+    const onClose = (cancelAction = true) => {
+      if (!this.provider) {
+        throw new Error(ProviderErrorsEnum.notInitialized);
+      }
+
+      if (cancelAction) {
+        this.provider.cancelAction();
+      }
+
+      manager.closeAndReset();
+    };
+    return { eventBus, manager, onClose };
   };
 }

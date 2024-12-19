@@ -149,29 +149,27 @@ export class LedgerProviderStrategy {
       return;
     }
 
-    const { eventBus: modalEventBus } =
-      await createModalElement<LedgerConnectModal>({
-        name: 'ledger-connect-modal',
-        withEventBus: true
-      });
+    const modalElement = await createModalElement<LedgerConnectModal>(
+      'ledger-connect-modal'
+    );
+    const eventBus = await modalElement.getEventBus();
 
-    if (!modalEventBus) {
-      throw new Error('Event bus not provided for Ledger provider');
+    if (!eventBus) {
+      throw new Error(ProviderErrorsEnum.eventBusError);
     }
 
-    this.eventBus = modalEventBus;
-    return modalEventBus;
+    this.eventBus = eventBus;
+    return eventBus;
   };
 
   private signTransactions = async (transactions: Transaction[]) => {
-    const { modalElement: signModalElement, eventBus } =
-      await createModalElement<SignTransactionsModal>({
-        name: 'sign-transactions-modal',
-        withEventBus: true
-      });
+    const signModalElement = await createModalElement<SignTransactionsModal>(
+      'sign-transactions-modal'
+    );
+    const eventBus = await signModalElement.getEventBus();
 
     if (!eventBus) {
-      throw new Error('Event bus not provided for Ledger provider');
+      throw new Error(ProviderErrorsEnum.eventBusError);
     }
 
     const manager = SignTransactionsStateManager.getInstance(eventBus);
