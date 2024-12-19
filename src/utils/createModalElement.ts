@@ -7,21 +7,11 @@ export const createModalElement = async <
 >(
   name: string
 ) => {
-  // let eventBus: IEventBus | undefined;
-
   await defineCustomElements(safeWindow);
 
   const modalElement = document.createElement(name) as T;
   document.body.appendChild(modalElement);
   await customElements.whenDefined(name);
-
-  // if (withEventBus) {
-  //   eventBus = await modalElement.getEventBus();
-
-  //   if (!eventBus) {
-  //     throw new Error(`Event bus not provided for ${name}.`);
-  //   }
-  // }
 
   return modalElement;
 };
