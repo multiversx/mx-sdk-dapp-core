@@ -1,15 +1,16 @@
+import { IEventBus } from 'types/manager.types';
 import {
   IPendingTransactionsModalData,
   PendingTransactionsEventsEnum
 } from './types';
 
-interface IEventBus {
-  publish(event: string, data: any): void;
-}
-
-export class PendingTransactionsStateManager<T extends IEventBus = IEventBus> {
-  private static instance: PendingTransactionsStateManager<IEventBus> | null =
-    null;
+export class PendingTransactionsStateManager<
+  T extends
+    IEventBus<IPendingTransactionsModalData> = IEventBus<IPendingTransactionsModalData>
+> {
+  private static instance: PendingTransactionsStateManager<
+    IEventBus<IPendingTransactionsModalData>
+  > | null = null;
   private eventBus: T;
 
   private initialData: IPendingTransactionsModalData = {
@@ -25,7 +26,7 @@ export class PendingTransactionsStateManager<T extends IEventBus = IEventBus> {
     this.eventBus = eventBus;
   }
 
-  public static getInstance<U extends IEventBus>(
+  public static getInstance<U extends IEventBus<IPendingTransactionsModalData>>(
     eventBus: U
   ): PendingTransactionsStateManager<U> {
     if (!PendingTransactionsStateManager.instance) {

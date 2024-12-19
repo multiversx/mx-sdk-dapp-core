@@ -2,13 +2,15 @@ import {
   IWalletConnectModalData,
   WalletConnectEventsEnum
 } from 'core/providers/strategies/WalletConnectProviderStrategy/types';
+import { IEventBus } from 'types/manager.types';
 
-interface IEventBus {
-  publish(event: string, data: any): void;
-}
-
-export class WalletConnectStateManager<T extends IEventBus = IEventBus> {
-  private static instance: WalletConnectStateManager<IEventBus> | null = null;
+export class WalletConnectStateManager<
+  T extends
+    IEventBus<IWalletConnectModalData> = IEventBus<IWalletConnectModalData>
+> {
+  private static instance: WalletConnectStateManager<
+    IEventBus<IWalletConnectModalData>
+  > | null = null;
   private eventBus: T;
 
   private initialData: IWalletConnectModalData = {
@@ -22,7 +24,7 @@ export class WalletConnectStateManager<T extends IEventBus = IEventBus> {
     this.eventBus = eventBus;
   }
 
-  public static getInstance<U extends IEventBus>(
+  public static getInstance<U extends IEventBus<IWalletConnectModalData>>(
     eventBus: U
   ): WalletConnectStateManager<U> {
     if (!WalletConnectStateManager.instance) {
