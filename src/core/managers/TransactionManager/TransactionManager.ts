@@ -4,9 +4,9 @@ import { BATCH_TRANSACTIONS_ID_SEPARATOR } from 'constants/transactions.constant
 import { getAccount } from 'core/methods/account/getAccount';
 import { networkSelector } from 'store/selectors';
 import { getState } from 'store/store';
-import { GuardianActionsEnum } from 'types';
 import { BatchTransactionsResponseType } from 'types/serverTransactions.types';
 import { SignedTransactionType } from 'types/transactions.types';
+import { isGuardianTx } from 'utils/transactions/isGuardianTx';
 
 export class TransactionManager {
   private static instance: TransactionManager | null = null;
@@ -136,15 +136,11 @@ export class TransactionManager {
     };
 
     // TODO: Remove when the protocol supports usernames for guardian transactions
-    if (this.isGuardianTx(parsedTransaction.data)) {
+    if (isGuardianTx({ data: parsedTransaction.data })) {
       delete parsedTransaction.senderUsername;
       delete parsedTransaction.receiverUsername;
     }
 
     return parsedTransaction;
   };
-
-  private isGuardianTx = (transactionData?: string) =>
-    transactionData &&
-    transactionData.startsWith(GuardianActionsEnum.SetGuardian);
 }

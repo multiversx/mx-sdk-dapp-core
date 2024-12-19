@@ -24,6 +24,7 @@ export class SignTransactionsStateManager<T extends IEventBus = IEventBus> {
   private initialData: ISignTransactionsModalData = {
     transaction: null,
     total: 0,
+    egldLabel: '',
     currentIndex: 0
   };
 

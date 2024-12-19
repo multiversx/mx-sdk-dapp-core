@@ -1,8 +1,10 @@
 import { Transaction } from '@multiversx/sdk-core/out';
 import { getAccountFromApi } from 'apiCalls/account';
+import { getEconomics } from 'apiCalls/economics/getEconomics';
 import { getPersistedTokenDetails } from 'apiCalls/tokens/getPersistedTokenDetails';
 import { getScamAddressData } from 'apiCalls/utils/getScamAddressData';
 import { SENDER_DIFFERENT_THAN_LOGGED_IN_ADDRESS } from 'constants/errorMessages.constants';
+import { GAS_PER_DATA_BYTE, GAS_PRICE_MODIFIER } from 'constants/mvx.constants';
 import { SignTransactionsStateManager } from 'core/managers/SignTransactionsStateManager/SignTransactionsStateManager';
 import { SignEventsEnum } from 'core/managers/SignTransactionsStateManager/types';
 import { getAddress } from 'core/methods/account/getAddress';
@@ -15,8 +17,11 @@ import { getState } from 'store/store';
 // import { NftEnumType } from 'types/tokens.types';
 import { MultiSignTransactionType } from 'types/transactions.types';
 import { createModalElement } from 'utils/createModalElement';
+import { calculateFeeInFiat } from './helpers/calculateFeeInFiat';
+import { calculateFeeLimit } from './helpers/calculateFeeLimit';
 import { checkIsValidSender } from './helpers/checkIsValidSender';
 import { getMultiEsdtTransferData } from './helpers/getMultiEsdtTransferData/getMultiEsdtTransferData';
+import { getUsdValue } from './helpers/getUsdValue';
 import { isTokenTransfer } from './helpers/isTokenTransfer';
 
 interface VerifiedAddressesType {
@@ -55,10 +60,35 @@ export async function signTransactions({
   return new Promise<Transaction[]>(async (resolve, reject) => {
     const signedTransactions: Transaction[] = [];
     let currentTransactionIndex = 0;
+    const economics = await getEconomics();
 
     const signNextTransaction = async () => {
       const currentTransaction = allTransactions[currentTransactionIndex];
       const sender = currentTransaction?.transaction?.getSender().toString();
+      const transaction = currentTransaction?.transaction;
+      const price = economics?.price;
+
+      const feeLimit = calculateFeeLimit({
+        gasPerDataByte: String(GAS_PER_DATA_BYTE),
+        gasPriceModifier: String(GAS_PRICE_MODIFIER),
+        gasLimit: transaction.getGasLimit().valueOf().toString(),
+        gasPrice: transaction.getGasPrice().valueOf().toString(),
+        data: transaction.getData().toString(),
+        chainId: transaction.getChainID().valueOf()
+      });
+
+      const feeLimitFormatted = formatAmount({
+        input: feeLimit,
+        showLastNonZeroDecimal: true
+      });
+
+      const feeInFiatLimit = price
+        ? calculateFeeInFiat({
+            feeLimit,
+            egldPriceInUsd: price,
+            hideEqualSign: true
+          })
+        : null;
 
       const senderAccount =
         !sender || sender === address ? null : await getAccountFromApi(sender);
@@ -133,10 +163,7 @@ export async function signTransactions({
         tokenId: tokenIdForTokenDetails
       });
 
-      const {
-        //type, esdtPrice,
-        tokenDecimals
-      } = tokenDetails;
+      const { esdtPrice, tokenDecimals } = tokenDetails;
 
       const getFormattedAmount = ({ addCommas }: { addCommas: boolean }) =>
         formatAmount({
@@ -151,18 +178,26 @@ export async function signTransactions({
 
       const formattedAmount = getFormattedAmount({ addCommas: true });
 
-      console.log(network.decimals, network.digits, {
-        network,
-        isEgld,
-        formattedAmount
-      });
-
-      //   const rawAmount = getFormattedAmount({ addCommas: false });
+      const rawAmount = getFormattedAmount({ addCommas: false });
 
       const value = `${formattedAmount} ${isEgld ? egldLabel : tokenIdForTokenDetails}`;
+      const tokenPrice = Number(isEgld ? price : esdtPrice);
+
+      const usdValue = getUsdValue({
+        amount: rawAmount,
+        usd: tokenPrice,
+        addEqualSign: true
+      });
 
       manager.updateTransaction({
-        transaction: { ...plainTransaction, value },
+        transaction: {
+          ...plainTransaction,
+          value,
+          data: currentTransaction.transaction.getData().toString()
+        },
+        usdValue,
+        feeLimit: feeLimitFormatted,
+        feeInFiatLimit,
         total: allTransactions.length,
         currentIndex: currentTransactionIndex
       });
