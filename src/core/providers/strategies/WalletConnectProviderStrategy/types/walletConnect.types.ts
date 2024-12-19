@@ -9,7 +9,8 @@ export enum WalletConnectV2Error {
   userRejected = 'User rejected connection proposal',
   userRejectedExisting = 'User rejected existing connection proposal',
   errorLogout = 'Unable to remove existing pairing',
-  invalidChainID = 'Invalid chainID'
+  invalidChainID = 'Invalid chainID',
+  actionError = 'Unable to send event'
 }
 
 // types here need to be synced with the types in sdk-dapp-core-ui
