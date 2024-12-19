@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- [Added provider constants and helpers](https://github.com/multiversx/mx-sdk-dapp-core/pull/50)
+- [Added provider constants and getTransactions API call](https://github.com/multiversx/mx-sdk-dapp-core/pull/50)
 - [Added pending transactions](https://github.com/multiversx/mx-sdk-dapp-core/pull/48)
 - [Added transaction manager](https://github.com/multiversx/mx-sdk-dapp-core/pull/41)
 - [Added custom web socket url support](https://github.com/multiversx/mx-sdk-dapp-core/pull/35)
