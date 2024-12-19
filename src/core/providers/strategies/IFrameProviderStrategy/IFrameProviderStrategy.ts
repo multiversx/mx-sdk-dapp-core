@@ -7,10 +7,7 @@ import {
 } from 'core/managers';
 import { getAccount } from 'core/methods/account/getAccount';
 import { getAddress } from 'core/methods/account/getAddress';
-import {
-  IProvider,
-  ProviderTypeEnum
-} from 'core/providers/types/providerFactory.types';
+import { IProvider } from 'core/providers/types/providerFactory.types';
 import { PendingTransactionsModal } from 'lib/sdkDappCoreUi';
 import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
@@ -111,8 +108,7 @@ export class IFrameProviderStrategy {
     manager.updateData({
       isPending: true,
       title: `Confirm on MultiversX ${this.type}`,
-      subtitle: `Check your MultiversX ${this.type} to sign the transaction`,
-      type: this.type as unknown as ProviderTypeEnum
+      subtitle: `Check your MultiversX ${this.type} to sign the transaction`
     });
     try {
       const signedTransactions: Transaction[] =
@@ -161,8 +157,7 @@ export class IFrameProviderStrategy {
     manager.updateData({
       isPending: true,
       title: 'Message Signing',
-      subtitle: `Check your MultiversX ${this.type} to sign the message`,
-      type: this.type as unknown as ProviderTypeEnum
+      subtitle: `Check your MultiversX ${this.type} to sign the message`
     });
 
     try {

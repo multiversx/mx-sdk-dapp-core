@@ -6,10 +6,7 @@ import {
 } from 'core/managers';
 import { getAccount } from 'core/methods/account/getAccount';
 import { getAddress } from 'core/methods/account/getAddress';
-import {
-  IProvider,
-  ProviderTypeEnum
-} from 'core/providers/types/providerFactory.types';
+import { IProvider } from 'core/providers/types/providerFactory.types';
 
 import { PendingTransactionsModal } from 'lib/sdkDappCoreUi';
 import { ProviderErrorsEnum } from 'types';
@@ -35,7 +32,6 @@ export class ExtensionProviderStrategy {
       await this.provider.init();
     }
 
-    // Bind in order to break reference
     this._signTransactions = this.provider.signTransactions.bind(this.provider);
     this._signMessage = this.provider.signMessage.bind(this.provider);
 
@@ -100,9 +96,7 @@ export class ExtensionProviderStrategy {
     manager.updateData({
       isPending: true,
       title: 'Confirm on MultiversX DeFi Wallet',
-      subtitle:
-        'Check your MultiversX Wallet Extension to sign the transaction',
-      type: ProviderTypeEnum.extension
+      subtitle: 'Check your MultiversX Wallet Extension to sign the transaction'
     });
     try {
       const signedTransactions: Transaction[] =
@@ -151,8 +145,7 @@ export class ExtensionProviderStrategy {
     manager.updateData({
       isPending: true,
       title: 'Message Signing',
-      subtitle: 'Check your MultiversX Wallet Extension to sign the message',
-      type: ProviderTypeEnum.extension
+      subtitle: 'Check your MultiversX Wallet Extension to sign the message'
     });
 
     try {

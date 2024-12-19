@@ -15,8 +15,7 @@ import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import { getAccountProvider } from 'core/providers/helpers/accountProvider';
 import {
   IEventBus,
-  IProvider,
-  ProviderTypeEnum
+  IProvider
 } from 'core/providers/types/providerFactory.types';
 import {
   defineCustomElements,
@@ -333,8 +332,7 @@ export class WalletConnectProviderStrategy {
     manager.updateData({
       isPending: true,
       title: 'Confirm on the xPortal App',
-      subtitle: 'Check your phone to sign the transaction',
-      type: ProviderTypeEnum.walletConnect
+      subtitle: 'Check your phone to sign the transaction'
     });
     try {
       const signedTransactions: Transaction[] =
@@ -389,8 +387,7 @@ export class WalletConnectProviderStrategy {
     manager.updateData({
       isPending: true,
       title: 'Message Signing',
-      subtitle: 'Check your MultiversX xPortal App to sign the message',
-      type: ProviderTypeEnum.walletConnect
+      subtitle: 'Check your MultiversX xPortal App to sign the message'
     });
 
     try {

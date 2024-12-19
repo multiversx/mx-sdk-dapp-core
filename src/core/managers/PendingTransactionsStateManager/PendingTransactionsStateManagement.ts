@@ -1,4 +1,3 @@
-import { ProviderTypeEnum } from 'core/providers/types/providerFactory.types';
 import {
   IPendingTransactionsModalData,
   PendingTransactionsEventsEnum
@@ -17,8 +16,7 @@ export class PendingTransactionsStateManager<T extends IEventBus = IEventBus> {
     isPending: false,
     title: '',
     subtitle: '',
-    shouldClose: false,
-    type: ProviderTypeEnum.none
+    shouldClose: false
   };
 
   private data: IPendingTransactionsModalData = { ...this.initialData };

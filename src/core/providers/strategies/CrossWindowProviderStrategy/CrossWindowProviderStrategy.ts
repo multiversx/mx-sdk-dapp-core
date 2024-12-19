@@ -6,10 +6,7 @@ import {
 } from 'core/managers';
 import { getAccount } from 'core/methods/account/getAccount';
 import { getAddress } from 'core/methods/account/getAddress';
-import {
-  IProvider,
-  ProviderTypeEnum
-} from 'core/providers/types/providerFactory.types';
+import { IProvider } from 'core/providers/types/providerFactory.types';
 import { PendingTransactionsModal } from 'lib/sdkDappCoreUi';
 import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
 import { crossWindowConfigSelector } from 'store/selectors';
@@ -116,8 +113,7 @@ export class CrossWindowProviderStrategy {
     manager.updateData({
       isPending: true,
       title: 'Confirm on MultiversX Web Wallet',
-      subtitle: 'Check your MultiversX Web Wallet to sign the transaction',
-      type: ProviderTypeEnum.extension
+      subtitle: 'Check your MultiversX Web Wallet to sign the transaction'
     });
 
     this.setPopupConsent();
@@ -170,8 +166,7 @@ export class CrossWindowProviderStrategy {
     manager.updateData({
       isPending: true,
       title: 'Message Signing',
-      subtitle: 'Check your MultiversX Web Wallet to sign the message',
-      type: ProviderTypeEnum.crossWindow
+      subtitle: 'Check your MultiversX Web Wallet to sign the message'
     });
 
     this.setPopupConsent();
