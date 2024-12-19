@@ -35,14 +35,13 @@ export async function signTransactions({
   const network = networkSelector(getState());
 
   const egldLabel = getEgldLabel();
-  const { modalElement: signModalElement, eventBus } =
-    await createModalElement<SignTransactionsModal>({
-      name: 'sign-transactions-modal',
-      withEventBus: true
-    });
+  const signModalElement =
+    await createModalElement<SignTransactionsModal>('sign-transactions-modal');
 
   const { allTransactions, getTxInfoByDataField } =
     getMultiEsdtTransferData(transactions);
+
+  const eventBus = await signModalElement.getEventBus()
 
   if (!eventBus) {
     throw new Error('Event bus not provided for Ledger provider');
