@@ -4,24 +4,37 @@ export interface ITransactionData {
   value?: string;
 }
 
-export interface ISignTransactionsModalData {
-  receiver?: string;
-  data?: string;
-  total: number;
-  /**
-   * Token type of the transaction.
-   * @param {string} `null` - if is EGLD or MultiEsdt transaction.
-   */
-  tokenType?: 'SemiFungibleESDT' | 'NonFungibleESDT' | 'FungibleESDT' | null;
+export type FungibleTransactionType = {
+  amount: string;
   identifier?: string;
-  tokenAmount?: string;
-  tokenImageUrl?: string;
-  egldLabel: string;
-  usdValue?: string;
-  feeLimit?: string;
-  feeInFiatLimit?: string | null;
-  currentIndex: number;
+  imageURL: string;
+};
+
+export type TokenType = 'SemiFungibleESDT' | 'NonFungibleESDT' | 'FungibleESDT' | null;
+
+export interface ISignTransactionsModalData {
   shouldClose?: true;
+  commonData: {
+    receiver?: string;
+    data?: string;
+    transactionsCount: number;
+    /**
+     * Token type of the transaction.
+     * @param {string} `null` - if is EGLD or MultiEsdt transaction.
+     */
+    tokenType?: TokenType;
+    egldLabel: string;
+    feeLimit?: string;
+    feeInFiatLimit?: string | null;
+    currentIndex: number;
+  };
+  tokenTransaction: {
+    identifier?: string;
+    amount: string;
+    usdValue: string;
+  } | null;
+  nftTransaction: FungibleTransactionType | null;
+  sftTransaction: FungibleTransactionType | null;
 }
 
 export enum SignEventsEnum {
@@ -29,5 +42,5 @@ export enum SignEventsEnum {
   'NEXT_PAGE' = 'NEXT_PAGE',
   'PREV_PAGE' = 'PREV_PAGE',
   'CLOSE' = 'CLOSE',
-  'DATA_UPDATE' = 'DATA_UPDATE'
+  'DATA_UPDATE' = 'DATA_UPDATE',
 }
