@@ -9,7 +9,11 @@ export const getUsdValue = ({
   decimals?: number;
   addEqualSign?: boolean;
 }) => {
-  const sum = (parseFloat(amount) * usd).toFixed(decimals);
+  let sum = (parseFloat(amount) * usd).toFixed(decimals);
+  if (isNaN(Number(sum))) {
+    sum = '0';
+  }
+
   const formattedValue = parseFloat(sum).toLocaleString('en', {
     maximumFractionDigits: decimals,
     minimumFractionDigits: decimals

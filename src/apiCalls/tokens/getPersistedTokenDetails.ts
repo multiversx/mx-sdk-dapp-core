@@ -28,7 +28,7 @@ export interface TokenMediaType {
 export interface TokenOptionType {
   tokenLabel: string;
   tokenDecimals: number;
-  tokenAvatar: string;
+  tokenImageUrl: string;
   assets?: TokenAssets;
   type?: NftEnumType;
   error?: string;
@@ -59,7 +59,7 @@ export async function getPersistedTokenDetails({
   const noData = {
     tokenDecimals: Number(network.decimals),
     tokenLabel: '',
-    tokenAvatar: ''
+    tokenImageUrl: ''
   };
 
   const { isNft } = getIdentifierType(tokenId);
@@ -80,7 +80,7 @@ export async function getPersistedTokenDetails({
       ? selectedToken?.decimals
       : Number(network.decimals);
     const tokenLabel = selectedToken ? selectedToken?.name : '';
-    const tokenAvatar = selectedToken
+    const tokenImageUrl = selectedToken
       ? selectedToken?.assets?.svgUrl ?? selectedToken?.media?.[0]?.thumbnailUrl
       : '';
 
@@ -88,7 +88,7 @@ export async function getPersistedTokenDetails({
       tokenDecimals: tokenDecimals,
       tokenLabel,
       type: selectedToken?.type,
-      tokenAvatar,
+      tokenImageUrl,
       identifier: selectedToken?.identifier,
       assets: selectedToken?.assets,
       esdtPrice: selectedToken?.price,
