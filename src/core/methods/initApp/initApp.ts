@@ -41,9 +41,6 @@ export async function initApp({
 }: InitAppType) {
   initStore(storage.getStorageCallback);
 
-  const shouldEnableTransactionTracker =
-    dAppConfig.enableTansactionTracker !== false;
-
   const { apiAddress } = await initializeNetwork({
     customNetworkConfig: dAppConfig.network,
     environment: dAppConfig.environment
@@ -66,9 +63,7 @@ export async function initApp({
     setCrossWindowConfig(dAppConfig.providers.crossWindow);
   }
 
-  if (shouldEnableTransactionTracker) {
-    trackTransactions();
-  }
+  trackTransactions();
 
   const isLoggedIn = getIsLoggedIn();
 
