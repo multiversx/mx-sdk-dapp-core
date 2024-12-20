@@ -185,7 +185,7 @@ export class LedgerProviderStrategy {
         const currentTransaction = transactions[currentTransactionIndex];
 
         manager.updateTransaction({
-          transaction: currentTransaction.toPlainObject()
+          ...currentTransaction.toPlainObject()
         });
 
         const onCancel = () => {

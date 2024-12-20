@@ -203,12 +203,11 @@ export async function signTransactions({
       });
 
       manager.updateTransaction({
-        transaction: {
-          ...plainTransaction,
-          data: currentTransaction.transaction.getData().toString()
-        },
+        receiver: plainTransaction.receiver.toString(),
+        data: currentTransaction.transaction.getData().toString(),
         tokenAmount: tokenType ? tokenAmount : formattedAmount,
         identifier,
+        egldLabel,
         tokenImageUrl,
         tokenType,
         usdValue,
