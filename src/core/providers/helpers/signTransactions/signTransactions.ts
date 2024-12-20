@@ -173,11 +173,13 @@ export async function signTransactions({
       const { esdtPrice, tokenDecimals, type, identifier, tokenImageUrl } =
         tokenDetails;
 
-      tokenType =
+      const isNft =
         type === NftEnumType.SemiFungibleESDT ||
-        type === NftEnumType.NonFungibleESDT
-          ? (type as ISignTransactionsModalData['tokenType'])
-          : tokenType;
+        type === NftEnumType.NonFungibleESDT;
+
+      tokenType = isNft
+        ? (type as ISignTransactionsModalData['tokenType'])
+        : tokenType;
 
       const getFormattedAmount = ({ addCommas }: { addCommas: boolean }) =>
         formatAmount({
@@ -202,10 +204,12 @@ export async function signTransactions({
         addEqualSign: true
       });
 
+      console.log('tokenType', tokenType, tokenAmount);
+
       manager.updateTransaction({
         receiver: plainTransaction.receiver.toString(),
         data: currentTransaction.transaction.getData().toString(),
-        tokenAmount: tokenType ? tokenAmount : formattedAmount,
+        tokenAmount: isNft ? tokenAmount : formattedAmount,
         identifier,
         egldLabel,
         tokenImageUrl,
