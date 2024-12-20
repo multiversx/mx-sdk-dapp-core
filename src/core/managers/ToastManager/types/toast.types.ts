@@ -36,7 +36,7 @@ export interface ITransaction {
 }
 export interface ITransactionToast {
   toastId: string;
-  wrapperClass?: string;
+  wrapperClass?: string; // TODO: remove ?
   processedTransactionsStatus: string;
   transactions: ITransaction[];
   toastDataState: IToastDataState;
