@@ -65,7 +65,7 @@ export async function initApp({
   }
 
   trackTransactions();
-  new ToastManager();
+  new ToastManager(); // TODO: change to something more clear
 
   const isLoggedIn = getIsLoggedIn();
 
