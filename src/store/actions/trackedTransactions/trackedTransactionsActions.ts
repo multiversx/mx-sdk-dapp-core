@@ -21,18 +21,15 @@ export interface UpdateTrackedTransactionStatusPayloadType {
 }
 
 export const createTrackedTransactionsSession = ({
-  transactions,
-  enableToasts = true
+  transactions
 }: {
   transactions: SignedTransactionType[];
-  enableToasts?: boolean;
 }) => {
   const sessionId = Date.now().toString();
   getStore().setState(({ trackedTransactions: state }) => {
     state[sessionId] = {
       transactions,
-      status: TransactionBatchStatusesEnum.sent,
-      enableToasts
+      status: TransactionBatchStatusesEnum.sent
     };
   });
   return sessionId;
