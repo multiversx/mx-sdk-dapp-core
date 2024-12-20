@@ -2,6 +2,7 @@ import { Transaction } from '@multiversx/sdk-core/out';
 import axios, { AxiosError } from 'axios';
 import { BATCH_TRANSACTIONS_ID_SEPARATOR } from 'constants/transactions.constants';
 import { getAccount } from 'core/methods/account/getAccount';
+import { addTransactionToast } from 'store/actions/toasts/toastsActions';
 import { createTrackedTransactionsSession } from 'store/actions/trackedTransactions/trackedTransactionsActions';
 import { networkSelector } from 'store/selectors';
 import { getState } from 'store/store';
@@ -58,15 +59,17 @@ export class TransactionManager {
 
   public track = async (
     signedTransactions: Transaction[],
-    options: { enableToasts: boolean } = { enableToasts: true }
+    options: { disableToasts: boolean } = { disableToasts: false }
   ) => {
     const parsedTransactions = signedTransactions.map((transaction) =>
       this.parseSignedTransaction(transaction)
     );
-    createTrackedTransactionsSession({
-      transactions: parsedTransactions,
-      enableToasts: options.enableToasts
+    const sessionId = createTrackedTransactionsSession({
+      transactions: parsedTransactions
     });
+    if (!options.disableToasts) {
+      addTransactionToast(sessionId);
+    }
   };
 
   private sendSignedTransactions = async (

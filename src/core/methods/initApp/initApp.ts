@@ -1,4 +1,5 @@
 import { safeWindow } from 'constants/index';
+import { ToastManager } from 'core/managers/ToastManager/ToastManager';
 import { restoreProvider } from 'core/providers/helpers/restoreProvider';
 import { ProviderFactory } from 'core/providers/ProviderFactory';
 import { getDefaultNativeAuthConfig } from 'services/nativeAuth/methods/getDefaultNativeAuthConfig';
@@ -64,6 +65,7 @@ export async function initApp({
   }
 
   trackTransactions();
+  new ToastManager();
 
   const isLoggedIn = getIsLoggedIn();
 
