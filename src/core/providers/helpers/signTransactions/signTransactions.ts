@@ -6,7 +6,10 @@ import { getScamAddressData } from 'apiCalls/utils/getScamAddressData';
 import { SENDER_DIFFERENT_THAN_LOGGED_IN_ADDRESS } from 'constants/errorMessages.constants';
 import { GAS_PER_DATA_BYTE, GAS_PRICE_MODIFIER } from 'constants/mvx.constants';
 import { SignTransactionsStateManager } from 'core/managers/SignTransactionsStateManager/SignTransactionsStateManager';
-import { TokenType, SignEventsEnum } from 'core/managers/SignTransactionsStateManager/types';
+import {
+  TokenType,
+  SignEventsEnum
+} from 'core/managers/SignTransactionsStateManager/types';
 import { getAddress } from 'core/methods/account/getAddress';
 import { getEgldLabel } from 'core/methods/network/getEgldLabel';
 import { IProvider } from 'core/providers/types/providerFactory.types';
@@ -29,14 +32,23 @@ interface VerifiedAddressesType {
 }
 let verifiedAddresses: VerifiedAddressesType = {};
 
-export async function signTransactions({ transactions = [], handleSign }: { transactions?: Transaction[]; handleSign: IProvider['signTransactions'] }) {
+export async function signTransactions({
+  transactions = [],
+  handleSign
+}: {
+  transactions?: Transaction[];
+  handleSign: IProvider['signTransactions'];
+}) {
   const address = getAddress();
   const network = networkSelector(getState());
 
   const egldLabel = getEgldLabel();
-  const signModalElement = await createModalElement<SignTransactionsModal>('sign-transactions-modal');
+  const signModalElement = await createModalElement<SignTransactionsModal>(
+    'sign-transactions-modal'
+  );
 
-  const { allTransactions, getTxInfoByDataField } = getMultiEsdtTransferData(transactions);
+  const { allTransactions, getTxInfoByDataField } =
+    getMultiEsdtTransferData(transactions);
 
   const eventBus = await signModalElement.getEventBus();
 
@@ -66,32 +78,38 @@ export async function signTransactions({ transactions = [], handleSign }: { tran
         gasLimit: transaction.getGasLimit().valueOf().toString(),
         gasPrice: transaction.getGasPrice().valueOf().toString(),
         data: transaction.getData().toString(),
-        chainId: transaction.getChainID().valueOf(),
+        chainId: transaction.getChainID().valueOf()
       });
 
       const feeLimitFormatted = formatAmount({
         input: feeLimit,
-        showLastNonZeroDecimal: true,
+        showLastNonZeroDecimal: true
       });
 
       const feeInFiatLimit = price
         ? calculateFeeInFiat({
             feeLimit,
             egldPriceInUsd: price,
-            hideEqualSign: true,
+            hideEqualSign: true
           })
         : null;
 
-      const senderAccount = !sender || sender === address ? null : await getAccountFromApi(sender);
+      const senderAccount =
+        !sender || sender === address ? null : await getAccountFromApi(sender);
 
-      const extractTransactionsInfo = async (currentTx: MultiSignTransactionType) => {
+      const extractTransactionsInfo = async (
+        currentTx: MultiSignTransactionType
+      ) => {
         if (currentTx == null) {
           return;
         }
 
         const { transaction, multiTxData, transactionIndex } = currentTx;
         const dataField = transaction.getData().toString();
-        const transactionTokenInfo = getTxInfoByDataField(transaction.getData().toString(), multiTxData);
+        const transactionTokenInfo = getTxInfoByDataField(
+          transaction.getData().toString(),
+          multiTxData
+        );
 
         const { tokenId } = transactionTokenInfo;
         const receiver = transaction.getReceiver().toString();
@@ -112,11 +130,13 @@ export async function signTransactions({ transactions = [], handleSign }: { tran
           const data = await getScamAddressData(receiver);
           verifiedAddresses = {
             ...verifiedAddresses,
-            ...(data?.scamInfo ? { [receiver]: data.scamInfo } : {}),
+            ...(data?.scamInfo ? { [receiver]: data.scamInfo } : {})
           };
         }
 
-        const isTokenTransaction = Boolean(tokenId && isTokenTransfer({ tokenId, erdLabel: egldLabel }));
+        const isTokenTransaction = Boolean(
+          tokenId && isTokenTransfer({ tokenId, erdLabel: egldLabel })
+        );
 
         return {
           transaction,
@@ -124,7 +144,7 @@ export async function signTransactions({ transactions = [], handleSign }: { tran
           transactionTokenInfo,
           isTokenTransaction,
           dataField,
-          transactionIndex,
+          transactionIndex
         };
       };
 
@@ -147,22 +167,27 @@ export async function signTransactions({ transactions = [], handleSign }: { tran
       }
 
       const tokenDetails = await getPersistedTokenDetails({
-        tokenId: tokenIdForTokenDetails,
+        tokenId: tokenIdForTokenDetails
       });
 
-      const { esdtPrice, tokenDecimals, type, identifier, tokenImageUrl } = tokenDetails;
+      const { esdtPrice, tokenDecimals, type, identifier, tokenImageUrl } =
+        tokenDetails;
 
-      const isNft = type === NftEnumType.SemiFungibleESDT || type === NftEnumType.NonFungibleESDT;
+      const isNft =
+        type === NftEnumType.SemiFungibleESDT ||
+        type === NftEnumType.NonFungibleESDT;
 
       tokenType = isNft ? (type as TokenType) : tokenType;
 
       const getFormattedAmount = ({ addCommas }: { addCommas: boolean }) =>
         formatAmount({
-          input: isEgld ? currentTransaction.transaction.getValue().toString() : tokenAmount,
+          input: isEgld
+            ? currentTransaction.transaction.getValue().toString()
+            : tokenAmount,
           decimals: isEgld ? Number(network.decimals) : tokenDecimals,
           digits: Number(network.digits),
           showLastNonZeroDecimal: false,
-          addCommas,
+          addCommas
         });
 
       const formattedAmount = getFormattedAmount({ addCommas: true });
@@ -174,16 +199,21 @@ export async function signTransactions({ transactions = [], handleSign }: { tran
       const usdValue = getUsdValue({
         amount: rawAmount,
         usd: tokenPrice,
-        addEqualSign: true,
+        addEqualSign: true
       });
 
+      // TODO: make computations inside if, not above, or in separate functions
       if (isNft) {
-        manager.updateFungibleTransaction(tokenType, { identifier, amount: tokenAmount, imageURL: tokenImageUrl });
+        manager.updateFungibleTransaction(tokenType, {
+          identifier,
+          amount: tokenAmount,
+          imageURL: tokenImageUrl
+        });
       } else {
         manager.updateTokenTransaction({
           identifier: identifier ?? egldLabel,
           amount: formattedAmount,
-          usdValue,
+          usdValue
         });
       }
 
@@ -195,7 +225,7 @@ export async function signTransactions({ transactions = [], handleSign }: { tran
         feeLimit: feeLimitFormatted,
         feeInFiatLimit,
         transactionsCount: allTransactions.length,
-        currentIndex: currentTransactionIndex,
+        currentIndex: currentTransactionIndex
       });
 
       const onCancel = () => {
@@ -205,7 +235,11 @@ export async function signTransactions({ transactions = [], handleSign }: { tran
 
       const onSign = async () => {
         const shouldContinueWithoutSigning = Boolean(
-          txInfo?.transactionTokenInfo?.type && txInfo?.transactionTokenInfo?.multiTxData && !txInfo?.dataField.endsWith(txInfo?.transactionTokenInfo?.multiTxData),
+          txInfo?.transactionTokenInfo?.type &&
+            txInfo?.transactionTokenInfo?.multiTxData &&
+            !txInfo?.dataField.endsWith(
+              txInfo?.transactionTokenInfo?.multiTxData
+            )
         );
 
         const removeEvents = () => {
@@ -220,7 +254,9 @@ export async function signTransactions({ transactions = [], handleSign }: { tran
         }
 
         try {
-          const signedTransaction = await handleSign([currentTransaction.transaction]);
+          const signedTransaction = await handleSign([
+            currentTransaction.transaction
+          ]);
 
           if (signedTransaction) {
             signedTransactions.push(signedTransaction[0]);
