@@ -1,7 +1,7 @@
 import {
-  updateSignedTransactionStatus,
-  updateTransactionsSession
-} from 'store/actions/transactions/transactionsActions';
+  updateTrackedTransactionStatus,
+  updateTrackedTransactionsSession
+} from 'store/actions/trackedTransactions/trackedTransactionsActions';
 import {
   TransactionBatchStatusesEnum,
   TransactionServerStatusesEnum
@@ -22,7 +22,7 @@ export function manageFailedTransactions({
     (scResult) => scResult?.returnMessage !== ''
   );
 
-  updateSignedTransactionStatus({
+  updateTrackedTransactionStatus({
     transactionHash: hash,
     sessionId,
     status: TransactionServerStatusesEnum.fail,
@@ -31,7 +31,7 @@ export function manageFailedTransactions({
     serverTransaction: resultWithError as unknown as ServerTransactionType
   });
 
-  updateTransactionsSession({
+  updateTrackedTransactionsSession({
     sessionId,
     status: TransactionBatchStatusesEnum.fail,
     errorMessage: resultWithError?.returnMessage

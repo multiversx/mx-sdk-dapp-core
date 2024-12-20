@@ -7,7 +7,7 @@ import {
 
 export interface SignedTransactionType extends IPlainTransactionObject {
   hash: string;
-  status: TransactionServerStatusesEnum;
+  status: TransactionServerStatusesEnum | TransactionBatchStatusesEnum;
   inTransit?: boolean;
 }
 

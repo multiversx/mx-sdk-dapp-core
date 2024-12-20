@@ -2,8 +2,11 @@ import { Transaction } from '@multiversx/sdk-core/out';
 import axios, { AxiosError } from 'axios';
 import { BATCH_TRANSACTIONS_ID_SEPARATOR } from 'constants/transactions.constants';
 import { getAccount } from 'core/methods/account/getAccount';
+import { addTransactionToast } from 'store/actions/toasts/toastsActions';
+import { createTrackedTransactionsSession } from 'store/actions/trackedTransactions/trackedTransactionsActions';
 import { networkSelector } from 'store/selectors';
 import { getState } from 'store/store';
+import { TransactionServerStatusesEnum } from 'types/enums.types';
 import { BatchTransactionsResponseType } from 'types/serverTransactions.types';
 import { SignedTransactionType } from 'types/transactions.types';
 import { isGuardianTx } from 'utils/transactions/isGuardianTx';
@@ -52,6 +55,21 @@ export class TransactionManager {
         (error as AxiosError).response?.data
       );
       throw responseData?.message ?? (error as any).message;
+    }
+  };
+
+  public track = async (
+    signedTransactions: Transaction[],
+    options: { disableToasts?: boolean } = { disableToasts: false }
+  ) => {
+    const parsedTransactions = signedTransactions.map((transaction) =>
+      this.parseSignedTransaction(transaction)
+    );
+    const sessionId = createTrackedTransactionsSession({
+      transactions: parsedTransactions
+    });
+    if (!options.disableToasts) {
+      addTransactionToast(sessionId);
     }
   };
 
@@ -132,7 +150,8 @@ export class TransactionManager {
   private parseSignedTransaction = (signedTransaction: Transaction) => {
     const parsedTransaction = {
       ...signedTransaction.toPlainObject(),
-      hash: signedTransaction.getHash().hex()
+      hash: signedTransaction.getHash().hex(),
+      status: TransactionServerStatusesEnum.pending
     };
 
     // TODO: Remove when the protocol supports usernames for guardian transactions

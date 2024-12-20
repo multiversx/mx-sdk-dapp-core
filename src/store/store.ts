@@ -6,9 +6,11 @@ import {
   networkSlice,
   accountSlice,
   loginInfoSlice,
-  transactionsSlice
+  transactionsSlice,
+  configSlice,
+  toastSlice
 } from './slices';
-import { configSlice } from './slices';
+import { trackedTransactionsSlice } from './slices/trackedTransactions';
 import {
   InMemoryStorage,
   defaultStorageCallback,
@@ -37,7 +39,9 @@ export const createDAppStore = (getStorageCallback: StorageCallback) => {
           transactions: transactionsSlice(...args),
           account: accountSlice(...args),
           loginInfo: loginInfoSlice(...args),
-          config: configSlice(...args)
+          config: configSlice(...args),
+          trackedTransactions: trackedTransactionsSlice(...args),
+          toasts: toastSlice(...args)
         })),
         {
           name: 'sdk-dapp-store',

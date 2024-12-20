@@ -1,4 +1,5 @@
 import { safeWindow } from 'constants/index';
+import { ToastManager } from 'core/managers/ToastManager/ToastManager';
 import { restoreProvider } from 'core/providers/helpers/restoreProvider';
 import { ProviderFactory } from 'core/providers/ProviderFactory';
 import { getDefaultNativeAuthConfig } from 'services/nativeAuth/methods/getDefaultNativeAuthConfig';
@@ -41,9 +42,6 @@ export async function initApp({
 }: InitAppType) {
   initStore(storage.getStorageCallback);
 
-  const shouldEnableTransactionTracker =
-    dAppConfig.enableTansactionTracker !== false;
-
   const { apiAddress } = await initializeNetwork({
     customNetworkConfig: dAppConfig.network,
     environment: dAppConfig.environment
@@ -66,9 +64,8 @@ export async function initApp({
     setCrossWindowConfig(dAppConfig.providers.crossWindow);
   }
 
-  if (shouldEnableTransactionTracker) {
-    trackTransactions();
-  }
+  trackTransactions();
+  new ToastManager(); // TODO: change to something more clear
 
   const isLoggedIn = getIsLoggedIn();
 
