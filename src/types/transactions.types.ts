@@ -3,6 +3,10 @@ import {
   TransactionBatchStatusesEnum,
   TransactionServerStatusesEnum
 } from 'types/enums.types';
+import {
+  ServerTransactionType,
+  TokenArgumentType
+} from './serverTransactions.types';
 
 export interface SignedTransactionType extends IPlainTransactionObject {
   hash: string;
@@ -47,4 +51,27 @@ export interface SmartContractResult {
   callType: string;
   miniBlockHash: string;
   returnMessage: string;
+}
+
+export enum TransactionDirectionEnum {
+  SELF = 'Self',
+  INTERNAL = 'Internal',
+  IN = 'In',
+  OUT = 'Out'
+}
+
+export interface InterpretedTransactionType extends ServerTransactionType {
+  transactionDetails: {
+    direction?: TransactionDirectionEnum;
+    method: string;
+    transactionTokens: TokenArgumentType[];
+    isContract?: boolean;
+  };
+  links: {
+    senderLink?: string;
+    receiverLink?: string;
+    senderShardLink?: string;
+    receiverShardLink?: string;
+    transactionLink?: string;
+  };
 }
