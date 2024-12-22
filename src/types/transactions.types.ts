@@ -60,18 +60,12 @@ export enum TransactionDirectionEnum {
   OUT = 'Out'
 }
 
-export interface InterpretedTransactionType extends ServerTransactionType {
-  transactionDetails: {
-    direction?: TransactionDirectionEnum;
-    method: string;
-    transactionTokens: TokenArgumentType[];
-    isContract?: boolean;
-  };
-  links: {
-    senderLink?: string;
-    receiverLink?: string;
-    senderShardLink?: string;
-    receiverShardLink?: string;
-    transactionLink?: string;
-  };
+export enum TransactionTypesEnum {
+  MultiESDTNFTTransfer = 'MultiESDTNFTTransfer',
+  ESDTTransfer = 'ESDTTransfer',
+  ESDTNFTBurn = 'ESDTNFTBurn',
+  ESDTNFTTransfer = 'ESDTNFTTransfer',
+  esdtTransaction = 'esdtTransaction',
+  nftTransaction = 'nftTransaction',
+  scCall = 'scCall'
 }
