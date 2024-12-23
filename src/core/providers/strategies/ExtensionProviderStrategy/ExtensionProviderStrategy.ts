@@ -17,13 +17,6 @@ export class ExtensionProviderStrategy {
   private provider: ExtensionProvider | null = null;
   private _signMessage: ((message: Message) => Promise<Message>) | null = null;
 
-  private _signTransactions:
-    | ((
-        transactions: Transaction[],
-        options?: IDAppProviderOptions
-      ) => Promise<Nullable<Transaction[]>>)
-    | null = null;
-
   constructor(address?: string) {
     this.address = address || '';
   }
@@ -32,13 +25,10 @@ export class ExtensionProviderStrategy {
     this.initialize();
 
     if (!this.provider) {
-      const instance = ExtensionProvider.getInstance();
-      this._signTransactions = instance.signTransactions.bind(instance);
-      this.provider = instance;
+      this.provider = ExtensionProvider.getInstance();
       await this.provider.init();
     }
 
-    this._signTransactions = this.provider.signTransactions.bind(this.provider);
     this._signMessage = this.provider.signMessage.bind(this.provider);
 
     return this.buildProvider();
