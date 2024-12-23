@@ -20,7 +20,7 @@ import {
   NFTValueDataType,
   TokenValueDataType
 } from './types';
-import { InterpretedTransactionType } from '../../../types/serverTransactions.types';
+import { InterpretedTransactionType } from 'types/serverTransactions.types';
 import { getTransactionActionNftText } from '../getTransactionActionNftText';
 import { getTransactionTokens } from '../getTransactionTokens';
 import { formatAmount } from '../../../lib/sdkDappUtils';

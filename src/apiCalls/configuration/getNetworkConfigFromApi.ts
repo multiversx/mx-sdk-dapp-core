@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { ApiNetworkConfigType } from 'types/network.types';
 import { NETWORK_CONFIG_ENDPOINT } from '../endpoints';
-import { getCleanApiAddress } from '../utils';
+import { getCleanApiAddress } from '../utils/getCleanApiAddress';
 
 const urlIsValid = (url: string) => {
   try {
