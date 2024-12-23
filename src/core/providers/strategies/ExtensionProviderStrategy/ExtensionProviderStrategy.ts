@@ -7,7 +7,6 @@ import {
 } from 'core/managers';
 import { getAccount } from 'core/methods/account/getAccount';
 import { getAddress } from 'core/methods/account/getAddress';
-import { signTransactions } from 'core/providers/helpers/signTransactions/signTransactions';
 import { IProvider } from 'core/providers/types/providerFactory.types';
 import { PendingTransactionsModal } from 'lib/sdkDappCoreUi';
 import { Nullable, ProviderErrorsEnum } from 'types';
@@ -45,18 +44,6 @@ export class ExtensionProviderStrategy {
     return this.buildProvider();
   };
 
-  private signTransactions = async (transactions: Transaction[]) => {
-    if (!this._signTransactions) {
-      throw new Error('Sign transactions method is not initialized');
-    }
-
-    const signedTransactions = await signTransactions({
-      transactions,
-      handleSign: this._signTransactions
-    });
-    return signedTransactions;
-  };
-
   private buildProvider = () => {
     const { address } = getAccount();
 
@@ -65,7 +52,6 @@ export class ExtensionProviderStrategy {
     }
 
     const provider = this.provider as unknown as IProvider;
-    provider.signTransactions = this.signTransactions;
     provider.signMessage = this.signMessage;
 
     provider.setAccount({ address: this.address || address });
