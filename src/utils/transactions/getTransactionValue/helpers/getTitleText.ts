@@ -1,3 +1,5 @@
+import { DECIMALS } from 'constants/mvx.constants';
+import { formatAmount } from 'lib/sdkDappUtils';
 import { TokenArgumentType } from 'types/serverTransactions.types';
 
 import { getIdentifierType } from 'utils/validation/getIdentifierType';
@@ -7,8 +9,6 @@ import {
   NFTValueDataType,
   TokenValueDataType
 } from '../types';
-import { formatAmount } from 'lib/sdkDappUtils';
-import { DECIMALS } from 'constants/mvx.constants';
 
 export interface GetTransactionValueReturnType {
   egldValueData?: EgldValueDataType;

@@ -1,5 +1,5 @@
-import { TRANSACTIONS_ENDPOINT } from 'apiCalls/endpoints';
 import axios from 'axios';
+import { TRANSACTIONS_ENDPOINT } from 'apiCalls/endpoints';
 import { TransactionServerStatusesEnum } from 'types/enums.types';
 import { ServerTransactionType } from 'types/serverTransactions.types';
 

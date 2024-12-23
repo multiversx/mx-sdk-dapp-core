@@ -1,5 +1,5 @@
-import { TRANSACTIONS_ENDPOINT } from 'apiCalls/endpoints';
 import axios from 'axios';
+import { TRANSACTIONS_ENDPOINT } from 'apiCalls/endpoints';
 
 import { networkSelector } from 'store/selectors';
 import { getState } from 'store/store';

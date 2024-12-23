@@ -1,4 +1,6 @@
 import { DECIMALS } from 'constants/index';
+import { formatAmount } from 'lib/sdkDappUtils';
+import { InterpretedTransactionType } from 'types/serverTransactions.types';
 import { NftEnumType } from 'types/tokens.types';
 
 import {
@@ -20,11 +22,9 @@ import {
   NFTValueDataType,
   TokenValueDataType
 } from './types';
-import { InterpretedTransactionType } from 'types/serverTransactions.types';
+import { explorerUrlBuilder } from '../explorerUrlBuilder';
 import { getTransactionActionNftText } from '../getTransactionActionNftText';
 import { getTransactionTokens } from '../getTransactionTokens';
-import { formatAmount } from '../../../lib/sdkDappUtils';
-import { explorerUrlBuilder } from '../explorerUrlBuilder';
 
 export interface GetTransactionValueReturnType {
   egldValueData?: EgldValueDataType;

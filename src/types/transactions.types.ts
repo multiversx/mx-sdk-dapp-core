@@ -4,10 +4,6 @@ import {
   TransactionServerStatusesEnum,
   TransactionTypesEnum
 } from 'types/enums.types';
-import {
-  ServerTransactionType,
-  TokenArgumentType
-} from './serverTransactions.types';
 
 export interface SignedTransactionType extends IPlainTransactionObject {
   hash: string;
@@ -100,14 +96,4 @@ export enum TransactionDirectionEnum {
   INTERNAL = 'Internal',
   IN = 'In',
   OUT = 'Out'
-}
-
-export enum TransactionTypesEnum {
-  MultiESDTNFTTransfer = 'MultiESDTNFTTransfer',
-  ESDTTransfer = 'ESDTTransfer',
-  ESDTNFTBurn = 'ESDTNFTBurn',
-  ESDTNFTTransfer = 'ESDTNFTTransfer',
-  esdtTransaction = 'esdtTransaction',
-  nftTransaction = 'nftTransaction',
-  scCall = 'scCall'
 }
