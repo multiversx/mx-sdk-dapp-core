@@ -20,10 +20,12 @@ import {
 
 export class ToastManager {
   private transactionToastsList: TransactionToastList | undefined;
-  private unsubscribe: () => void;
+  private unsubscribe: () => void = () => null;
   store = getStore();
 
-  constructor() {
+  constructor() {}
+
+  public init() {
     const { toasts, trackedTransactions } = this.store.getState();
     this.onToastListChange(toasts);
 

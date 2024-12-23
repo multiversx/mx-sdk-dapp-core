@@ -1,6 +1,9 @@
+import { NftEnumType } from 'types/tokens.types';
 import {
+  FungibleTransactionType,
   ISignTransactionsModalData,
-  SignEventsEnum
+  SignEventsEnum,
+  TokenType
 } from './types/signTransactionsModal.types';
 
 interface IEventBus {
@@ -22,7 +25,10 @@ export class SignTransactionsStateManager<T extends IEventBus = IEventBus> {
 
   // whole data to be sent on update events
   private initialData: ISignTransactionsModalData = {
-    transaction: null
+    commonData: { transactionsCount: 0, egldLabel: '', currentIndex: 0 },
+    tokenTransaction: null,
+    nftTransaction: null,
+    sftTransaction: null
   };
 
   private data: ISignTransactionsModalData = { ...this.initialData };
@@ -46,9 +52,11 @@ export class SignTransactionsStateManager<T extends IEventBus = IEventBus> {
     return SignTransactionsStateManager.instance as SignTransactionsStateManager<U>;
   }
 
-  public updateTransaction(members: Partial<ISignTransactionsModalData>): void {
-    this.data = {
-      ...this.data,
+  public updateCommonData(
+    members: Partial<ISignTransactionsModalData['commonData']>
+  ): void {
+    this.data.commonData = {
+      ...this.data.commonData,
       ...members
     };
     this.notifyDataUpdate();
@@ -66,5 +74,37 @@ export class SignTransactionsStateManager<T extends IEventBus = IEventBus> {
 
   private notifyDataUpdate(): void {
     this.eventBus.publish(SignEventsEnum.DATA_UPDATE, this.data);
+  }
+
+  public updateTokenTransaction(
+    tokenData: ISignTransactionsModalData['tokenTransaction']
+  ): void {
+    this.data.tokenTransaction = tokenData;
+    this.data.sftTransaction = null;
+    this.data.nftTransaction = null;
+
+    this.notifyDataUpdate();
+  }
+
+  public updateFungibleTransaction(
+    type: TokenType,
+    fungibleData: FungibleTransactionType
+  ): void {
+    switch (type) {
+      case NftEnumType.NonFungibleESDT:
+        this.data.nftTransaction = fungibleData;
+        this.data.tokenTransaction = null;
+        this.data.sftTransaction = null;
+        break;
+      case NftEnumType.SemiFungibleESDT:
+        this.data.sftTransaction = fungibleData;
+        this.data.nftTransaction = null;
+        this.data.tokenTransaction = null;
+        break;
+      default:
+        break;
+    }
+
+    this.notifyDataUpdate();
   }
 }
