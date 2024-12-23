@@ -14,6 +14,16 @@ export enum TransactionServerStatusesEnum {
   rewardReverted = 'reward-reverted'
 }
 
+export enum TransactionTypesEnum {
+  MultiESDTNFTTransfer = 'MultiESDTNFTTransfer',
+  ESDTTransfer = 'ESDTTransfer',
+  ESDTNFTBurn = 'ESDTNFTBurn',
+  ESDTNFTTransfer = 'ESDTNFTTransfer',
+  esdtTransaction = 'esdtTransaction',
+  nftTransaction = 'nftTransaction',
+  scCall = 'scCall'
+}
+
 export enum TransactionBatchStatusesEnum {
   signed = 'signed',
   cancelled = 'cancelled',

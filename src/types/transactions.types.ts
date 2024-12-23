@@ -1,7 +1,8 @@
-import { IPlainTransactionObject } from '@multiversx/sdk-core/out';
+import { IPlainTransactionObject, Transaction } from '@multiversx/sdk-core/out';
 import {
   TransactionBatchStatusesEnum,
-  TransactionServerStatusesEnum
+  TransactionServerStatusesEnum,
+  TransactionTypesEnum
 } from 'types/enums.types';
 import {
   ServerTransactionType,
@@ -13,6 +14,47 @@ export interface SignedTransactionType extends IPlainTransactionObject {
   status: TransactionServerStatusesEnum | TransactionBatchStatusesEnum;
   inTransit?: boolean;
 }
+
+export interface MultiSignTransactionType {
+  multiTxData?: string;
+  transactionIndex: number;
+  transaction: Transaction;
+}
+
+interface MultiEsdtType {
+  type:
+    | TransactionTypesEnum.esdtTransaction
+    | TransactionTypesEnum.nftTransaction;
+  receiver: string;
+  token?: string;
+  nonce?: string;
+  amount?: string;
+  data: string;
+}
+
+interface MultiEsdtScCallType {
+  type: TransactionTypesEnum.scCall;
+  receiver: string;
+  token?: string;
+  nonce?: string;
+  amount?: string;
+  data: string;
+}
+
+export type MultiEsdtTransactionType = MultiEsdtType | MultiEsdtScCallType;
+
+export interface TransactionDataTokenType {
+  tokenId: string;
+  amount: string;
+  receiver: string;
+  type?: MultiEsdtTransactionType['type'] | '';
+  nonce?: string;
+  multiTxData?: string;
+}
+
+export type TransactionsDataTokensType =
+  | Record<string, TransactionDataTokenType>
+  | undefined;
 
 export type PendingTransactionsType = {
   hash: string;

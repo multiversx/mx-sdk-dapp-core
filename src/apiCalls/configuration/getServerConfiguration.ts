@@ -7,7 +7,26 @@ export async function getServerConfiguration(apiAddress: string) {
 
   try {
     const { data } = await axios.get<NetworkType>(configUrl);
-    return data;
+    if (data != null) {
+      // TODO: egldDenomination will be removed from API when dapp-core v1 will be discontinued
+      const egldDenomination = 'egldDenomination';
+      if (egldDenomination in data) {
+        const {
+          [egldDenomination]: decimals,
+          decimals: digits,
+          ...rest
+        } = data as NetworkType & {
+          [egldDenomination]: string;
+        };
+        const networkConfig: NetworkType = {
+          ...rest,
+          decimals,
+          digits
+        };
+        return networkConfig;
+      }
+      return data;
+    }
   } catch (_err) {
     console.error('error fetching configuration for ', configUrl);
   }

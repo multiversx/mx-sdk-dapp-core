@@ -6,9 +6,10 @@ import { addTransactionToast } from 'store/actions/toasts/toastsActions';
 import { createTrackedTransactionsSession } from 'store/actions/trackedTransactions/trackedTransactionsActions';
 import { networkSelector } from 'store/selectors';
 import { getState } from 'store/store';
-import { GuardianActionsEnum, TransactionServerStatusesEnum } from 'types';
+import { TransactionServerStatusesEnum } from 'types/enums.types';
 import { BatchTransactionsResponseType } from 'types/serverTransactions.types';
 import { SignedTransactionType } from 'types/transactions.types';
+import { isGuardianTx } from 'utils/transactions/isGuardianTx';
 
 export class TransactionManager {
   private static instance: TransactionManager | null = null;
@@ -154,15 +155,11 @@ export class TransactionManager {
     };
 
     // TODO: Remove when the protocol supports usernames for guardian transactions
-    if (this.isGuardianTx(parsedTransaction.data)) {
+    if (isGuardianTx({ data: parsedTransaction.data })) {
       delete parsedTransaction.senderUsername;
       delete parsedTransaction.receiverUsername;
     }
 
     return parsedTransaction;
   };
-
-  private isGuardianTx = (transactionData?: string) =>
-    transactionData &&
-    transactionData.startsWith(GuardianActionsEnum.SetGuardian);
 }
