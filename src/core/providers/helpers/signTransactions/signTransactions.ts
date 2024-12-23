@@ -1,9 +1,6 @@
 import { Transaction } from '@multiversx/sdk-core/out';
-import { getAccountFromApi } from 'apiCalls/account';
 import { getEconomics } from 'apiCalls/economics/getEconomics';
 import { getPersistedTokenDetails } from 'apiCalls/tokens/getPersistedTokenDetails';
-import { getScamAddressData } from 'apiCalls/utils/getScamAddressData';
-import { SENDER_DIFFERENT_THAN_LOGGED_IN_ADDRESS } from 'constants/errorMessages.constants';
 import { GAS_PER_DATA_BYTE, GAS_PRICE_MODIFIER } from 'constants/mvx.constants';
 import { SignTransactionsStateManager } from 'core/managers/SignTransactionsStateManager/SignTransactionsStateManager';
 import {
@@ -18,19 +15,12 @@ import { formatAmount } from 'lib/sdkDappUtils';
 import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
 import { EsdtEnumType, NftEnumType } from 'types/tokens.types';
-import { MultiSignTransactionType } from 'types/transactions.types';
 import { createModalElement } from 'utils/createModalElement';
 import { calculateFeeInFiat } from './helpers/calculateFeeInFiat';
 import { calculateFeeLimit } from './helpers/calculateFeeLimit';
-import { checkIsValidSender } from './helpers/checkIsValidSender';
+import { getExtractTransactionsInfo } from './helpers/getExtractTransactionsInfo';
 import { getMultiEsdtTransferData } from './helpers/getMultiEsdtTransferData/getMultiEsdtTransferData';
 import { getUsdValue } from './helpers/getUsdValue';
-import { isTokenTransfer } from './helpers/isTokenTransfer';
-
-interface VerifiedAddressesType {
-  [address: string]: { type: string; info: string };
-}
-let verifiedAddresses: VerifiedAddressesType = {};
 
 export async function signTransactions({
   transactions = [],
@@ -94,59 +84,12 @@ export async function signTransactions({
           })
         : null;
 
-      const senderAccount =
-        !sender || sender === address ? null : await getAccountFromApi(sender);
-
-      const extractTransactionsInfo = async (
-        currentTx: MultiSignTransactionType
-      ) => {
-        if (currentTx == null) {
-          return;
-        }
-
-        const { transaction, multiTxData, transactionIndex } = currentTx;
-        const dataField = transaction.getData().toString();
-        const transactionTokenInfo = getTxInfoByDataField(
-          transaction.getData().toString(),
-          multiTxData
-        );
-
-        const { tokenId } = transactionTokenInfo;
-        const receiver = transaction.getReceiver().toString();
-
-        if (sender && sender !== address) {
-          const isValidSender = checkIsValidSender(senderAccount, address);
-
-          if (!isValidSender) {
-            console.error(SENDER_DIFFERENT_THAN_LOGGED_IN_ADDRESS);
-            return reject(SENDER_DIFFERENT_THAN_LOGGED_IN_ADDRESS);
-          }
-        }
-
-        const notSender = address !== receiver;
-        const verified = receiver in verifiedAddresses;
-
-        if (receiver && notSender && !verified) {
-          const data = await getScamAddressData(receiver);
-          verifiedAddresses = {
-            ...verifiedAddresses,
-            ...(data?.scamInfo ? { [receiver]: data.scamInfo } : {})
-          };
-        }
-
-        const isTokenTransaction = Boolean(
-          tokenId && isTokenTransfer({ tokenId, erdLabel: egldLabel })
-        );
-
-        return {
-          transaction,
-          receiverScamInfo: verifiedAddresses[receiver]?.info || null,
-          transactionTokenInfo,
-          isTokenTransaction,
-          dataField,
-          transactionIndex
-        };
-      };
+      const extractTransactionsInfo = getExtractTransactionsInfo({
+        getTxInfoByDataField,
+        egldLabel,
+        sender,
+        address
+      });
 
       const plainTransaction = currentTransaction.transaction.toPlainObject();
 
@@ -154,7 +97,7 @@ export async function signTransactions({
 
       let tokenIdForTokenDetails = txInfo?.transactionTokenInfo?.tokenId;
       const isEgld = !tokenIdForTokenDetails;
-      let tokenAmount = '0';
+      let tokenAmount = '';
 
       let tokenType: TokenType = null;
 
@@ -177,39 +120,32 @@ export async function signTransactions({
         type === NftEnumType.SemiFungibleESDT ||
         type === NftEnumType.NonFungibleESDT;
 
-      tokenType = isNft ? (type as TokenType) : tokenType;
-
-      const getFormattedAmount = ({ addCommas }: { addCommas: boolean }) =>
-        formatAmount({
-          input: isEgld
-            ? currentTransaction.transaction.getValue().toString()
-            : tokenAmount,
-          decimals: isEgld ? Number(network.decimals) : tokenDecimals,
-          digits: Number(network.digits),
-          showLastNonZeroDecimal: false,
-          addCommas
-        });
-
-      const formattedAmount = getFormattedAmount({ addCommas: true });
-
-      const rawAmount = getFormattedAmount({ addCommas: false });
-
-      const tokenPrice = Number(isEgld ? price : esdtPrice);
-
-      const usdValue = getUsdValue({
-        amount: rawAmount,
-        usd: tokenPrice,
-        addEqualSign: true
-      });
-
-      // TODO: make computations inside if, not above, or in separate functions
       if (isNft) {
-        manager.updateFungibleTransaction(tokenType, {
+        manager.updateFungibleTransaction(type, {
           identifier,
           amount: tokenAmount,
           imageURL: tokenImageUrl
         });
       } else {
+        const getFormattedAmount = ({ addCommas }: { addCommas: boolean }) =>
+          formatAmount({
+            input: isEgld
+              ? currentTransaction.transaction.getValue().toString()
+              : tokenAmount,
+            decimals: isEgld ? Number(network.decimals) : tokenDecimals,
+            digits: Number(network.digits),
+            showLastNonZeroDecimal: false,
+            addCommas
+          });
+
+        const formattedAmount = getFormattedAmount({ addCommas: true });
+        const rawAmount = getFormattedAmount({ addCommas: false });
+        const tokenPrice = Number(isEgld ? price : esdtPrice);
+        const usdValue = getUsdValue({
+          amount: rawAmount,
+          usd: tokenPrice,
+          addEqualSign: true
+        });
         manager.updateTokenTransaction({
           identifier: identifier ?? egldLabel,
           amount: formattedAmount,

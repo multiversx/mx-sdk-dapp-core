@@ -4,6 +4,7 @@ import { MultiEsdtTransactionType } from 'types/transactions.types';
 import { decodePart } from 'utils/decoders/decodePart';
 import { getAllStringOccurrences } from './getAllStringOccurrences';
 
+// TODO: add tests
 export function parseMultiEsdtTransferData(data?: string) {
   const transactions: MultiEsdtTransactionType[] = [];
   let contractCallDataIndex = 0;

@@ -14,6 +14,10 @@ const defaultTransactionInfo: TransactionDataTokenType = {
   receiver: ''
 };
 
+export type MultiEsdtTransferDataReturnType = ReturnType<
+  typeof getMultiEsdtTransferData
+>;
+
 export function getMultiEsdtTransferData(transactions?: Transaction[]): {
   parsedTransactionsByDataField: TransactionsDataTokensType;
   getTxInfoByDataField: (

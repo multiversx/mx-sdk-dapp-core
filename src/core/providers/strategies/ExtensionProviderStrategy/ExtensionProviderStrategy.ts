@@ -1,4 +1,4 @@
-import { Transaction,Message } from '@multiversx/sdk-core/out';
+import { Transaction, Message } from '@multiversx/sdk-core/out';
 import { IDAppProviderOptions } from '@multiversx/sdk-dapp-utils/out';
 import { ExtensionProvider } from '@multiversx/sdk-extension-provider/out/extensionProvider';
 import {
@@ -9,9 +9,8 @@ import { getAccount } from 'core/methods/account/getAccount';
 import { getAddress } from 'core/methods/account/getAddress';
 import { signTransactions } from 'core/providers/helpers/signTransactions/signTransactions';
 import { IProvider } from 'core/providers/types/providerFactory.types';
-import { Nullable, ProviderErrorsEnum } from 'types';
-
 import { PendingTransactionsModal } from 'lib/sdkDappCoreUi';
+import { Nullable, ProviderErrorsEnum } from 'types';
 import { createModalElement } from 'utils/createModalElement';
 
 export class ExtensionProviderStrategy {
