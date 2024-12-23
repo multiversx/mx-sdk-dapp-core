@@ -22,8 +22,9 @@ import {
 } from './types';
 import { InterpretedTransactionType } from '../../../types/serverTransactions.types';
 import { getTransactionActionNftText } from '../getTransactionActionNftText';
-import { getTransactionActionTokenText } from '../getTransactionActionTokenText';
 import { getTransactionTokens } from '../getTransactionTokens';
+import { formatAmount } from '../../../lib/sdkDappUtils';
+import { explorerUrlBuilder } from '../explorerUrlBuilder';
 
 export interface GetTransactionValueReturnType {
   egldValueData?: EgldValueDataType;
@@ -91,24 +92,27 @@ export const getTransactionValue = ({
         };
       }
 
-      const {
-        tokenExplorerLink,
-        showFormattedAmount,
-        tokenFormattedAmount,
-        tokenLinkText,
-        token
-      } = getTransactionActionTokenText({
-        token: txToken
-      });
+      const tokenFormattedAmount = txToken.value
+        ? formatAmount({
+            input: txToken.value,
+            decimals: txToken.decimals ?? DECIMALS,
+            digits: 2,
+            addCommas: true
+          })
+        : null;
+
+      const tokenExplorerLink = explorerUrlBuilder.tokenDetails(
+        String(txToken.token)
+      );
 
       return {
         tokenValueData: {
           tokenExplorerLink,
-          showFormattedAmount,
+          showFormattedAmount: false,
           tokenFormattedAmount,
-          tokenLinkText,
+          tokenLinkText: txToken.ticker,
           transactionTokens,
-          token,
+          token: txToken,
           value: txToken.value,
           decimals: txToken.decimals ?? DECIMALS,
           titleText

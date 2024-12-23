@@ -2,12 +2,13 @@ import { TokenArgumentType } from 'types/serverTransactions.types';
 
 import { getIdentifierType } from 'utils/validation/getIdentifierType';
 import { getTransactionActionNftText } from '../../getTransactionActionNftText';
-import { getTransactionActionTokenText } from '../../getTransactionActionTokenText';
 import {
   EgldValueDataType,
   NFTValueDataType,
   TokenValueDataType
 } from '../types';
+import { formatAmount } from 'lib/sdkDappUtils';
+import { DECIMALS } from 'constants/mvx.constants';
 
 export interface GetTransactionValueReturnType {
   egldValueData?: EgldValueDataType;
@@ -31,14 +32,21 @@ export const getTitleText = (
       const value = `${badge}${tokenFormattedAmount} ${tokenLinkText}`;
       return value;
     }
-    const { tokenFormattedAmount, tokenLinkText, token } =
-      getTransactionActionTokenText({
-        token: transactionToken as TokenArgumentType
-      });
 
-    const identifier = token.collection ? token.identifier : token.token;
+    const tokenFormattedAmount = transactionToken.value
+      ? formatAmount({
+          input: transactionToken.value,
+          decimals: transactionToken.decimals ?? DECIMALS,
+          digits: 2,
+          addCommas: true
+        })
+      : null;
 
-    const value = `${tokenFormattedAmount} ${tokenLinkText} (${identifier})`;
+    const identifier = transactionToken.collection
+      ? transactionToken.identifier
+      : transactionToken.token;
+
+    const value = `${tokenFormattedAmount} ${transactionToken.ticker} (${identifier})`;
     return value;
   });
 
