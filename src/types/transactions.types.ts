@@ -90,3 +90,10 @@ export interface SmartContractResult {
   miniBlockHash: string;
   returnMessage: string;
 }
+
+export enum TransactionDirectionEnum {
+  SELF = 'Self',
+  INTERNAL = 'Internal',
+  IN = 'In',
+  OUT = 'Out'
+}

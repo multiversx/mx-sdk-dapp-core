@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [[0.0.0-alpha.10](https://github.com/multiversx/mx-sdk-dapp-core/pull/56)] - 2024-12-23
+
+- [Added transactions interpretation helpers](https://github.com/multiversx/mx-sdk-dapp-core/pull/55)
 - [Added transaction toasts](https://github.com/multiversx/mx-sdk-dapp-core/pull/53)
 - [Added transactions helpers](https://github.com/multiversx/mx-sdk-dapp-core/pull/52)
 - [Added transactions tracking](https://github.com/multiversx/mx-sdk-dapp-core/pull/51)

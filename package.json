@@ -1,6 +1,6 @@
 {
   "name": "@multiversx/sdk-dapp-core",
-  "version": "0.0.0-alpha.11",
+  "version": "0.0.0-alpha.10",
   "main": "out/index.js",
   "module": "out/index.js",
   "types": "out/index.d.ts",
@@ -33,6 +33,8 @@
   },
   "dependencies": {
     "@lifeomic/axios-fetch": "3.0.1",
+    "@multiversx/sdk-core": ">= 13.5.0",
+    "@multiversx/sdk-dapp-utils": ">= 1.0.2",
     "@multiversx/sdk-extension-provider": "4.0.0",
     "@multiversx/sdk-hw-provider": "7.0.0",
     "@multiversx/sdk-metamask-provider": "1.0.0",
@@ -40,6 +42,7 @@
     "@multiversx/sdk-opera-provider": "1.0.0-alpha.1",
     "@multiversx/sdk-wallet": "4.5.1",
     "@multiversx/sdk-wallet-connect-provider": "5.0.1",
+    "@multiversx/sdk-web-wallet-cross-window-provider": ">= 2.0.4",
     "@multiversx/sdk-web-wallet-iframe-provider": "2.0.1",
     "@multiversx/sdk-web-wallet-provider": "3.2.1",
     "isomorphic-fetch": "3.0.0",
@@ -64,9 +67,6 @@
   },
   "devDependencies": {
     "@eslint/js": "9.15.0",
-    "@multiversx/sdk-core": ">= 13.5.0",
-    "@multiversx/sdk-dapp-utils": ">= 1.0.2",
-    "@multiversx/sdk-web-wallet-cross-window-provider": ">= 2.0.4",
     "@swc/core": "^1.4.17",
     "@swc/jest": "^0.2.36",
     "@types/jest": "29.5.13",

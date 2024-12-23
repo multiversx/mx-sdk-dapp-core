@@ -1,7 +1,8 @@
 import type { IDAppProviderBase } from '@multiversx/sdk-dapp-utils';
 
 // @ts-ignore
-export interface IProvider<T extends ProviderTypeEnum = ProviderTypeEnum> extends IDAppProviderBase {
+export interface IProvider<T extends ProviderTypeEnum = ProviderTypeEnum>
+  extends IDAppProviderBase {
   init: () => Promise<boolean>;
   login: (options?: { callbackUrl?: string; token?: string }) => Promise<{
     address: string;
@@ -39,14 +40,18 @@ export enum ProviderTypeEnum {
   opera = 'opera',
   metamask = 'metamask',
   passkey = 'passkey',
-  none = '',
+  none = ''
 }
 
-export interface IProviderFactory<T extends ProviderTypeEnum = ProviderTypeEnum> {
+export interface IProviderFactory<
+  T extends ProviderTypeEnum = ProviderTypeEnum
+> {
   type: T[keyof T];
 }
 
-export interface ICustomProvider<T extends ProviderTypeEnum = ProviderTypeEnum> {
+export interface ICustomProvider<
+  T extends ProviderTypeEnum = ProviderTypeEnum
+> {
   name: string;
   type: T[keyof T];
   icon: string;
