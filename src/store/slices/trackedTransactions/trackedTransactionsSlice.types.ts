@@ -9,6 +9,5 @@ export interface TrackedTransactionsSliceType {
     transactions: SignedTransactionType[];
     status?: TransactionBatchStatusesEnum | TransactionServerStatusesEnum;
     errorMessage?: string;
-    enableToasts?: boolean;
   };
 }
