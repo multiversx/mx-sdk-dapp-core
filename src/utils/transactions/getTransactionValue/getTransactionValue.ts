@@ -21,9 +21,9 @@ import {
   TokenValueDataType
 } from './types';
 import { InterpretedTransactionType } from '../../../types/serverTransactions.types';
-import { getTransactionTokens } from '../getTransactionTokens';
-import { getTransactionActionTokenText } from '../getTransactionActionTokenText';
 import { getTransactionActionNftText } from '../getTransactionActionNftText';
+import { getTransactionActionTokenText } from '../getTransactionActionTokenText';
+import { getTransactionTokens } from '../getTransactionTokens';
 
 export interface GetTransactionValueReturnType {
   egldValueData?: EgldValueDataType;

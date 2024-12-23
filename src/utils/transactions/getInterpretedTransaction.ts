@@ -3,15 +3,15 @@ import {
   ServerTransactionType
 } from 'types/serverTransactions.types';
 import { TokenArgumentType } from 'types/serverTransactions.types';
+import { explorerUrlBuilder } from './explorerUrlBuilder';
+import { getExplorerLink } from './getExplorerLink';
+import { getTokenFromData } from './getTokenFromData';
+import { getTransactionMethod } from './getTransactionMethod';
 import { getTransactionReceiver } from './getTransactionReceiver';
 import { getTransactionReceiverAssets } from './getTransactionReceiverAssets';
-import { getTransactionTransferType } from './getTransactionTransferType';
-import { getTransactionMethod } from './getTransactionMethod';
 import { getTransactionTokens } from './getTransactionTokens';
-import { getExplorerLink } from './getExplorerLink';
+import { getTransactionTransferType } from './getTransactionTransferType';
 import { isContract } from '../validation';
-import { explorerUrlBuilder } from './explorerUrlBuilder';
-import { getTokenFromData } from './getTokenFromData';
 
 export interface GetInterpretedTransactionType {
   address: string;

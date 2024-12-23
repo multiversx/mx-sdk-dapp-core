@@ -1,8 +1,8 @@
-import { axiosInstance } from 'apiCalls/utils/axiosInstance';
+import axios from 'axios';
 
 export async function getWebsocketUrl(apiAddress: string) {
   try {
-    const { data } = await axiosInstance.get<{ url: string }>(
+    const { data } = await axios.get<{ url: string }>(
       `${apiAddress}/websocket/config`
     );
     return `wss://${data.url}`;

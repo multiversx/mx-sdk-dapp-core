@@ -1,5 +1,5 @@
-import { axiosInstance } from 'apiCalls/utils/axiosInstance';
 import { TRANSACTIONS_ENDPOINT } from 'apiCalls/endpoints';
+import axios from 'axios';
 
 import { networkSelector } from 'store/selectors';
 import { getState } from 'store/store';
@@ -14,7 +14,7 @@ export const getTransactionsByHashes = async (
   const { apiAddress } = networkSelector(getState());
   const hashes = pendingTransactions.map((tx) => tx.hash);
 
-  const { data: responseData } = await axiosInstance.get(
+  const { data: responseData } = await axios.get(
     `${apiAddress}/${TRANSACTIONS_ENDPOINT}`,
     {
       params: {

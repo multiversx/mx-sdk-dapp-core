@@ -1,9 +1,9 @@
 import BigNumber from 'bignumber.js';
 import { DECIMALS, DIGITS, REFUNDED_GAS } from 'constants/index';
 
+import { formatAmount } from 'lib/sdkDappUtils';
 import { getReceiptMessage } from '../getReceiptMessage';
 import { baseTransactionMock } from './base-transaction-mock';
-import { formatAmount } from 'lib/sdkDappUtils';
 
 describe('getReceiptMessage', () => {
   it('returns empty string if no data exists on the transaction receipt field', () => {

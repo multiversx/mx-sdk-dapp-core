@@ -1,4 +1,4 @@
-import { axiosInstance } from 'apiCalls/utils/axiosInstance';
+import axios from 'axios';
 import { ApiNetworkConfigType } from 'types/network.types';
 import { NETWORK_CONFIG_ENDPOINT } from '../endpoints';
 import { getCleanApiAddress } from '../utils';
@@ -21,7 +21,7 @@ export async function getNetworkConfigFromApi() {
   const configUrl = `${apiAddress}/${NETWORK_CONFIG_ENDPOINT}`;
 
   try {
-    const { data } = await axiosInstance.get<{
+    const { data } = await axios.get<{
       data: { config: ApiNetworkConfigType };
     }>(configUrl);
     if (data != null) {

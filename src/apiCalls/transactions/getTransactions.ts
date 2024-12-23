@@ -1,5 +1,5 @@
-import { axiosInstance } from 'apiCalls/utils/axiosInstance';
 import { TRANSACTIONS_ENDPOINT } from 'apiCalls/endpoints';
+import axios from 'axios';
 import { TransactionServerStatusesEnum } from 'types/enums.types';
 import { ServerTransactionType } from 'types/serverTransactions.types';
 
@@ -53,7 +53,7 @@ export const getTransactions = ({
 
   const timeout = apiTimeout ? { timeout: parseInt(String(apiTimeout)) } : {};
 
-  return axiosInstance.get<ServerTransactionType[]>(
+  return axios.get<ServerTransactionType[]>(
     `${apiAddress}/${TRANSACTIONS_ENDPOINT}`,
     {
       params,

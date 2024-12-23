@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js';
 import { DECIMALS, DIGITS, REFUNDED_GAS } from 'constants/index';
-import { ServerTransactionType } from 'types/serverTransactions.types';
 import { formatAmount } from 'lib/sdkDappUtils';
+import { ServerTransactionType } from 'types/serverTransactions.types';
 
 const getReceiptValue = (transaction: ServerTransactionType) => {
   if (!transaction.receipt?.value) {
