@@ -26,7 +26,7 @@ export const getTransactionsByHashes = async (
 
   return pendingTransactions.map(({ hash, previousStatus }) => {
     const txOnNetwork = responseData.find(
-      (txResponse: any) => txResponse?.txHash === hash
+      (txResponse: any) => txResponse?.txHash === hash //TODO: add NetworkTransactionType
     );
 
     return {
