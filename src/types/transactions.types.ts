@@ -4,6 +4,7 @@ import {
   TransactionServerStatusesEnum,
   TransactionTypesEnum
 } from 'types/enums.types';
+import { ResultType } from './serverTransactions.types';
 
 export interface SignedTransactionType extends IPlainTransactionObject {
   hash: string;
@@ -62,7 +63,7 @@ export type GetTransactionsByHashesReturnType = {
   invalidTransaction: boolean;
   status: TransactionServerStatusesEnum | TransactionBatchStatusesEnum;
   inTransit?: boolean;
-  results: SmartContractResult[];
+  results: ResultType[];
   sender: string;
   receiver: string;
   data: string;
@@ -73,23 +74,6 @@ export type GetTransactionsByHashesReturnType = {
 export type GetTransactionsByHashesType = (
   pendingTransactions: PendingTransactionsType
 ) => Promise<GetTransactionsByHashesReturnType>;
-
-export interface SmartContractResult {
-  hash: string;
-  timestamp: number;
-  nonce: number;
-  gasLimit: number;
-  gasPrice: number;
-  value: string;
-  sender: string;
-  receiver: string;
-  data: string;
-  prevTxHash: string;
-  originalTxHash: string;
-  callType: string;
-  miniBlockHash: string;
-  returnMessage: string;
-}
 
 export enum TransactionDirectionEnum {
   SELF = 'Self',
