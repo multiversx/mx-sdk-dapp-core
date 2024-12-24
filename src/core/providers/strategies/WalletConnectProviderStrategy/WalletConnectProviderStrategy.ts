@@ -13,10 +13,7 @@ import {
 import { WalletConnectStateManager } from 'core/managers/WalletConnectStateManager/WalletConnectStateManager';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import { getAccountProvider } from 'core/providers/helpers/accountProvider';
-import {
-  IEventBus,
-  IProvider
-} from 'core/providers/types/providerFactory.types';
+import { IProvider } from 'core/providers/types/providerFactory.types';
 import {
   defineCustomElements,
   PendingTransactionsModal,
@@ -30,6 +27,7 @@ import {
 } from 'store/selectors';
 import { getState } from 'store/store';
 import { ProviderErrorsEnum } from 'types';
+import { IEventBus } from 'types/manager.types';
 import { createModalElement } from 'utils/createModalElement';
 import {
   WalletConnectOptionalMethodsEnum,
@@ -38,7 +36,8 @@ import {
 import {
   WalletConnectEventsEnum,
   WalletConnectV2Error,
-  WalletConnectConfig
+  WalletConnectConfig,
+  IWalletConnectModalData
 } from './types';
 
 const dappMethods: string[] = [
@@ -50,7 +49,9 @@ export class WalletConnectProviderStrategy {
   private provider: WalletConnectV2Provider | null = null;
   private config: WalletConnectConfig | undefined;
   private methods: string[] = [];
-  private manager: WalletConnectStateManager<IEventBus> | null = null;
+  private manager: WalletConnectStateManager<
+    IEventBus<IWalletConnectModalData>
+  > | null = null;
   private approval: (() => Promise<SessionTypes.Struct>) | null = null;
   private unsubscribeEvents: (() => void) | null = null;
   private _login:
