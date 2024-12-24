@@ -20,11 +20,6 @@ export interface IProvider<T extends ProviderTypeEnum = ProviderTypeEnum>
   // getExtraInfoData(): { multisig?: string; impersonate?: string } | undefined;
 }
 
-export interface IEventBus {
-  subscribe(event: string, callback: Function): void;
-  publish(event: string, data?: any): void;
-  unsubscribe(event: string, callback: Function): void;
-}
 export interface IProviderConfig {
   account?: {
     address: string;

@@ -6,15 +6,17 @@ import {
   ILedgerConnectModalData,
   LedgerConnectEventsEnum
 } from 'core/providers/strategies/LedgerProviderStrategy/types';
-
-export interface IEventBus {
-  publish(event: string, data: any): void;
-}
+import { IEventBus } from 'types/manager.types';
 
 const notInitializedError = () => new Error('Event bus not initialized');
 
-export class LedgerConnectStateManager<T extends IEventBus = IEventBus> {
-  private static instance: LedgerConnectStateManager<IEventBus> | null = null;
+export class LedgerConnectStateManager<
+  T extends
+    IEventBus<ILedgerConnectModalData> = IEventBus<ILedgerConnectModalData>
+> {
+  private static instance: LedgerConnectStateManager<
+    IEventBus<ILedgerConnectModalData>
+  > | null = null;
   public readonly addressesPerPage = 10;
 
   private eventBus: T = {
@@ -64,7 +66,7 @@ export class LedgerConnectStateManager<T extends IEventBus = IEventBus> {
     this.resetData();
   }
 
-  public static getInstance<U extends IEventBus>(
+  public static getInstance<U extends IEventBus<ILedgerConnectModalData>>(
     eventBus?: U
   ): LedgerConnectStateManager<U> | null {
     if (!eventBus) {

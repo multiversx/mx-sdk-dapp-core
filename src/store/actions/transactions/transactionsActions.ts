@@ -11,14 +11,14 @@ import {
   getIsTransactionSuccessful
 } from './transactionStateByStatus';
 
-export interface UpdateSignedTransactionStatusPayloadType {
+export type UpdateSignedTransactionStatusPayloadType = {
   sessionId: string;
   transactionHash: string;
   status: TransactionServerStatusesEnum | TransactionBatchStatusesEnum;
   serverTransaction?: ServerTransactionType;
   errorMessage?: string;
   inTransit?: boolean;
-}
+};
 
 export const createTransactionsSession = ({
   transactions

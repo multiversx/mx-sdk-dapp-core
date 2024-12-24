@@ -24,13 +24,17 @@ export const addCustomToast = (
       (toast) => toast.toastId === toastId
     );
 
-    if (existingToastIndex !== -1) {
-      state.customToasts[existingToastIndex] = {
+    const isToastFound = existingToastIndex !== -1;
+
+    if (isToastFound) {
+      const updatedToast: CustomToastType = {
         ...state.customToasts[existingToastIndex],
         ...customToasts,
         type: ToastsEnum.custom,
         toastId
-      } as CustomToastType;
+      };
+
+      state.customToasts[existingToastIndex] = updatedToast;
       return;
     }
 

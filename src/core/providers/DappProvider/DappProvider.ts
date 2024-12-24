@@ -9,9 +9,9 @@ import {
   VerifyMessageReturnType
 } from './helpers/signMessage/verifyMessage';
 import {
-  signTransactions,
+  signTransactionsWithProvider,
   SignTransactionsOptionsType
-} from './helpers/signTransactions/signTransactions';
+} from './helpers/signTransactions/signTransactionsWithProvider';
 
 export class DappProvider {
   private provider: IProvider;
@@ -53,7 +53,7 @@ export class DappProvider {
     transactions: Transaction[],
     options?: SignTransactionsOptionsType
   ): Promise<Transaction[]> {
-    const signedTransactions = await signTransactions({
+    const signedTransactions = await signTransactionsWithProvider({
       provider: this.provider,
       transactions,
       options

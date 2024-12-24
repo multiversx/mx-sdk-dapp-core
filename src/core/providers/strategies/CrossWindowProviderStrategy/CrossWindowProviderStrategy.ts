@@ -12,7 +12,7 @@ import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
 import { crossWindowConfigSelector } from 'store/selectors';
 import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
-import { ProviderErrorsEnum } from 'types';
+import { ProviderErrorsEnum } from 'types/provider.types';
 import { createModalElement } from 'utils/createModalElement';
 
 type CrossWindowProviderProps = {

@@ -14,6 +14,9 @@ type BaseDappConfigType = {
    * If set to `NativeAuthConfigType`, will set the native auth configuration.
    */
   nativeAuth?: boolean | NativeAuthConfigType;
+  /**
+   * Customize exising providers
+   */
   providers?: {
     crossWindow?: CrossWindowConfig;
     walletConnect?: WalletConnectConfig;

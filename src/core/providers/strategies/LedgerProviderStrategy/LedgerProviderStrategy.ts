@@ -7,14 +7,14 @@ import { LedgerConnectStateManager } from 'core/managers';
 import { getAddress } from 'core/methods/account/getAddress';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import {
-  IEventBus,
   IProvider,
   ProviderTypeEnum
 } from 'core/providers/types/providerFactory.types';
 import { defineCustomElements, LedgerConnectModal } from 'lib/sdkDappCoreUi';
 import { setLedgerAccount } from 'store/actions';
 import { setLedgerLogin } from 'store/actions/loginInfo/loginInfoActions';
-import { ProviderErrorsEnum } from 'types';
+import { IEventBus } from 'types/manager.types';
+import { ProviderErrorsEnum } from 'types/provider.types';
 import { fetchAccount } from 'utils/account/fetchAccount';
 import { createModalElement } from 'utils/createModalElement';
 import {
@@ -22,7 +22,11 @@ import {
   getLedgerErrorCodes,
   getAuthTokenText
 } from './helpers';
-import { ILedgerAccount, LedgerConnectEventsEnum } from './types';
+import {
+  ILedgerAccount,
+  ILedgerConnectModalData,
+  LedgerConnectEventsEnum
+} from './types';
 import { signTransactions } from '../helpers/signTransactions/signTransactions';
 
 const failInitializeErrorText = 'Check if the MultiversX App is open on Ledger';
@@ -30,12 +34,14 @@ const failInitializeErrorText = 'Check if the MultiversX App is open on Ledger';
 export class LedgerProviderStrategy {
   private address: string = '';
   private provider: HWProvider | null = null;
-  private manager: LedgerConnectStateManager<IEventBus> | null = null;
+  private manager: LedgerConnectStateManager<
+    IEventBus<ILedgerConnectModalData>
+  > | null = null;
   private config: {
     version: string;
     dataEnabled: boolean;
   } | null = null;
-  private eventBus: IEventBus | null = null;
+  private eventBus: IEventBus<ILedgerConnectModalData> | null = null;
   private _login:
     | ((options?: { addressIndex: number }) => Promise<IProviderAccount>)
     | null = null;

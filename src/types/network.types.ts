@@ -47,7 +47,7 @@ export interface CustomNetworkType {
   apiTimeout?: string;
   walletConnectV2ProjectId?: string;
   walletConnectV2Options?: any;
-  metamaskSnapWalletAddress?: string;
+  iframeWalletAddress?: string;
   websocketUrl?: string;
 }
 

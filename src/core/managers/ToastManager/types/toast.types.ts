@@ -1,7 +1,7 @@
 import {
   TransactionBatchStatusesEnum,
   TransactionServerStatusesEnum
-} from 'types';
+} from 'types/enums.types';
 
 export enum TransactionsDefaultTitles {
   success = 'Transaction successful',

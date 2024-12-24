@@ -65,9 +65,7 @@ export class TransactionManager {
     const parsedTransactions = signedTransactions.map((transaction) =>
       this.parseSignedTransaction(transaction)
     );
-    const sessionId = createTrackedTransactionsSession({
-      transactions: parsedTransactions
-    });
+    const sessionId = createTrackedTransactionsSession(parsedTransactions);
     if (!options.disableToasts) {
       addTransactionToast(sessionId);
     }

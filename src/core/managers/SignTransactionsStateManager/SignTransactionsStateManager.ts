@@ -1,3 +1,4 @@
+import { IEventBus } from 'types/manager.types';
 import { NftEnumType } from 'types/tokens.types';
 import {
   FungibleTransactionType,
@@ -6,15 +7,15 @@ import {
   TokenType
 } from './types/signTransactionsModal.types';
 
-interface IEventBus {
-  publish(event: string, data: any): void;
-}
-
 const notInitializedError = () => new Error('Event bus not initialized');
 
-export class SignTransactionsStateManager<T extends IEventBus = IEventBus> {
-  private static instance: SignTransactionsStateManager<IEventBus> | null =
-    null;
+export class SignTransactionsStateManager<
+  T extends
+    IEventBus<ISignTransactionsModalData> = IEventBus<ISignTransactionsModalData>
+> {
+  private static instance: SignTransactionsStateManager<
+    IEventBus<ISignTransactionsModalData>
+  > | null = null;
   public readonly addressesPerPage = 10;
 
   private eventBus: T = {
@@ -38,7 +39,7 @@ export class SignTransactionsStateManager<T extends IEventBus = IEventBus> {
     this.resetData();
   }
 
-  public static getInstance<U extends IEventBus>(
+  public static getInstance<U extends IEventBus<ISignTransactionsModalData>>(
     eventBus?: U
   ): SignTransactionsStateManager<U> | null {
     if (!eventBus) {
