@@ -20,7 +20,7 @@ type SignTransactionsType = {
   options?: SignTransactionsOptionsType;
 };
 
-export async function signTransactions({
+export async function signTransactionsWithProvider({
   provider,
   transactions,
   options = {}
