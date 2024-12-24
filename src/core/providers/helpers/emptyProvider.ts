@@ -9,8 +9,6 @@ import {
 } from 'core/providers/types/providerFactory.types';
 import { EngineTypes } from 'utils/walletconnect/__sdkWalletconnectProvider';
 
-export const DAPP_INIT_ROUTE = '/dapp/init';
-
 const notInitializedError = (caller: string) => {
   return `Unable to perform ${caller}, Provider not initialized`;
 };
