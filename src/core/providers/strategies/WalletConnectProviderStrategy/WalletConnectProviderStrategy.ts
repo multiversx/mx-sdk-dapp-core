@@ -26,8 +26,8 @@ import {
   walletConnectConfigSelector
 } from 'store/selectors';
 import { getState } from 'store/store';
-import { ProviderErrorsEnum } from 'types';
 import { IEventBus } from 'types/manager.types';
+import { ProviderErrorsEnum } from 'types/provider.types';
 import { createModalElement } from 'utils/createModalElement';
 import {
   WalletConnectOptionalMethodsEnum,

@@ -20,11 +20,9 @@ export interface UpdateTrackedTransactionStatusPayloadType {
   inTransit?: boolean;
 }
 
-export const createTrackedTransactionsSession = ({
-  transactions
-}: {
-  transactions: SignedTransactionType[];
-}) => {
+export const createTrackedTransactionsSession = (
+  transactions: SignedTransactionType[]
+) => {
   const sessionId = Date.now().toString();
   getStore().setState(({ trackedTransactions: state }) => {
     state[sessionId] = {

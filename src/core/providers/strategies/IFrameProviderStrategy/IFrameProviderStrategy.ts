@@ -11,7 +11,7 @@ import { IProvider } from 'core/providers/types/providerFactory.types';
 import { PendingTransactionsModal } from 'lib/sdkDappCoreUi';
 import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
-import { ProviderErrorsEnum } from 'types';
+import { ProviderErrorsEnum } from 'types/provider.types';
 import { createModalElement } from 'utils/createModalElement';
 import { IFrameProviderType } from './types';
 

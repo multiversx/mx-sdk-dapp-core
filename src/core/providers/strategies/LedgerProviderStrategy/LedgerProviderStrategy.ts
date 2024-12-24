@@ -13,8 +13,8 @@ import {
 import { defineCustomElements, LedgerConnectModal } from 'lib/sdkDappCoreUi';
 import { setLedgerAccount } from 'store/actions';
 import { setLedgerLogin } from 'store/actions/loginInfo/loginInfoActions';
-import { ProviderErrorsEnum } from 'types';
 import { IEventBus } from 'types/manager.types';
+import { ProviderErrorsEnum } from 'types/provider.types';
 import { fetchAccount } from 'utils/account/fetchAccount';
 import { createModalElement } from 'utils/createModalElement';
 import {
