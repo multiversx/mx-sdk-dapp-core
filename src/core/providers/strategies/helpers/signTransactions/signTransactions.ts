@@ -3,7 +3,10 @@ import { getEconomics } from 'apiCalls/economics/getEconomics';
 import { getPersistedTokenDetails } from 'apiCalls/tokens/getPersistedTokenDetails';
 import { GAS_PER_DATA_BYTE, GAS_PRICE_MODIFIER } from 'constants/mvx.constants';
 import { SignTransactionsStateManager } from 'core/managers/SignTransactionsStateManager/SignTransactionsStateManager';
-import { TokenType, SignEventsEnum } from 'core/managers/SignTransactionsStateManager/types';
+import {
+  TokenType,
+  SignEventsEnum
+} from 'core/managers/SignTransactionsStateManager/types';
 import { getAddress } from 'core/methods/account/getAddress';
 import { getEgldLabel } from 'core/methods/network/getEgldLabel';
 import { IProvider } from 'core/providers/types/providerFactory.types';
@@ -19,14 +22,23 @@ import { getExtractTransactionsInfo } from './helpers/getExtractTransactionsInfo
 import { getMultiEsdtTransferData } from './helpers/getMultiEsdtTransferData/getMultiEsdtTransferData';
 import { getUsdValue } from './helpers/getUsdValue';
 
-export async function signTransactions({ transactions = [], handleSign }: { transactions?: Transaction[]; handleSign: IProvider['signTransactions'] }) {
+export async function signTransactions({
+  transactions = [],
+  handleSign
+}: {
+  transactions?: Transaction[];
+  handleSign: IProvider['signTransactions'];
+}) {
   const address = getAddress();
   const network = networkSelector(getState());
 
   const egldLabel = getEgldLabel();
-  const signModalElement = await createModalElement<SignTransactionsModal>('sign-transactions-modal');
+  const signModalElement = await createModalElement<SignTransactionsModal>(
+    'sign-transactions-modal'
+  );
 
-  const { allTransactions, getTxInfoByDataField } = getMultiEsdtTransferData(transactions);
+  const { allTransactions, getTxInfoByDataField } =
+    getMultiEsdtTransferData(transactions);
 
   const eventBus = await signModalElement.getEventBus();
 
@@ -56,19 +68,19 @@ export async function signTransactions({ transactions = [], handleSign }: { tran
         gasLimit: transaction.getGasLimit().valueOf().toString(),
         gasPrice: transaction.getGasPrice().valueOf().toString(),
         data: transaction.getData().toString(),
-        chainId: transaction.getChainID().valueOf(),
+        chainId: transaction.getChainID().valueOf()
       });
 
       const feeLimitFormatted = formatAmount({
         input: feeLimit,
-        showLastNonZeroDecimal: true,
+        showLastNonZeroDecimal: true
       });
 
       const feeInFiatLimit = price
         ? calculateFeeInFiat({
             feeLimit,
             egldPriceInUsd: price,
-            hideEqualSign: true,
+            hideEqualSign: true
           })
         : null;
 
@@ -76,7 +88,7 @@ export async function signTransactions({ transactions = [], handleSign }: { tran
         getTxInfoByDataField,
         egldLabel,
         sender,
-        address,
+        address
       });
 
       const plainTransaction = currentTransaction.transaction.toPlainObject();
@@ -98,27 +110,32 @@ export async function signTransactions({ transactions = [], handleSign }: { tran
       }
 
       const tokenDetails = await getPersistedTokenDetails({
-        tokenId: tokenIdForTokenDetails,
+        tokenId: tokenIdForTokenDetails
       });
 
-      const { esdtPrice, tokenDecimals, type, identifier, tokenImageUrl } = tokenDetails;
+      const { esdtPrice, tokenDecimals, type, identifier, tokenImageUrl } =
+        tokenDetails;
 
-      const isNft = type === NftEnumType.SemiFungibleESDT || type === NftEnumType.NonFungibleESDT;
+      const isNft =
+        type === NftEnumType.SemiFungibleESDT ||
+        type === NftEnumType.NonFungibleESDT;
 
       if (isNft) {
         manager.updateFungibleTransaction(type, {
           identifier,
           amount: tokenAmount,
-          imageURL: tokenImageUrl,
+          imageURL: tokenImageUrl
         });
       } else {
         const getFormattedAmount = ({ addCommas }: { addCommas: boolean }) =>
           formatAmount({
-            input: isEgld ? currentTransaction.transaction.getValue().toString() : tokenAmount,
+            input: isEgld
+              ? currentTransaction.transaction.getValue().toString()
+              : tokenAmount,
             decimals: isEgld ? Number(network.decimals) : tokenDecimals,
             digits: Number(network.digits),
             showLastNonZeroDecimal: false,
-            addCommas,
+            addCommas
           });
 
         const formattedAmount = getFormattedAmount({ addCommas: true });
@@ -127,12 +144,12 @@ export async function signTransactions({ transactions = [], handleSign }: { tran
         const usdValue = getUsdValue({
           amount: rawAmount,
           usd: tokenPrice,
-          addEqualSign: true,
+          addEqualSign: true
         });
         manager.updateTokenTransaction({
           identifier: identifier ?? egldLabel,
           amount: formattedAmount,
-          usdValue,
+          usdValue
         });
       }
 
@@ -144,7 +161,7 @@ export async function signTransactions({ transactions = [], handleSign }: { tran
         feeLimit: feeLimitFormatted,
         feeInFiatLimit,
         transactionsCount: allTransactions.length,
-        currentIndex: currentTransactionIndex,
+        currentIndex: currentTransactionIndex
       });
 
       const onCancel = () => {
@@ -154,7 +171,11 @@ export async function signTransactions({ transactions = [], handleSign }: { tran
 
       const onSign = async () => {
         const shouldContinueWithoutSigning = Boolean(
-          txInfo?.transactionTokenInfo?.type && txInfo?.transactionTokenInfo?.multiTxData && !txInfo?.dataField.endsWith(txInfo?.transactionTokenInfo?.multiTxData),
+          txInfo?.transactionTokenInfo?.type &&
+            txInfo?.transactionTokenInfo?.multiTxData &&
+            !txInfo?.dataField.endsWith(
+              txInfo?.transactionTokenInfo?.multiTxData
+            )
         );
 
         const removeEvents = () => {
@@ -169,7 +190,9 @@ export async function signTransactions({ transactions = [], handleSign }: { tran
         }
 
         try {
-          const signedTransaction = await handleSign([currentTransaction.transaction]);
+          const signedTransaction = await handleSign([
+            currentTransaction.transaction
+          ]);
 
           if (signedTransaction) {
             signedTransactions.push(signedTransaction[0]);

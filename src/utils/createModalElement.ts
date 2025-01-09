@@ -6,9 +6,9 @@ import { defineCustomElements } from 'lib/sdkDappCoreUi';
 export const createModalElement = async <
   T extends HTMLElement & {
     getEventBus: () => Promise<IEventBus | undefined>;
-  },
+  }
 >(
-  name: string,
+  name: string
 ) => {
   await defineCustomElements(safeWindow);
 
