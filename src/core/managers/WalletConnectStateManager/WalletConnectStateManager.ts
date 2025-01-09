@@ -8,9 +8,6 @@ export class WalletConnectStateManager<
   T extends
     IEventBus<IWalletConnectModalData> = IEventBus<IWalletConnectModalData>
 > {
-  private static instance: WalletConnectStateManager<
-    IEventBus<IWalletConnectModalData>
-  > | null = null;
   private eventBus: T;
 
   private initialData: IWalletConnectModalData = {
@@ -20,19 +17,8 @@ export class WalletConnectStateManager<
 
   private data: IWalletConnectModalData = { ...this.initialData };
 
-  private constructor(eventBus: T) {
+  constructor(eventBus: T) {
     this.eventBus = eventBus;
-  }
-
-  public static getInstance<U extends IEventBus<IWalletConnectModalData>>(
-    eventBus: U
-  ): WalletConnectStateManager<U> {
-    if (!WalletConnectStateManager.instance) {
-      WalletConnectStateManager.instance = new WalletConnectStateManager(
-        eventBus
-      );
-    }
-    return WalletConnectStateManager.instance as WalletConnectStateManager<U>;
   }
 
   public closeAndReset(): void {

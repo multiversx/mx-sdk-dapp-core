@@ -8,9 +8,6 @@ export class PendingTransactionsStateManager<
   T extends
     IEventBus<IPendingTransactionsModalData> = IEventBus<IPendingTransactionsModalData>
 > {
-  private static instance: PendingTransactionsStateManager<
-    IEventBus<IPendingTransactionsModalData>
-  > | null = null;
   private eventBus: T;
 
   private initialData: IPendingTransactionsModalData = {
@@ -22,18 +19,8 @@ export class PendingTransactionsStateManager<
 
   private data: IPendingTransactionsModalData = { ...this.initialData };
 
-  private constructor(eventBus: T) {
+  constructor(eventBus: T) {
     this.eventBus = eventBus;
-  }
-
-  public static getInstance<U extends IEventBus<IPendingTransactionsModalData>>(
-    eventBus: U
-  ): PendingTransactionsStateManager<U> {
-    if (!PendingTransactionsStateManager.instance) {
-      PendingTransactionsStateManager.instance =
-        new PendingTransactionsStateManager(eventBus);
-    }
-    return PendingTransactionsStateManager.instance as PendingTransactionsStateManager<U>;
   }
 
   public closeAndReset(): void {

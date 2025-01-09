@@ -150,7 +150,7 @@ export class IFrameProviderStrategy {
       throw new Error(ProviderErrorsEnum.eventBusError);
     }
 
-    const manager = PendingTransactionsStateManager.getInstance(eventBus);
+    const manager = new PendingTransactionsStateManager(eventBus);
 
     const onClose = (cancelAction = true) => {
       if (!this.provider) {

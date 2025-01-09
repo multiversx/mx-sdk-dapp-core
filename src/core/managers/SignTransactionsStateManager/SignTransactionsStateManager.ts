@@ -13,9 +13,6 @@ export class SignTransactionsStateManager<
   T extends
     IEventBus<ISignTransactionsModalData> = IEventBus<ISignTransactionsModalData>
 > {
-  private static instance: SignTransactionsStateManager<
-    IEventBus<ISignTransactionsModalData>
-  > | null = null;
   public readonly addressesPerPage = 10;
 
   private eventBus: T = {
@@ -34,23 +31,9 @@ export class SignTransactionsStateManager<
 
   private data: ISignTransactionsModalData = { ...this.initialData };
 
-  private constructor(eventBus: T) {
+  constructor(eventBus: T) {
     this.eventBus = eventBus;
     this.resetData();
-  }
-
-  public static getInstance<U extends IEventBus<ISignTransactionsModalData>>(
-    eventBus?: U
-  ): SignTransactionsStateManager<U> | null {
-    if (!eventBus) {
-      return null;
-    }
-    if (!SignTransactionsStateManager.instance) {
-      SignTransactionsStateManager.instance = new SignTransactionsStateManager(
-        eventBus
-      );
-    }
-    return SignTransactionsStateManager.instance as SignTransactionsStateManager<U>;
   }
 
   public updateCommonData(

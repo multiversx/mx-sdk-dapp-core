@@ -14,9 +14,6 @@ export class LedgerConnectStateManager<
   T extends
     IEventBus<ILedgerConnectModalData> = IEventBus<ILedgerConnectModalData>
 > {
-  private static instance: LedgerConnectStateManager<
-    IEventBus<ILedgerConnectModalData>
-  > | null = null;
   public readonly addressesPerPage = 10;
 
   private eventBus: T = {
@@ -61,23 +58,9 @@ export class LedgerConnectStateManager<
 
   private data: ILedgerConnectModalData = { ...this.initialData };
 
-  private constructor(eventBus: T) {
+  constructor(eventBus: T) {
     this.eventBus = eventBus;
     this.resetData();
-  }
-
-  public static getInstance<U extends IEventBus<ILedgerConnectModalData>>(
-    eventBus?: U
-  ): LedgerConnectStateManager<U> | null {
-    if (!eventBus) {
-      return null;
-    }
-    if (!LedgerConnectStateManager.instance) {
-      LedgerConnectStateManager.instance = new LedgerConnectStateManager(
-        eventBus
-      );
-    }
-    return LedgerConnectStateManager.instance as LedgerConnectStateManager<U>;
   }
 
   public updateAllAccounts(accounts: ILedgerAccount[]): void {

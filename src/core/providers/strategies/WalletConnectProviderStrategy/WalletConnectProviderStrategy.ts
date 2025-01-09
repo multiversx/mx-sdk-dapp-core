@@ -76,7 +76,7 @@ export class WalletConnectProviderStrategy {
     const eventBus = await this.createEventBus();
 
     if (eventBus) {
-      const manager = WalletConnectStateManager.getInstance(eventBus);
+      const manager = new WalletConnectStateManager(eventBus);
       this.manager = manager;
     }
 
@@ -401,7 +401,7 @@ export class WalletConnectProviderStrategy {
       throw new Error(ProviderErrorsEnum.eventBusError);
     }
 
-    const manager = PendingTransactionsStateManager.getInstance(eventBus);
+    const manager = new PendingTransactionsStateManager(eventBus);
 
     const onClose = async (cancelAction = true) => {
       if (!this.provider) {

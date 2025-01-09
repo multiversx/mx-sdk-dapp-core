@@ -62,7 +62,11 @@ export class LedgerProviderStrategy {
 
     const eventBus = await this.createEventBus();
 
-    const manager = LedgerConnectStateManager.getInstance(eventBus);
+    if (!eventBus) {
+      throw new Error(ProviderErrorsEnum.eventBusError);
+    }
+
+    const manager = new LedgerConnectStateManager(eventBus);
     this.manager = manager;
 
     if (!this.provider) {

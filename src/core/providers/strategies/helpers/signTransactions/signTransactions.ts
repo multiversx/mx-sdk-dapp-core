@@ -46,7 +46,7 @@ export async function signTransactions({
     throw new Error('Event bus not provided for Ledger provider');
   }
 
-  const manager = SignTransactionsStateManager.getInstance(eventBus);
+  const manager = new SignTransactionsStateManager(eventBus);
   if (!manager) {
     throw new Error('Unable to establish connection with sign screens');
   }

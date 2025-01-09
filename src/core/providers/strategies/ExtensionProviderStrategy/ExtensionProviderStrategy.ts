@@ -1,20 +1,24 @@
-import { Transaction, Message } from '@multiversx/sdk-core/out';
-import { IDAppProviderOptions } from '@multiversx/sdk-dapp-utils/out';
+import { Message, Transaction } from '@multiversx/sdk-core/out';
 import { ExtensionProvider } from '@multiversx/sdk-extension-provider/out/extensionProvider';
 import {
   PendingTransactionsStateManager,
   PendingTransactionsEventsEnum
 } from 'core/managers';
-import { getAccount } from 'core/methods/account/getAccount';
 import { getAddress } from 'core/methods/account/getAddress';
-import { IProvider } from 'core/providers/types/providerFactory.types';
+import {
+  IProvider,
+  ProviderTypeEnum
+} from 'core/providers/types/providerFactory.types';
 import { PendingTransactionsModal } from 'lib/sdkDappCoreUi';
-import { Nullable, ProviderErrorsEnum } from 'types';
+import { ProviderErrorsEnum } from 'types';
 import { createModalElement } from 'utils/createModalElement';
 
 export class ExtensionProviderStrategy {
   private address: string = '';
   private provider: ExtensionProvider | null = null;
+  private _signTransactions:
+    | ((transactions: Transaction[]) => Promise<Transaction[]>)
+    | null = null;
   private _signMessage: ((message: Message) => Promise<Message>) | null = null;
 
   constructor(address?: string) {
@@ -29,22 +33,22 @@ export class ExtensionProviderStrategy {
       await this.provider.init();
     }
 
+    this._signTransactions = this.provider.signTransactions.bind(this.provider);
     this._signMessage = this.provider.signMessage.bind(this.provider);
 
     return this.buildProvider();
   };
 
   private buildProvider = () => {
-    const { address } = getAccount();
-
     if (!this.provider) {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
     const provider = this.provider as unknown as IProvider;
+    provider.signTransactions = this.signTransactions;
     provider.signMessage = this.signMessage;
+    provider.setAccount({ address: this.address });
 
-    provider.setAccount({ address: this.address || address });
     return provider;
   };
 
@@ -60,6 +64,35 @@ export class ExtensionProviderStrategy {
     }
 
     this.address = address;
+  };
+
+  private signTransactions = async (transactions: Transaction[]) => {
+    if (!this.provider || !this._signTransactions) {
+      throw new Error(ProviderErrorsEnum.notInitialized);
+    }
+
+    const modalElement = await createModalElement<PendingTransactionsModal>(
+      'pending-transactions-modal'
+    );
+    const { eventBus, manager, onClose } =
+      await this.getModalHandlers(modalElement);
+
+    eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
+
+    manager.updateData({
+      isPending: true,
+      title: 'Confirm on MultiversX DeFi Wallet',
+      subtitle: 'Check your MultiversX Wallet Extension to sign the transaction'
+    });
+    try {
+      const signedTransactions: Transaction[] =
+        (await this._signTransactions(transactions)) ?? [];
+
+      return signedTransactions;
+    } finally {
+      onClose();
+      eventBus.unsubscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
+    }
   };
 
   private signMessage = async (message: Message) => {
@@ -102,7 +135,7 @@ export class ExtensionProviderStrategy {
       throw new Error(ProviderErrorsEnum.eventBusError);
     }
 
-    const manager = PendingTransactionsStateManager.getInstance(eventBus);
+    const manager = new PendingTransactionsStateManager(eventBus);
 
     const onClose = (cancelAction = true) => {
       if (!this.provider) {
