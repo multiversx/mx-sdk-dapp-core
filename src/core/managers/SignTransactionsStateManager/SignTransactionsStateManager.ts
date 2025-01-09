@@ -1,27 +1,16 @@
 import { IEventBus } from 'types/manager.types';
 import { NftEnumType } from 'types/tokens.types';
-import {
-  FungibleTransactionType,
-  ISignTransactionsModalData,
-  SignEventsEnum,
-  TokenType
-} from './types/signTransactionsModal.types';
+import { FungibleTransactionType, ISignTransactionsModalData, SignEventsEnum, TokenType } from './types/signTransactionsModal.types';
 
 const notInitializedError = () => new Error('Event bus not initialized');
 
-export class SignTransactionsStateManager<
-  T extends
-    IEventBus<ISignTransactionsModalData> = IEventBus<ISignTransactionsModalData>
-> {
-  private static instance: SignTransactionsStateManager<
-    IEventBus<ISignTransactionsModalData>
-  > | null = null;
+export class SignTransactionsStateManager<T extends IEventBus<ISignTransactionsModalData> = IEventBus<ISignTransactionsModalData>> {
   public readonly addressesPerPage = 10;
 
   private eventBus: T = {
     publish: notInitializedError,
     subscribe: notInitializedError,
-    unsubscribe: notInitializedError
+    unsubscribe: notInitializedError,
   } as unknown as T;
 
   // whole data to be sent on update events
@@ -29,36 +18,20 @@ export class SignTransactionsStateManager<
     commonData: { transactionsCount: 0, egldLabel: '', currentIndex: 0 },
     tokenTransaction: null,
     nftTransaction: null,
-    sftTransaction: null
+    sftTransaction: null,
   };
 
   private data: ISignTransactionsModalData = { ...this.initialData };
 
-  private constructor(eventBus: T) {
+  constructor(eventBus: T) {
     this.eventBus = eventBus;
     this.resetData();
   }
 
-  public static getInstance<U extends IEventBus<ISignTransactionsModalData>>(
-    eventBus?: U
-  ): SignTransactionsStateManager<U> | null {
-    if (!eventBus) {
-      return null;
-    }
-    if (!SignTransactionsStateManager.instance) {
-      SignTransactionsStateManager.instance = new SignTransactionsStateManager(
-        eventBus
-      );
-    }
-    return SignTransactionsStateManager.instance as SignTransactionsStateManager<U>;
-  }
-
-  public updateCommonData(
-    members: Partial<ISignTransactionsModalData['commonData']>
-  ): void {
+  public updateCommonData(members: Partial<ISignTransactionsModalData['commonData']>): void {
     this.data.commonData = {
       ...this.data.commonData,
-      ...members
+      ...members,
     };
     this.notifyDataUpdate();
   }
@@ -77,9 +50,7 @@ export class SignTransactionsStateManager<
     this.eventBus.publish(SignEventsEnum.DATA_UPDATE, this.data);
   }
 
-  public updateTokenTransaction(
-    tokenData: ISignTransactionsModalData['tokenTransaction']
-  ): void {
+  public updateTokenTransaction(tokenData: ISignTransactionsModalData['tokenTransaction']): void {
     this.data.tokenTransaction = tokenData;
     this.data.sftTransaction = null;
     this.data.nftTransaction = null;
@@ -87,10 +58,7 @@ export class SignTransactionsStateManager<
     this.notifyDataUpdate();
   }
 
-  public updateFungibleTransaction(
-    type: TokenType,
-    fungibleData: FungibleTransactionType
-  ): void {
+  public updateFungibleTransaction(type: TokenType, fungibleData: FungibleTransactionType): void {
     switch (type) {
       case NftEnumType.NonFungibleESDT:
         this.data.nftTransaction = fungibleData;

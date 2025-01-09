@@ -1,10 +1,7 @@
 import { Message, Transaction } from '@multiversx/sdk-core/out';
 import { IframeProvider } from '@multiversx/sdk-web-wallet-iframe-provider/out';
 import { IframeLoginTypes } from '@multiversx/sdk-web-wallet-iframe-provider/out/constants';
-import {
-  PendingTransactionsStateManager,
-  PendingTransactionsEventsEnum
-} from 'core/managers';
+import { PendingTransactionsStateManager, PendingTransactionsEventsEnum } from 'core/managers';
 import { getAccount } from 'core/methods/account/getAccount';
 import { getAddress } from 'core/methods/account/getAddress';
 import { IProvider } from 'core/providers/types/providerFactory.types';
@@ -19,9 +16,7 @@ export class IFrameProviderStrategy {
   private provider: IframeProvider | null = null;
   private address?: string;
   private type: IframeLoginTypes | null = null;
-  private _signTransactions:
-    | ((transactions: Transaction[]) => Promise<Transaction[]>)
-    | null = null;
+  private _signTransactions: ((transactions: Transaction[]) => Promise<Transaction[]>) | null = null;
   private _signMessage: ((message: Message) => Promise<Message>) | null = null;
 
   constructor({ type, address }: IFrameProviderType) {
@@ -84,22 +79,18 @@ export class IFrameProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    const modalElement = await createModalElement<PendingTransactionsModal>(
-      'pending-transactions-modal'
-    );
-    const { eventBus, manager, onClose } =
-      await this.getModalHandlers(modalElement);
+    const modalElement = await createModalElement<PendingTransactionsModal>('pending-transactions-modal');
+    const { eventBus, manager, onClose } = await this.getModalHandlers(modalElement);
 
     eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
 
     manager.updateData({
       isPending: true,
       title: `Confirm on MultiversX ${this.type}`,
-      subtitle: `Check your MultiversX ${this.type} to sign the transaction`
+      subtitle: `Check your MultiversX ${this.type} to sign the transaction`,
     });
     try {
-      const signedTransactions: Transaction[] =
-        await this._signTransactions(transactions);
+      const signedTransactions: Transaction[] = await this._signTransactions(transactions);
 
       return signedTransactions;
     } catch (error) {
@@ -116,18 +107,15 @@ export class IFrameProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    const modalElement = await createModalElement<PendingTransactionsModal>(
-      'pending-transactions-modal'
-    );
-    const { eventBus, manager, onClose } =
-      await this.getModalHandlers(modalElement);
+    const modalElement = await createModalElement<PendingTransactionsModal>('pending-transactions-modal');
+    const { eventBus, manager, onClose } = await this.getModalHandlers(modalElement);
 
     eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
 
     manager.updateData({
       isPending: true,
       title: 'Message Signing',
-      subtitle: `Check your MultiversX ${this.type} to sign the message`
+      subtitle: `Check your MultiversX ${this.type} to sign the message`,
     });
 
     try {
@@ -150,7 +138,7 @@ export class IFrameProviderStrategy {
       throw new Error(ProviderErrorsEnum.eventBusError);
     }
 
-    const manager = PendingTransactionsStateManager.getInstance(eventBus);
+    const manager = new PendingTransactionsStateManager(eventBus);
 
     const onClose = (cancelAction = true) => {
       if (!this.provider) {

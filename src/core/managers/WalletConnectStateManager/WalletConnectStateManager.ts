@@ -1,38 +1,18 @@
-import {
-  IWalletConnectModalData,
-  WalletConnectEventsEnum
-} from 'core/providers/strategies/WalletConnectProviderStrategy/types';
+import { IWalletConnectModalData, WalletConnectEventsEnum } from 'core/providers/strategies/WalletConnectProviderStrategy/types';
 import { IEventBus } from 'types/manager.types';
 
-export class WalletConnectStateManager<
-  T extends
-    IEventBus<IWalletConnectModalData> = IEventBus<IWalletConnectModalData>
-> {
-  private static instance: WalletConnectStateManager<
-    IEventBus<IWalletConnectModalData>
-  > | null = null;
+export class WalletConnectStateManager<T extends IEventBus<IWalletConnectModalData> = IEventBus<IWalletConnectModalData>> {
   private eventBus: T;
 
   private initialData: IWalletConnectModalData = {
     wcURI: '',
-    shouldClose: false
+    shouldClose: false,
   };
 
   private data: IWalletConnectModalData = { ...this.initialData };
 
-  private constructor(eventBus: T) {
+  constructor(eventBus: T) {
     this.eventBus = eventBus;
-  }
-
-  public static getInstance<U extends IEventBus<IWalletConnectModalData>>(
-    eventBus: U
-  ): WalletConnectStateManager<U> {
-    if (!WalletConnectStateManager.instance) {
-      WalletConnectStateManager.instance = new WalletConnectStateManager(
-        eventBus
-      );
-    }
-    return WalletConnectStateManager.instance as WalletConnectStateManager<U>;
   }
 
   public closeAndReset(): void {

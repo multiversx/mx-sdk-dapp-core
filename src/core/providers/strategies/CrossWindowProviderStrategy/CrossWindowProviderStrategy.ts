@@ -1,9 +1,6 @@
 import { Message, Transaction } from '@multiversx/sdk-core/out';
 import { isBrowserWithPopupConfirmation } from 'constants/browser.constants';
-import {
-  PendingTransactionsStateManager,
-  PendingTransactionsEventsEnum
-} from 'core/managers';
+import { PendingTransactionsStateManager, PendingTransactionsEventsEnum } from 'core/managers';
 import { getAccount } from 'core/methods/account/getAccount';
 import { getAddress } from 'core/methods/account/getAddress';
 import { IProvider } from 'core/providers/types/providerFactory.types';
@@ -24,11 +21,8 @@ export class CrossWindowProviderStrategy {
   private provider: CrossWindowProvider | null = null;
   private address: string;
   private walletAddress?: string;
-  private _signTransactions:
-    | ((transactions: Transaction[]) => Promise<Transaction[]>)
-    | null = null;
-  private _signMessage: ((messageToSign: Message) => Promise<Message>) | null =
-    null;
+  private _signTransactions: ((transactions: Transaction[]) => Promise<Transaction[]>) | null = null;
+  private _signMessage: ((messageToSign: Message) => Promise<Message>) | null = null;
 
   constructor(config?: CrossWindowProviderProps) {
     this.address = config?.address || '';
@@ -89,25 +83,21 @@ export class CrossWindowProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    const modalElement = await createModalElement<PendingTransactionsModal>(
-      'pending-transactions-modal'
-    );
-    const { eventBus, onClose, manager } =
-      await this.getModalHandlers(modalElement);
+    const modalElement = await createModalElement<PendingTransactionsModal>('pending-transactions-modal');
+    const { eventBus, onClose, manager } = await this.getModalHandlers(modalElement);
 
     eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
 
     manager.updateData({
       isPending: true,
       title: 'Confirm on MultiversX Web Wallet',
-      subtitle: 'Check your MultiversX Web Wallet to sign the transaction'
+      subtitle: 'Check your MultiversX Web Wallet to sign the transaction',
     });
 
     this.setPopupConsent();
 
     try {
-      const signedTransactions: Transaction[] =
-        (await this._signTransactions(transactions)) ?? [];
+      const signedTransactions: Transaction[] = (await this._signTransactions(transactions)) ?? [];
 
       // Guarded Transactions or Signed Transactions
       return this.getTransactions(signedTransactions);
@@ -125,18 +115,15 @@ export class CrossWindowProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    const modalElement = await createModalElement<PendingTransactionsModal>(
-      'pending-transactions-modal'
-    );
-    const { eventBus, onClose, manager } =
-      await this.getModalHandlers(modalElement);
+    const modalElement = await createModalElement<PendingTransactionsModal>('pending-transactions-modal');
+    const { eventBus, onClose, manager } = await this.getModalHandlers(modalElement);
 
     eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
 
     manager.updateData({
       isPending: true,
       title: 'Message Signing',
-      subtitle: 'Check your MultiversX Web Wallet to sign the message'
+      subtitle: 'Check your MultiversX Web Wallet to sign the message',
     });
 
     this.setPopupConsent();
@@ -161,10 +148,7 @@ export class CrossWindowProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    if (
-      crossWindowDappConfig?.isBrowserWithPopupConfirmation ||
-      isBrowserWithPopupConfirmation
-    ) {
+    if (crossWindowDappConfig?.isBrowserWithPopupConfirmation || isBrowserWithPopupConfirmation) {
       this.provider.setShouldShowConsentPopup(true);
     }
   };
@@ -178,14 +162,13 @@ export class CrossWindowProviderStrategy {
 
     const allSignedByGuardian = this.getAreAllTransactionsSignedByGuardian({
       isGuarded,
-      transactions
+      transactions,
     });
 
     const needs2FAsigning = isGuarded && !allSignedByGuardian;
 
     if (needs2FAsigning) {
-      const guardedTransactions =
-        await this.provider.guardTransactions(transactions);
+      const guardedTransactions = await this.provider.guardTransactions(transactions);
 
       return guardedTransactions;
     }
@@ -193,13 +176,7 @@ export class CrossWindowProviderStrategy {
     return transactions;
   };
 
-  private getAreAllTransactionsSignedByGuardian = ({
-    transactions,
-    isGuarded
-  }: {
-    transactions: Transaction[];
-    isGuarded?: boolean;
-  }) => {
+  private getAreAllTransactionsSignedByGuardian = ({ transactions, isGuarded }: { transactions: Transaction[]; isGuarded?: boolean }) => {
     if (!isGuarded) {
       return true;
     }
@@ -208,9 +185,7 @@ export class CrossWindowProviderStrategy {
       return false;
     }
 
-    return transactions.every((tx) =>
-      Boolean(tx.getGuardianSignature().toString('hex'))
-    );
+    return transactions.every(tx => Boolean(tx.getGuardianSignature().toString('hex')));
   };
 
   private getModalHandlers = async (modalElement: PendingTransactionsModal) => {
@@ -220,7 +195,7 @@ export class CrossWindowProviderStrategy {
       throw new Error(ProviderErrorsEnum.eventBusError);
     }
 
-    const manager = PendingTransactionsStateManager.getInstance(eventBus);
+    const manager = new PendingTransactionsStateManager(eventBus);
 
     const onClose = (cancelAction = true) => {
       if (!this.provider) {

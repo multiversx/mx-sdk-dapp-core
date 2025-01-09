@@ -23,9 +23,7 @@ export class TransactionManager {
     return TransactionManager.instance;
   }
 
-  public send = async (
-    signedTransactions: Transaction[] | Transaction[][]
-  ): Promise<string[]> => {
+  public send = async (signedTransactions: Transaction[] | Transaction[][]): Promise<string[]> => {
     if (signedTransactions.length === 0) {
       throw new Error('No transactions to send');
     }
@@ -36,50 +34,36 @@ export class TransactionManager {
         return hashes;
       }
 
-      const sentTransactions =
-        await this.sendSignedBatchTransactions(signedTransactions);
+      const sentTransactions = await this.sendSignedBatchTransactions(signedTransactions);
 
       if (!sentTransactions.data || sentTransactions.data.error) {
-        throw new Error(
-          sentTransactions.data?.error || 'Failed to send transactions'
-        );
+        throw new Error(sentTransactions.data?.error || 'Failed to send transactions');
       }
 
-      const flatSentTransactions = this.sequentialToFlatArray(
-        sentTransactions.data.transactions
-      );
+      const flatSentTransactions = this.sequentialToFlatArray(sentTransactions.data.transactions);
 
-      return flatSentTransactions.map((transaction) => transaction.hash);
+      return flatSentTransactions.map(transaction => transaction.hash);
     } catch (error) {
-      const responseData = <{ message: string }>(
-        (error as AxiosError).response?.data
-      );
+      const responseData = <{ message: string }>(error as AxiosError).response?.data;
       throw responseData?.message ?? (error as any).message;
     }
   };
 
-  public track = async (
-    signedTransactions: Transaction[],
-    options: { disableToasts?: boolean } = { disableToasts: false }
-  ) => {
-    const parsedTransactions = signedTransactions.map((transaction) =>
-      this.parseSignedTransaction(transaction)
-    );
+  public track = async (signedTransactions: Transaction[], options: { disableToasts?: boolean } = { disableToasts: false }) => {
+    const parsedTransactions = signedTransactions.map(transaction => this.parseSignedTransaction(transaction));
     const sessionId = createTrackedTransactionsSession(parsedTransactions);
     if (!options.disableToasts) {
       addTransactionToast(sessionId);
     }
   };
 
-  private sendSignedTransactions = async (
-    signedTransactions: Transaction[]
-  ): Promise<string[]> => {
+  private sendSignedTransactions = async (signedTransactions: Transaction[]): Promise<string[]> => {
     const { apiAddress, apiTimeout } = networkSelector(getState());
 
-    const promises = signedTransactions.map((transaction) =>
+    const promises = signedTransactions.map(transaction =>
       axios.post(`${apiAddress}/transactions`, transaction.toPlainObject(), {
-        timeout: Number(apiTimeout)
-      })
+        timeout: Number(apiTimeout),
+      }),
     );
 
     const response = await Promise.all(promises);
@@ -87,38 +71,27 @@ export class TransactionManager {
     return response.map(({ data }) => data.txHash);
   };
 
-  private sendSignedBatchTransactions = async (
-    signedTransactions: Transaction[][]
-  ) => {
+  private sendSignedBatchTransactions = async (signedTransactions: Transaction[][]) => {
     const { address } = getAccount();
     const { apiAddress, apiTimeout } = networkSelector(getState());
 
     if (!address) {
       return {
-        error:
-          'Invalid address provided. You need to be logged in to send transactions'
+        error: 'Invalid address provided. You need to be logged in to send transactions',
       };
     }
 
     const batchId = this.buildBatchId(address);
-    const parsedTransactions = signedTransactions.map((transactions) =>
-      transactions.map((transaction) =>
-        this.parseSignedTransaction(transaction)
-      )
-    );
+    const parsedTransactions = signedTransactions.map(transactions => transactions.map(transaction => this.parseSignedTransaction(transaction)));
 
     const payload = {
       transactions: parsedTransactions,
-      id: batchId
+      id: batchId,
     };
 
-    const { data } = await axios.post<BatchTransactionsResponseType>(
-      `${apiAddress}/batch`,
-      payload,
-      {
-        timeout: Number(apiTimeout)
-      }
-    );
+    const { data } = await axios.post<BatchTransactionsResponseType>(`${apiAddress}/batch`, payload, {
+      timeout: Number(apiTimeout),
+    });
 
     return { data };
   };
@@ -128,20 +101,12 @@ export class TransactionManager {
     return `${sessionId}${BATCH_TRANSACTIONS_ID_SEPARATOR}${address}`;
   };
 
-  private sequentialToFlatArray = (
-    transactions: SignedTransactionType[] | SignedTransactionType[][] = []
-  ) =>
-    this.getIsSequential(transactions)
-      ? transactions.flat()
-      : (transactions as SignedTransactionType[]);
+  private sequentialToFlatArray = (transactions: SignedTransactionType[] | SignedTransactionType[][] = []) =>
+    this.getIsSequential(transactions) ? transactions.flat() : (transactions as SignedTransactionType[]);
 
-  private getIsSequential = (
-    transactions?: SignedTransactionType[] | SignedTransactionType[][]
-  ) => transactions?.every((transaction) => Array.isArray(transaction));
+  private getIsSequential = (transactions?: SignedTransactionType[] | SignedTransactionType[][]) => transactions?.every(transaction => Array.isArray(transaction));
 
-  private isBatchTransaction = (
-    transactions: Transaction[] | Transaction[][]
-  ): transactions is Transaction[][] => {
+  private isBatchTransaction = (transactions: Transaction[] | Transaction[][]): transactions is Transaction[][] => {
     return Array.isArray(transactions[0]);
   };
 
@@ -149,7 +114,7 @@ export class TransactionManager {
     const parsedTransaction = {
       ...signedTransaction.toPlainObject(),
       hash: signedTransaction.getHash().hex(),
-      status: TransactionServerStatusesEnum.pending
+      status: TransactionServerStatusesEnum.pending,
     };
 
     // TODO: Remove when the protocol supports usernames for guardian transactions

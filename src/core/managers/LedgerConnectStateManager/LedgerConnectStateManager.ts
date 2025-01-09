@@ -4,25 +4,19 @@ import {
   IConnectScreenData,
   ILedgerAccount,
   ILedgerConnectModalData,
-  LedgerConnectEventsEnum
+  LedgerConnectEventsEnum,
 } from 'core/providers/strategies/LedgerProviderStrategy/types';
 import { IEventBus } from 'types/manager.types';
 
 const notInitializedError = () => new Error('Event bus not initialized');
 
-export class LedgerConnectStateManager<
-  T extends
-    IEventBus<ILedgerConnectModalData> = IEventBus<ILedgerConnectModalData>
-> {
-  private static instance: LedgerConnectStateManager<
-    IEventBus<ILedgerConnectModalData>
-  > | null = null;
+export class LedgerConnectStateManager<T extends IEventBus<ILedgerConnectModalData> = IEventBus<ILedgerConnectModalData>> {
   public readonly addressesPerPage = 10;
 
   private eventBus: T = {
     publish: notInitializedError,
     subscribe: notInitializedError,
-    unsubscribe: notInitializedError
+    unsubscribe: notInitializedError,
   } as unknown as T;
 
   private allAccounts: ILedgerAccount[] = [];
@@ -30,7 +24,7 @@ export class LedgerConnectStateManager<
   // first screen data
   private initialConnectScreenData: IConnectScreenData = {};
   private connectScreenData: IConnectScreenData = {
-    ...this.initialConnectScreenData
+    ...this.initialConnectScreenData,
   };
 
   // second screen data
@@ -38,46 +32,32 @@ export class LedgerConnectStateManager<
     accounts: this.allAccounts,
     startIndex: 0,
     addressesPerPage: this.addressesPerPage,
-    isLoading: true
+    isLoading: true,
   };
   private accountScreenData: IAccountScreenData = {
-    ...this.initialAccountScreenData
+    ...this.initialAccountScreenData,
   };
 
   // third screen data
   private initialConfirmScreenData: IConfirmScreenData = {
-    selectedAddress: ''
+    selectedAddress: '',
   };
   private confirmScreenData: IConfirmScreenData = {
-    ...this.initialConfirmScreenData
+    ...this.initialConfirmScreenData,
   };
 
   // whole data to be sent on update events
   private initialData: ILedgerConnectModalData = {
     connectScreenData: this.initialConnectScreenData,
     accountScreenData: null,
-    confirmScreenData: null
+    confirmScreenData: null,
   };
 
   private data: ILedgerConnectModalData = { ...this.initialData };
 
-  private constructor(eventBus: T) {
+  constructor(eventBus: T) {
     this.eventBus = eventBus;
     this.resetData();
-  }
-
-  public static getInstance<U extends IEventBus<ILedgerConnectModalData>>(
-    eventBus?: U
-  ): LedgerConnectStateManager<U> | null {
-    if (!eventBus) {
-      return null;
-    }
-    if (!LedgerConnectStateManager.instance) {
-      LedgerConnectStateManager.instance = new LedgerConnectStateManager(
-        eventBus
-      );
-    }
-    return LedgerConnectStateManager.instance as LedgerConnectStateManager<U>;
   }
 
   public updateAllAccounts(accounts: ILedgerAccount[]): void {
@@ -105,7 +85,7 @@ export class LedgerConnectStateManager<
   public updateConnectScreen(members: Partial<IConnectScreenData>): void {
     this.connectScreenData = {
       ...this.connectScreenData,
-      ...members
+      ...members,
     };
     this.data.confirmScreenData = null;
     this.data.accountScreenData = null;
@@ -115,7 +95,7 @@ export class LedgerConnectStateManager<
   public updateAccountScreen(members: Partial<IAccountScreenData>): void {
     this.accountScreenData = {
       ...this.accountScreenData,
-      ...members
+      ...members,
     };
     this.data.confirmScreenData = null;
     this.data.accountScreenData = this.accountScreenData;
@@ -125,7 +105,7 @@ export class LedgerConnectStateManager<
   public updateConfirmScreen(members: Partial<IConfirmScreenData>): void {
     this.confirmScreenData = {
       ...this.confirmScreenData,
-      ...members
+      ...members,
     };
     this.data.accountScreenData = null;
     this.data.confirmScreenData = this.confirmScreenData;
