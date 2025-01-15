@@ -12,12 +12,16 @@ export const setAddress = (address: string) =>
   });
 
 export const setAccount = (account: AccountType) => {
-  getStore().setState(({ account: state }) => {
-    const isSameAddress = state.address === account.address;
-    state.accounts = {
-      [state.address]: isSameAddress ? account : emptyAccount
-    };
-  });
+  getStore().setState(
+    ({ account: state }) => {
+      const isSameAddress = state.address === account.address;
+      state.accounts = {
+        [state.address]: isSameAddress ? account : emptyAccount
+      };
+    },
+    false,
+    'setAccount'
+  );
 };
 
 // TODO: check if needed
@@ -47,12 +51,16 @@ export const setWalletConnectAccount = (walletConnectAccount: string | null) =>
   });
 
 export const setWebsocketEvent = (message: string) =>
-  getStore().setState(({ account: state }) => {
-    state.websocketEvent = {
-      timestamp: Date.now(),
-      message
-    };
-  });
+  getStore().setState(
+    ({ account: state }) => {
+      state.websocketEvent = {
+        timestamp: Date.now(),
+        message
+      };
+    },
+    false,
+    'setWebsocketEvent'
+  );
 
 export const setWebsocketBatchEvent = (data: BatchTransactionsWSResponseType) =>
   getStore().setState(({ account: state }) => {

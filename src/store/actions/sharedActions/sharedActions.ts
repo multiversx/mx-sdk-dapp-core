@@ -3,7 +3,10 @@ import { ProviderTypeEnum } from 'core/providers/types/providerFactory.types';
 import { resetStore } from 'store/middleware/logoutMiddleware';
 import { getStore } from '../../store';
 
-export const logoutAction = () => getStore().setState(resetStore);
+export const logoutAction = () => {
+  getStore().setState(resetStore, true, 'logoutAction - resetStore');
+};
+
 export interface LoginActionPayloadType<
   T extends ProviderTypeEnum = ProviderTypeEnum
 > {

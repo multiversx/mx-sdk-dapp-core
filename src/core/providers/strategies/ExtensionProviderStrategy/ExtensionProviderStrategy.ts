@@ -1,5 +1,4 @@
-import { Transaction, Message } from '@multiversx/sdk-core/out';
-import { IDAppProviderOptions } from '@multiversx/sdk-dapp-utils/out';
+import { Message } from '@multiversx/sdk-core/out';
 import { ExtensionProvider } from '@multiversx/sdk-extension-provider/out/extensionProvider';
 import {
   PendingTransactionsStateManager,
@@ -9,7 +8,7 @@ import { getAccount } from 'core/methods/account/getAccount';
 import { getAddress } from 'core/methods/account/getAddress';
 import { IProvider } from 'core/providers/types/providerFactory.types';
 import { PendingTransactionsModal } from 'lib/sdkDappCoreUi';
-import { Nullable, ProviderErrorsEnum } from 'types';
+import { ProviderErrorsEnum } from 'types/provider.types';
 import { createModalElement } from 'utils/createModalElement';
 
 export class ExtensionProviderStrategy {

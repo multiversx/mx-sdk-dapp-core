@@ -4,6 +4,7 @@ import { localStorageKeys } from 'storage/local';
 import { isLoggedInSelector } from 'store/selectors';
 import { initialState as initialAccountState } from 'store/slices/account/accountSlice';
 import { initialState as initialLoginInfoState } from 'store/slices/loginInfo/loginInfoSlice';
+import { getStore } from 'store/store';
 import { StoreType } from '../store.types';
 
 export const resetStore = (store: WritableDraft<StoreType>) => {
@@ -41,6 +42,6 @@ export const logoutMiddleware = (state: StoreType) => {
 
   if (isExpired) {
     // logout
-    resetStore(state);
+    getStore().setState(resetStore, true, 'logoutMiddleware - resetStore');
   }
 };
