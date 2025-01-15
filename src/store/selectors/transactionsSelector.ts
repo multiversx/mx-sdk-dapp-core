@@ -5,11 +5,14 @@ import {
   TransactionServerStatusesEnum
 } from 'types/enums.types';
 import { SignedTransactionType } from 'types/transactions.types';
+import { createDeepEqualSelector } from './helpers';
 
-export const transactionsSliceSelector = ({ transactions }: StoreType) =>
-  transactions;
+export const transactionsSliceSelector = createDeepEqualSelector(
+  ({ transactions }: StoreType) => transactions,
+  (state) => state
+);
 
-export const pendingSessionsSelector = ({
+const pendingSessionsSelectorBase = ({
   transactions: state
 }: StoreType): TransactionsSliceType => {
   const pendingSessions: TransactionsSliceType = {};
@@ -26,7 +29,12 @@ export const pendingSessionsSelector = ({
   return pendingSessions;
 };
 
-export const pendingTransactionsSelector = ({
+export const pendingSessionsSelector = createDeepEqualSelector(
+  pendingSessionsSelectorBase,
+  (state) => state
+);
+
+const pendingTransactionsSelectorBase = ({
   transactions: state
 }: StoreType) => {
   const pendingTransactions: SignedTransactionType[] = [];
@@ -47,7 +55,12 @@ export const pendingTransactionsSelector = ({
   return pendingTransactions;
 };
 
-export const successfulTransactionsSelector = ({
+export const pendingTransactionsSelector = createDeepEqualSelector(
+  pendingTransactionsSelectorBase,
+  (state) => state
+);
+
+const successfulTransactionsSelectorBase = ({
   transactions: state
 }: StoreType) => {
   const successfulTransactions: SignedTransactionType[] = [];
@@ -63,9 +76,12 @@ export const successfulTransactionsSelector = ({
   return successfulTransactions;
 };
 
-export const failedTransactionsSelector = ({
-  transactions: state
-}: StoreType) => {
+export const successfulTransactionsSelector = createDeepEqualSelector(
+  successfulTransactionsSelectorBase,
+  (state) => state
+);
+
+const failedTransactionsSelectorBase = ({ transactions: state }: StoreType) => {
   const successfulTransactions: SignedTransactionType[] = [];
 
   Object.values(state).forEach(({ transactions }) => {
@@ -86,7 +102,12 @@ export const failedTransactionsSelector = ({
   return successfulTransactions;
 };
 
-export const timedOutTransactionsSelector = ({
+export const failedTransactionsSelector = createDeepEqualSelector(
+  failedTransactionsSelectorBase,
+  (state) => state
+);
+
+const timedOutTransactionsSelectorBase = ({
   transactions: state
 }: StoreType) => {
   const successfulTransactions: SignedTransactionType[] = [];
@@ -101,3 +122,8 @@ export const timedOutTransactionsSelector = ({
 
   return successfulTransactions;
 };
+
+export const timedOutTransactionsSelector = createDeepEqualSelector(
+  timedOutTransactionsSelectorBase,
+  (state) => state
+);
