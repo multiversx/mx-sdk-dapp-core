@@ -1,4 +1,4 @@
-import isString from 'lodash/isString';
+import isString from 'lodash.isstring';
 
 export const secondsToTimeString = (seconds: number) => {
   if (seconds <= 0 || isNaN(seconds) || !seconds || isString(seconds)) {
