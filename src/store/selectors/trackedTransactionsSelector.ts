@@ -2,12 +2,14 @@ import { TrackedTransactionsSliceType } from 'store/slices/trackedTransactions/t
 import { StoreType } from 'store/store.types';
 import { TransactionServerStatusesEnum } from 'types/enums.types';
 import { SignedTransactionType } from 'types/transactions.types';
+import { createDeepEqualSelector } from './helpers';
 
-export const trackedTransactionsSliceSelector = ({
-  trackedTransactions
-}: StoreType) => trackedTransactions;
+export const trackedTransactionsSliceSelector = createDeepEqualSelector(
+  ({ trackedTransactions }: StoreType) => trackedTransactions,
+  (state) => state
+);
 
-export const pendingTrackedSessionsSelector = ({
+const pendingTrackedSessionsSelectorBase = ({
   trackedTransactions: state
 }: StoreType): TrackedTransactionsSliceType => {
   const pendingSessions: TrackedTransactionsSliceType = {};
@@ -24,7 +26,12 @@ export const pendingTrackedSessionsSelector = ({
   return pendingSessions;
 };
 
-export const pendingTrackedTransactionsSelector = ({
+export const pendingTrackedSessionsSelector = createDeepEqualSelector(
+  pendingTrackedSessionsSelectorBase,
+  (state) => state
+);
+
+const pendingTrackedTransactionsSelectorBase = ({
   trackedTransactions: state
 }: StoreType) => {
   const pendingTransactions: SignedTransactionType[] = [];
@@ -39,3 +46,8 @@ export const pendingTrackedTransactionsSelector = ({
 
   return pendingTransactions;
 };
+
+export const pendingTrackedTransactionsSelector = createDeepEqualSelector(
+  pendingTrackedTransactionsSelectorBase,
+  (state) => state
+);

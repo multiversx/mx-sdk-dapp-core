@@ -1,3 +1,7 @@
 import { StoreType } from 'store/store.types';
+import { createDeepEqualSelector } from './helpers';
 
-export const stateSelector = (state: StoreType) => state;
+export const stateSelector = createDeepEqualSelector(
+  (state: StoreType) => state,
+  (state) => state
+);

@@ -1,14 +1,19 @@
 import { StoreType } from 'store/store.types';
+import { createDeepEqualSelector } from './helpers';
 
-export const configSelector = ({ config }: StoreType) => config;
+const configSelector = ({ config }: StoreType) => config;
 
-export const nativeAuthConfigSelector = ({ config }: StoreType) =>
-  config.nativeAuthConfig;
+export const nativeAuthConfigSelector = createDeepEqualSelector(
+  configSelector,
+  (state) => state.nativeAuthConfig
+);
 
-export const walletConnectConfigSelector = ({ config }: StoreType) => {
-  return config.walletConnectConfig;
-};
+export const walletConnectConfigSelector = createDeepEqualSelector(
+  configSelector,
+  (state) => state.walletConnectConfig
+);
 
-export const crossWindowConfigSelector = ({ config }: StoreType) => {
-  return config.crossWindowConfig;
-};
+export const crossWindowConfigSelector = createDeepEqualSelector(
+  configSelector,
+  (state) => state.crossWindowConfig
+);

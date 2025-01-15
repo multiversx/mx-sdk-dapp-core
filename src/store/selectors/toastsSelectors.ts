@@ -1,9 +1,14 @@
 import { StoreType } from 'store/store.types';
+import { createDeepEqualSelector } from './helpers';
 
-export const toastsSliceSelector = ({ toasts }: StoreType) => toasts;
+const toastsSliceSelector = ({ toasts }: StoreType) => toasts;
 
-export const customToastsSelector = ({ toasts }: StoreType) =>
-  toasts.customToasts;
+export const customToastsSelector = createDeepEqualSelector(
+  toastsSliceSelector,
+  (state) => state.customToasts
+);
 
-export const transactionToastsSelector = ({ toasts }: StoreType) =>
-  toasts.transactionToasts;
+export const transactionToastsSelector = createDeepEqualSelector(
+  toastsSliceSelector,
+  (state) => state.transactionToasts
+);

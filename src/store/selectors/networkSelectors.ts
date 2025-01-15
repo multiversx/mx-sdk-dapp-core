@@ -1,15 +1,24 @@
 import { StoreType } from 'store/store.types';
+import { createDeepEqualSelector } from './helpers';
 
-export const networkSliceSelector = ({ network }: StoreType) => network;
+const networkSliceSelector = ({ network }: StoreType) => network;
 
-export const networkSelector = ({ network }: StoreType) => network.network;
+export const networkSelector = createDeepEqualSelector(
+  networkSliceSelector,
+  (state) => state.network
+);
 
-export const chainIdSelector = ({ network: { network } }: StoreType) =>
-  network.chainId;
+export const chainIdSelector = createDeepEqualSelector(
+  networkSelector,
+  (state) => state.chainId
+);
 
-export const walletAddressSelector = ({ network: { network } }: StoreType) =>
-  network.walletAddress;
+export const walletAddressSelector = createDeepEqualSelector(
+  networkSelector,
+  (state) => state.walletAddress
+);
 
-export const roundDurationSelectorSelector = ({
-  network: { network }
-}: StoreType) => network.roundDuration;
+export const roundDurationSelectorSelector = createDeepEqualSelector(
+  networkSelector,
+  (state) => state.roundDuration
+);

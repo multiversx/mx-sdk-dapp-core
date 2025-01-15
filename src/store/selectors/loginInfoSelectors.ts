@@ -1,15 +1,24 @@
 import { StoreType } from 'store/store.types';
+import { createDeepEqualSelector } from './helpers';
 
-export const loginInfoSelector = ({ loginInfo }: StoreType) => loginInfo;
+const loginInfoSelector = ({ loginInfo }: StoreType) => loginInfo;
 
-export const tokenLoginSelector = ({ loginInfo }: StoreType) =>
-  loginInfo.tokenLogin;
+export const tokenLoginSelector = createDeepEqualSelector(
+  loginInfoSelector,
+  (state) => state.tokenLogin
+);
 
-export const walletConnectLoginSelector = ({ loginInfo }: StoreType) =>
-  loginInfo.walletConnectLogin;
+export const walletConnectLoginSelector = createDeepEqualSelector(
+  loginInfoSelector,
+  (state) => state.walletConnectLogin
+);
 
-export const providerTypeSelector = ({ loginInfo }: StoreType) =>
-  loginInfo.providerType;
+export const providerTypeSelector = createDeepEqualSelector(
+  loginInfoSelector,
+  (state) => state.providerType
+);
 
-export const ledgerLoginSelector = ({ loginInfo }: StoreType) =>
-  loginInfo.ledgerLogin;
+export const ledgerLoginSelector = createDeepEqualSelector(
+  loginInfoSelector,
+  (state) => state.ledgerLogin
+);
