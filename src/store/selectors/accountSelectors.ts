@@ -28,7 +28,7 @@ export const websocketBatchEventSelector = createDeepEqualSelector(
 
 export const accountNonceSelector = createDeepEqualSelector(
   accountSelector,
-  (state) => state?.nonce?.valueOf() || 0
+  (state) => state.nonce || 0
 );
 
 export const shardSelector = createDeepEqualSelector(
