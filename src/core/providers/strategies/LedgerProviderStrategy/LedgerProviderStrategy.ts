@@ -68,55 +68,51 @@ export class LedgerProviderStrategy {
   public createProvider = async (): Promise<IProvider> => {
     this.initialize();
     await defineCustomElements(safeWindow);
+    const shouldInitiateLogin = !getIsLoggedIn();
 
     const eventBus = await this.createEventBus();
 
-    if (!eventBus) {
-      throw new Error(ProviderErrorsEnum.eventBusError);
+    if (eventBus) {
+      this.manager = new LedgerConnectStateManager(eventBus);
     }
 
-    const manager = new LedgerConnectStateManager(eventBus);
-    this.manager = manager;
+    const buildLedgerProvider = async (
+      resolve: (value: Awaited<ReturnType<typeof getLedgerProvider>>) => void,
+      reject: (reason?: string) => void
+    ) => {
+      const onRetry = () => buildLedgerProvider(resolve, reject);
+      const onCancel = () => reject('Device unavailable');
+
+      try {
+        this.manager?.updateAccountScreen({
+          isLoading: true
+        });
+
+        const data = await getLedgerProvider();
+
+        eventBus?.unsubscribe(LedgerConnectEventsEnum.CONNECT_DEVICE, onRetry);
+        eventBus?.unsubscribe(LedgerConnectEventsEnum.CLOSE, onCancel);
+
+        resolve(data);
+      } catch (err) {
+        if (!shouldInitiateLogin) {
+          throw err;
+        }
+
+        const { errorMessage, defaultErrorMessage } = getLedgerErrorCodes(err);
+        this.manager?.updateConnectScreen({
+          error: errorMessage ?? defaultErrorMessage ?? failInitializeErrorText
+        });
+
+        eventBus?.subscribe(LedgerConnectEventsEnum.CONNECT_DEVICE, onRetry);
+        eventBus?.subscribe(LedgerConnectEventsEnum.CLOSE, onCancel);
+      }
+    };
 
     if (!this.provider) {
-      const shouldInitiateLogin = !getIsLoggedIn();
-
       const { ledgerProvider, ledgerConfig } = await new Promise<
         Awaited<ReturnType<typeof getLedgerProvider>>
-      >(async function buildLedgerProvider(resolve, reject) {
-        const onRetry = () => buildLedgerProvider(resolve, reject);
-        const onCancel = () => reject('Device unavailable');
-
-        try {
-          manager?.updateAccountScreen({
-            isLoading: true
-          });
-
-          const data = await getLedgerProvider();
-
-          eventBus?.unsubscribe(
-            LedgerConnectEventsEnum.CONNECT_DEVICE,
-            onRetry
-          );
-          eventBus?.unsubscribe(LedgerConnectEventsEnum.CLOSE, onCancel);
-
-          resolve(data);
-        } catch (err) {
-          if (!shouldInitiateLogin) {
-            throw err;
-          }
-
-          const { errorMessage, defaultErrorMessage } =
-            getLedgerErrorCodes(err);
-          manager?.updateConnectScreen({
-            error:
-              errorMessage ?? defaultErrorMessage ?? failInitializeErrorText
-          });
-
-          eventBus?.subscribe(LedgerConnectEventsEnum.CONNECT_DEVICE, onRetry);
-          eventBus?.subscribe(LedgerConnectEventsEnum.CLOSE, onCancel);
-        }
-      });
+      >((resolve, reject) => buildLedgerProvider(resolve, reject));
 
       this.config = ledgerConfig;
       this.provider = ledgerProvider;
@@ -194,6 +190,7 @@ export class LedgerProviderStrategy {
     callbackUrl?: string;
     token?: string;
   }) => {
+    console.log('OOOOOO', this.provider, { config: this.config });
     if (!this.provider || !this.config) {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }

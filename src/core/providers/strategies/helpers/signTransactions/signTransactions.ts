@@ -158,11 +158,16 @@ export async function signTransactions({
         });
       }
 
+      const tokenType =
+        isNft || type === NftEnumType.MetaESDT
+          ? type
+          : EsdtEnumType.FungibleESDT;
+
       const commonData: ISignTransactionsModalData['commonData'] = {
         receiver: plainTransaction.receiver.toString(),
         data: currentTransaction.transaction.getData().toString(),
         egldLabel,
-        tokenType: isNft ? type : EsdtEnumType.FungibleESDT,
+        tokenType,
         feeLimit: feeLimitFormatted,
         feeInFiatLimit,
         transactionsCount: allTransactions.length,

@@ -10,6 +10,7 @@ export const getAuthTokenText = ({
   loginToken?: string;
   version?: string;
 }) => {
+  console.log({ loginToken, version });
   if (!loginToken || !version) {
     return null;
   }
