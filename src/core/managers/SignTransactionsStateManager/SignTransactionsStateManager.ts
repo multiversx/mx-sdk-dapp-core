@@ -26,8 +26,7 @@ export class SignTransactionsStateManager<
     commonData: {
       transactionsCount: 0,
       egldLabel: '',
-      currentIndex: 0,
-      nextUnsignedTxIndex: 0
+      currentIndex: 0
     },
     tokenTransaction: null,
     nftTransaction: null,

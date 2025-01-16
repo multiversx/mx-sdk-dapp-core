@@ -7,7 +7,10 @@ import {
   MULTI_TRANSFER_EGLD_TOKEN
 } from 'constants/mvx.constants';
 import { SignTransactionsStateManager } from 'core/managers/SignTransactionsStateManager/SignTransactionsStateManager';
-import { SignEventsEnum } from 'core/managers/SignTransactionsStateManager/types';
+import {
+  ISignTransactionsModalData,
+  SignEventsEnum
+} from 'core/managers/SignTransactionsStateManager/types';
 import { getAddress } from 'core/methods/account/getAddress';
 import { getEgldLabel } from 'core/methods/network/getEgldLabel';
 import { IProvider } from 'core/providers/types/providerFactory.types';
@@ -17,6 +20,7 @@ import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
 import { EsdtEnumType, NftEnumType } from 'types/tokens.types';
 import { createModalElement } from 'utils/createModalElement';
+import { decodePart } from 'utils/decoders/decodePart';
 import { calculateFeeInFiat } from './helpers/calculateFeeInFiat';
 import { calculateFeeLimit } from './helpers/calculateFeeLimit';
 import { getExtractTransactionsInfo } from './helpers/getExtractTransactionsInfo';
@@ -154,7 +158,7 @@ export async function signTransactions({
         });
       }
 
-      manager.updateCommonData({
+      const commonData: ISignTransactionsModalData['commonData'] = {
         receiver: plainTransaction.receiver.toString(),
         data: currentTransaction.transaction.getData().toString(),
         egldLabel,
@@ -163,8 +167,18 @@ export async function signTransactions({
         feeInFiatLimit,
         transactionsCount: allTransactions.length,
         currentIndex: currentTransactionIndex
-      });
+      };
 
+      if (txInfo?.transactionTokenInfo?.multiTxData) {
+        commonData.highlight = txInfo.transactionTokenInfo?.multiTxData;
+
+        if (!txInfo.transactionTokenInfo.tokenId) {
+          const scCall = decodePart(txInfo.transactionTokenInfo.multiTxData);
+          commonData.scCall = scCall;
+        }
+      }
+
+      manager.updateCommonData(commonData);
       manager.updateConfirmedTransactions();
 
       const onPreviousPageChanged = async () => {
