@@ -23,17 +23,29 @@ export class SignTransactionsStateManager<
 
   // whole data to be sent on update events
   private initialData: ISignTransactionsModalData = {
-    commonData: { transactionsCount: 0, egldLabel: '', currentIndex: 0 },
+    commonData: {
+      transactionsCount: 0,
+      egldLabel: '',
+      currentIndex: 0,
+      nextUnsignedTxIndex: 0
+    },
     tokenTransaction: null,
     nftTransaction: null,
     sftTransaction: null
   };
 
   private data: ISignTransactionsModalData = { ...this.initialData };
+  private _confirmedTransactions: ISignTransactionsModalData[] = [];
+  private nextUnsignedTxIndex: number = 0;
 
   constructor(eventBus: T) {
     this.eventBus = eventBus;
     this.resetData();
+  }
+
+  public updateData(newData: ISignTransactionsModalData) {
+    this.data = { ...newData };
+    this.notifyDataUpdate();
   }
 
   public updateCommonData(
@@ -48,6 +60,7 @@ export class SignTransactionsStateManager<
 
   private resetData(): void {
     this.data = { ...this.initialData };
+    this._confirmedTransactions = [];
   }
 
   public closeAndReset(): void {
@@ -57,7 +70,10 @@ export class SignTransactionsStateManager<
   }
 
   private notifyDataUpdate(): void {
-    this.eventBus.publish(SignEventsEnum.DATA_UPDATE, this.data);
+    const data = { ...this.data };
+    data.commonData.nextUnsignedTxIndex = this.nextUnsignedTxIndex;
+
+    this.eventBus.publish(SignEventsEnum.DATA_UPDATE, data);
   }
 
   public updateTokenTransaction(
@@ -90,5 +106,30 @@ export class SignTransactionsStateManager<
     }
 
     this.notifyDataUpdate();
+  }
+
+  public get currentIndex() {
+    return this.data.commonData.currentIndex;
+  }
+
+  public updateConfirmedTransactions() {
+    const exists = this._confirmedTransactions.some(
+      (transaction) =>
+        JSON.stringify(transaction) === JSON.stringify({ ...this.data })
+    );
+
+    if (exists) {
+      return;
+    }
+
+    this._confirmedTransactions.push({ ...this.data });
+  }
+
+  public get confirmedTransactions() {
+    return this._confirmedTransactions;
+  }
+
+  public updateNextUnsignedTxIndex(index: number) {
+    this.nextUnsignedTxIndex = index;
   }
 }

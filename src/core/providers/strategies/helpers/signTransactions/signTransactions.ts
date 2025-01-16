@@ -1,12 +1,13 @@
 import { Transaction } from '@multiversx/sdk-core/out';
 import { getEconomics } from 'apiCalls/economics/getEconomics';
 import { getPersistedTokenDetails } from 'apiCalls/tokens/getPersistedTokenDetails';
-import { GAS_PER_DATA_BYTE, GAS_PRICE_MODIFIER } from 'constants/mvx.constants';
-import { SignTransactionsStateManager } from 'core/managers/SignTransactionsStateManager/SignTransactionsStateManager';
 import {
-  TokenType,
-  SignEventsEnum
-} from 'core/managers/SignTransactionsStateManager/types';
+  GAS_PER_DATA_BYTE,
+  GAS_PRICE_MODIFIER,
+  MULTI_TRANSFER_EGLD_TOKEN
+} from 'constants/mvx.constants';
+import { SignTransactionsStateManager } from 'core/managers/SignTransactionsStateManager/SignTransactionsStateManager';
+import { SignEventsEnum } from 'core/managers/SignTransactionsStateManager/types';
 import { getAddress } from 'core/methods/account/getAddress';
 import { getEgldLabel } from 'core/methods/network/getEgldLabel';
 import { IProvider } from 'core/providers/types/providerFactory.types';
@@ -99,13 +100,10 @@ export async function signTransactions({
       const isEgld = !tokenIdForTokenDetails;
       let tokenAmount = '';
 
-      let tokenType: TokenType = null;
-
       if (txInfo?.transactionTokenInfo) {
         const { tokenId, nonce, amount } = txInfo.transactionTokenInfo;
         const isNftOrSft = nonce && nonce.length > 0;
         tokenIdForTokenDetails = isNftOrSft ? `${tokenId}-${nonce}` : tokenId;
-        tokenType = isNftOrSft ? null : EsdtEnumType.FungibleESDT;
         tokenAmount = amount;
       }
 
@@ -146,8 +144,11 @@ export async function signTransactions({
           usd: tokenPrice,
           addEqualSign: true
         });
+
+        const esdtIdentifier =
+          identifier === MULTI_TRANSFER_EGLD_TOKEN ? egldLabel : identifier;
         manager.updateTokenTransaction({
-          identifier: identifier ?? egldLabel,
+          identifier: esdtIdentifier ?? egldLabel,
           amount: formattedAmount,
           usdValue
         });
@@ -157,12 +158,24 @@ export async function signTransactions({
         receiver: plainTransaction.receiver.toString(),
         data: currentTransaction.transaction.getData().toString(),
         egldLabel,
-        tokenType,
+        tokenType: isNft ? type : EsdtEnumType.FungibleESDT,
         feeLimit: feeLimitFormatted,
         feeInFiatLimit,
         transactionsCount: allTransactions.length,
         currentIndex: currentTransactionIndex
       });
+
+      manager.updateConfirmedTransactions();
+
+      const onPreviousPageChanged = async () => {
+        const data = manager.confirmedTransactions[manager.currentIndex - 1];
+        manager.updateData(data);
+      };
+
+      const onNextPageChanged = async () => {
+        const data = manager.confirmedTransactions[manager.currentIndex + 1];
+        manager.updateData(data);
+      };
 
       const onCancel = () => {
         reject(new Error('Transaction signing cancelled by user'));
@@ -181,11 +194,20 @@ export async function signTransactions({
         const removeEvents = () => {
           eventBus.unsubscribe(SignEventsEnum.SIGN_TRANSACTION, onSign);
           eventBus.unsubscribe(SignEventsEnum.CLOSE, onCancel);
+          eventBus.unsubscribe(
+            SignEventsEnum.PREV_TRANSACTION,
+            onPreviousPageChanged
+          );
+          eventBus.unsubscribe(
+            SignEventsEnum.NEXT_TRANSACTION,
+            onNextPageChanged
+          );
         };
 
         if (shouldContinueWithoutSigning) {
           currentTransactionIndex++;
           removeEvents();
+          manager.updateNextUnsignedTxIndex(currentTransactionIndex);
           return signNextTransaction();
         }
 
@@ -205,6 +227,7 @@ export async function signTransactions({
             resolve(signedTransactions);
           } else {
             currentTransactionIndex++;
+            manager.updateNextUnsignedTxIndex(currentTransactionIndex);
             signNextTransaction();
           }
         } catch (error) {
@@ -215,6 +238,11 @@ export async function signTransactions({
 
       eventBus.subscribe(SignEventsEnum.SIGN_TRANSACTION, onSign);
       eventBus.subscribe(SignEventsEnum.CLOSE, onCancel);
+      eventBus.subscribe(
+        SignEventsEnum.PREV_TRANSACTION,
+        onPreviousPageChanged
+      );
+      eventBus.subscribe(SignEventsEnum.NEXT_TRANSACTION, onNextPageChanged);
     };
 
     signNextTransaction();
