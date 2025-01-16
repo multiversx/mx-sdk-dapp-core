@@ -158,21 +158,20 @@ export async function signTransactions({
         });
       }
 
-      const tokenType =
-        isNft || type === NftEnumType.MetaESDT
-          ? type
-          : EsdtEnumType.FungibleESDT;
-
       const commonData: ISignTransactionsModalData['commonData'] = {
         receiver: plainTransaction.receiver.toString(),
         data: currentTransaction.transaction.getData().toString(),
         egldLabel,
-        tokenType,
+        tokenType: EsdtEnumType.FungibleESDT,
         feeLimit: feeLimitFormatted,
         feeInFiatLimit,
         transactionsCount: allTransactions.length,
         currentIndex: currentTransactionIndex
       };
+
+      if (isNft || type === NftEnumType.MetaESDT) {
+        commonData.tokenType = type;
+      }
 
       if (txInfo?.transactionTokenInfo?.multiTxData) {
         commonData.highlight = txInfo.transactionTokenInfo?.multiTxData;
