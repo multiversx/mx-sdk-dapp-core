@@ -190,7 +190,6 @@ export class LedgerProviderStrategy {
     callbackUrl?: string;
     token?: string;
   }) => {
-    console.log('OOOOOO', this.provider, { config: this.config });
     if (!this.provider || !this.config) {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
