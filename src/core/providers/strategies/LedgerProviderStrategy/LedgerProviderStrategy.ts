@@ -1,16 +1,24 @@
-import { Transaction } from '@multiversx/sdk-core/out';
+import { Message, Transaction } from '@multiversx/sdk-core/out';
 import { IDAppProviderOptions } from '@multiversx/sdk-dapp-utils/out';
 import { HWProvider, IProviderAccount } from '@multiversx/sdk-hw-provider';
 import BigNumber from 'bignumber.js';
 import { safeWindow } from 'constants/index';
-import { LedgerConnectStateManager } from 'core/managers';
+import {
+  LedgerConnectStateManager,
+  PendingTransactionsEventsEnum,
+  PendingTransactionsStateManager
+} from 'core/managers';
 import { getAddress } from 'core/methods/account/getAddress';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import {
   IProvider,
   ProviderTypeEnum
 } from 'core/providers/types/providerFactory.types';
-import { defineCustomElements, LedgerConnectModal } from 'lib/sdkDappCoreUi';
+import {
+  defineCustomElements,
+  LedgerConnectModal,
+  PendingTransactionsModal
+} from 'lib/sdkDappCoreUi';
 import { setLedgerAccount } from 'store/actions';
 import { setLedgerLogin } from 'store/actions/loginInfo/loginInfoActions';
 import { IEventBus } from 'types/manager.types';
@@ -51,6 +59,7 @@ export class LedgerProviderStrategy {
         options?: IDAppProviderOptions
       ) => Promise<Transaction[]>)
     | null = null;
+  private _signMessage: ((message: Message) => Promise<Message>) | null = null;
 
   constructor(address?: string) {
     this.address = address || '';
@@ -114,6 +123,7 @@ export class LedgerProviderStrategy {
       this._login = ledgerProvider.login.bind(ledgerProvider);
       this._signTransactions =
         ledgerProvider.signTransactions.bind(ledgerProvider);
+      this._signMessage = ledgerProvider.signMessage.bind(ledgerProvider);
     }
 
     return this.buildProvider();
@@ -128,6 +138,7 @@ export class LedgerProviderStrategy {
     provider.setAccount({ address: this.address });
     provider.signTransactions = this.signTransactions;
     provider.login = this.login;
+    provider.signMessage = this.signMessage;
 
     await provider.init();
     return provider;
@@ -445,5 +456,52 @@ export class LedgerProviderStrategy {
       address: selectedAccount.address,
       signature: selectedAccount.signature
     };
+  };
+
+  private signMessage = async (message: Message) => {
+    if (!this.provider || !this._signMessage) {
+      throw new Error(ProviderErrorsEnum.notInitialized);
+    }
+
+    const modalElement = await createModalElement<PendingTransactionsModal>(
+      'pending-transactions-modal'
+    );
+
+    const { eventBus, manager, onClose } =
+      await this.getModalHandlers(modalElement);
+
+    eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
+
+    manager.updateData({
+      isPending: true,
+      title: 'Message Signing',
+      subtitle: 'Check your Ledger Wallet to sign the message'
+    });
+
+    try {
+      const signedMessage = await this._signMessage(message);
+
+      return signedMessage;
+    } finally {
+      onClose();
+      eventBus.unsubscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
+    }
+  };
+
+  private getModalHandlers = async (modalElement: PendingTransactionsModal) => {
+    const eventBus = await modalElement.getEventBus();
+
+    if (!eventBus) {
+      throw new Error(ProviderErrorsEnum.eventBusError);
+    }
+
+    const manager = new PendingTransactionsStateManager(eventBus);
+
+    const onClose = () => {
+      modalElement.remove();
+      manager.closeAndReset();
+    };
+
+    return { eventBus, manager, onClose };
   };
 }
