@@ -186,12 +186,12 @@ export async function signTransactions({
       manager.updateCommonData(commonData);
       manager.updateConfirmedTransactions();
 
-      const onPreviousPageChanged = async () => {
+      const onPreviousTransaction = async () => {
         const data = manager.confirmedTransactions[manager.currentIndex - 1];
         manager.updateData(data);
       };
 
-      const onNextPageChanged = async () => {
+      const onNextTransaction = async () => {
         const data = manager.confirmedTransactions[manager.currentIndex + 1];
         manager.updateData(data);
       };
@@ -215,11 +215,11 @@ export async function signTransactions({
           eventBus.unsubscribe(SignEventsEnum.CLOSE, onCancel);
           eventBus.unsubscribe(
             SignEventsEnum.PREV_TRANSACTION,
-            onPreviousPageChanged
+            onPreviousTransaction
           );
           eventBus.unsubscribe(
             SignEventsEnum.NEXT_TRANSACTION,
-            onNextPageChanged
+            onNextTransaction
           );
         };
 
@@ -259,9 +259,9 @@ export async function signTransactions({
       eventBus.subscribe(SignEventsEnum.CLOSE, onCancel);
       eventBus.subscribe(
         SignEventsEnum.PREV_TRANSACTION,
-        onPreviousPageChanged
+        onPreviousTransaction
       );
-      eventBus.subscribe(SignEventsEnum.NEXT_TRANSACTION, onNextPageChanged);
+      eventBus.subscribe(SignEventsEnum.NEXT_TRANSACTION, onNextTransaction);
     };
 
     signNextTransaction();
