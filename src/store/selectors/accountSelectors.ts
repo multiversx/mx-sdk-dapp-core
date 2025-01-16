@@ -5,15 +5,23 @@ import { createDeepEqualSelector } from './helpers';
 const accountInfoSelector = ({ account }: StoreType) => account;
 
 export const addressSelector = createDeepEqualSelector(
-  ({ account }: StoreType) => account.address,
-  (state) => state
+  accountInfoSelector,
+  (state) => {
+    return state.address;
+  }
+);
+
+const accountSelectorBase = createDeepEqualSelector(
+  accountInfoSelector,
+  addressSelector,
+  ({ accounts }, address) => {
+    return address && address in accounts ? accounts[address] : emptyAccount;
+  }
 );
 
 export const accountSelector = createDeepEqualSelector(
-  accountInfoSelector,
-  addressSelector,
-  (state, address) =>
-    address in state.accounts ? state.accounts[address] : emptyAccount
+  accountSelectorBase,
+  (state) => state
 );
 
 export const websocketEventSelector = createDeepEqualSelector(
