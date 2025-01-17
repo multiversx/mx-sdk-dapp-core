@@ -102,16 +102,17 @@ export async function signTransactions({
 
       const txInfo = await extractTransactionsInfo(currentTransaction);
 
-      let tokenIdForTokenDetails = txInfo?.transactionTokenInfo?.tokenId;
-      const isEgld = !tokenIdForTokenDetails;
-      let tokenAmount = '';
+      const isEgld = !txInfo?.transactionTokenInfo?.tokenId;
+      const {
+        tokenId,
+        nonce,
+        amount = ''
+      } = txInfo?.transactionTokenInfo ?? {};
 
-      if (txInfo?.transactionTokenInfo) {
-        const { tokenId, nonce, amount } = txInfo.transactionTokenInfo;
-        const isNftOrSft = nonce && nonce.length > 0;
-        tokenIdForTokenDetails = isNftOrSft ? `${tokenId}-${nonce}` : tokenId;
-        tokenAmount = amount;
-      }
+      const isNftOrSft = tokenId && nonce && nonce.length > 0;
+      const tokenIdForTokenDetails = isNftOrSft
+        ? `${tokenId}-${nonce}`
+        : tokenId;
 
       const tokenDetails = await getPersistedTokenDetails({
         tokenId: tokenIdForTokenDetails
@@ -127,7 +128,7 @@ export async function signTransactions({
       if (isNft) {
         manager.updateNonFungibleTransaction(type, {
           identifier,
-          amount: tokenAmount,
+          amount,
           imageURL: tokenImageUrl
         });
       } else {
@@ -135,7 +136,7 @@ export async function signTransactions({
           formatAmount({
             input: isEgld
               ? currentTransaction.transaction.getValue().toString()
-              : tokenAmount,
+              : amount,
             decimals: isEgld ? Number(network.decimals) : tokenDecimals,
             digits: Number(network.digits),
             showLastNonZeroDecimal: false,
