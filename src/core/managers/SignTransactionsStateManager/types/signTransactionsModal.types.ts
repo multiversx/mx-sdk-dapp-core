@@ -1,3 +1,5 @@
+import { EsdtEnumType, NftEnumType } from 'types/tokens.types';
+
 export interface ITransactionData {
   receiver?: string;
   data?: string;
@@ -10,11 +12,7 @@ export type FungibleTransactionType = {
   imageURL: string;
 };
 
-export type TokenType =
-  | 'MetaESDT'
-  | 'SemiFungibleESDT'
-  | 'NonFungibleESDT'
-  | 'FungibleESDT';
+export type TokenType = NftEnumType | EsdtEnumType;
 
 export interface ISignTransactionsModalData {
   shouldClose?: true;
