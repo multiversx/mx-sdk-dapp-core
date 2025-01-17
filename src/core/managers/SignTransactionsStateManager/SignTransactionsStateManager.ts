@@ -23,31 +23,49 @@ export class SignTransactionsStateManager<
 
   // whole data to be sent on update events
   private initialData: ISignTransactionsModalData = {
-    commonData: { transactionsCount: 0, egldLabel: '', currentIndex: 0 },
+    commonData: {
+      transactionsCount: 0,
+      egldLabel: '',
+      currentIndex: 0
+    },
     tokenTransaction: null,
     nftTransaction: null,
     sftTransaction: null
   };
 
   private data: ISignTransactionsModalData = { ...this.initialData };
+  /**
+   * An array storing the confirmed screens.
+   */
+  private _confirmedScreens: ISignTransactionsModalData[] = [];
+  /**
+   * Tracks the index of the next unsigned transaction to be processed.
+   */
+  private nextUnsignedTxIndex: number = 0;
 
   constructor(eventBus: T) {
     this.eventBus = eventBus;
     this.resetData();
   }
 
+  public updateData(newData: ISignTransactionsModalData) {
+    this.data = { ...newData };
+    this.notifyDataUpdate();
+  }
+
   public updateCommonData(
-    members: Partial<ISignTransactionsModalData['commonData']>
+    newCommonData: Partial<ISignTransactionsModalData['commonData']>
   ): void {
     this.data.commonData = {
       ...this.data.commonData,
-      ...members
+      ...newCommonData
     };
     this.notifyDataUpdate();
   }
 
   private resetData(): void {
     this.data = { ...this.initialData };
+    this._confirmedScreens = [];
   }
 
   public closeAndReset(): void {
@@ -57,7 +75,10 @@ export class SignTransactionsStateManager<
   }
 
   private notifyDataUpdate(): void {
-    this.eventBus.publish(SignEventsEnum.DATA_UPDATE, this.data);
+    const data = { ...this.data };
+    data.commonData.nextUnsignedTxIndex = this.nextUnsignedTxIndex;
+
+    this.eventBus.publish(SignEventsEnum.DATA_UPDATE, data);
   }
 
   public updateTokenTransaction(
@@ -70,7 +91,7 @@ export class SignTransactionsStateManager<
     this.notifyDataUpdate();
   }
 
-  public updateFungibleTransaction(
+  public updateNonFungibleTransaction(
     type: TokenType,
     fungibleData: FungibleTransactionType
   ): void {
@@ -90,5 +111,32 @@ export class SignTransactionsStateManager<
     }
 
     this.notifyDataUpdate();
+  }
+
+  public get currentScreenIndex() {
+    return this.data.commonData.currentIndex;
+  }
+
+  public updateConfirmedTransactions() {
+    const currentScreenData = { ...this.data };
+
+    const exists = this._confirmedScreens.some(
+      (screenData) =>
+        JSON.stringify(screenData) === JSON.stringify(currentScreenData)
+    );
+
+    if (exists) {
+      return;
+    }
+
+    this._confirmedScreens.push(currentScreenData);
+  }
+
+  public get confirmedScreens() {
+    return this._confirmedScreens;
+  }
+
+  public setNextUnsignedTxIndex(index: number) {
+    this.nextUnsignedTxIndex = index;
   }
 }
