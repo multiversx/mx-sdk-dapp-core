@@ -23,8 +23,9 @@ import { createModalElement } from 'utils/createModalElement';
 import { calculateFeeInFiat } from './helpers/calculateFeeInFiat';
 import { calculateFeeLimit } from './helpers/calculateFeeLimit';
 import { getExtractTransactionsInfo } from './helpers/getExtractTransactionsInfo';
-import { getHighlightInfo } from './helpers/getHighlightInfo';
+import { getHighlight } from './helpers/getHighlight';
 import { getMultiEsdtTransferData } from './helpers/getMultiEsdtTransferData/getMultiEsdtTransferData';
+import { getScCall } from './helpers/getScCall';
 import { getTokenType } from './helpers/getTokenType';
 import { getUsdValue } from './helpers/getUsdValue';
 
@@ -159,10 +160,6 @@ export async function signTransactions({
         });
       }
 
-      const { highlight, scCall } = getHighlightInfo(
-        txInfo?.transactionTokenInfo
-      );
-
       const commonData: ISignTransactionsModalData['commonData'] = {
         receiver: plainTransaction.receiver.toString(),
         data: currentTransaction.transaction.getData().toString(),
@@ -172,8 +169,8 @@ export async function signTransactions({
         feeInFiatLimit,
         transactionsCount: allTransactions.length,
         currentIndex: currentTransactionIndex,
-        highlight,
-        scCall
+        highlight: getHighlight(txInfo?.transactionTokenInfo),
+        scCall: getScCall(txInfo?.transactionTokenInfo)
       };
 
       manager.updateCommonData(commonData);
