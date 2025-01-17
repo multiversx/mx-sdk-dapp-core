@@ -16,9 +16,9 @@ export function isCrossShardTransaction({
     const receiverShard = getShardOfAddress(receiver.pubkey());
     if (senderShard == null && senderAddress != null) {
       const sender = new Address(senderAddress);
-      return getShardOfAddress(sender) === receiverShard;
+      return getShardOfAddress(sender.pubkey()) !== receiverShard;
     }
-    return receiverShard === senderShard;
+    return receiverShard !== senderShard;
   } catch (_err) {
     return false;
   }
