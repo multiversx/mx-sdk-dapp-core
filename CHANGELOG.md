@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- [Added toast progress](https://github.com/multiversx/mx-sdk-dapp-core/pull/61)
 - [Fix issue with state manager](https://github.com/multiversx/mx-sdk-dapp-core/pull/58)
 
 ## [[0.0.0-alpha.10](https://github.com/multiversx/mx-sdk-dapp-core/pull/56)] - 2024-12-23
