@@ -91,7 +91,7 @@ export class SignTransactionsStateManager<
     this.notifyDataUpdate();
   }
 
-  public updateFungibleTransaction(
+  public updateNonFungibleTransaction(
     type: TokenType,
     fungibleData: FungibleTransactionType
   ): void {

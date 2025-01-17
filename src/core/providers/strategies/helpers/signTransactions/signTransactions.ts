@@ -124,7 +124,7 @@ export async function signTransactions({
         type === NftEnumType.NonFungibleESDT;
 
       if (isNft) {
-        manager.updateFungibleTransaction(type, {
+        manager.updateNonFungibleTransaction(type, {
           identifier,
           amount: tokenAmount,
           imageURL: tokenImageUrl
@@ -159,7 +159,6 @@ export async function signTransactions({
         });
       }
 
-      const tokenType = getTokenType(type);
       const { highlight, scCall } = getHighlightInfo(
         txInfo?.transactionTokenInfo
       );
@@ -168,7 +167,7 @@ export async function signTransactions({
         receiver: plainTransaction.receiver.toString(),
         data: currentTransaction.transaction.getData().toString(),
         egldLabel,
-        tokenType,
+        tokenType: getTokenType(type),
         feeLimit: feeLimitFormatted,
         feeInFiatLimit,
         transactionsCount: allTransactions.length,
