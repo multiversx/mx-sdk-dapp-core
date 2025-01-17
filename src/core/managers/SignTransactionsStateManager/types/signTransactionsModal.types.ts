@@ -28,8 +28,8 @@ export interface ISignTransactionsModalData {
     feeInFiatLimit?: string | null;
     currentIndex: number;
     nextUnsignedTxIndex?: number;
-    highlight: string | null;
-    scCall: string | null;
+    highlight?: string | null;
+    scCall?: string | null;
   };
   tokenTransaction: {
     identifier?: string;
