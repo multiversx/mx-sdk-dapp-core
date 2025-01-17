@@ -471,7 +471,7 @@ export class LedgerProviderStrategy {
     manager.updateData({
       isPending: true,
       title: 'Message Signing',
-      subtitle: 'Check your Ledger Wallet to sign the message'
+      subtitle: 'Check your Ledger device to sign the message'
     });
 
     try {

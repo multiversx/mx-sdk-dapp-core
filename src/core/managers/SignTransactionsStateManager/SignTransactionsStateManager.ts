@@ -26,7 +26,9 @@ export class SignTransactionsStateManager<
     commonData: {
       transactionsCount: 0,
       egldLabel: '',
-      currentIndex: 0
+      currentIndex: 0,
+      highlight: null,
+      scCall: null
     },
     tokenTransaction: null,
     nftTransaction: null,
@@ -34,7 +36,13 @@ export class SignTransactionsStateManager<
   };
 
   private data: ISignTransactionsModalData = { ...this.initialData };
-  private _confirmedTransactions: ISignTransactionsModalData[] = [];
+  /**
+   * An array storing the confirmed screens.
+   */
+  private _confirmedScreens: ISignTransactionsModalData[] = [];
+  /**
+   * Tracks the index of the next unsigned transaction to be processed.
+   */
   private nextUnsignedTxIndex: number = 0;
 
   constructor(eventBus: T) {
@@ -48,18 +56,18 @@ export class SignTransactionsStateManager<
   }
 
   public updateCommonData(
-    members: Partial<ISignTransactionsModalData['commonData']>
+    newCommonData: Partial<ISignTransactionsModalData['commonData']>
   ): void {
     this.data.commonData = {
       ...this.data.commonData,
-      ...members
+      ...newCommonData
     };
     this.notifyDataUpdate();
   }
 
   private resetData(): void {
     this.data = { ...this.initialData };
-    this._confirmedTransactions = [];
+    this._confirmedScreens = [];
   }
 
   public closeAndReset(): void {
@@ -107,28 +115,30 @@ export class SignTransactionsStateManager<
     this.notifyDataUpdate();
   }
 
-  public get currentIndex() {
+  public get currentScreenIndex() {
     return this.data.commonData.currentIndex;
   }
 
   public updateConfirmedTransactions() {
-    const exists = this._confirmedTransactions.some(
-      (transaction) =>
-        JSON.stringify(transaction) === JSON.stringify({ ...this.data })
+    const currentScreenData = { ...this.data };
+
+    const exists = this._confirmedScreens.some(
+      (screenData) =>
+        JSON.stringify(screenData) === JSON.stringify(currentScreenData)
     );
 
     if (exists) {
       return;
     }
 
-    this._confirmedTransactions.push({ ...this.data });
+    this._confirmedScreens.push(currentScreenData);
   }
 
-  public get confirmedTransactions() {
-    return this._confirmedTransactions;
+  public get confirmedScreens() {
+    return this._confirmedScreens;
   }
 
-  public updateNextUnsignedTxIndex(index: number) {
+  public setNextUnsignedTxIndex(index: number) {
     this.nextUnsignedTxIndex = index;
   }
 }

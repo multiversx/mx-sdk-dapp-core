@@ -18,13 +18,14 @@ import { SignTransactionsModal } from 'lib/sdkDappCoreUi';
 import { formatAmount } from 'lib/sdkDappUtils';
 import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
-import { EsdtEnumType, NftEnumType } from 'types/tokens.types';
+import { NftEnumType } from 'types/tokens.types';
 import { createModalElement } from 'utils/createModalElement';
-import { decodePart } from 'utils/decoders/decodePart';
 import { calculateFeeInFiat } from './helpers/calculateFeeInFiat';
 import { calculateFeeLimit } from './helpers/calculateFeeLimit';
 import { getExtractTransactionsInfo } from './helpers/getExtractTransactionsInfo';
+import { getHighlightInfo } from './helpers/getHighlightInfo';
 import { getMultiEsdtTransferData } from './helpers/getMultiEsdtTransferData/getMultiEsdtTransferData';
+import { getTokenType } from './helpers/getTokenType';
 import { getUsdValue } from './helpers/getUsdValue';
 
 export async function signTransactions({
@@ -158,40 +159,34 @@ export async function signTransactions({
         });
       }
 
+      const tokenType = getTokenType(type);
+      const { highlight, scCall } = getHighlightInfo(
+        txInfo?.transactionTokenInfo
+      );
+
       const commonData: ISignTransactionsModalData['commonData'] = {
         receiver: plainTransaction.receiver.toString(),
         data: currentTransaction.transaction.getData().toString(),
         egldLabel,
-        tokenType: EsdtEnumType.FungibleESDT,
+        tokenType,
         feeLimit: feeLimitFormatted,
         feeInFiatLimit,
         transactionsCount: allTransactions.length,
-        currentIndex: currentTransactionIndex
+        currentIndex: currentTransactionIndex,
+        highlight,
+        scCall
       };
-
-      if (isNft || type === NftEnumType.MetaESDT) {
-        commonData.tokenType = type;
-      }
-
-      if (txInfo?.transactionTokenInfo?.multiTxData) {
-        commonData.highlight = txInfo.transactionTokenInfo?.multiTxData;
-
-        if (!txInfo.transactionTokenInfo.tokenId) {
-          const scCall = decodePart(txInfo.transactionTokenInfo.multiTxData);
-          commonData.scCall = scCall;
-        }
-      }
 
       manager.updateCommonData(commonData);
       manager.updateConfirmedTransactions();
 
       const onPreviousTransaction = async () => {
-        const data = manager.confirmedTransactions[manager.currentIndex - 1];
+        const data = manager.confirmedScreens[manager.currentScreenIndex - 1];
         manager.updateData(data);
       };
 
       const onNextTransaction = async () => {
-        const data = manager.confirmedTransactions[manager.currentIndex + 1];
+        const data = manager.confirmedScreens[manager.currentScreenIndex + 1];
         manager.updateData(data);
       };
 
@@ -225,7 +220,7 @@ export async function signTransactions({
         if (shouldContinueWithoutSigning) {
           currentTransactionIndex++;
           removeEvents();
-          manager.updateNextUnsignedTxIndex(currentTransactionIndex);
+          manager.setNextUnsignedTxIndex(currentTransactionIndex);
           return signNextTransaction();
         }
 
@@ -245,7 +240,7 @@ export async function signTransactions({
             resolve(signedTransactions);
           } else {
             currentTransactionIndex++;
-            manager.updateNextUnsignedTxIndex(currentTransactionIndex);
+            manager.setNextUnsignedTxIndex(currentTransactionIndex);
             signNextTransaction();
           }
         } catch (error) {
