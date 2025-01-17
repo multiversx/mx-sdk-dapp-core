@@ -3,7 +3,7 @@ import {
   PROGRESS_INTERVAL_DURATION_MS,
   SAME_SHARD_MAX_TOAST_WIDTH_PERCENT_DECREASE
 } from 'constants/transactions.constants';
-import { progressiveDecrement } from '../../ToastManager/helpers/progressiveDecrement';
+import { progressiveDecrement } from './progressiveDecrement';
 
 interface GetRemainingValuePropsType {
   remaining: number;
