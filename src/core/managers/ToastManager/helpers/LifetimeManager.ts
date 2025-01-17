@@ -4,7 +4,7 @@ interface IToastProgressManagerParams {
   successfulToastLifetime?: number;
 }
 
-export class ToastLifetimeManager {
+export class LifetimeManager {
   // eslint-disable-next-line no-undef
   private timeoutIntervals: Map<string, NodeJS.Timeout> = new Map();
   private successfulToastLifetime?: number;

@@ -5,6 +5,13 @@ import {
   TransactionsDefaultTitles
 } from '../types';
 
+export enum ToastIconsEnum {
+  check = 'check',
+  hourglass = 'hourglass',
+  times = 'times',
+  ban = 'ban'
+}
+
 export const getToastDataStateByStatus = ({
   address,
   sender,
@@ -13,7 +20,7 @@ export const getToastDataStateByStatus = ({
 }: GetToastsOptionsDataPropsType) => {
   const successToastData: IToastDataState = {
     id: toastId,
-    icon: 'check',
+    icon: ToastIconsEnum.check,
     hasCloseButton: true,
     title: TransactionsDefaultTitles.success,
     iconClassName: 'success'
@@ -21,7 +28,7 @@ export const getToastDataStateByStatus = ({
 
   const receivedToastData: IToastDataState = {
     id: toastId,
-    icon: 'check',
+    icon: ToastIconsEnum.check,
     hasCloseButton: true,
     title: TransactionsDefaultTitles.received,
     iconClassName: 'success'
@@ -29,7 +36,7 @@ export const getToastDataStateByStatus = ({
 
   const pendingToastData: IToastDataState = {
     id: toastId,
-    icon: 'hourglass',
+    icon: ToastIconsEnum.hourglass,
     hasCloseButton: false,
     title: TransactionsDefaultTitles.pending,
     iconClassName: 'warning'
@@ -37,7 +44,7 @@ export const getToastDataStateByStatus = ({
 
   const failToastData: IToastDataState = {
     id: toastId,
-    icon: 'times',
+    icon: ToastIconsEnum.times,
     title: TransactionsDefaultTitles.failed,
     hasCloseButton: true,
     iconClassName: 'danger'
@@ -45,7 +52,7 @@ export const getToastDataStateByStatus = ({
 
   const invalidToastData: IToastDataState = {
     id: toastId,
-    icon: 'ban',
+    icon: ToastIconsEnum.ban,
     title: TransactionsDefaultTitles.invalid,
     hasCloseButton: true,
     iconClassName: 'warning'
@@ -53,16 +60,13 @@ export const getToastDataStateByStatus = ({
 
   const timedOutToastData = {
     id: toastId,
-    icon: 'times',
+    icon: ToastIconsEnum.times,
     title: TransactionsDefaultTitles.timedOut,
     hasCloseButton: true,
     iconClassName: 'warning'
   };
 
   switch (status) {
-    case TransactionBatchStatusesEnum.signed:
-    case TransactionBatchStatusesEnum.sent:
-      return pendingToastData;
     case TransactionBatchStatusesEnum.success:
       return sender !== address ? receivedToastData : successToastData;
     case TransactionBatchStatusesEnum.cancelled:
@@ -72,6 +76,9 @@ export const getToastDataStateByStatus = ({
       return timedOutToastData;
     case TransactionBatchStatusesEnum.invalid:
       return invalidToastData;
+
+    case TransactionBatchStatusesEnum.signed:
+    case TransactionBatchStatusesEnum.sent:
     default:
       return pendingToastData;
   }

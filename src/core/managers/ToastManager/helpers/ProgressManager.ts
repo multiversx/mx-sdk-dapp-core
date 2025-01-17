@@ -21,7 +21,7 @@ interface IHandleProgressParams {
   isFinished: boolean;
 }
 
-export class ToastProgressManager {
+export class ProgressManager {
   // eslint-disable-next-line no-undef
   private progressIntervals: Map<string, NodeJS.Timeout> = new Map();
   private onUpdate: (toastId: string, progress: number) => void;

@@ -66,7 +66,7 @@ export async function initApp({
 
   trackTransactions();
   const toastManager = new ToastManager({
-    successfulToastLifetime: 10000
+    successfulToastLifetime: dAppConfig.successfulToastLifetime
   });
   toastManager.init();
 
