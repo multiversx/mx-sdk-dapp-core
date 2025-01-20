@@ -1,3 +1,5 @@
+import { EsdtEnumType, NftEnumType } from 'types/tokens.types';
+
 export interface ITransactionData {
   receiver?: string;
   data?: string;
@@ -10,11 +12,7 @@ export type FungibleTransactionType = {
   imageURL: string;
 };
 
-export type TokenType =
-  | 'SemiFungibleESDT'
-  | 'NonFungibleESDT'
-  | 'FungibleESDT'
-  | null;
+export type TokenType = NftEnumType | EsdtEnumType;
 
 export interface ISignTransactionsModalData {
   shouldClose?: true;
@@ -22,15 +20,14 @@ export interface ISignTransactionsModalData {
     receiver?: string;
     data?: string;
     transactionsCount: number;
-    /**
-     * Token type of the transaction.
-     * @param {string} `null` - if is EGLD or MultiEsdt transaction.
-     */
     tokenType?: TokenType;
     egldLabel: string;
     feeLimit?: string;
     feeInFiatLimit?: string | null;
     currentIndex: number;
+    nextUnsignedTxIndex?: number;
+    highlight?: string | null;
+    scCall?: string | null;
   };
   tokenTransaction: {
     identifier?: string;
@@ -43,8 +40,8 @@ export interface ISignTransactionsModalData {
 
 export enum SignEventsEnum {
   'SIGN_TRANSACTION' = 'SIGN_TRANSACTION',
-  'NEXT_PAGE' = 'NEXT_PAGE',
-  'PREV_PAGE' = 'PREV_PAGE',
+  'NEXT_TRANSACTION' = 'NEXT_TRANSACTION',
+  'PREV_TRANSACTION' = 'PREV_TRANSACTION',
   'CLOSE' = 'CLOSE',
   'DATA_UPDATE' = 'DATA_UPDATE'
 }
