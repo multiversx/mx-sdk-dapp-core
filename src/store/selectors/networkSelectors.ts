@@ -1,6 +1,6 @@
 import { StoreType } from 'store/store.types';
 
-export const networkSliceSelector = ({ network }: StoreType) => network;
+export const networkConfigSelector = ({ network }: StoreType) => network;
 
 export const networkSelector = ({ network }: StoreType) => network.network;
 
