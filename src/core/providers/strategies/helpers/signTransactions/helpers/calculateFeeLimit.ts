@@ -9,11 +9,11 @@ import BigNumber from 'bignumber.js';
 import {
   EXTRA_GAS_LIMIT_GUARDED_TX,
   GAS_LIMIT,
-  GAS_PRICE,
-  ZERO
+  GAS_PRICE
 } from 'constants/index';
+import { ZERO } from 'lib/sdkDappUtils';
+import { stringIsFloat, stringIsInteger } from 'lib/sdkDappUtils';
 import { isGuardianTx } from 'utils/transactions/isGuardianTx';
-import { stringIsFloat, stringIsInteger } from 'utils/validation';
 
 export interface CalculateFeeLimitType {
   gasLimit: string;

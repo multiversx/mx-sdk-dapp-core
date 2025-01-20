@@ -1,8 +1,8 @@
-import { DECIMALS } from 'constants/index';
-import { formatAmount } from 'lib/sdkDappUtils';
+import { DECIMALS } from 'lib/sdkDappUtils';
 import { InterpretedTransactionType } from 'types/serverTransactions.types';
 import { NftEnumType } from 'types/tokens.types';
 
+import { formatAmount } from 'utils/operations/formatAmount';
 import {
   ACTIONS_WITH_EGLD_VALUE,
   ACTIONS_WITH_MANDATORY_OPERATIONS,
