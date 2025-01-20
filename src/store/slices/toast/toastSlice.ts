@@ -4,7 +4,8 @@ import { ToastsSliceState } from './toastSlice.types';
 
 const initialState: ToastsSliceState = {
   customToasts: [],
-  transactionToasts: []
+  transactionToasts: [],
+  toastProgress: {}
 };
 
 function getToastSlice(): StateCreator<

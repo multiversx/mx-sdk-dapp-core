@@ -40,7 +40,7 @@ export interface ITransactionToast {
   processedTransactionsStatus: string;
   transactions: ITransaction[];
   toastDataState: IToastDataState;
-  transactionProgressState?: ITransactionProgressState;
+  transactionProgressState?: ITransactionProgressState | null;
 }
 
 export enum TransactionToastEventsEnum {

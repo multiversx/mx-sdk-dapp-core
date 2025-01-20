@@ -7,7 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- [Added toast progress](https://github.com/multiversx/mx-sdk-dapp-core/pull/61)
+
 ## [[0.0.0-alpha.11](https://github.com/multiversx/mx-sdk-dapp-core/pull/62)] - 2025-01-20
+
 - [Added react hooks](https://github.com/multiversx/mx-sdk-dapp-core/pull/62)
 - [Fixed issue with state manager](https://github.com/multiversx/mx-sdk-dapp-core/pull/58)
 - [Added multi-step navigation in sign modal](https://github.com/multiversx/mx-sdk-dapp-core/pull/60)
