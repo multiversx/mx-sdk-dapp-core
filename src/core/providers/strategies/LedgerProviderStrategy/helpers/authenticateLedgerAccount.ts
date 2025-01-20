@@ -5,7 +5,7 @@ import { setLedgerLogin } from 'store/actions/loginInfo/loginInfoActions';
 import { ProviderErrorsEnum } from 'types';
 import { LedgerConnectEventsEnum } from '../types';
 import { getAuthTokenText } from './getAuthTokenText';
-import { updateLedgerAccounts } from './updateLedgerAccounts';
+import { updateAccountsList } from './updateAccountsList';
 import {
   LedgerConfigType,
   LedgerStateManagerType,
@@ -13,7 +13,7 @@ import {
   LedgerLoginType
 } from '../types/ledgerProvider.types';
 
-type GetLedgerLoginProps = {
+type GetLedgerLoginType = {
   options?: {
     callbackUrl?: string;
     token?: string;
@@ -32,14 +32,16 @@ export const authenticateLedgerAccount = async ({
   provider,
   eventBus,
   login
-}: GetLedgerLoginProps) => {
+}: GetLedgerLoginType) => {
   const authData = getAuthTokenText({
     loginToken: options?.token,
     version: config.version
   });
 
-  await updateLedgerAccounts({ manager, provider });
+  // refresh account list
+  await updateAccountsList({ manager, provider });
 
+  // cycle trough accounts until user makes a choice
   const selectedAccount = await new Promise<{
     address: string;
     signature: string;
@@ -52,7 +54,7 @@ export const authenticateLedgerAccount = async ({
     const onNextPageChanged = async () => {
       const startIndex = manager?.getAccountScreenData()?.startIndex || 0;
       manager?.updateStartIndex(startIndex + manager.addressesPerPage);
-      await updateLedgerAccounts({ manager, provider });
+      await updateAccountsList({ manager, provider });
     };
 
     const onPrevPageChanged = async () => {
@@ -63,7 +65,7 @@ export const authenticateLedgerAccount = async ({
           Math.max(0, startIndex - manager.addressesPerPage)
         );
 
-        await updateLedgerAccounts({ manager, provider });
+        await updateAccountsList({ manager, provider });
       }
     };
 
@@ -107,7 +109,7 @@ export const authenticateLedgerAccount = async ({
         }
         const shouldGoBack = Boolean(manager?.getConfirmScreenData());
         if (shouldGoBack) {
-          await updateLedgerAccounts({ manager, provider });
+          await updateAccountsList({ manager, provider });
         }
       }
     };
@@ -133,7 +135,7 @@ export const authenticateLedgerAccount = async ({
     };
 
     const onCancel = async () => {
-      await updateLedgerAccounts({ manager, provider });
+      await updateAccountsList({ manager, provider });
       unsubscribeFromEvents();
       reject('User cancelled login');
     };
@@ -155,6 +157,7 @@ export const authenticateLedgerAccount = async ({
     loginType: ProviderTypeEnum.ledger
   });
 
+  // login is finished, data can be persisted in the store
   setLedgerAccount({
     address: selectedAccount.address,
     index: selectedAccount.addressIndex,

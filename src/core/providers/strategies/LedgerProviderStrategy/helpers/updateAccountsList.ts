@@ -5,15 +5,26 @@ import { fetchAccount } from 'utils/account/fetchAccount';
 import { ILedgerAccount } from '../types';
 import { LedgerStateManagerType } from '../types/ledgerProvider.types';
 
-type LedgerAccountsProps = {
+type AccountsListType = {
   manager: LedgerStateManagerType | null;
   provider: HWProvider | null;
 };
 
-export const updateLedgerAccounts = async ({
+/**
+ * Updates the list of accounts and fetches their balances.
+ *
+ * This function performs the following steps:
+ * 1. Checks if the manager and provider are initialized; if not, throws an error.
+ * 2. Retrieves the starting index for pagination and the current list of accounts.
+ * 3. Checks if there is already data for the current page to avoid unnecessary fetching.
+ * 4. If no data is present, it fetches the accounts from the wallet provider.
+ * 5. Updates the state manager with the new account data and their balances.
+ * 6. Handles errors by reverting to existing accounts and logging the error.
+ */
+export const updateAccountsList = async ({
   manager,
   provider
-}: LedgerAccountsProps) => {
+}: AccountsListType) => {
   if (!manager || !provider) {
     throw new Error(ProviderErrorsEnum.notInitialized);
   }

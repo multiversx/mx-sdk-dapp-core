@@ -7,7 +7,7 @@ import {
   LedgerStateManagerType
 } from '../types/ledgerProvider.types';
 
-type InitializeLedgerProviderProps = {
+type InitializeLedgerProviderType = {
   eventBus?: LedgerEventBusType;
   manager?: LedgerStateManagerType | null;
   resolve: (value: Awaited<ReturnType<typeof getLedgerProvider>>) => void;
@@ -21,9 +21,10 @@ export const initializeLedgerProvider = async ({
   manager,
   resolve,
   reject
-}: InitializeLedgerProviderProps) => {
+}: InitializeLedgerProviderType) => {
   const shouldInitiateLogin = !getIsLoggedIn();
 
+  // Calls itself to handle retry logic if the user needs to reconnect to the Ledger provider.
   const onRetry = () =>
     initializeLedgerProvider({ eventBus, manager, resolve, reject });
   const onCancel = () => reject('Device unavailable');
