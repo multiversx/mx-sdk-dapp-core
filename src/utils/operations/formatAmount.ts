@@ -5,7 +5,7 @@ import { pipe } from './pipe';
 
 BigNumber.config({ ROUNDING_MODE: BigNumber.ROUND_FLOOR });
 
-export interface FormatAmountType {
+export interface FormatAmountPropsType {
   addCommas?: boolean;
   decimals?: number;
   digits?: number;
@@ -21,7 +21,7 @@ export function formatAmount({
   input,
   showIsLessThanDecimalsLabel = false,
   showLastNonZeroDecimal = true
-}: FormatAmountType) {
+}: FormatAmountPropsType) {
   if (!stringIsInteger(input, false)) {
     throw new Error('Invalid input');
   }

@@ -16,7 +16,7 @@ import { setLedgerLogin } from 'store/actions/loginInfo/loginInfoActions';
 import { IEventBus } from 'types/manager.types';
 import { ProviderErrorsEnum } from 'types/provider.types';
 import { fetchAccount } from 'utils/account/fetchAccount';
-import { createModalElement } from 'utils/createModalElement';
+import { createUIElement } from 'utils/createUIElement';
 import {
   getLedgerProvider,
   getLedgerErrorCodes,
@@ -154,7 +154,7 @@ export class LedgerProviderStrategy {
       return;
     }
 
-    const modalElement = await createModalElement<LedgerConnectModal>(
+    const modalElement = await createUIElement<LedgerConnectModal>(
       'ledger-connect-modal'
     );
     const eventBus = await modalElement.getEventBus();

@@ -14,7 +14,7 @@ import { SignTransactionsModal } from 'lib/sdkDappCoreUi';
 import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
 import { EsdtEnumType, NftEnumType } from 'types/tokens.types';
-import { createModalElement } from 'utils/createModalElement';
+import { createUIElement } from 'utils/createUIElement';
 import { formatAmount } from 'utils/operations/formatAmount';
 import { calculateFeeInFiat } from './helpers/calculateFeeInFiat';
 import { calculateFeeLimit } from './helpers/calculateFeeLimit';
@@ -33,7 +33,7 @@ export async function signTransactions({
   const network = networkSelector(getState());
 
   const egldLabel = getEgldLabel();
-  const signModalElement = await createModalElement<SignTransactionsModal>(
+  const signModalElement = await createUIElement<SignTransactionsModal>(
     'sign-transactions-modal'
   );
 

@@ -9,7 +9,7 @@ import {
   TransactionServerStatusesEnum
 } from 'types';
 import { SignedTransactionType } from 'types/transactions.types';
-import { createModalElement } from 'utils/createModalElement';
+import { createUIElement } from 'utils/createUIElement';
 import {
   GetToastsOptionsDataPropsType,
   ITransactionToast,
@@ -82,10 +82,9 @@ export class ToastManager {
 
   private async renderUIToasts(transactionsToasts: ITransactionToast[]) {
     if (!this.transactionToastsList) {
-      this.transactionToastsList =
-        await createModalElement<TransactionToastList>(
-          'transaction-toast-list'
-        );
+      this.transactionToastsList = await createUIElement<TransactionToastList>(
+        'transaction-toast-list'
+      );
     }
 
     const eventBus = await this.transactionToastsList.getEventBus();
