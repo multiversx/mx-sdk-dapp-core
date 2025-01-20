@@ -152,12 +152,12 @@ export const authenticateLedgerAccount = async ({
 
   const { version, dataEnabled } = config;
 
+  // login is finished, data can be persisted in the store
   setLedgerLogin({
     index: selectedAccount.addressIndex,
     loginType: ProviderTypeEnum.ledger
   });
 
-  // login is finished, data can be persisted in the store
   setLedgerAccount({
     address: selectedAccount.address,
     index: selectedAccount.addressIndex,
