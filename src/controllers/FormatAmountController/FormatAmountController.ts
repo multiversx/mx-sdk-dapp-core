@@ -1,8 +1,6 @@
-import {
-  formatAmount,
-} from 'utils/operations/formatAmount';
-import { stringIsInteger, ZERO } from 'lib/sdkDappUtils';
 import { stringIsFloat } from '@multiversx/sdk-dapp-utils/out/helpers/stringIsFloat';
+import { stringIsInteger, ZERO } from 'lib/sdkDappUtils';
+import { formatAmount } from 'utils/operations/formatAmount';
 import { FormatAmountControllerPropsType, FormatedAmountType } from './types';
 
 export class FormatAmountController {
@@ -10,7 +8,7 @@ export class FormatAmountController {
     isValid: true,
     label: undefined,
     valueDecimal: ZERO,
-    valueInteger: ZERO,
+    valueInteger: ZERO
   };
 
   constructor(private data: FormatAmountControllerPropsType) {
@@ -19,16 +17,17 @@ export class FormatAmountController {
 
   public formatAmount(data: FormatAmountControllerPropsType) {
     const formattedAmount = formatAmount(data);
-    const isValid = stringIsInteger(data.input) && stringIsFloat(formattedAmount);
+    const isValid =
+      stringIsInteger(data.input) && stringIsFloat(formattedAmount);
     const [valueInteger, valueDecimal] = formattedAmount.split('.');
-    const label = ` ${data.token ?? data.egldLabel}`.trimEnd()
+    const label = ` ${data.token ?? data.egldLabel}`.trimEnd();
 
     this.formattedAmount = {
       isValid,
       label,
       valueDecimal,
-      valueInteger,
-    }
+      valueInteger
+    };
 
     return this.getFormattedAmount();
   }

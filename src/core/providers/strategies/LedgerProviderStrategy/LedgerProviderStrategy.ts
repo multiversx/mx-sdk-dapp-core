@@ -16,7 +16,7 @@ import {
   PendingTransactionsModal
 } from 'lib/sdkDappCoreUi';
 import { ProviderErrorsEnum } from 'types/provider.types';
-import { createModalElement } from 'utils/createModalElement';
+import { createUIElement } from 'utils/createUIElement';
 import { getLedgerProvider } from './helpers';
 import { authenticateLedgerAccount } from './helpers/authenticateLedgerAccount';
 import { initializeLedgerProvider } from './helpers/initializeLedgerProvider';
@@ -116,7 +116,7 @@ export class LedgerProviderStrategy {
       return;
     }
 
-    const modalElement = await createModalElement<LedgerConnectModal>(
+    const modalElement = await createUIElement<LedgerConnectModal>(
       'ledger-connect-modal'
     );
     const eventBus = await modalElement.getEventBus();
@@ -175,7 +175,7 @@ export class LedgerProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    const modalElement = await createModalElement<PendingTransactionsModal>(
+    const modalElement = await createUIElement<PendingTransactionsModal>(
       'pending-transactions-modal'
     );
 

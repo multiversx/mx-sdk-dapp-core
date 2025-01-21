@@ -1,1 +1,1 @@
-export * from '@multiversx/sdk-dapp-core-ui/dist/types/components'
+export * from '@multiversx/sdk-dapp-core-ui/dist/types/components';
