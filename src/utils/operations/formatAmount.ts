@@ -115,7 +115,7 @@ export function formatAmount({
                 return `${numericPart}.${decimalSide}`;
               }
 
-              return current;
+              return `${numericPart}.${decimalSide.substring(0, digits)}`;
             }
 
             if (!decimalSide) {
