@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+Logout on forced address change
+- [Added react hooks](https://github.com/multiversx/mx-sdk-dapp-core/pull/64)
+
 ## [[0.0.0-alpha.11](https://github.com/multiversx/mx-sdk-dapp-core/pull/62)] - 2025-01-20
 - [Added react hooks](https://github.com/multiversx/mx-sdk-dapp-core/pull/62)
 - [Fixed issue with state manager](https://github.com/multiversx/mx-sdk-dapp-core/pull/58)
