@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- [Added logout check on forced address change](https://github.com/multiversx/mx-sdk-dapp-core/pull/64)
 - [Refactor LedgerProviderStrategy](https://github.com/multiversx/mx-sdk-dapp-core/pull/63)
+- [Added react hooks](https://github.com/multiversx/mx-sdk-dapp-core/pull/62)
 - [Added toast progress](https://github.com/multiversx/mx-sdk-dapp-core/pull/61)
 
 ## [[0.0.0-alpha.11](https://github.com/multiversx/mx-sdk-dapp-core/pull/62)] - 2025-01-20
