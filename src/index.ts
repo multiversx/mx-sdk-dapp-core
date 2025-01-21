@@ -1,5 +1,5 @@
 export * from './apiCalls';
-export * from './components';
+export * from './controllers';
 export * from './constants';
 export * from './core';
 export * from './services';
