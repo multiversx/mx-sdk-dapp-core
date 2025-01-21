@@ -31,9 +31,9 @@ describe('formatAmount', () => {
       '100000000000000.0000'
     );
 
-    expect(formatAmount({ input: '56817349973594872345', decimals: 18, digits: 4 })).toBe(
-      '56.8173'
-    );
+    expect(
+      formatAmount({ input: '56817349973594872345', decimals: 18, digits: 4 })
+    ).toBe('56.8173');
   });
 
   test('handles custom digits', () => {

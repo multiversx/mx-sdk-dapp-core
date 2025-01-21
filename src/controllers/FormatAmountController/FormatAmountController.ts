@@ -16,6 +16,6 @@ export class FormatAmountController {
       label,
       valueDecimal,
       valueInteger
-    }
+    };
   }
 }
