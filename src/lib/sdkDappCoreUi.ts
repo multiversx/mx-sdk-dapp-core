@@ -4,8 +4,6 @@ export type { SignTransactionsModal } from '@multiversx/sdk-dapp-core-ui/dist/co
 export type { WalletConnectModal } from '@multiversx/sdk-dapp-core-ui/dist/components/wallet-connect-modal';
 export type { PendingTransactionsModal } from '@multiversx/sdk-dapp-core-ui/dist/components/pending-transactions-modal';
 export type { TransactionToastList } from '@multiversx/sdk-dapp-core-ui/dist/components/transaction-toast-list';
-export type { FormatAmount } from '@multiversx/sdk-dapp-core-ui/dist/components/format-amount';
-export * from '@multiversx/sdk-dapp-core-ui/dist/types/components';
 
 export async function defineCustomElements(
   win?: Window,

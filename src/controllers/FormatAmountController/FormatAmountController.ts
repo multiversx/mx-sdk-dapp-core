@@ -1,38 +1,21 @@
-import { stringIsFloat } from '@multiversx/sdk-dapp-utils/out/helpers/stringIsFloat';
-import { stringIsInteger, ZERO } from 'lib/sdkDappUtils';
+import { stringIsInteger, stringIsFloat } from 'lib/sdkDappUtils';
 import { formatAmount } from 'utils/operations/formatAmount';
 import { FormatAmountControllerPropsType, FormatedAmountType } from './types';
 
 export class FormatAmountController {
-  private formattedAmount: FormatedAmountType = {
-    isValid: true,
-    label: undefined,
-    valueDecimal: ZERO,
-    valueInteger: ZERO
-  };
-
-  constructor(private data: FormatAmountControllerPropsType) {
-    this.formatAmount(this.data);
-  }
-
-  public formatAmount(data: FormatAmountControllerPropsType) {
-    const formattedAmount = formatAmount(data);
+  public static getData(props: FormatAmountControllerPropsType) {
+    const formattedAmount = formatAmount(props);
     const isValid =
-      stringIsInteger(data.input) && stringIsFloat(formattedAmount);
-    const [valueInteger, valueDecimal] = formattedAmount.split('.');
-    const label = ` ${data.token ?? data.egldLabel}`.trimEnd();
+      stringIsInteger(props.input) && stringIsFloat(formattedAmount);
 
-    this.formattedAmount = {
+    const [valueInteger, valueDecimal] = formattedAmount.split('.');
+    const label = ` ${props.token ?? props.egldLabel}`.trimEnd();
+
+    return {
       isValid,
       label,
       valueDecimal,
       valueInteger
-    };
-
-    return this.getFormattedAmount();
-  }
-
-  public getFormattedAmount() {
-    return this.formattedAmount;
+    }
   }
 }
