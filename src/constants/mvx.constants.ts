@@ -11,3 +11,4 @@ export const LEDGER_CONTRACT_DATA_ENABLED_VALUE = 1;
 export const METACHAIN_SHARD_ID = 4294967295;
 export const ALL_SHARDS_SHARD_ID = 4294967280;
 export const REFUNDED_GAS = 'refundedGas';
+export const MULTI_TRANSFER_EGLD_TOKEN = 'EGLD-000000';

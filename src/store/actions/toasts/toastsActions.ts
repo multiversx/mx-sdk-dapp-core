@@ -81,3 +81,27 @@ export const removeTransactionToast = (toastId: string) => {
     });
   });
 };
+
+export const getToastProgress = (toastId: string): number | undefined => {
+  const toastProgress = getStore().getState().toasts.toastProgress || {};
+  return toastProgress.hasOwnProperty(toastId)
+    ? toastProgress[toastId]
+    : undefined;
+};
+
+export const updateToastProgress = (toastId: string, progress: number) => {
+  getStore().setState(({ toasts: state }) => {
+    if (!state.toastProgress) {
+      state.toastProgress = {};
+    }
+    state.toastProgress[toastId] = progress;
+  });
+};
+
+export const deleteToastProgress = (toastId: string) => {
+  getStore().setState(({ toasts: state }) => {
+    if (state.toastProgress?.hasOwnProperty(toastId)) {
+      delete state.toastProgress[toastId];
+    }
+  });
+};

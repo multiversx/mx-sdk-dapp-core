@@ -5,10 +5,7 @@ import {
   PendingTransactionsEventsEnum
 } from 'core/managers';
 import { getAddress } from 'core/methods/account/getAddress';
-import {
-  IProvider,
-  ProviderTypeEnum
-} from 'core/providers/types/providerFactory.types';
+import { IProvider } from 'core/providers/types/providerFactory.types';
 import { PendingTransactionsModal } from 'lib/sdkDappCoreUi';
 import { ProviderErrorsEnum } from 'types';
 import { createUIElement } from 'utils/createUIElement';

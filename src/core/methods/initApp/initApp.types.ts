@@ -29,6 +29,7 @@ export type EnvironmentDappConfigType = BaseDappConfigType & {
    */
   environment: EnvironmentsEnum;
   network?: CustomNetworkType;
+  successfulToastLifetime?: number;
 };
 
 export type CustomNetworkDappConfigType = BaseDappConfigType & {
@@ -38,6 +39,7 @@ export type CustomNetworkDappConfigType = BaseDappConfigType & {
    */
   network: CustomNetworkType & { apiAddress: string };
   environment?: never;
+  successfulToastLifetime?: number;
 };
 
 export type DappConfigType =

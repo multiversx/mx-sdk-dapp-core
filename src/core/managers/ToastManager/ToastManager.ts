@@ -1,93 +1,148 @@
+import isEqual from 'lodash.isequal';
 import { TransactionToastList } from 'lib/sdkDappCoreUi';
 import { removeTransactionToast } from 'store/actions/toasts/toastsActions';
-import { isServerTransactionPending } from 'store/actions/trackedTransactions/transactionStateByStatus';
+import {
+  getIsTransactionFailed,
+  getIsTransactionPending,
+  getIsTransactionSuccessful,
+  getIsTransactionTimedOut
+} from 'store/actions/trackedTransactions/transactionStateByStatus';
+import { accountSelector } from 'store/selectors/accountSelectors';
 import { ToastsSliceState } from 'store/slices/toast/toastSlice.types';
 import { getStore } from 'store/store';
-import {
-  ProviderErrorsEnum,
-  TransactionBatchStatusesEnum,
-  TransactionServerStatusesEnum
-} from 'types';
-import { SignedTransactionType } from 'types/transactions.types';
-import { createUIElement } from 'utils/createUIElement';
-import {
-  GetToastsOptionsDataPropsType,
-  ITransactionToast,
-  TransactionsDefaultTitles,
-  TransactionToastEventsEnum,
-  IToastDataState
-} from './types';
+import { ProviderErrorsEnum } from 'types';
+import { createModalElement } from 'utils/createModalElement';
+import { getAreTransactionsOnSameShard } from './helpers/getAreTransactionsOnSameShard';
+import { getToastDataStateByStatus } from './helpers/getToastDataStateByStatus';
+import { getToastProceededStatus } from './helpers/getToastProceededStatus';
+import { LifetimeManager } from './helpers/LifetimeManager';
+import { ProgressManager } from './helpers/ProgressManager';
+import { ITransactionToast, TransactionToastEventsEnum } from './types';
+
+interface IToastManager {
+  successfulToastLifetime?: number;
+}
 
 export class ToastManager {
-  private transactionToastsList: TransactionToastList | undefined;
+  private progressManager: ProgressManager;
+  private lifetimeManager: LifetimeManager;
+  private transactionToastsElement: TransactionToastList | undefined;
+  private transactionToasts: ITransactionToast[] = [];
+  private successfulToastLifetime?: number;
   private unsubscribe: () => void = () => null;
+
   store = getStore();
 
-  constructor() {}
+  constructor({ successfulToastLifetime }: IToastManager = {}) {
+    this.successfulToastLifetime = successfulToastLifetime;
+
+    this.progressManager = new ProgressManager({
+      onUpdate: this.handleProgressUpdate
+    });
+    this.lifetimeManager = new LifetimeManager({
+      successfulToastLifetime
+    });
+  }
 
   public init() {
-    const { toasts, trackedTransactions } = this.store.getState();
+    const { toasts } = this.store.getState();
     this.onToastListChange(toasts);
 
-    let previousToasts = toasts;
-    let previousTrackedTransactions = trackedTransactions;
-    this.unsubscribe = this.store.subscribe(() => {
-      const { toasts, trackedTransactions } = this.store.getState();
-      const currentToasts = toasts;
-
-      const currentTrackedTransactions = trackedTransactions;
-
-      if (
-        previousToasts !== currentToasts ||
-        previousTrackedTransactions !== currentTrackedTransactions
-      ) {
-        previousToasts = currentToasts;
-        previousTrackedTransactions = currentTrackedTransactions;
-        this.onToastListChange(currentToasts);
+    this.unsubscribe = this.store.subscribe(
+      (
+        { toasts, trackedTransactions },
+        { toasts: prevToasts, trackedTransactions: prevTrackedTransactions }
+      ) => {
+        if (
+          !isEqual(prevToasts, toasts) ||
+          !isEqual(prevTrackedTransactions, trackedTransactions)
+        ) {
+          this.onToastListChange(toasts);
+        }
       }
-    });
+    );
   }
 
   private async onToastListChange(toastList: ToastsSliceState) {
     const { trackedTransactions, account } = this.store.getState();
-    const transactionToasts: ITransactionToast[] = [];
+    this.transactionToasts = [];
 
-    toastList.transactionToasts.forEach(async (toast) => {
+    for (const toast of toastList.transactionToasts) {
       const sessionTransactions = trackedTransactions[toast.toastId];
       if (!sessionTransactions) {
-        return;
+        continue;
       }
 
-      const transaction: ITransactionToast = {
-        toastDataState: this.getToastDataStateByStatus({
+      const { status, transactions } = sessionTransactions;
+      const isPending = getIsTransactionPending(status);
+      const isTimedOut = getIsTransactionTimedOut(status);
+      const isFailed = getIsTransactionFailed(status);
+      const isSuccessful = getIsTransactionSuccessful(status);
+      const isCompleted = isFailed || isSuccessful || isTimedOut;
+
+      if (isCompleted && this.successfulToastLifetime) {
+        this.lifetimeManager.start(toast.toastId);
+      }
+
+      const transactionToast: ITransactionToast = {
+        toastDataState: getToastDataStateByStatus({
           address: account.address,
-          sender: sessionTransactions.transactions[0].sender,
+          sender: transactions[0]?.sender,
           toastId: toast.toastId,
-          status: sessionTransactions.status
+          status
         }),
-        processedTransactionsStatus: this.getToastProceededStatus(
-          sessionTransactions.transactions
-        ),
+        processedTransactionsStatus: getToastProceededStatus(transactions),
+        transactionProgressState: isPending
+          ? {
+              currentRemaining: this.progressManager.getInitialProgress(
+                toast.toastId
+              )
+            }
+          : null,
         toastId: toast.toastId,
-        transactions: sessionTransactions.transactions.map((transaction) => ({
-          hash: transaction.hash,
-          status: transaction.status
+        transactions: transactions.map(({ hash, status }) => ({
+          hash,
+          status
         }))
       };
 
-      transactionToasts.push(transaction);
-    });
-    await this.renderUIToasts(transactionToasts);
-  }
+      this.progressManager.start({
+        toastId: toast.toastId,
+        isCrossShard: getAreTransactionsOnSameShard(
+          transactions,
+          accountSelector(this.store.getState())?.shard
+        ),
+        isFinished: !isPending || isTimedOut
+      });
 
-  private async renderUIToasts(transactionsToasts: ITransactionToast[]) {
-    if (!this.transactionToastsList) {
-      this.transactionToastsList = await createUIElement<TransactionToastList>(
-        'transaction-toast-list'
-      );
+      this.transactionToasts.push(transactionToast);
     }
 
-    const eventBus = await this.transactionToastsList.getEventBus();
+    await this.renderUIToasts();
+  }
+
+  private handleProgressUpdate = (toastId: string, progress: number) => {
+    const toastIndex = this.transactionToasts.findIndex(
+      (toast) => toast.toastId === toastId
+    );
+    if (toastIndex !== -1) {
+      this.transactionToasts[toastIndex] = {
+        ...this.transactionToasts[toastIndex],
+        transactionProgressState: { currentRemaining: progress }
+      };
+      this.renderUIToasts();
+    }
+  };
+
+  private async renderUIToasts(): Promise<TransactionToastList> {
+    if (!this.transactionToastsElement) {
+      this.transactionToastsElement =
+        await createModalElement<TransactionToastList>(
+          'transaction-toast-list'
+        );
+    }
+
+    const eventBus = await this.transactionToastsElement.getEventBus();
 
     if (!eventBus) {
       throw new Error(ProviderErrorsEnum.eventBusError);
@@ -95,109 +150,22 @@ export class ToastManager {
 
     eventBus.publish(
       TransactionToastEventsEnum.TRANSACTION_TOAST_DATA_UPDATE,
-      transactionsToasts
+      this.transactionToasts
     );
     eventBus.subscribe(
       TransactionToastEventsEnum.CLOSE_TOAST,
       (toastId: string) => {
+        this.progressManager.stop(toastId);
+        this.lifetimeManager.stop(toastId);
         removeTransactionToast(toastId);
       }
     );
-    return this.transactionToastsList;
+    return this.transactionToastsElement;
   }
-
-  private getToastDataStateByStatus = ({
-    address,
-    sender,
-    status,
-    toastId
-  }: GetToastsOptionsDataPropsType) => {
-    const successToastData: IToastDataState = {
-      id: toastId,
-      icon: 'check',
-      hasCloseButton: true,
-      title: TransactionsDefaultTitles.success,
-      iconClassName: 'success'
-    };
-
-    const receivedToastData: IToastDataState = {
-      id: toastId,
-      icon: 'check',
-      hasCloseButton: true,
-      title: TransactionsDefaultTitles.received,
-      iconClassName: 'success'
-    };
-
-    const pendingToastData: IToastDataState = {
-      id: toastId,
-      icon: 'hourglass',
-      hasCloseButton: false,
-      title: TransactionsDefaultTitles.pending,
-      iconClassName: 'warning'
-    };
-
-    const failToastData: IToastDataState = {
-      id: toastId,
-      icon: 'times',
-      title: TransactionsDefaultTitles.failed,
-      hasCloseButton: true,
-      iconClassName: 'danger'
-    };
-
-    const invalidToastData: IToastDataState = {
-      id: toastId,
-      icon: 'ban',
-      title: TransactionsDefaultTitles.invalid,
-      hasCloseButton: true,
-      iconClassName: 'warning'
-    };
-
-    const timedOutToastData = {
-      id: toastId,
-      icon: 'times',
-      title: TransactionsDefaultTitles.timedOut,
-      hasCloseButton: true,
-      iconClassName: 'warning'
-    };
-
-    switch (status) {
-      case TransactionBatchStatusesEnum.signed:
-      case TransactionBatchStatusesEnum.sent:
-        return pendingToastData;
-      case TransactionBatchStatusesEnum.success:
-        return sender !== address ? receivedToastData : successToastData;
-      case TransactionBatchStatusesEnum.cancelled:
-      case TransactionBatchStatusesEnum.fail:
-        return failToastData;
-      case TransactionBatchStatusesEnum.timedOut:
-        return timedOutToastData;
-      case TransactionBatchStatusesEnum.invalid:
-        return invalidToastData;
-      default:
-        return pendingToastData;
-    }
-  };
-
-  private getToastProceededStatus = (transactions: SignedTransactionType[]) => {
-    const processedTransactions = transactions.filter(
-      (tx) =>
-        !isServerTransactionPending(tx.status as TransactionServerStatusesEnum)
-    ).length;
-
-    const totalTransactions = transactions.length;
-
-    if (totalTransactions === 1 && processedTransactions === 1) {
-      return isServerTransactionPending(
-        transactions[0].status as TransactionServerStatusesEnum
-      )
-        ? 'Processing transaction'
-        : 'Transaction processed';
-    }
-
-    return `${processedTransactions} / ${totalTransactions} transactions processed`;
-  };
 
   public destroy() {
     this.unsubscribe();
+    this.progressManager.destroy();
+    this.lifetimeManager.destroy();
   }
 }

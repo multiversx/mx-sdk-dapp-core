@@ -3,6 +3,7 @@ import { SignedTransactionType } from 'types/transactions.types';
 export interface ToastsSliceState {
   customToasts: CustomToastType[];
   transactionToasts: TransactionToastType[];
+  toastProgress: Record<string, number>;
 }
 
 export interface SharedCustomToast {

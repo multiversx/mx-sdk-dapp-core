@@ -1,25 +1,32 @@
 import { Transaction } from '@multiversx/sdk-core/out';
 import { getEconomics } from 'apiCalls/economics/getEconomics';
 import { getPersistedTokenDetails } from 'apiCalls/tokens/getPersistedTokenDetails';
-import { GAS_PER_DATA_BYTE, GAS_PRICE_MODIFIER } from 'constants/mvx.constants';
+import {
+  GAS_PER_DATA_BYTE,
+  GAS_PRICE_MODIFIER,
+  MULTI_TRANSFER_EGLD_TOKEN
+} from 'constants/mvx.constants';
 import { SignTransactionsStateManager } from 'core/managers/SignTransactionsStateManager/SignTransactionsStateManager';
 import {
-  TokenType,
+  ISignTransactionsModalData,
   SignEventsEnum
 } from 'core/managers/SignTransactionsStateManager/types';
 import { getAddress } from 'core/methods/account/getAddress';
 import { getEgldLabel } from 'core/methods/network/getEgldLabel';
 import { IProvider } from 'core/providers/types/providerFactory.types';
 import { SignTransactionsModal } from 'lib/sdkDappCoreUi';
+import { formatAmount } from 'lib/sdkDappUtils';
 import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
-import { EsdtEnumType, NftEnumType } from 'types/tokens.types';
-import { createUIElement } from 'utils/createUIElement';
-import { formatAmount } from 'utils/operations/formatAmount';
+import { NftEnumType } from 'types/tokens.types';
+import { createModalElement } from 'utils/createModalElement';
 import { calculateFeeInFiat } from './helpers/calculateFeeInFiat';
 import { calculateFeeLimit } from './helpers/calculateFeeLimit';
 import { getExtractTransactionsInfo } from './helpers/getExtractTransactionsInfo';
+import { getHighlight } from './helpers/getHighlight';
 import { getMultiEsdtTransferData } from './helpers/getMultiEsdtTransferData/getMultiEsdtTransferData';
+import { getScCall } from './helpers/getScCall';
+import { getTokenType } from './helpers/getTokenType';
 import { getUsdValue } from './helpers/getUsdValue';
 
 export async function signTransactions({
@@ -33,7 +40,7 @@ export async function signTransactions({
   const network = networkSelector(getState());
 
   const egldLabel = getEgldLabel();
-  const signModalElement = await createUIElement<SignTransactionsModal>(
+  const signModalElement = await createModalElement<SignTransactionsModal>(
     'sign-transactions-modal'
   );
 
@@ -95,19 +102,17 @@ export async function signTransactions({
 
       const txInfo = await extractTransactionsInfo(currentTransaction);
 
-      let tokenIdForTokenDetails = txInfo?.transactionTokenInfo?.tokenId;
-      const isEgld = !tokenIdForTokenDetails;
-      let tokenAmount = '';
+      const isEgld = !txInfo?.transactionTokenInfo?.tokenId;
+      const {
+        tokenId,
+        nonce,
+        amount = ''
+      } = txInfo?.transactionTokenInfo ?? {};
 
-      let tokenType: TokenType = null;
-
-      if (txInfo?.transactionTokenInfo) {
-        const { tokenId, nonce, amount } = txInfo.transactionTokenInfo;
-        const isNftOrSft = nonce && nonce.length > 0;
-        tokenIdForTokenDetails = isNftOrSft ? `${tokenId}-${nonce}` : tokenId;
-        tokenType = isNftOrSft ? null : EsdtEnumType.FungibleESDT;
-        tokenAmount = amount;
-      }
+      const isNftOrSft = tokenId && nonce && nonce.length > 0;
+      const tokenIdForTokenDetails = isNftOrSft
+        ? `${tokenId}-${nonce}`
+        : tokenId;
 
       const tokenDetails = await getPersistedTokenDetails({
         tokenId: tokenIdForTokenDetails
@@ -121,9 +126,9 @@ export async function signTransactions({
         type === NftEnumType.NonFungibleESDT;
 
       if (isNft) {
-        manager.updateFungibleTransaction(type, {
+        manager.updateNonFungibleTransaction(type, {
           identifier,
-          amount: tokenAmount,
+          amount,
           imageURL: tokenImageUrl
         });
       } else {
@@ -131,7 +136,7 @@ export async function signTransactions({
           formatAmount({
             input: isEgld
               ? currentTransaction.transaction.getValue().toString()
-              : tokenAmount,
+              : amount,
             decimals: isEgld ? Number(network.decimals) : tokenDecimals,
             digits: Number(network.digits),
             showLastNonZeroDecimal: false,
@@ -146,23 +151,41 @@ export async function signTransactions({
           usd: tokenPrice,
           addEqualSign: true
         });
+
+        const esdtIdentifier =
+          identifier === MULTI_TRANSFER_EGLD_TOKEN ? egldLabel : identifier;
         manager.updateTokenTransaction({
-          identifier: identifier ?? egldLabel,
+          identifier: esdtIdentifier ?? egldLabel,
           amount: formattedAmount,
           usdValue
         });
       }
 
-      manager.updateCommonData({
+      const commonData: ISignTransactionsModalData['commonData'] = {
         receiver: plainTransaction.receiver.toString(),
         data: currentTransaction.transaction.getData().toString(),
         egldLabel,
-        tokenType,
+        tokenType: getTokenType(type),
         feeLimit: feeLimitFormatted,
         feeInFiatLimit,
         transactionsCount: allTransactions.length,
-        currentIndex: currentTransactionIndex
-      });
+        currentIndex: currentTransactionIndex,
+        highlight: getHighlight(txInfo?.transactionTokenInfo),
+        scCall: getScCall(txInfo?.transactionTokenInfo)
+      };
+
+      manager.updateCommonData(commonData);
+      manager.updateConfirmedTransactions();
+
+      const onPreviousTransaction = async () => {
+        const data = manager.confirmedScreens[manager.currentScreenIndex - 1];
+        manager.updateData(data);
+      };
+
+      const onNextTransaction = async () => {
+        const data = manager.confirmedScreens[manager.currentScreenIndex + 1];
+        manager.updateData(data);
+      };
 
       const onCancel = () => {
         reject(new Error('Transaction signing cancelled by user'));
@@ -181,11 +204,20 @@ export async function signTransactions({
         const removeEvents = () => {
           eventBus.unsubscribe(SignEventsEnum.SIGN_TRANSACTION, onSign);
           eventBus.unsubscribe(SignEventsEnum.CLOSE, onCancel);
+          eventBus.unsubscribe(
+            SignEventsEnum.PREV_TRANSACTION,
+            onPreviousTransaction
+          );
+          eventBus.unsubscribe(
+            SignEventsEnum.NEXT_TRANSACTION,
+            onNextTransaction
+          );
         };
 
         if (shouldContinueWithoutSigning) {
           currentTransactionIndex++;
           removeEvents();
+          manager.setNextUnsignedTxIndex(currentTransactionIndex);
           return signNextTransaction();
         }
 
@@ -205,6 +237,7 @@ export async function signTransactions({
             resolve(signedTransactions);
           } else {
             currentTransactionIndex++;
+            manager.setNextUnsignedTxIndex(currentTransactionIndex);
             signNextTransaction();
           }
         } catch (error) {
@@ -215,6 +248,11 @@ export async function signTransactions({
 
       eventBus.subscribe(SignEventsEnum.SIGN_TRANSACTION, onSign);
       eventBus.subscribe(SignEventsEnum.CLOSE, onCancel);
+      eventBus.subscribe(
+        SignEventsEnum.PREV_TRANSACTION,
+        onPreviousTransaction
+      );
+      eventBus.subscribe(SignEventsEnum.NEXT_TRANSACTION, onNextTransaction);
     };
 
     signNextTransaction();
