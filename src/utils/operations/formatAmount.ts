@@ -24,8 +24,9 @@ export function formatAmount({
     throw new Error('Invalid input');
   }
 
-  BigNumber.config({ ROUNDING_MODE: BigNumber.ROUND_FLOOR });
-  const isNegative = new BigNumber(input).isNegative();
+  const LocalBigNumber = BigNumber.clone();
+  LocalBigNumber.config({ ROUNDING_MODE: BigNumber.ROUND_FLOOR });
+  const isNegative = LocalBigNumber(input).isNegative();
   let modInput = input;
 
   if (isNegative) {
@@ -43,7 +44,7 @@ export function formatAmount({
       )
       // format
       .then((current) => {
-        const bnBalance = new BigNumber(current);
+        const bnBalance = LocalBigNumber(current);
 
         if (bnBalance.isZero()) {
           return ZERO;
@@ -51,7 +52,7 @@ export function formatAmount({
 
         const balance = bnBalance.toString(10);
         const [integerPart, decimalPart] = balance.split('.');
-        const bNdecimalPart = new BigNumber(decimalPart || 0);
+        const bNdecimalPart = LocalBigNumber(decimalPart || 0);
 
         const decimalPlaces = pipe(0)
           .if(Boolean(decimalPart && showLastNonZeroDecimal))
@@ -70,7 +71,7 @@ export function formatAmount({
           digits >= 1 &&
           digits <= decimalPart.length &&
           bNdecimalPart.isGreaterThan(0) &&
-          new BigNumber(decimalPart.substring(0, digits)).isZero();
+          LocalBigNumber(decimalPart.substring(0, digits)).isZero();
 
         const formatted = bnBalance.toFormat(decimalPlaces);
 
@@ -79,7 +80,7 @@ export function formatAmount({
           .then(formatted)
           .if(Boolean(shownDecimalsAreZero))
           .then((current) => {
-            const integerPartZero = new BigNumber(integerPart).isZero();
+            const integerPartZero = LocalBigNumber(integerPart).isZero();
             const [numericPart, decimalSide] = current.split('.');
 
             const zeroPlaceholders = new Array(digits - 1).fill(0);
