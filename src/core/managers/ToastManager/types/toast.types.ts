@@ -43,7 +43,8 @@ export interface ITransactionToast {
   transactionProgressState?: ITransactionProgressState | null;
 }
 
-export enum TransactionToastEventsEnum {
+export enum ToastEventsEnum {
   'CLOSE_TOAST' = 'CLOSE_TOAST',
-  'TRANSACTION_TOAST_DATA_UPDATE' = 'TRANSACTION_TOAST_DATA_UPDATE'
+  'TRANSACTION_TOAST_DATA_UPDATE' = 'TRANSACTION_TOAST_DATA_UPDATE',
+  'CUSTOM_TOAST_DATA_UPDATE' = 'CUSTOM_TOAST_DATA_UPDATE'
 }

@@ -1,12 +1,17 @@
 import {
-  CustomToastType,
+  ICustomToastType,
   ToastsEnum
 } from 'store/slices/toast/toastSlice.types';
 import { getStore } from 'store/store';
 import { getUnixTimestamp } from 'utils';
 
+export const customToastComponentDictionary: Record<string, () => HTMLElement> =
+  {};
+export const customToastCloseHandlersDictionary: Record<string, () => void> =
+  {};
+
 export const addCustomToast = (
-  customToasts: CustomToastType,
+  customToast: ICustomToastType,
   currentToastId?: string
 ) => {
   getStore().setState(({ toasts: state }) => {
@@ -24,22 +29,21 @@ export const addCustomToast = (
       (toast) => toast.toastId === toastId
     );
 
+    const newToast: ICustomToastType = {
+      ...customToast,
+      type: ToastsEnum.custom,
+      toastId
+    };
+
     const isToastFound = existingToastIndex !== -1;
 
     if (isToastFound) {
-      const updatedToast: CustomToastType = {
-        ...state.customToasts[existingToastIndex],
-        ...customToasts,
-        type: ToastsEnum.custom,
-        toastId
-      };
-
-      state.customToasts[existingToastIndex] = updatedToast;
+      state.customToasts[existingToastIndex] = newToast;
       return;
     }
 
     state.customToasts.push({
-      ...customToasts,
+      ...newToast,
       type: ToastsEnum.custom,
       toastId
     });
@@ -51,6 +55,12 @@ export const removeCustomToast = (toastId: string) => {
     state.customToasts = state.customToasts.filter(
       (toast) => toast.toastId !== toastId
     );
+  });
+};
+
+export const removeAllCustomToast = () => {
+  getStore().setState(({ toasts: state }) => {
+    state.customToasts = [];
   });
 };
 
@@ -80,6 +90,14 @@ export const removeTransactionToast = (toastId: string) => {
       return toast.toastId !== toastId;
     });
   });
+
+  if (customToastCloseHandlersDictionary[toastId]) {
+    delete customToastCloseHandlersDictionary[toastId];
+  }
+
+  if (customToastComponentDictionary[toastId]) {
+    delete customToastComponentDictionary[toastId];
+  }
 };
 
 export const getToastProgress = (toastId: string): number | undefined => {
@@ -104,4 +122,53 @@ export const deleteToastProgress = (toastId: string) => {
       delete state.toastProgress[toastId];
     }
   });
+};
+
+export const createCustomToast = (props: ICustomToastType) => {
+  const { toasts } = getStore().getState();
+
+  const lastToastIndex =
+    toasts.customToasts.length > 0
+      ? Math.max(
+          ...toasts.customToasts.map((toast) =>
+            parseInt(toast.toastId.split('-').pop() || '0')
+          )
+        )
+      : 0;
+
+  const toastId = props.toastId || `custom-toast-${lastToastIndex + 1}`;
+
+  if (props.onClose) {
+    customToastCloseHandlersDictionary[toastId] = props.onClose;
+  }
+
+  if (props.instantiateToastElement && props.instantiateToastElement != null) {
+    customToastComponentDictionary[toastId] = props.instantiateToastElement;
+
+    getStore().setState(({ toasts: state }) => {
+      const existingToastIndex = state.customToasts.findIndex(
+        (toast) => toast.toastId === toastId
+      );
+
+      const toast: ICustomToastType = {
+        ...props,
+        instantiateToastElement: null,
+        type: ToastsEnum.custom,
+        toastId
+      };
+
+      const isToastFound = existingToastIndex !== -1;
+
+      if (isToastFound) {
+        state.customToasts[existingToastIndex] = toast;
+      } else {
+        state.customToasts.push(toast);
+      }
+    });
+
+    return toastId;
+  }
+
+  addCustomToast(props, toastId);
+  return toastId;
 };
