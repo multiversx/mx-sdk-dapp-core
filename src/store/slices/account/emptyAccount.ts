@@ -1,4 +1,5 @@
-import { ELLIPSIS, ZERO } from 'constants/placeholders.constants';
+import { ELLIPSIS } from 'constants/placeholders.constants';
+import { ZERO } from 'lib/sdkDappUtils';
 import { AccountType } from 'types/account.types';
 
 export const emptyAccount: AccountType = {

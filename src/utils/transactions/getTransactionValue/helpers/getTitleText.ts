@@ -1,6 +1,6 @@
-import { DECIMALS } from 'constants/mvx.constants';
-import { formatAmount } from 'lib/sdkDappUtils';
+import { DECIMALS } from 'lib/sdkDappUtils';
 import { TokenArgumentType } from 'types/serverTransactions.types';
+import { formatAmount } from 'utils/operations/formatAmount';
 
 import { getIdentifierType } from 'utils/validation/getIdentifierType';
 import { getTransactionActionNftText } from '../../getTransactionActionNftText';

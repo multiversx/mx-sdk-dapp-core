@@ -20,7 +20,7 @@ import {
 } from 'store/slices/toast/toastSlice.types';
 import { getStore } from 'store/store';
 import { ProviderErrorsEnum } from 'types';
-import { createModalElement } from 'utils/createModalElement';
+import { createUIElement } from 'utils/createUIElement';
 import { getAreTransactionsOnSameShard } from './helpers/getAreTransactionsOnSameShard';
 import { getToastDataStateByStatus } from './helpers/getToastDataStateByStatus';
 import { getToastProceededStatus } from './helpers/getToastProceededStatus';
@@ -176,7 +176,7 @@ export class ToastManager {
 
   private async renderUIToasts(): Promise<ToastList> {
     if (!this.toastsElement) {
-      this.toastsElement = await createModalElement<ToastList>('toast-list');
+      this.toastsElement = await createUIElement<ToastList>('toast-list');
     }
 
     const eventBus = await this.toastsElement.getEventBus();
@@ -199,7 +199,7 @@ export class ToastManager {
 
   private async renderUICustomToasts(): Promise<ToastList> {
     if (!this.toastsElement) {
-      this.toastsElement = await createModalElement<ToastList>('toast-list');
+      this.toastsElement = await createUIElement<ToastList>('toast-list');
     }
 
     const eventBus = await this.toastsElement.getEventBus();

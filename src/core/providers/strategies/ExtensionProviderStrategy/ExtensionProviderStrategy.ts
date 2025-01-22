@@ -8,7 +8,7 @@ import { getAddress } from 'core/methods/account/getAddress';
 import { IProvider } from 'core/providers/types/providerFactory.types';
 import { PendingTransactionsModal } from 'lib/sdkDappCoreUi';
 import { ProviderErrorsEnum } from 'types';
-import { createModalElement } from 'utils/createModalElement';
+import { createUIElement } from 'utils/createUIElement';
 
 export class ExtensionProviderStrategy {
   private address: string = '';
@@ -68,7 +68,7 @@ export class ExtensionProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    const modalElement = await createModalElement<PendingTransactionsModal>(
+    const modalElement = await createUIElement<PendingTransactionsModal>(
       'pending-transactions-modal'
     );
     const { eventBus, manager, onClose } =
@@ -97,7 +97,7 @@ export class ExtensionProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    const modalElement = await createModalElement<PendingTransactionsModal>(
+    const modalElement = await createUIElement<PendingTransactionsModal>(
       'pending-transactions-modal'
     );
 

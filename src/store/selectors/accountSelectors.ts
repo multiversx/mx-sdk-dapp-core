@@ -1,10 +1,12 @@
+import { emptyAccount } from 'store/slices/account/emptyAccount';
 import { StoreType } from 'store/store.types';
 
 const privateAccountInfoSelector = ({ account }: StoreType) => account;
 
-export const accountSelector = ({
-  account: { accounts, address }
-}: StoreType) => accounts[address];
+export const accountSelector = ({ account }: StoreType) =>
+  account.address && account.address in account.accounts
+    ? account.accounts[account.address]
+    : emptyAccount;
 
 export const accountInfoSelector = (state: StoreType) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

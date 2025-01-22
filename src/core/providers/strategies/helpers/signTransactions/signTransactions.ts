@@ -15,11 +15,11 @@ import { getAddress } from 'core/methods/account/getAddress';
 import { getEgldLabel } from 'core/methods/network/getEgldLabel';
 import { IProvider } from 'core/providers/types/providerFactory.types';
 import { SignTransactionsModal } from 'lib/sdkDappCoreUi';
-import { formatAmount } from 'lib/sdkDappUtils';
 import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
 import { NftEnumType } from 'types/tokens.types';
-import { createModalElement } from 'utils/createModalElement';
+import { createUIElement } from 'utils/createUIElement';
+import { formatAmount } from 'utils/operations/formatAmount';
 import { calculateFeeInFiat } from './helpers/calculateFeeInFiat';
 import { calculateFeeLimit } from './helpers/calculateFeeLimit';
 import { getExtractTransactionsInfo } from './helpers/getExtractTransactionsInfo';
@@ -40,7 +40,7 @@ export async function signTransactions({
   const network = networkSelector(getState());
 
   const egldLabel = getEgldLabel();
-  const signModalElement = await createModalElement<SignTransactionsModal>(
+  const signModalElement = await createUIElement<SignTransactionsModal>(
     'sign-transactions-modal'
   );
 

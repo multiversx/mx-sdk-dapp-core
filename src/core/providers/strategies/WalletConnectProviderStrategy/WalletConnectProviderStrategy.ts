@@ -28,7 +28,7 @@ import {
 import { getState } from 'store/store';
 import { IEventBus } from 'types/manager.types';
 import { ProviderErrorsEnum } from 'types/provider.types';
-import { createModalElement } from 'utils/createModalElement';
+import { createUIElement } from 'utils/createUIElement';
 import {
   WalletConnectOptionalMethodsEnum,
   WalletConnectV2Provider
@@ -161,7 +161,7 @@ export class WalletConnectProviderStrategy {
       return;
     }
 
-    const modalElement = await createModalElement<WalletConnectModal>(
+    const modalElement = await createUIElement<WalletConnectModal>(
       'wallet-connect-modal'
     );
 
@@ -306,7 +306,7 @@ export class WalletConnectProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    const modalElement = await createModalElement<PendingTransactionsModal>(
+    const modalElement = await createUIElement<PendingTransactionsModal>(
       'pending-transactions-modal'
     );
     const { eventBus, manager, onClose } =
@@ -341,7 +341,7 @@ export class WalletConnectProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    const modalElement = await createModalElement<PendingTransactionsModal>(
+    const modalElement = await createUIElement<PendingTransactionsModal>(
       'pending-transactions-modal'
     );
     const { eventBus, manager, onClose } =
