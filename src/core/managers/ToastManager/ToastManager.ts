@@ -82,12 +82,13 @@ export class ToastManager {
   private async onCustomTransactionListChange(toastList: ToastsSliceState) {
     this.customToasts = [];
     for (const toast of toastList.customToasts) {
-      const newToast =
+      const newToast: ICustomToastType =
         'message' in toast
           ? { ...toast }
           : {
               ...toast,
-              componentCreate: customToastComponentDictionary[toast.toastId]
+              instantiateToastElement:
+                customToastComponentDictionary[toast.toastId]
             };
       this.customToasts.push(newToast);
       if (toast.duration) {
