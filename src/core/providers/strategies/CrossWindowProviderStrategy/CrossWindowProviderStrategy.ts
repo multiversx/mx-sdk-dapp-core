@@ -13,7 +13,7 @@ import { crossWindowConfigSelector } from 'store/selectors';
 import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
 import { ProviderErrorsEnum } from 'types/provider.types';
-import { createModalElement } from 'utils/createModalElement';
+import { createUIElement } from 'utils/createUIElement';
 
 type CrossWindowProviderProps = {
   address?: string;
@@ -89,7 +89,7 @@ export class CrossWindowProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    const modalElement = await createModalElement<PendingTransactionsModal>(
+    const modalElement = await createUIElement<PendingTransactionsModal>(
       'pending-transactions-modal'
     );
     const { eventBus, onClose, manager } =
@@ -125,7 +125,7 @@ export class CrossWindowProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    const modalElement = await createModalElement<PendingTransactionsModal>(
+    const modalElement = await createUIElement<PendingTransactionsModal>(
       'pending-transactions-modal'
     );
     const { eventBus, onClose, manager } =

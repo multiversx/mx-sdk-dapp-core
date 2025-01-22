@@ -34,7 +34,7 @@
   "dependencies": {
     "@lifeomic/axios-fetch": "3.0.1",
     "@multiversx/sdk-core": ">= 13.5.0",
-    "@multiversx/sdk-dapp-utils": ">= 1.0.2",
+    "@multiversx/sdk-dapp-utils": ">= 1.0.4",
     "@multiversx/sdk-extension-provider": "4.0.0",
     "@multiversx/sdk-hw-provider": "7.0.0",
     "@multiversx/sdk-metamask-provider": "1.0.0",
@@ -60,7 +60,7 @@
     "immer": "10.x"
   },
   "optionalDependencies": {
-    "@multiversx/sdk-dapp-core-ui": "0.0.0-alpha.0"
+    "@multiversx/sdk-dapp-core-ui": "0.0.0-alpha.1"
   },
   "resolutions": {
     "string-width": "4.1.0"
