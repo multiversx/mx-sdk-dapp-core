@@ -11,7 +11,7 @@ import { accountSelector } from 'store/selectors/accountSelectors';
 import { ToastsSliceState } from 'store/slices/toast/toastSlice.types';
 import { getStore } from 'store/store';
 import { ProviderErrorsEnum } from 'types';
-import { createModalElement } from 'utils/createModalElement';
+import { createUIElement } from 'utils/createUIElement';
 import { getAreTransactionsOnSameShard } from './helpers/getAreTransactionsOnSameShard';
 import { getToastDataStateByStatus } from './helpers/getToastDataStateByStatus';
 import { getToastProceededStatus } from './helpers/getToastProceededStatus';
@@ -137,9 +137,7 @@ export class ToastManager {
   private async renderUIToasts(): Promise<TransactionToastList> {
     if (!this.transactionToastsElement) {
       this.transactionToastsElement =
-        await createModalElement<TransactionToastList>(
-          'transaction-toast-list'
-        );
+        await createUIElement<TransactionToastList>('transaction-toast-list');
     }
 
     const eventBus = await this.transactionToastsElement.getEventBus();

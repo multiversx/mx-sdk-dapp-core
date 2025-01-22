@@ -1,5 +1,5 @@
-import { DECIMALS } from 'constants/mvx.constants';
-import { formatAmount } from 'lib/sdkDappUtils';
+import { DECIMALS } from 'lib/sdkDappUtils';
+import { formatAmount } from 'utils/operations/formatAmount';
 
 export const getEgldValueData = (value: string) => ({
   egldValueData: {

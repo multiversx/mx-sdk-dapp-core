@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js';
-import { DECIMALS, DIGITS, REFUNDED_GAS } from 'constants/index';
-
-import { formatAmount } from 'lib/sdkDappUtils';
+import { REFUNDED_GAS } from 'constants/index';
+import { DECIMALS, DIGITS } from 'lib/sdkDappUtils';
+import { formatAmount } from 'utils/operations/formatAmount';
 import { getReceiptMessage } from '../getReceiptMessage';
 import { baseTransactionMock } from './base-transaction-mock';
 

@@ -1,7 +1,7 @@
 import { Address } from '@multiversx/sdk-core';
 import BigNumber from 'bignumber.js';
-import { decodePart } from 'utils/decoders/decodePart';
 import { TransactionTypesEnum } from 'types/enums.types';
+import { decodePart } from 'utils/decoders/decodePart';
 import { addressIsValid } from '../validation';
 
 const noData = {
