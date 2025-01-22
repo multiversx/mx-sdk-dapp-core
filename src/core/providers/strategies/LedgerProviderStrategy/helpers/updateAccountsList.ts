@@ -3,10 +3,10 @@ import BigNumber from 'bignumber.js';
 import { ProviderErrorsEnum } from 'types';
 import { fetchAccount } from 'utils/account/fetchAccount';
 import { ILedgerAccount } from '../types';
-import { LedgerStateManagerType } from '../types/ledgerProvider.types';
+import { LedgerConnectStateManagerType } from '../types/ledgerProvider.types';
 
 type AccountsListType = {
-  manager: LedgerStateManagerType | null;
+  manager: LedgerConnectStateManagerType | null;
   provider: HWProvider | null;
 };
 
