@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- [Added custom toast support](https://github.com/multiversx/mx-sdk-dapp-core/pull/67)
 - [Refactor LedgerProviderStrategy](https://github.com/multiversx/mx-sdk-dapp-core/pull/63)
 - [Added toast progress](https://github.com/multiversx/mx-sdk-dapp-core/pull/61)
 
