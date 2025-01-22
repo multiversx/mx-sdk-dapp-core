@@ -3,8 +3,6 @@ import BigNumber from 'bignumber.js';
 import { DECIMALS, DIGITS, stringIsInteger, ZERO } from 'lib/sdkDappUtils';
 import { pipe } from './pipe';
 
-BigNumber.config({ ROUNDING_MODE: BigNumber.ROUND_FLOOR });
-
 export interface FormatAmountPropsType {
   addCommas?: boolean;
   decimals?: number;
@@ -26,6 +24,7 @@ export function formatAmount({
     throw new Error('Invalid input');
   }
 
+  BigNumber.config({ ROUNDING_MODE: BigNumber.ROUND_FLOOR });
   const isNegative = new BigNumber(input).isNegative();
   let modInput = input;
 
