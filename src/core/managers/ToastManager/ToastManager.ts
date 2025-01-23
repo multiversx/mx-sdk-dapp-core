@@ -1,6 +1,12 @@
 import isEqual from 'lodash.isequal';
-import { TransactionToastList } from 'lib/sdkDappCoreUi';
-import { removeTransactionToast } from 'store/actions/toasts/toastsActions';
+import { ToastList } from 'lib/sdkDappCoreUi';
+import {
+  customToastCloseHandlersDictionary,
+  customToastComponentDictionary,
+  removeAllCustomToasts,
+  removeCustomToast,
+  removeTransactionToast
+} from 'store/actions/toasts/toastsActions';
 import {
   getIsTransactionFailed,
   getIsTransactionPending,
@@ -8,7 +14,10 @@ import {
   getIsTransactionTimedOut
 } from 'store/actions/trackedTransactions/transactionStateByStatus';
 import { accountSelector } from 'store/selectors/accountSelectors';
-import { ToastsSliceState } from 'store/slices/toast/toastSlice.types';
+import {
+  CustomToastType,
+  IToastsSliceState
+} from 'store/slices/toast/toastSlice.types';
 import { getStore } from 'store/store';
 import { ProviderErrorsEnum } from 'types';
 import { createUIElement } from 'utils/createUIElement';
@@ -17,7 +26,7 @@ import { getToastDataStateByStatus } from './helpers/getToastDataStateByStatus';
 import { getToastProceededStatus } from './helpers/getToastProceededStatus';
 import { LifetimeManager } from './helpers/LifetimeManager';
 import { ProgressManager } from './helpers/ProgressManager';
-import { ITransactionToast, TransactionToastEventsEnum } from './types';
+import { ITransactionToast, ToastEventsEnum } from './types';
 
 interface IToastManager {
   successfulToastLifetime?: number;
@@ -26,14 +35,16 @@ interface IToastManager {
 export class ToastManager {
   private progressManager: ProgressManager;
   private lifetimeManager: LifetimeManager;
-  private transactionToastsElement: TransactionToastList | undefined;
+  private toastsElement: ToastList | undefined;
   private transactionToasts: ITransactionToast[] = [];
+  private customToasts: CustomToastType[] = [];
   private successfulToastLifetime?: number;
   private unsubscribe: () => void = () => null;
 
   store = getStore();
 
   constructor({ successfulToastLifetime }: IToastManager = {}) {
+    this.destroy();
     this.successfulToastLifetime = successfulToastLifetime;
 
     this.progressManager = new ProgressManager({
@@ -46,7 +57,8 @@ export class ToastManager {
 
   public init() {
     const { toasts } = this.store.getState();
-    this.onToastListChange(toasts);
+    this.updateTransactionToastsList(toasts);
+    this.updateCustomToastList(toasts);
 
     this.unsubscribe = this.store.subscribe(
       (
@@ -54,16 +66,47 @@ export class ToastManager {
         { toasts: prevToasts, trackedTransactions: prevTrackedTransactions }
       ) => {
         if (
-          !isEqual(prevToasts, toasts) ||
+          !isEqual(prevToasts.transactionToasts, toasts.transactionToasts) ||
           !isEqual(prevTrackedTransactions, trackedTransactions)
         ) {
-          this.onToastListChange(toasts);
+          this.updateTransactionToastsList(toasts);
+        }
+
+        if (!isEqual(prevToasts.customToasts, toasts.customToasts)) {
+          this.updateCustomToastList(toasts);
         }
       }
     );
   }
 
-  private async onToastListChange(toastList: ToastsSliceState) {
+  private async updateCustomToastList(toastList: IToastsSliceState) {
+    this.customToasts = [];
+    for (const toast of toastList.customToasts) {
+      const isSimpleToast = 'message' in toast;
+
+      const newToast: CustomToastType = isSimpleToast
+        ? { ...toast }
+        : {
+            ...toast,
+            instantiateToastElement:
+              customToastComponentDictionary[toast.toastId]
+          };
+      this.customToasts.push(newToast);
+
+      if (!toast.duration) {
+        continue;
+      }
+
+      this.lifetimeManager.startWithCustomDuration(
+        toast.toastId,
+        toast.duration
+      );
+    }
+
+    this.renderCustomToasts();
+  }
+
+  private async updateTransactionToastsList(toastList: IToastsSliceState) {
     const { trackedTransactions, account } = this.store.getState();
     this.transactionToasts = [];
 
@@ -118,7 +161,7 @@ export class ToastManager {
       this.transactionToasts.push(transactionToast);
     }
 
-    await this.renderUIToasts();
+    await this.renderToasts();
   }
 
   private handleProgressUpdate = (toastId: string, progress: number) => {
@@ -130,40 +173,62 @@ export class ToastManager {
         ...this.transactionToasts[toastIndex],
         transactionProgressState: { currentRemaining: progress }
       };
-      this.renderUIToasts();
+      this.renderToasts();
     }
   };
 
-  private async renderUIToasts(): Promise<TransactionToastList> {
-    if (!this.transactionToastsElement) {
-      this.transactionToastsElement =
-        await createUIElement<TransactionToastList>('transaction-toast-list');
+  private async renderToasts(): Promise<ToastList> {
+    if (!this.toastsElement) {
+      this.toastsElement = await createUIElement<ToastList>('toast-list');
     }
 
-    const eventBus = await this.transactionToastsElement.getEventBus();
+    const eventBus = await this.toastsElement.getEventBus();
+    console.log('eventBus', eventBus);
 
     if (!eventBus) {
       throw new Error(ProviderErrorsEnum.eventBusError);
     }
 
     eventBus.publish(
-      TransactionToastEventsEnum.TRANSACTION_TOAST_DATA_UPDATE,
+      ToastEventsEnum.TRANSACTION_TOAST_DATA_UPDATE,
       this.transactionToasts
     );
-    eventBus.subscribe(
-      TransactionToastEventsEnum.CLOSE_TOAST,
-      (toastId: string) => {
-        this.progressManager.stop(toastId);
-        this.lifetimeManager.stop(toastId);
-        removeTransactionToast(toastId);
-      }
+    eventBus.subscribe(ToastEventsEnum.CLOSE_TOAST, (toastId: string) => {
+      this.progressManager.stop(toastId);
+      this.lifetimeManager.stop(toastId);
+      removeTransactionToast(toastId);
+    });
+    return this.toastsElement;
+  }
+
+  private async renderCustomToasts(): Promise<ToastList> {
+    if (!this.toastsElement) {
+      this.toastsElement = await createUIElement<ToastList>('toast-list');
+    }
+
+    const eventBus = await this.toastsElement.getEventBus();
+
+    if (!eventBus) {
+      throw new Error(ProviderErrorsEnum.eventBusError);
+    }
+
+    eventBus.publish(
+      ToastEventsEnum.CUSTOM_TOAST_DATA_UPDATE,
+      this.customToasts
     );
-    return this.transactionToastsElement;
+    eventBus.subscribe(ToastEventsEnum.CLOSE_TOAST, (toastId: string) => {
+      this.lifetimeManager.stop(toastId);
+      const handleClose = customToastCloseHandlersDictionary[toastId];
+      handleClose?.();
+      removeCustomToast(toastId);
+    });
+    return this.toastsElement;
   }
 
   public destroy() {
     this.unsubscribe();
-    this.progressManager.destroy();
-    this.lifetimeManager.destroy();
+    this.progressManager?.destroy();
+    this.lifetimeManager?.destroy();
+    removeAllCustomToasts();
   }
 }
