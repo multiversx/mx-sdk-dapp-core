@@ -1,4 +1,8 @@
-import { removeTransactionToast } from 'store/actions/toasts/toastsActions';
+import {
+  customToastCloseHandlersDictionary,
+  removeCustomToast,
+  removeTransactionToast
+} from 'store/actions/toasts/toastsActions';
 
 interface IToastProgressManagerParams {
   successfulToastLifetime?: number;
@@ -21,6 +25,20 @@ export class LifetimeManager {
     const timeout = setTimeout(() => {
       removeTransactionToast(toastId);
     }, this.successfulToastLifetime);
+
+    this.timeoutIntervals.set(toastId, timeout);
+  };
+
+  public startWithCustomDuration = (toastId: string, duration: number) => {
+    if (this.timeoutIntervals.has(toastId)) {
+      return;
+    }
+
+    const timeout = setTimeout(() => {
+      removeCustomToast(toastId);
+      const handleClose = customToastCloseHandlersDictionary[toastId];
+      handleClose?.();
+    }, duration);
 
     this.timeoutIntervals.set(toastId, timeout);
   };

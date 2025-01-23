@@ -1,5 +1,5 @@
 import {
-  ICustomToastType,
+  CustomToastType,
   ToastsEnum
 } from 'store/slices/toast/toastSlice.types';
 import { getStore } from 'store/store';
@@ -11,7 +11,7 @@ export const customToastCloseHandlersDictionary: Record<string, () => void> =
   {};
 
 export const addCustomToast = (
-  customToast: ICustomToastType,
+  customToast: CustomToastType,
   currentToastId?: string
 ) => {
   getStore().setState(({ toasts: state }) => {
@@ -29,7 +29,7 @@ export const addCustomToast = (
       (toast) => toast.toastId === toastId
     );
 
-    const newToast: ICustomToastType = {
+    const newToast: CustomToastType = {
       ...customToast,
       type: ToastsEnum.custom,
       toastId
@@ -58,7 +58,7 @@ export const removeCustomToast = (toastId: string) => {
   });
 };
 
-export const removeAllCustomToast = () => {
+export const removeAllCustomToasts = () => {
   getStore().setState(({ toasts: state }) => {
     state.customToasts = [];
   });
@@ -91,13 +91,8 @@ export const removeTransactionToast = (toastId: string) => {
     });
   });
 
-  if (customToastCloseHandlersDictionary[toastId]) {
-    delete customToastCloseHandlersDictionary[toastId];
-  }
-
-  if (customToastComponentDictionary[toastId]) {
-    delete customToastComponentDictionary[toastId];
-  }
+  delete customToastCloseHandlersDictionary[toastId];
+  delete customToastComponentDictionary[toastId];
 };
 
 export const getToastProgress = (toastId: string): number | undefined => {
@@ -124,7 +119,7 @@ export const deleteToastProgress = (toastId: string) => {
   });
 };
 
-export const createCustomToast = (props: ICustomToastType) => {
+export const createCustomToast = (props: CustomToastType) => {
   const { toasts } = getStore().getState();
 
   const lastToastIndex =
@@ -142,7 +137,7 @@ export const createCustomToast = (props: ICustomToastType) => {
     customToastCloseHandlersDictionary[toastId] = props.onClose;
   }
 
-  if (props.instantiateToastElement && props.instantiateToastElement != null) {
+  if (props.instantiateToastElement) {
     customToastComponentDictionary[toastId] = props.instantiateToastElement;
 
     getStore().setState(({ toasts: state }) => {
@@ -150,7 +145,7 @@ export const createCustomToast = (props: ICustomToastType) => {
         (toast) => toast.toastId === toastId
       );
 
-      const toast: ICustomToastType = {
+      const toast: CustomToastType = {
         ...props,
         instantiateToastElement: null,
         type: ToastsEnum.custom,

@@ -1,8 +1,8 @@
 import { SignedTransactionType } from 'types/transactions.types';
 
-export interface ToastsSliceState {
-  customToasts: ICustomToastType[];
-  transactionToasts: TransactionToastType[];
+export interface IToastsSliceState {
+  customToasts: CustomToastType[];
+  transactionToasts: ITransactionToast[];
   toastProgress: Record<string, number>;
 }
 
@@ -16,7 +16,7 @@ interface ISharedCustomToast {
   onClose?: () => void;
 }
 
-export interface ISimpleToastType extends ISharedCustomToast {
+export interface ISimpleToast extends ISharedCustomToast {
   icon?: string;
   iconClassName?: string;
   title?: string;
@@ -28,7 +28,7 @@ export interface ISimpleToastType extends ISharedCustomToast {
   instantiateToastElement?: never;
 }
 
-export interface IComponentToastType extends ISharedCustomToast {
+export interface IComponentToast extends ISharedCustomToast {
   /**
    * A function that creates a custom toast component.
    *
@@ -46,9 +46,9 @@ export interface IComponentToastType extends ISharedCustomToast {
   subtitle?: never;
 }
 
-export type ICustomToastType = ISimpleToastType | IComponentToastType;
+export type CustomToastType = ISimpleToast | IComponentToast;
 
-export interface TransactionToastType {
+export interface ITransactionToast {
   duration?: number;
   icon?: string;
   iconClassName?: string;
