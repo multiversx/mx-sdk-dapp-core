@@ -131,7 +131,7 @@ export class LedgerProviderStrategy {
 
   private signTransactions = async (transactions: Transaction[]) => {
     if (!this._signTransactions) {
-      throw new Error('Sign transactions method is not initialized');
+      throw new Error(ProviderErrorsEnum.signTransactionsNotInitialized);
     }
 
     const signedTransactions = await signTransactions({

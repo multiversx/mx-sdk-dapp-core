@@ -34,7 +34,7 @@ export class IFrameProviderStrategy {
     const network = networkSelector(getState());
 
     if (!this.type) {
-      throw new Error(ProviderErrorsEnum.invalidType);
+      throw new Error(ProviderErrorsEnum.invalidProviderType);
     }
 
     if (!this.provider) {
