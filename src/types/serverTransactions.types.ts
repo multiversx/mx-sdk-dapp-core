@@ -283,10 +283,21 @@ export enum TransactionDirectionEnum {
   OUT = 'Out'
 }
 
+export interface TransactionAgeType {
+  age: string;
+  tooltip: string;
+}
+
+export interface TransactionMethodType {
+  method: string;
+  transactionActionDescription?: string;
+}
+
 export interface InterpretedTransactionType extends ServerTransactionType {
   transactionDetails: {
+    age: TransactionAgeType;
     direction?: TransactionDirectionEnum;
-    method: string;
+    method: TransactionMethodType;
     transactionTokens: TokenArgumentType[];
     isContract?: boolean;
   };
