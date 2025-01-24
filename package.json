@@ -54,7 +54,6 @@
   "peerDependencies": {
     "@multiversx/sdk-core": ">= 13.5.0",
     "@multiversx/sdk-dapp-utils": ">= 1.0.2",
-    "@multiversx/sdk-web-wallet-cross-window-provider": ">= 2.0.4",
     "axios": ">=1.6.5",
     "bignumber.js": "9.x",
     "immer": "10.x"
