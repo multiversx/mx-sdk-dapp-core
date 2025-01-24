@@ -28,14 +28,16 @@ import { getMultiEsdtTransferData } from './helpers/getMultiEsdtTransferData/get
 import { getScCall } from './helpers/getScCall';
 import { getTokenType } from './helpers/getTokenType';
 import { getUsdValue } from './helpers/getUsdValue';
-import { guardTransactions } from './helpers/guardTransactions/guardTransactions';
+import { guardTransactions as getGuardedTransactions } from './helpers/guardTransactions/guardTransactions';
 
 export async function signTransactions({
   transactions = [],
-  handleSign
+  handleSign,
+  guardTransactions = getGuardedTransactions
 }: {
   transactions?: Transaction[];
   handleSign: IProvider['signTransactions'];
+  guardTransactions?: typeof getGuardedTransactions;
 }) {
   const address = getAddress();
   const network = networkSelector(getState());
@@ -236,9 +238,9 @@ export async function signTransactions({
           const areAllSigned = signedTransactions.length == transactions.length;
 
           if (areAllSigned) {
-            signModalElement.remove();
             const optionallyGuardedTransactions =
               await guardTransactions(signedTransactions);
+            signModalElement.remove();
 
             return resolve(optionallyGuardedTransactions);
           }
