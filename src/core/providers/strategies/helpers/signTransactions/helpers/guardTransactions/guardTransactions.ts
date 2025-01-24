@@ -23,8 +23,6 @@ export const guardTransactions = async (transactions: Transaction[]) => {
   const sender = transactions[0].getSender().bech32().toString();
   const { walletAddress } = networkSelector(getState());
 
-  console.log('\x1b[42m%s\x1b[0m', 112, isGuarded);
-
   const provider = await getCrossWindowProvider({
     address: sender,
     walletUrl: walletAddress
