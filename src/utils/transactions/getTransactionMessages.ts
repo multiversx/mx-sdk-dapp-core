@@ -1,11 +1,12 @@
-import { InterpretedTransactionType } from 'types/serverTransactions.types';
+import {
+  InterpretedTransactionType,
+  ServerTransactionType
+} from 'types/serverTransactions.types';
 import { getOperationsMessages } from './getOperationsMessages';
 import { getReceiptMessage } from './getReceiptMessage';
 import { getScResultsMessages } from './getScResultsMessages';
 
-export function getTransactionMessages(
-  transaction: InterpretedTransactionType
-) {
+export function getTransactionMessages(transaction: ServerTransactionType) {
   return Array.from(
     new Set([
       ...getScResultsMessages(transaction),
