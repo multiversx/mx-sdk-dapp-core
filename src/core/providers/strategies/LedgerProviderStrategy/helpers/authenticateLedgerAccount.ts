@@ -8,7 +8,7 @@ import { getAuthTokenText } from './getAuthTokenText';
 import { updateAccountsList } from './updateAccountsList';
 import {
   LedgerConfigType,
-  LedgerStateManagerType,
+  LedgerConnectStateManagerType,
   LedgerEventBusType,
   LedgerLoginType
 } from '../types/ledgerProvider.types';
@@ -19,7 +19,7 @@ type GetLedgerLoginType = {
     token?: string;
   };
   config: LedgerConfigType;
-  manager: LedgerStateManagerType | null;
+  manager: LedgerConnectStateManagerType | null;
   provider: HWProvider | null;
   eventBus?: LedgerEventBusType | null;
   login: LedgerLoginType | null;

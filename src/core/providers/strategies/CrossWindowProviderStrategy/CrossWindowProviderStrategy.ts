@@ -4,7 +4,6 @@ import {
   PendingTransactionsStateManager,
   PendingTransactionsEventsEnum
 } from 'core/managers';
-import { getAccount } from 'core/methods/account/getAccount';
 import { getAddress } from 'core/methods/account/getAddress';
 import { IProvider } from 'core/providers/types/providerFactory.types';
 import { PendingTransactionsModal } from 'lib/sdkDappCoreUi';
@@ -14,6 +13,7 @@ import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
 import { ProviderErrorsEnum } from 'types/provider.types';
 import { createUIElement } from 'utils/createUIElement';
+import { guardTransactions } from '../helpers/signTransactions/helpers/guardTransactions/guardTransactions';
 
 type CrossWindowProviderProps = {
   address?: string;
@@ -109,8 +109,10 @@ export class CrossWindowProviderStrategy {
       const signedTransactions: Transaction[] =
         (await this._signTransactions(transactions)) ?? [];
 
-      // Guarded Transactions or Signed Transactions
-      return this.getTransactions(signedTransactions);
+      const optionallyGuardedTransactions =
+        await guardTransactions(signedTransactions);
+
+      return optionallyGuardedTransactions;
     } catch (error) {
       this.provider.cancelAction();
       throw error;
@@ -167,50 +169,6 @@ export class CrossWindowProviderStrategy {
     ) {
       this.provider.setShouldShowConsentPopup(true);
     }
-  };
-
-  private getTransactions = async (transactions: Transaction[]) => {
-    if (!this.provider) {
-      throw new Error(ProviderErrorsEnum.notInitialized);
-    }
-
-    const { isGuarded } = getAccount();
-
-    const allSignedByGuardian = this.getAreAllTransactionsSignedByGuardian({
-      isGuarded,
-      transactions
-    });
-
-    const needs2FAsigning = isGuarded && !allSignedByGuardian;
-
-    if (needs2FAsigning) {
-      const guardedTransactions =
-        await this.provider.guardTransactions(transactions);
-
-      return guardedTransactions;
-    }
-
-    return transactions;
-  };
-
-  private getAreAllTransactionsSignedByGuardian = ({
-    transactions,
-    isGuarded
-  }: {
-    transactions: Transaction[];
-    isGuarded?: boolean;
-  }) => {
-    if (!isGuarded) {
-      return true;
-    }
-
-    if (transactions.length === 0) {
-      return false;
-    }
-
-    return transactions.every((tx) =>
-      Boolean(tx.getGuardianSignature().toString('hex'))
-    );
   };
 
   private getModalHandlers = async (modalElement: PendingTransactionsModal) => {

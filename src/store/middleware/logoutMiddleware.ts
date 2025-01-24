@@ -16,7 +16,11 @@ export function getNewLoginExpiresTimestamp() {
   return new Date().setHours(new Date().getHours() + 24);
 }
 
-export function setLoginExpiresAt(expiresAt: number) {
+export function setLoginExpiresAt(expiresAt: number | null) {
+  if (expiresAt == null) {
+    storage.local.removeItem(localStorageKeys.loginExpiresAt);
+    return;
+  }
   storage.local.setItem({
     key: localStorageKeys.loginExpiresAt,
     data: expiresAt,
@@ -47,6 +51,7 @@ export const logoutMiddleware = (state: StoreType) => {
 
   if (isExpired) {
     // logout
+    setLoginExpiresAt(null);
     resetStore(state);
   }
 };
