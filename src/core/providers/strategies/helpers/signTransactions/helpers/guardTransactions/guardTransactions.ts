@@ -28,7 +28,7 @@ export const guardTransactions = async (transactions: Transaction[]) => {
     walletUrl: walletAddress
   });
 
-  provider?.setShouldShowConsentPopup(true);
+  provider?.setShouldShowConsentPopup(false);
   const guardedTransactions = await provider?.guardTransactions(transactions);
   return guardedTransactions || [];
 };
