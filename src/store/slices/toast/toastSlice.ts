@@ -1,8 +1,8 @@
 import { StateCreator } from 'zustand/vanilla';
 import { StoreType, MutatorsIn } from 'store/store.types';
-import { ToastsSliceState } from './toastSlice.types';
+import { IToastsSliceState } from './toastSlice.types';
 
-const initialState: ToastsSliceState = {
+const initialState: IToastsSliceState = {
   customToasts: [],
   transactionToasts: [],
   toastProgress: {}
@@ -12,7 +12,7 @@ function getToastSlice(): StateCreator<
   StoreType,
   MutatorsIn,
   [],
-  ToastsSliceState
+  IToastsSliceState
 > {
   return () => initialState;
 }

@@ -2,7 +2,7 @@ import { AccountSliceType } from './slices/account/account.types';
 import { ConfigSliceType } from './slices/config/config.types';
 import { LoginInfoSliceType } from './slices/loginInfo/loginInfo.types';
 import { NetworkSliceType } from './slices/network/networkSlice.types';
-import { ToastsSliceState } from './slices/toast/toastSlice.types';
+import { IToastsSliceState } from './slices/toast/toastSlice.types';
 import { TrackedTransactionsSliceType } from './slices/trackedTransactions/trackedTransactionsSlice.types';
 import { TransactionsSliceType } from './slices/transactions/transacitionsSlice.types';
 
@@ -12,7 +12,7 @@ export type StoreType = {
   loginInfo: LoginInfoSliceType;
   config: ConfigSliceType;
   transactions: TransactionsSliceType;
-  toasts: ToastsSliceState;
+  toasts: IToastsSliceState;
   trackedTransactions: TrackedTransactionsSliceType;
 };
 
