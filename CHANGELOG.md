@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- [Added custom guard transactions support](https://github.com/multiversx/mx-sdk-dapp-core/pull/68)
 - [Added custom toast support](https://github.com/multiversx/mx-sdk-dapp-core/pull/67)
 - [Fixed guarded transactions](https://github.com/multiversx/mx-sdk-dapp-core/pull/66)
 - [Added format amount controller](https://github.com/multiversx/mx-sdk-dapp-core/pull/65)
