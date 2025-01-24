@@ -8,7 +8,6 @@ export { getReceiptMessage } from './getReceiptMessage';
 export { getScResultsMessages } from './getScResultsMessages';
 export { getShardText } from './getShardText';
 export { getTokenFromData } from './getTokenFromData';
-export { getTransactionHashPath } from './getTransactionHashPath';
 export { getTransactionMessages } from './getTransactionMessages';
 export { getTransactionMethod } from './getTransactionMethod';
 export { getTransactionReceiver } from './getTransactionReceiver';

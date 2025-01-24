@@ -42,7 +42,13 @@ describe('getInterpretedTransaction', () => {
       ...transaction,
       tokenIdentifier: 'token-id',
       receiver: transaction.receiver, // Assuming getTransactionReceiver returns this for this case
-      receiverAssets: undefined, // Assuming getTransactionReceiverAssets returns undefined for this case
+      receiverAssets: {
+        description: 'description',
+        iconPng: 'icon.png',
+        iconSvg: 'icon.svg',
+        name: 'john doe',
+        tags: ['@tag1', '@tag2']
+      },
       transactionDetails: {
         age: expectedAge,
         direction: TransactionDirectionEnum.OUT, // Assuming this is the correct direction for this case

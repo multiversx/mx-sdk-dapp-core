@@ -16,7 +16,6 @@ import { getTransactionTransferType } from './getTransactionTransferType';
 import { isContract } from '../validation';
 import { timeAgo } from '../operations/timeRemaining';
 import { getHumanReadableTimeFormat } from './getHumanReadableTimeFormat';
-import { getTransactionHashPath } from './getTransactionHashPath';
 import { getTransactionIconInfo } from './getTransactionIconInfo';
 
 export interface GetInterpretedTransactionType {
@@ -73,7 +72,7 @@ export function getInterpretedTransaction({
     to: explorerUrlBuilder.receiverShard(transaction.receiverShard)
   });
 
-  const transactionHash = getTransactionHashPath(transaction);
+  const transactionHash = transaction.originalTxHash || transaction.txHash;
 
   const transactionLink = getExplorerLink({
     explorerAddress,
@@ -82,7 +81,7 @@ export function getInterpretedTransaction({
 
   return {
     ...transaction,
-    txHash: transaction.originalTxHash || transaction.txHash,
+    txHash: transactionHash,
     tokenIdentifier,
     receiver,
     receiverAssets,
