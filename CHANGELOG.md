@@ -7,7 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- [Added transactions table controller](https://github.com/multiversx/mx-sdk-dapp-core/pull/67)
+- [Added transactions table controller](https://github.com/multiversx/mx-sdk-dapp-core/pull/69)
+- [Added custom guard transactions support](https://github.com/multiversx/mx-sdk-dapp-core/pull/68)
+- [Added custom toast support](https://github.com/multiversx/mx-sdk-dapp-core/pull/67)
+- [Fixed guarded transactions](https://github.com/multiversx/mx-sdk-dapp-core/pull/66)
 - [Added format amount controller](https://github.com/multiversx/mx-sdk-dapp-core/pull/65)
 - [Added logout check on forced address change](https://github.com/multiversx/mx-sdk-dapp-core/pull/64)
 - [Refactor LedgerProviderStrategy](https://github.com/multiversx/mx-sdk-dapp-core/pull/63)

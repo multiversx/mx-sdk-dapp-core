@@ -8,7 +8,7 @@ export type LedgerConfigType = {
   dataEnabled: boolean;
 };
 
-export type LedgerStateManagerType = LedgerConnectStateManager<
+export type LedgerConnectStateManagerType = LedgerConnectStateManager<
   IEventBus<ILedgerConnectModalData>
 >;
 

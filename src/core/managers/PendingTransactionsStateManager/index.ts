@@ -1,2 +1,2 @@
-export * from './PendingTransactionsStateManagement';
+export * from './PendingTransactionsStateManager';
 export * from './types';

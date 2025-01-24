@@ -21,7 +21,7 @@ import { getLedgerProvider } from './helpers';
 import { authenticateLedgerAccount } from './helpers/authenticateLedgerAccount';
 import { initializeLedgerProvider } from './helpers/initializeLedgerProvider';
 import {
-  LedgerStateManagerType,
+  LedgerConnectStateManagerType,
   LedgerConfigType,
   LedgerEventBusType,
   LedgerLoginType
@@ -31,7 +31,7 @@ import { signTransactions } from '../helpers/signTransactions/signTransactions';
 export class LedgerProviderStrategy {
   private address: string = '';
   private provider: HWProvider | null = null;
-  private manager: LedgerStateManagerType | null = null;
+  private manager: LedgerConnectStateManagerType | null = null;
   private config: LedgerConfigType | null = null;
   private eventBus: LedgerEventBusType | null = null;
   private _login: LedgerLoginType | null = null;
@@ -131,7 +131,7 @@ export class LedgerProviderStrategy {
 
   private signTransactions = async (transactions: Transaction[]) => {
     if (!this._signTransactions) {
-      throw new Error('Sign transactions method is not initialized');
+      throw new Error(ProviderErrorsEnum.signTransactionsNotInitialized);
     }
 
     const signedTransactions = await signTransactions({

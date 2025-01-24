@@ -4,12 +4,12 @@ import { getLedgerErrorCodes } from './getLedgerErrorCodes';
 import { getLedgerProvider } from './getLedgerProvider';
 import {
   LedgerEventBusType,
-  LedgerStateManagerType
+  LedgerConnectStateManagerType
 } from '../types/ledgerProvider.types';
 
 type InitializeLedgerProviderType = {
   eventBus?: LedgerEventBusType;
-  manager?: LedgerStateManagerType | null;
+  manager?: LedgerConnectStateManagerType | null;
   resolve: (value: Awaited<ReturnType<typeof getLedgerProvider>>) => void;
   reject: (reason?: string) => void;
 };
