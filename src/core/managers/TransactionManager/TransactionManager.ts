@@ -65,7 +65,7 @@ export class TransactionManager {
     signedTransactions: Transaction[],
     options: {
       disableToasts?: boolean;
-      transactionDisplayInfo?: ITransactionsDisplayInfo;
+      transactionsDisplayInfo?: ITransactionsDisplayInfo;
     } = { disableToasts: false }
   ) => {
     const parsedTransactions = signedTransactions.map((transaction) =>
@@ -73,7 +73,7 @@ export class TransactionManager {
     );
     const sessionId = createTrackedTransactionsSession(
       parsedTransactions,
-      options.transactionDisplayInfo
+      options.transactionsDisplayInfo
     );
 
     if (options.disableToasts === true) {
