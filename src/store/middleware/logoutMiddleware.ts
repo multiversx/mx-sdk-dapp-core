@@ -13,6 +13,7 @@ import { initialState as initialAccountState } from 'store/slices/account/accoun
 import { initialState as initialLoginInfoState } from 'store/slices/loginInfo/loginInfoSlice';
 import { initialState as initialToastState } from 'store/slices/toast/toastSlice';
 import { initialState as initialTrackedTransactionsState } from 'store/slices/trackedTransactions/trackedTransactionsSlice';
+import { getStore } from 'store/store';
 import { StoreType } from '../store.types';
 
 export const resetStore = (store: WritableDraft<StoreType>) => {
@@ -58,6 +59,6 @@ export const logoutMiddleware = (state: StoreType) => {
   if (isExpired) {
     // logout
     setLoginExpiresAt(null);
-    resetStore(state);
+    getStore().setState(resetStore);
   }
 };

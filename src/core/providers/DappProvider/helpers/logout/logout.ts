@@ -1,3 +1,5 @@
+import { safeWindow } from 'constants/window.constants';
+import { getAddress } from 'core/methods/account/getAddress';
 import {
   IProvider,
   ProviderTypeEnum
@@ -7,6 +9,7 @@ import { logoutAction } from 'store/actions/sharedActions/sharedActions';
 
 export type LogoutPropsType = {
   shouldAttemptReLogin?: boolean;
+  shouldBroadcastLogoutAcrossTabs?: boolean;
   /*
    * Only used for web-wallet crossWindow login
    */
@@ -18,12 +21,30 @@ interface IProviderLogout {
   options?: LogoutPropsType;
 }
 
+const broadcastLogoutAcrossTabs = (address: string, localStorage: Storage) => {
+  const logoutEventKey = `sdk-dapp-core-logout-event-${address}`;
+  const storedAddress = localStorage.getItem(logoutEventKey);
+
+  if (!storedAddress || address !== storedAddress) {
+    return;
+  }
+
+  localStorage.setItem(logoutEventKey, address);
+  localStorage.removeItem(logoutEventKey);
+};
+
 export async function logout({
   provider,
   options = {
+    shouldBroadcastLogoutAcrossTabs: true,
     hasConsentPopup: false
   }
 }: IProviderLogout) {
+  let address = getAddress();
+
+  if (options.shouldBroadcastLogoutAcrossTabs && safeWindow.localStorage) {
+    broadcastLogoutAcrossTabs(address, safeWindow.localStorage);
+  }
   try {
     logoutAction();
 
