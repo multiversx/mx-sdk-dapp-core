@@ -25,7 +25,7 @@ const broadcastLogoutAcrossTabs = (address: string, localStorage: Storage) => {
   const logoutEventKey = `sdk-dapp-core-logout-event-${address}`;
   const storedAddress = localStorage.getItem(logoutEventKey);
 
-  if (!storedAddress || address !== storedAddress) {
+  if (storedAddress && address !== storedAddress) {
     return;
   }
 
