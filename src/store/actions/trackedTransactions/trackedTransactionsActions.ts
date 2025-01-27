@@ -4,7 +4,10 @@ import {
   TransactionServerStatusesEnum
 } from 'types/enums.types';
 import { ServerTransactionType } from 'types/serverTransactions.types';
-import { SignedTransactionType } from 'types/transactions.types';
+import {
+  ITransactionsDisplayInfo,
+  SignedTransactionType
+} from 'types/transactions.types';
 import {
   getIsTransactionFailed,
   getIsTransactionNotExecuted,
@@ -21,13 +24,15 @@ export interface UpdateTrackedTransactionStatusPayloadType {
 }
 
 export const createTrackedTransactionsSession = (
-  transactions: SignedTransactionType[]
+  transactions: SignedTransactionType[],
+  transactionsDisplayInfo?: ITransactionsDisplayInfo
 ) => {
   const sessionId = Date.now().toString();
   getStore().setState(({ trackedTransactions: state }) => {
     state[sessionId] = {
       transactions,
-      status: TransactionBatchStatusesEnum.sent
+      status: TransactionBatchStatusesEnum.sent,
+      transactionsDisplayInfo
     };
   });
   return sessionId;

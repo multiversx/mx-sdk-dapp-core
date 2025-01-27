@@ -116,7 +116,8 @@ export class ToastManager {
         continue;
       }
 
-      const { status, transactions } = sessionTransactions;
+      const { status, transactions, transactionsDisplayInfo } =
+        sessionTransactions;
       const isPending = getIsTransactionPending(status);
       const isTimedOut = getIsTransactionTimedOut(status);
       const isFailed = getIsTransactionFailed(status);
@@ -132,7 +133,8 @@ export class ToastManager {
           address: account.address,
           sender: transactions[0]?.sender,
           toastId: toast.toastId,
-          status
+          status,
+          transactionsDisplayInfo
         }),
         processedTransactionsStatus: getToastProceededStatus(transactions),
         transactionProgressState: isPending

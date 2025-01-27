@@ -16,13 +16,16 @@ export const getToastDataStateByStatus = ({
   address,
   sender,
   status,
-  toastId
+  toastId,
+  transactionsDisplayInfo
 }: GetToastsOptionsDataPropsType) => {
   const successToastData: IToastDataState = {
     id: toastId,
     icon: ToastIconsEnum.check,
     hasCloseButton: true,
-    title: TransactionsDefaultTitles.success,
+    title:
+      transactionsDisplayInfo?.successMessage ??
+      TransactionsDefaultTitles.success,
     iconClassName: 'success'
   };
 
@@ -30,7 +33,9 @@ export const getToastDataStateByStatus = ({
     id: toastId,
     icon: ToastIconsEnum.check,
     hasCloseButton: true,
-    title: TransactionsDefaultTitles.received,
+    title:
+      transactionsDisplayInfo?.receivedMessage ??
+      TransactionsDefaultTitles.received,
     iconClassName: 'success'
   };
 
@@ -38,14 +43,17 @@ export const getToastDataStateByStatus = ({
     id: toastId,
     icon: ToastIconsEnum.hourglass,
     hasCloseButton: false,
-    title: TransactionsDefaultTitles.pending,
+    title:
+      transactionsDisplayInfo?.processingMessage ??
+      TransactionsDefaultTitles.pending,
     iconClassName: 'warning'
   };
 
   const failToastData: IToastDataState = {
     id: toastId,
     icon: ToastIconsEnum.times,
-    title: TransactionsDefaultTitles.failed,
+    title:
+      transactionsDisplayInfo?.errorMessage ?? TransactionsDefaultTitles.failed,
     hasCloseButton: true,
     iconClassName: 'danger'
   };
@@ -53,7 +61,9 @@ export const getToastDataStateByStatus = ({
   const invalidToastData: IToastDataState = {
     id: toastId,
     icon: ToastIconsEnum.ban,
-    title: TransactionsDefaultTitles.invalid,
+    title:
+      transactionsDisplayInfo?.invalidMessage ??
+      TransactionsDefaultTitles.invalid,
     hasCloseButton: true,
     iconClassName: 'warning'
   };
@@ -61,7 +71,9 @@ export const getToastDataStateByStatus = ({
   const timedOutToastData = {
     id: toastId,
     icon: ToastIconsEnum.times,
-    title: TransactionsDefaultTitles.timedOut,
+    title:
+      transactionsDisplayInfo?.timedOutMessage ??
+      TransactionsDefaultTitles.timedOut,
     hasCloseButton: true,
     iconClassName: 'warning'
   };

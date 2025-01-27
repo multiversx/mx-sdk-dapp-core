@@ -81,3 +81,14 @@ export enum TransactionDirectionEnum {
   IN = 'In',
   OUT = 'Out'
 }
+
+export interface ITransactionsDisplayInfo {
+  errorMessage?: string;
+  successMessage?: string;
+  processingMessage?: string;
+  submittedMessage?: string;
+  transactionDuration?: number;
+  timedOutMessage?: string;
+  invalidMessage?: string;
+  receivedMessage?: string;
+}

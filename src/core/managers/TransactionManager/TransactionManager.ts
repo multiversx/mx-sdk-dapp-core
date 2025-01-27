@@ -8,7 +8,10 @@ import { networkSelector } from 'store/selectors';
 import { getState } from 'store/store';
 import { TransactionServerStatusesEnum } from 'types/enums.types';
 import { BatchTransactionsResponseType } from 'types/serverTransactions.types';
-import { SignedTransactionType } from 'types/transactions.types';
+import {
+  ITransactionsDisplayInfo,
+  SignedTransactionType
+} from 'types/transactions.types';
 import { isGuardianTx } from 'utils/transactions/isGuardianTx';
 
 export class TransactionManager {
@@ -60,12 +63,18 @@ export class TransactionManager {
 
   public track = async (
     signedTransactions: Transaction[],
-    options: { disableToasts?: boolean } = { disableToasts: false }
+    options: {
+      disableToasts?: boolean;
+      transactionDisplayInfo?: ITransactionsDisplayInfo;
+    } = { disableToasts: false }
   ) => {
     const parsedTransactions = signedTransactions.map((transaction) =>
       this.parseSignedTransaction(transaction)
     );
-    const sessionId = createTrackedTransactionsSession(parsedTransactions);
+    const sessionId = createTrackedTransactionsSession(
+      parsedTransactions,
+      options.transactionDisplayInfo
+    );
 
     if (options.disableToasts === true) {
       return;
