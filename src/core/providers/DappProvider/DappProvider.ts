@@ -3,11 +3,13 @@ import { Transaction } from '@multiversx/sdk-core/out/transaction';
 import { IProvider } from '../types/providerFactory.types';
 import { login } from './helpers/login/login';
 import { logout } from './helpers/logout/logout';
+import { handleSignMessageError } from './helpers/signMessage/handleSignMessageError';
 import { signMessage } from './helpers/signMessage/signMessage';
 import {
   verifyMessage,
   VerifyMessageReturnType
 } from './helpers/signMessage/verifyMessage';
+import { handleSignTransactionError } from './helpers/signTransactions/handleSignTransactionError';
 import {
   signTransactionsWithProvider,
   SignTransactionsOptionsType
@@ -53,12 +55,17 @@ export class DappProvider {
     transactions: Transaction[],
     options?: SignTransactionsOptionsType
   ): Promise<Transaction[]> {
-    const signedTransactions = await signTransactionsWithProvider({
-      provider: this.provider,
-      transactions,
-      options
-    });
-    return signedTransactions;
+    try {
+      const signedTransactions = await signTransactionsWithProvider({
+        provider: this.provider,
+        transactions,
+        options
+      });
+      return signedTransactions;
+    } catch (error) {
+      const errorMessage = handleSignTransactionError(error);
+      throw new Error(errorMessage);
+    }
   }
 
   async signMessage(
@@ -67,12 +74,17 @@ export class DappProvider {
       hasConsentPopup?: boolean;
     }
   ): Promise<Message | null> {
-    const signedMessage = await signMessage({
-      provider: this.provider,
-      message,
-      options
-    });
-    return signedMessage;
+    try {
+      const signedMessage = await signMessage({
+        provider: this.provider,
+        message,
+        options
+      });
+      return signedMessage;
+    } catch (error) {
+      const errorMessage = handleSignMessageError(error);
+      throw new Error(errorMessage);
+    }
   }
 
   verifyMessage(signedMessage: string): VerifyMessageReturnType {
