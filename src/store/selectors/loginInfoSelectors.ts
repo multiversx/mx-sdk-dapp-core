@@ -13,3 +13,6 @@ export const providerTypeSelector = ({ loginInfo }: StoreType) =>
 
 export const ledgerLoginSelector = ({ loginInfo }: StoreType) =>
   loginInfo.ledgerLogin;
+
+export const loginExpiresAtSelector = ({ loginInfo }: StoreType) =>
+  loginInfo.loginExpiresAt;

@@ -10,7 +10,8 @@ export const initialState: LoginInfoSliceType = {
   walletLogin: null,
   extensionLogin: null,
   operaLogin: null,
-  crossWindowLogin: null
+  crossWindowLogin: null,
+  loginExpiresAt: null
 };
 
 function getTokenInfoSlice(): StateCreator<

@@ -1,33 +1,12 @@
-import { getAddress } from 'core/methods/account/getAddress';
 import {
   IProvider,
   ProviderTypeEnum
 } from 'core/providers/types/providerFactory.types';
 import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
-import { storage } from 'storage';
-import { localStorageKeys } from 'storage/local';
 import { logoutAction } from 'store/actions/sharedActions/sharedActions';
-
-const broadcastLogoutAcrossTabs = (address: string) => {
-  const storedData = storage.local?.getItem(localStorageKeys.logoutEvent);
-  const { data } = storedData ? JSON.parse(storedData) : { data: address };
-
-  if (address !== data) {
-    return;
-  }
-
-  storage.local.setItem({
-    key: localStorageKeys.logoutEvent,
-    data: address,
-    expires: 0
-  });
-
-  storage.local.removeItem(localStorageKeys.logoutEvent);
-};
 
 export type LogoutPropsType = {
   shouldAttemptReLogin?: boolean;
-  shouldBroadcastLogoutAcrossTabs?: boolean;
   /*
    * Only used for web-wallet crossWindow login
    */
@@ -42,16 +21,9 @@ interface IProviderLogout {
 export async function logout({
   provider,
   options = {
-    shouldBroadcastLogoutAcrossTabs: true,
     hasConsentPopup: false
   }
 }: IProviderLogout) {
-  let address = getAddress();
-
-  if (options.shouldBroadcastLogoutAcrossTabs) {
-    broadcastLogoutAcrossTabs(address);
-  }
-
   try {
     logoutAction();
 
