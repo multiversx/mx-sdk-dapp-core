@@ -183,7 +183,6 @@ export class ToastManager {
     }
 
     const eventBus = await this.toastsElement.getEventBus();
-    console.log('eventBus', eventBus);
 
     if (!eventBus) {
       throw new Error(ProviderErrorsEnum.eventBusError);
