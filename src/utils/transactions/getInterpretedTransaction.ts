@@ -1,6 +1,8 @@
 import {
   InterpretedTransactionType,
-  ServerTransactionType
+  ServerTransactionType,
+  TransactionAgeType,
+  TransactionMethodType
 } from 'types/serverTransactions.types';
 import { TokenArgumentType } from 'types/serverTransactions.types';
 import { explorerUrlBuilder } from './explorerUrlBuilder';
@@ -12,6 +14,9 @@ import { getTransactionReceiverAssets } from './getTransactionReceiverAssets';
 import { getTransactionTokens } from './getTransactionTokens';
 import { getTransactionTransferType } from './getTransactionTransferType';
 import { isContract } from '../validation';
+import { timeAgo } from '../operations/timeRemaining';
+import { getHumanReadableTimeFormat } from './getHumanReadableTimeFormat';
+import { getTransactionIconInfo } from './getTransactionIconInfo';
 
 export interface GetInterpretedTransactionType {
   address: string;
@@ -29,9 +34,21 @@ export function getInterpretedTransaction({
 
   const receiver = getTransactionReceiver(transaction);
   const receiverAssets = getTransactionReceiverAssets(transaction);
+  const age: TransactionAgeType = {
+    age: timeAgo(transaction.timestamp * 1000, true),
+    tooltip: getHumanReadableTimeFormat({
+      value: transaction.timestamp,
+      noSeconds: false,
+      utc: true
+    })
+  };
 
   const direction = getTransactionTransferType(address, transaction, receiver);
-  const method = getTransactionMethod(transaction);
+  const method: TransactionMethodType = {
+    transactionActionDescription: transaction.action?.description,
+    method: getTransactionMethod(transaction)
+  };
+
   const transactionTokens: TokenArgumentType[] =
     getTransactionTokens(transaction);
 
@@ -39,22 +56,23 @@ export function getInterpretedTransaction({
     explorerAddress,
     to: explorerUrlBuilder.accountDetails(transaction.sender)
   });
+
   const receiverLink = getExplorerLink({
     explorerAddress,
     to: explorerUrlBuilder.accountDetails(receiver)
   });
+
   const senderShardLink = getExplorerLink({
     explorerAddress,
     to: explorerUrlBuilder.senderShard(transaction.senderShard)
   });
+
   const receiverShardLink = getExplorerLink({
     explorerAddress,
     to: explorerUrlBuilder.receiverShard(transaction.receiverShard)
   });
 
-  const transactionHash = transaction.originalTxHash
-    ? `${transaction.originalTxHash}#${transaction.txHash}`
-    : transaction.txHash;
+  const transactionHash = transaction.originalTxHash || transaction.txHash;
 
   const transactionLink = getExplorerLink({
     explorerAddress,
@@ -63,12 +81,15 @@ export function getInterpretedTransaction({
 
   return {
     ...transaction,
+    txHash: transactionHash,
     tokenIdentifier,
     receiver,
     receiverAssets,
     transactionDetails: {
+      age,
       direction,
       method,
+      iconInfo: getTransactionIconInfo(transaction),
       transactionTokens,
       isContract: isContract(transaction.sender)
     },

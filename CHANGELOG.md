@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - [Added transaction and message cancel signing handle](https://github.com/multiversx/mx-sdk-dapp-core/pull/71)
 - [Clear tracked transaction and toasts on logout](https://github.com/multiversx/mx-sdk-dapp-core/pull/70)
+- [Added transactions table controller](https://github.com/multiversx/mx-sdk-dapp-core/pull/69)
 - [Added custom guard transactions support](https://github.com/multiversx/mx-sdk-dapp-core/pull/68)
 - [Added custom toast support](https://github.com/multiversx/mx-sdk-dapp-core/pull/67)
 - [Fixed guarded transactions](https://github.com/multiversx/mx-sdk-dapp-core/pull/66)

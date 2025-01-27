@@ -1,3 +1,4 @@
+import { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import { AssetType, ScamInfoType } from './account.types';
 import { EsdtEnumType, NftEnumType } from './tokens.types';
 import { SignedTransactionType } from './transactions.types';
@@ -283,10 +284,27 @@ export enum TransactionDirectionEnum {
   OUT = 'Out'
 }
 
+export interface TransactionAgeType {
+  age: string;
+  tooltip: string;
+}
+
+export interface TransactionMethodType {
+  method: string;
+  transactionActionDescription?: string;
+}
+
+export interface TransactionIconInfoType {
+  icon?: IconDefinition;
+  tooltip: string;
+}
+
 export interface InterpretedTransactionType extends ServerTransactionType {
   transactionDetails: {
+    age: TransactionAgeType;
     direction?: TransactionDirectionEnum;
-    method: string;
+    iconInfo: TransactionIconInfoType;
+    method: TransactionMethodType;
     transactionTokens: TokenArgumentType[];
     isContract?: boolean;
   };
