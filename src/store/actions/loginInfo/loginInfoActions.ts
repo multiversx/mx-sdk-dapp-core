@@ -63,3 +63,13 @@ export const setIsWalletConnectV2Initialized = (isInitialized: boolean) =>
   getStore().setState(({ loginInfo: state }) => {
     state.isWalletConnectV2Initialized = isInitialized;
   });
+
+export const removeLoginExpiresAt = () =>
+  getStore().setState(({ loginInfo: state }) => {
+    state.loginExpiresAt = null;
+  });
+
+export const addLoginExpiresAt = (expiresAt: number) =>
+  getStore().setState(({ loginInfo: state }) => {
+    state.loginExpiresAt = expiresAt;
+  });

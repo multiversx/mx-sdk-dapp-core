@@ -30,4 +30,5 @@ export interface LoginInfoSliceType<
   crossWindowLogin: LoginInfoType | null;
   logoutRoute?: string;
   isWalletConnectV2Initialized?: boolean;
+  loginExpiresAt: number | null;
 }

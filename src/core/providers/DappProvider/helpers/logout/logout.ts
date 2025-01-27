@@ -1,29 +1,11 @@
+import { safeWindow } from 'constants/window.constants';
 import { getAddress } from 'core/methods/account/getAddress';
 import {
   IProvider,
   ProviderTypeEnum
 } from 'core/providers/types/providerFactory.types';
 import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
-import { storage } from 'storage';
-import { localStorageKeys } from 'storage/local';
 import { logoutAction } from 'store/actions/sharedActions/sharedActions';
-
-const broadcastLogoutAcrossTabs = (address: string) => {
-  const storedData = storage.local?.getItem(localStorageKeys.logoutEvent);
-  const { data } = storedData ? JSON.parse(storedData) : { data: address };
-
-  if (address !== data) {
-    return;
-  }
-
-  storage.local.setItem({
-    key: localStorageKeys.logoutEvent,
-    data: address,
-    expires: 0
-  });
-
-  storage.local.removeItem(localStorageKeys.logoutEvent);
-};
 
 export type LogoutPropsType = {
   shouldAttemptReLogin?: boolean;
@@ -39,6 +21,18 @@ interface IProviderLogout {
   options?: LogoutPropsType;
 }
 
+const broadcastLogoutAcrossTabs = (address: string, localStorage: Storage) => {
+  const logoutEventKey = `sdk-dapp-core-logout-event-${address}`;
+  const storedAddress = localStorage.getItem(logoutEventKey);
+
+  if (storedAddress && address !== storedAddress) {
+    return;
+  }
+
+  localStorage.setItem(logoutEventKey, address);
+  localStorage.removeItem(logoutEventKey);
+};
+
 export async function logout({
   provider,
   options = {
@@ -48,10 +42,9 @@ export async function logout({
 }: IProviderLogout) {
   let address = getAddress();
 
-  if (options.shouldBroadcastLogoutAcrossTabs) {
-    broadcastLogoutAcrossTabs(address);
+  if (options.shouldBroadcastLogoutAcrossTabs && safeWindow.localStorage) {
+    broadcastLogoutAcrossTabs(address, safeWindow.localStorage);
   }
-
   try {
     logoutAction();
 
