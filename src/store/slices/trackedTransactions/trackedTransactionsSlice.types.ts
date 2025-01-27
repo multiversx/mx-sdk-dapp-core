@@ -12,6 +12,9 @@ export interface TrackedTransactionsSliceType {
     transactions: SignedTransactionType[];
     status?: TransactionBatchStatusesEnum | TransactionServerStatusesEnum;
     errorMessage?: string;
+    /**
+     * Optional custom information to be displayed in the toast notification.
+     */
     transactionsDisplayInfo?: ITransactionsDisplayInfo;
   };
 }
