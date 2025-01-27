@@ -69,7 +69,7 @@ export const removeLoginExpiresAt = () =>
     state.loginExpiresAt = null;
   });
 
-export const setLoginExpiresAt = (expiresAt: number) =>
+export const addLoginExpiresAt = (expiresAt: number) =>
   getStore().setState(({ loginInfo: state }) => {
     state.loginExpiresAt = expiresAt;
   });

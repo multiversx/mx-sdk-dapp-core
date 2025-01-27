@@ -1,6 +1,9 @@
 import { Address } from '@multiversx/sdk-core/out';
 import { WritableDraft } from 'immer';
-import { removeLoginExpiresAt } from 'store/actions/loginInfo/loginInfoActions';
+import {
+  addLoginExpiresAt,
+  removeLoginExpiresAt
+} from 'store/actions/loginInfo/loginInfoActions';
 import {
   accountInfoSelector,
   isLoggedInSelector,
@@ -28,7 +31,7 @@ export function setLoginExpiresAt(expiresAt: number | null) {
     removeLoginExpiresAt();
     return;
   }
-  setLoginExpiresAt(expiresAt);
+  addLoginExpiresAt(expiresAt);
 }
 
 export const logoutMiddleware = (state: StoreType) => {
