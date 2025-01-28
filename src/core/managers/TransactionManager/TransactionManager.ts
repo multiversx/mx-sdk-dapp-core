@@ -71,10 +71,10 @@ export class TransactionManager {
     const parsedTransactions = signedTransactions.map((transaction) =>
       this.parseSignedTransaction(transaction)
     );
-    const sessionId = createTrackedTransactionsSession(
-      parsedTransactions,
-      options.transactionsDisplayInfo
-    );
+    const sessionId = createTrackedTransactionsSession({
+      transactions: parsedTransactions,
+      transactionsDisplayInfo: options.transactionsDisplayInfo
+    });
 
     if (options.disableToasts === true) {
       return;

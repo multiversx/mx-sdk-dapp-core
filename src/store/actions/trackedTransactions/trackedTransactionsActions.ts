@@ -23,10 +23,13 @@ export interface UpdateTrackedTransactionStatusPayloadType {
   inTransit?: boolean;
 }
 
-export const createTrackedTransactionsSession = (
-  transactions: SignedTransactionType[],
-  transactionsDisplayInfo?: ITransactionsDisplayInfo
-) => {
+export const createTrackedTransactionsSession = ({
+  transactions,
+  transactionsDisplayInfo
+}: {
+  transactions: SignedTransactionType[];
+  transactionsDisplayInfo?: ITransactionsDisplayInfo;
+}) => {
   const sessionId = Date.now().toString();
   getStore().setState(({ trackedTransactions: state }) => {
     state[sessionId] = {

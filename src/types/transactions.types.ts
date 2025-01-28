@@ -83,8 +83,7 @@ export enum TransactionDirectionEnum {
 }
 
 /**
- * Interface representing the display information for transactions.
- * Each message corresponds to the title of the notification and the information it will display in the toast notification based on the transaction status.
+ * Allows editing the title toast information
  */
 export interface ITransactionsDisplayInfo {
   /**
