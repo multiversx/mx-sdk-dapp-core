@@ -15,12 +15,16 @@ export const loginAction = ({
   address,
   providerType
 }: LoginActionPayloadType) => {
-  getStore().setState(({ account, loginInfo }) => {
-    account.address = address;
-    account.publicKey = new Address(address).hex();
+  getStore().setState(
+    ({ account, loginInfo }) => {
+      account.address = address;
+      account.publicKey = new Address(address).hex();
 
-    if (loginInfo) {
-      loginInfo.providerType = providerType;
-    }
-  });
+      if (loginInfo) {
+        loginInfo.providerType = providerType;
+      }
+    },
+    false,
+    'loginAction'
+  );
 };

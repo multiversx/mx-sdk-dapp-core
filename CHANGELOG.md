@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- [Added devtools action names](https://github.com/multiversx/mx-sdk-dapp-core/pull/74)
 - [Added transaction display info support](https://github.com/multiversx/mx-sdk-dapp-core/pull/73)
 - [Remove storage helpers](https://github.com/multiversx/mx-sdk-dapp-core/pull/72)
 
