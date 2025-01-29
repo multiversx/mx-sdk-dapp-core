@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- [Added transaction accounts in controller processing](https://github.com/multiversx/mx-sdk-dapp-core/pull/72)
 - [Remove storage helpers](https://github.com/multiversx/mx-sdk-dapp-core/pull/72)
 
 ## [[0.0.0-alpha.12](https://github.com/multiversx/mx-sdk-dapp-core/pull/56)] - 2025-01-20

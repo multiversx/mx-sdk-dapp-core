@@ -7,16 +7,16 @@ import {
 import { TokenArgumentType } from 'types/serverTransactions.types';
 import { explorerUrlBuilder } from './explorerUrlBuilder';
 import { getExplorerLink } from './getExplorerLink';
+import { getHumanReadableTimeFormat } from './getHumanReadableTimeFormat';
 import { getTokenFromData } from './getTokenFromData';
+import { getTransactionIconInfo } from './getTransactionIconInfo';
 import { getTransactionMethod } from './getTransactionMethod';
 import { getTransactionReceiver } from './getTransactionReceiver';
 import { getTransactionReceiverAssets } from './getTransactionReceiverAssets';
 import { getTransactionTokens } from './getTransactionTokens';
 import { getTransactionTransferType } from './getTransactionTransferType';
-import { isContract } from '../validation';
 import { timeAgo } from '../operations/timeRemaining';
-import { getHumanReadableTimeFormat } from './getHumanReadableTimeFormat';
-import { getTransactionIconInfo } from './getTransactionIconInfo';
+import { isContract } from '../validation';
 
 export interface GetInterpretedTransactionType {
   address: string;
