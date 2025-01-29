@@ -4,7 +4,10 @@ import {
   TransactionServerStatusesEnum
 } from 'types/enums.types';
 import { ServerTransactionType } from 'types/serverTransactions.types';
-import { SignedTransactionType } from 'types/transactions.types';
+import {
+  ITransactionsDisplayInfo,
+  SignedTransactionType
+} from 'types/transactions.types';
 import {
   getIsTransactionFailed,
   getIsTransactionNotExecuted,
@@ -20,16 +23,25 @@ export interface UpdateTrackedTransactionStatusPayloadType {
   inTransit?: boolean;
 }
 
-export const createTrackedTransactionsSession = (
-  transactions: SignedTransactionType[]
-) => {
+export const createTrackedTransactionsSession = ({
+  transactions,
+  transactionsDisplayInfo
+}: {
+  transactions: SignedTransactionType[];
+  transactionsDisplayInfo?: ITransactionsDisplayInfo;
+}) => {
   const sessionId = Date.now().toString();
-  getStore().setState(({ trackedTransactions: state }) => {
-    state[sessionId] = {
-      transactions,
-      status: TransactionBatchStatusesEnum.sent
-    };
-  });
+  getStore().setState(
+    ({ trackedTransactions: state }) => {
+      state[sessionId] = {
+        transactions,
+        status: TransactionBatchStatusesEnum.sent,
+        transactionsDisplayInfo
+      };
+    },
+    false,
+    'createTrackedTransactionsSession'
+  );
   return sessionId;
 };
 
@@ -42,10 +54,14 @@ export const updateTrackedTransactionsSession = ({
   status: TransactionBatchStatusesEnum;
   errorMessage?: string;
 }) => {
-  getStore().setState(({ trackedTransactions: state }) => {
-    state[sessionId].status = status;
-    state[sessionId].errorMessage = errorMessage;
-  });
+  getStore().setState(
+    ({ trackedTransactions: state }) => {
+      state[sessionId].status = status;
+      state[sessionId].errorMessage = errorMessage;
+    },
+    false,
+    'updateTrackedTransactionsSession'
+  );
 };
 
 export const updateTrackedTransactionStatus = (
@@ -59,44 +75,50 @@ export const updateTrackedTransactionStatus = (
     serverTransaction,
     inTransit
   } = payload;
-  getStore().setState(({ trackedTransactions: state }) => {
-    const transactions = state[sessionId]?.transactions;
-    if (transactions != null) {
-      state[sessionId].transactions = transactions.map((transaction) => {
-        if (transaction.hash === transactionHash) {
-          return {
-            ...(serverTransaction ?? {}),
-            ...transaction,
-            status: status as TransactionServerStatusesEnum,
-            errorMessage,
-            inTransit
-          };
+  getStore().setState(
+    ({ trackedTransactions: state }) => {
+      const transactions = state[sessionId]?.transactions;
+      if (transactions != null) {
+        state[sessionId].transactions = transactions.map((transaction) => {
+          if (transaction.hash === transactionHash) {
+            return {
+              ...(serverTransaction ?? {}),
+              ...transaction,
+              status: status as TransactionServerStatusesEnum,
+              errorMessage,
+              inTransit
+            };
+          }
+          return transaction;
+        });
+        const areTransactionsSuccessful = state[sessionId]?.transactions?.every(
+          (transaction) => {
+            return getIsTransactionSuccessful(transaction.status);
+          }
+        );
+
+        const areTransactionsFailed = state[sessionId]?.transactions?.some(
+          (transaction) => getIsTransactionFailed(transaction.status)
+        );
+
+        const areTransactionsNotExecuted = state[
+          sessionId
+        ]?.transactions?.every((transaction) =>
+          getIsTransactionNotExecuted(transaction.status)
+        );
+
+        if (areTransactionsSuccessful) {
+          state[sessionId].status = TransactionBatchStatusesEnum.success;
         }
-        return transaction;
-      });
-      const areTransactionsSuccessful = state[sessionId]?.transactions?.every(
-        (transaction) => {
-          return getIsTransactionSuccessful(transaction.status);
+        if (areTransactionsFailed) {
+          state[sessionId].status = TransactionBatchStatusesEnum.fail;
         }
-      );
-
-      const areTransactionsFailed = state[sessionId]?.transactions?.some(
-        (transaction) => getIsTransactionFailed(transaction.status)
-      );
-
-      const areTransactionsNotExecuted = state[sessionId]?.transactions?.every(
-        (transaction) => getIsTransactionNotExecuted(transaction.status)
-      );
-
-      if (areTransactionsSuccessful) {
-        state[sessionId].status = TransactionBatchStatusesEnum.success;
+        if (areTransactionsNotExecuted) {
+          state[sessionId].status = TransactionBatchStatusesEnum.invalid;
+        }
       }
-      if (areTransactionsFailed) {
-        state[sessionId].status = TransactionBatchStatusesEnum.fail;
-      }
-      if (areTransactionsNotExecuted) {
-        state[sessionId].status = TransactionBatchStatusesEnum.invalid;
-      }
-    }
-  });
+    },
+    false,
+    'updateTrackedTransactionStatus'
+  );
 };

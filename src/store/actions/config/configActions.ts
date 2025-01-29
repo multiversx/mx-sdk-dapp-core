@@ -9,11 +9,19 @@ export const setNativeAuthConfig = (config: NativeAuthConfigType) =>
   });
 
 export const setWalletConnectConfig = (config: WalletConnectConfig) =>
-  getStore().setState(({ config: state }) => {
-    state.walletConnectConfig = config;
-  });
+  getStore().setState(
+    ({ config: state }) => {
+      state.walletConnectConfig = config;
+    },
+    false,
+    'setWalletConnectConfig'
+  );
 
 export const setCrossWindowConfig = (config: CrossWindowConfig) =>
-  getStore().setState(({ config: state }) => {
-    state.crossWindowConfig = config;
-  });
+  getStore().setState(
+    ({ config: state }) => {
+      state.crossWindowConfig = config;
+    },
+    false,
+    'setCrossWindowConfig'
+  );

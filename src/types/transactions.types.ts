@@ -81,3 +81,48 @@ export enum TransactionDirectionEnum {
   IN = 'In',
   OUT = 'Out'
 }
+
+/**
+ * Allows editing the title toast information
+ */
+export interface ITransactionsDisplayInfo {
+  /**
+   * Optional error message to be displayed in notification title in notification title if the transaction fails.
+   */
+  errorMessage?: string;
+
+  /**
+   * Optional success message to be displayed in notification title if the transaction succeeds.
+   */
+  successMessage?: string;
+
+  /**
+   * Optional message to be displayed in notification title while the transaction is processing.
+   */
+  processingMessage?: string;
+
+  /**
+   * Optional message to be displayed in notification title when the transaction is submitted.
+   */
+  submittedMessage?: string;
+
+  /**
+   * Optional duration of the transaction in milliseconds.
+   */
+  transactionDuration?: number;
+
+  /**
+   * Optional message to be displayed in notification title if the transaction times out.
+   */
+  timedOutMessage?: string;
+
+  /**
+   * Optional message to be displayed in notification title if the transaction is invalid.
+   */
+  invalidMessage?: string;
+
+  /**
+   * Optional message to be displayed in notification title when the transaction is received.
+   */
+  receivedMessage?: string;
+}
