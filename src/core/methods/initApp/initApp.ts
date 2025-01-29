@@ -64,7 +64,6 @@ export async function initApp({
     setCrossWindowConfig(dAppConfig.providers.crossWindow);
   }
 
-  trackTransactions();
   const toastManager = new ToastManager({
     successfulToastLifetime: dAppConfig.successfulToastLifetime
   });
@@ -82,5 +81,7 @@ export async function initApp({
   if (isLoggedIn) {
     await restoreProvider();
     await registerWebsocketListener();
+    //track transactions needs to be called after the registerWebsocketListener
+    trackTransactions();
   }
 }
