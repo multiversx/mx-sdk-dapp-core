@@ -26,12 +26,16 @@ export const createTransactionsSession = ({
   transactions: SignedTransactionType[];
 }) => {
   const sessionId = Date.now().toString();
-  getStore().setState(({ transactions: state }) => {
-    state[sessionId] = {
-      transactions,
-      status: TransactionBatchStatusesEnum.sent
-    };
-  });
+  getStore().setState(
+    ({ transactions: state }) => {
+      state[sessionId] = {
+        transactions,
+        status: TransactionBatchStatusesEnum.sent
+      };
+    },
+    false,
+    'createTransactionsSession'
+  );
   return sessionId;
 };
 
@@ -44,10 +48,14 @@ export const updateTransactionsSession = ({
   status: TransactionBatchStatusesEnum;
   errorMessage?: string;
 }) => {
-  getStore().setState(({ transactions: state }) => {
-    state[sessionId].status = status;
-    state[sessionId].errorMessage = errorMessage;
-  });
+  getStore().setState(
+    ({ transactions: state }) => {
+      state[sessionId].status = status;
+      state[sessionId].errorMessage = errorMessage;
+    },
+    false,
+    'updateTransactionsSession'
+  );
 };
 
 export const updateSignedTransactionStatus = (
@@ -61,44 +69,50 @@ export const updateSignedTransactionStatus = (
     serverTransaction,
     inTransit
   } = payload;
-  getStore().setState(({ transactions: state }) => {
-    const transactions = state[sessionId]?.transactions;
-    if (transactions != null) {
-      state[sessionId].transactions = transactions.map((transaction) => {
-        if (transaction.hash === transactionHash) {
-          return {
-            ...(serverTransaction ?? {}),
-            ...transaction,
-            status: status as TransactionServerStatusesEnum,
-            errorMessage,
-            inTransit
-          };
+  getStore().setState(
+    ({ transactions: state }) => {
+      const transactions = state[sessionId]?.transactions;
+      if (transactions != null) {
+        state[sessionId].transactions = transactions.map((transaction) => {
+          if (transaction.hash === transactionHash) {
+            return {
+              ...(serverTransaction ?? {}),
+              ...transaction,
+              status: status as TransactionServerStatusesEnum,
+              errorMessage,
+              inTransit
+            };
+          }
+          return transaction;
+        });
+        const areTransactionsSuccessful = state[sessionId]?.transactions?.every(
+          (transaction) => {
+            return getIsTransactionSuccessful(transaction.status);
+          }
+        );
+
+        const areTransactionsFailed = state[sessionId]?.transactions?.some(
+          (transaction) => getIsTransactionFailed(transaction.status)
+        );
+
+        const areTransactionsNotExecuted = state[
+          sessionId
+        ]?.transactions?.every((transaction) =>
+          getIsTransactionNotExecuted(transaction.status)
+        );
+
+        if (areTransactionsSuccessful) {
+          state[sessionId].status = TransactionBatchStatusesEnum.success;
         }
-        return transaction;
-      });
-      const areTransactionsSuccessful = state[sessionId]?.transactions?.every(
-        (transaction) => {
-          return getIsTransactionSuccessful(transaction.status);
+        if (areTransactionsFailed) {
+          state[sessionId].status = TransactionBatchStatusesEnum.fail;
         }
-      );
-
-      const areTransactionsFailed = state[sessionId]?.transactions?.some(
-        (transaction) => getIsTransactionFailed(transaction.status)
-      );
-
-      const areTransactionsNotExecuted = state[sessionId]?.transactions?.every(
-        (transaction) => getIsTransactionNotExecuted(transaction.status)
-      );
-
-      if (areTransactionsSuccessful) {
-        state[sessionId].status = TransactionBatchStatusesEnum.success;
+        if (areTransactionsNotExecuted) {
+          state[sessionId].status = TransactionBatchStatusesEnum.invalid;
+        }
       }
-      if (areTransactionsFailed) {
-        state[sessionId].status = TransactionBatchStatusesEnum.fail;
-      }
-      if (areTransactionsNotExecuted) {
-        state[sessionId].status = TransactionBatchStatusesEnum.invalid;
-      }
-    }
-  });
+    },
+    false,
+    'updateSignedTransactionStatus'
+  );
 };
