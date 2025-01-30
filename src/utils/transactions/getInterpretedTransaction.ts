@@ -35,7 +35,7 @@ export function getInterpretedTransaction({
   const receiver = getTransactionReceiver(transaction);
   const receiverAssets = getTransactionReceiverAssets(transaction);
   const age: TransactionAgeType = {
-    age: timeAgo(transaction.timestamp * 1000, true),
+    timeAgo: timeAgo(transaction.timestamp * 1000, true),
     tooltip: getHumanReadableTimeFormat({
       value: transaction.timestamp,
       noSeconds: false,
@@ -45,8 +45,8 @@ export function getInterpretedTransaction({
 
   const direction = getTransactionTransferType(address, transaction, receiver);
   const method: TransactionMethodType = {
-    transactionActionDescription: transaction.action?.description,
-    method: getTransactionMethod(transaction)
+    actionDescription: transaction.action?.description,
+    name: getTransactionMethod(transaction)
   };
 
   const transactionTokens: TokenArgumentType[] =

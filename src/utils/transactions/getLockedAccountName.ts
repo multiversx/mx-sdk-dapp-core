@@ -1,5 +1,5 @@
-import { getTokenDetails } from 'apiCalls';
 import { addressIsValid } from '../validation';
+import { getPersistedTokenDetails } from 'apiCalls/tokens/getPersistedTokenDetails';
 
 interface GetLockedAccountNameParamsType {
   receiver: string;
@@ -22,7 +22,7 @@ export const getLockedAccountName = async ({
     };
   }
 
-  const tokenDetails = await getTokenDetails({ tokenId });
+  const tokenDetails = await getPersistedTokenDetails({ tokenId });
 
   const lockedAccounts = tokenDetails?.assets?.lockedAccounts;
 

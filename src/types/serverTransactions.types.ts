@@ -285,13 +285,13 @@ export enum TransactionDirectionEnum {
 }
 
 export interface TransactionAgeType {
-  age: string;
+  timeAgo: string;
   tooltip: string;
 }
 
 export interface TransactionMethodType {
-  method: string;
-  transactionActionDescription?: string;
+  name: string;
+  actionDescription?: string;
 }
 
 export interface TransactionIconInfoType {
