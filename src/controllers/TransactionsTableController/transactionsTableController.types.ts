@@ -6,6 +6,7 @@ import {
 
 export interface TransactionsTableRowType {
   age: TransactionAgeType;
+  direction?: string;
   method: TransactionMethodType;
   iconInfo: TransactionIconInfoType;
   link: string;
@@ -21,10 +22,12 @@ export interface TransactionIconInfoType {
 
 export interface TransactionAccountType {
   address: string;
-  name: string;
   description: string;
   isContract: boolean;
   isTokenLocked: boolean;
   link: string;
+  name: string;
+  shard?: string;
+  shardLink?: string;
   showLink: boolean;
 }

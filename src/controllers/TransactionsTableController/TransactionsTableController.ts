@@ -5,7 +5,7 @@ import {
   TransactionDirectionEnum
 } from 'types/serverTransactions.types';
 import { getInterpretedTransaction } from 'utils/transactions/getInterpretedTransaction';
-import { getLockedAccountName, isContract } from '../../utils';
+import { getLockedAccountName, getShardText, isContract } from '../../utils';
 import { TransactionsTableRowType } from './transactionsTableController.types';
 
 export class TransactionsTableController {
@@ -44,6 +44,7 @@ export class TransactionsTableController {
 
         const transactionRow: TransactionsTableRowType = {
           age: transaction.transactionDetails.age,
+          direction: transaction.transactionDetails.direction,
           method: transaction.transactionDetails.method,
           iconInfo: transaction.transactionDetails.iconInfo,
           link: transaction.links.transactionLink ?? '',
@@ -55,6 +56,8 @@ export class TransactionsTableController {
             isContract: isContract(transaction.receiver),
             isTokenLocked: Boolean(receiverLockedAccount),
             link: transaction.links.receiverLink ?? '',
+            shard: getShardText(transaction.receiverShard),
+            shardLink: transaction.links.receiverLink,
             showLink:
               transaction.transactionDetails.direction !==
               TransactionDirectionEnum.IN
@@ -66,6 +69,8 @@ export class TransactionsTableController {
             isContract: isContract(transaction.sender),
             isTokenLocked: Boolean(senderLockedAccount),
             link: transaction.links.senderLink ?? '',
+            shard: getShardText(transaction.senderShard),
+            shardLink: transaction.links.senderShardLink,
             showLink:
               transaction.transactionDetails.direction !==
               TransactionDirectionEnum.OUT
