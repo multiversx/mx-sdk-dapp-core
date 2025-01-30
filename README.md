@@ -52,7 +52,7 @@ In your project, make sure to use the `preserveSymlinks` option in the server co
   },
 ```
 
-// TODO: DEMONSTRATE API
+// TODO: DEMONSTRATE init app
 
 
 ```mermaid
