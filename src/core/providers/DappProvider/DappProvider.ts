@@ -3,13 +3,12 @@ import { Transaction } from '@multiversx/sdk-core/out/transaction';
 import { IProvider } from '../types/providerFactory.types';
 import { login } from './helpers/login/login';
 import { logout } from './helpers/logout/logout';
-import { handleSignMessageError } from './helpers/signMessage/handleSignMessageError';
+import { handleSignError } from './helpers/signErrors/handleSignError';
 import { signMessage } from './helpers/signMessage/signMessage';
 import {
   verifyMessage,
   VerifyMessageReturnType
 } from './helpers/signMessage/verifyMessage';
-import { handleSignTransactionError } from './helpers/signTransactions/handleSignTransactionError';
 import {
   signTransactionsWithProvider,
   SignTransactionsOptionsType
@@ -63,7 +62,7 @@ export class DappProvider {
       });
       return signedTransactions;
     } catch (error) {
-      const errorMessage = handleSignTransactionError(error);
+      const errorMessage = handleSignError(error);
       throw new Error(errorMessage);
     }
   }
@@ -82,7 +81,7 @@ export class DappProvider {
       });
       return signedMessage;
     } catch (error) {
-      const errorMessage = handleSignMessageError(error);
+      const errorMessage = handleSignError(error);
       throw new Error(errorMessage);
     }
   }
