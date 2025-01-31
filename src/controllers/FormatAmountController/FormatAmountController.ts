@@ -1,5 +1,4 @@
-import { stringIsInteger, stringIsFloat } from 'lib/sdkDappUtils';
-import { formatAmount } from 'utils/operations/formatAmount';
+import { stringIsInteger, stringIsFloat, formatAmount } from 'lib/sdkDappUtils';
 import { FormatAmountControllerPropsType, FormatedAmountType } from './types';
 
 export class FormatAmountController {

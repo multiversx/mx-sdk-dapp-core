@@ -1,5 +1,4 @@
-import { DECIMALS } from 'lib/sdkDappUtils';
-import { formatAmount } from 'utils/operations/formatAmount';
+import { DECIMALS, formatAmount } from 'lib/sdkDappUtils';
 
 export const getEgldValueData = (value: string) => ({
   egldValueData: {

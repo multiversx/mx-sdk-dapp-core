@@ -5,12 +5,12 @@ import {
 } from 'types/serverTransactions.types';
 import { getInterpretedTransaction } from '../getInterpretedTransaction';
 import { transactionMock } from './extended-transaction-mock';
-import { explorerUrlBuilder } from '../explorerUrlBuilder';
-import { getHumanReadableTimeFormat } from '../getHumanReadableTimeFormat';
-import { getTransactionMethod } from '../getTransactionMethod';
-import { getTransactionIconInfo } from '../getTransactionIconInfo';
 import { timeAgo } from '../../operations/timeRemaining';
 import { isContract } from '../../validation';
+import { explorerUrlBuilder } from '../explorerUrlBuilder';
+import { getHumanReadableTimeFormat } from '../getHumanReadableTimeFormat';
+import { getTransactionIconInfo } from '../getTransactionIconInfo';
+import { getTransactionMethod } from '../getTransactionMethod';
 
 const explorerAddress = 'https://testing.devnet.com';
 

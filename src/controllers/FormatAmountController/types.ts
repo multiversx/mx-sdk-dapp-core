@@ -1,4 +1,4 @@
-import { FormatAmountPropsType } from 'utils/operations/formatAmount';
+import { FormatAmountPropsType } from 'lib/sdkDappUtils';
 
 export interface FormatAmountControllerPropsType extends FormatAmountPropsType {
   egldLabel?: string;
