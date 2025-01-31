@@ -3,7 +3,13 @@ import { SignedTransactionType } from 'types/transactions.types';
 export interface IToastsSliceState {
   customToasts: CustomToastType[];
   transactionToasts: ITransactionToast[];
-  toastProgress: Record<string, number>;
+  toastProgressConfig: Record<string, IToastProgressConfig>;
+}
+
+export interface IToastProgressConfig {
+  startTime: number;
+  endTime: number;
+  isCrossShard: boolean;
 }
 
 interface ISharedCustomToast {

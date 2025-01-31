@@ -30,7 +30,9 @@ export interface IToastDataState {
 }
 export interface ITransactionProgressState {
   progressClass?: string;
-  currentRemaining: number;
+  startTime: number;
+  endTime: number;
+  isCrossShard: boolean;
 }
 export interface ITransaction {
   hash: string;

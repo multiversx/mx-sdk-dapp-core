@@ -1,5 +1,6 @@
 import {
   CustomToastType,
+  IToastProgressConfig,
   ToastsEnum
 } from 'store/slices/toast/toastSlice.types';
 import { getStore } from 'store/store';
@@ -115,35 +116,41 @@ export const removeTransactionToast = (toastId: string) => {
   delete customToastComponentDictionary[toastId];
 };
 
-export const getToastProgress = (toastId: string): number | undefined => {
-  const toastProgress = getStore().getState().toasts.toastProgress || {};
-  return toastProgress.hasOwnProperty(toastId)
-    ? toastProgress[toastId]
+export const getToastProgressConfig = (
+  toastId: string
+): IToastProgressConfig | undefined => {
+  const toastProgressConfig =
+    getStore().getState().toasts.toastProgressConfig || {};
+  return toastProgressConfig.hasOwnProperty(toastId)
+    ? toastProgressConfig[toastId]
     : undefined;
 };
 
-export const updateToastProgress = (toastId: string, progress: number) => {
+export const updateToastProgressConfig = (
+  toastId: string,
+  progress: IToastProgressConfig
+) => {
   getStore().setState(
     ({ toasts: state }) => {
-      if (!state.toastProgress) {
-        state.toastProgress = {};
+      if (!state.toastProgressConfig) {
+        state.toastProgressConfig = {};
       }
-      state.toastProgress[toastId] = progress;
+      state.toastProgressConfig[toastId] = progress;
     },
     false,
-    'updateToastProgress'
+    'updateToastProgressConfig'
   );
 };
 
-export const deleteToastProgress = (toastId: string) => {
+export const deleteToastProgressConfig = (toastId: string) => {
   getStore().setState(
     ({ toasts: state }) => {
-      if (state.toastProgress?.hasOwnProperty(toastId)) {
-        delete state.toastProgress[toastId];
+      if (state.toastProgressConfig?.hasOwnProperty(toastId)) {
+        delete state.toastProgressConfig[toastId];
       }
     },
     false,
-    'deleteToastProgress'
+    'deleteToastProgressConfig'
   );
 };
 

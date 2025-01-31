@@ -13,7 +13,6 @@ import {
   getIsTransactionSuccessful,
   getIsTransactionTimedOut
 } from 'store/actions/trackedTransactions/transactionStateByStatus';
-import { accountSelector } from 'store/selectors/accountSelectors';
 import {
   CustomToastType,
   IToastsSliceState
@@ -21,11 +20,10 @@ import {
 import { getStore } from 'store/store';
 import { ProviderErrorsEnum } from 'types';
 import { createUIElement } from 'utils/createUIElement';
-import { getAreTransactionsOnSameShard } from './helpers/getAreTransactionsOnSameShard';
 import { getToastDataStateByStatus } from './helpers/getToastDataStateByStatus';
 import { getToastProceededStatus } from './helpers/getToastProceededStatus';
+import { handleToastProgressConfig } from './helpers/handleToastProgressConfig';
 import { LifetimeManager } from './helpers/LifetimeManager';
-import { ProgressManager } from './helpers/ProgressManager';
 import { ITransactionToast, ToastEventsEnum } from './types';
 
 interface IToastManager {
@@ -33,8 +31,8 @@ interface IToastManager {
 }
 
 export class ToastManager {
-  private progressManager: ProgressManager;
   private lifetimeManager: LifetimeManager;
+  private toastElementPromise: Promise<ToastList> | null = null;
   private toastsElement: ToastList | undefined;
   private transactionToasts: ITransactionToast[] = [];
   private customToasts: CustomToastType[] = [];
@@ -47,9 +45,6 @@ export class ToastManager {
     this.destroy();
     this.successfulToastLifetime = successfulToastLifetime;
 
-    this.progressManager = new ProgressManager({
-      onUpdate: this.handleProgressUpdate
-    });
     this.lifetimeManager = new LifetimeManager({
       successfulToastLifetime
     });
@@ -128,6 +123,11 @@ export class ToastManager {
         this.lifetimeManager.start(toast.toastId);
       }
 
+      const toastProgressConfig = handleToastProgressConfig(
+        toast.toastId,
+        transactions
+      );
+
       const transactionToast: ITransactionToast = {
         toastDataState: getToastDataStateByStatus({
           address: account.address,
@@ -137,13 +137,7 @@ export class ToastManager {
           transactionsDisplayInfo
         }),
         processedTransactionsStatus: getToastProceededStatus(transactions),
-        transactionProgressState: isPending
-          ? {
-              currentRemaining: this.progressManager.getInitialProgress(
-                toast.toastId
-              )
-            }
-          : null,
+        transactionProgressState: isPending ? toastProgressConfig : null,
         toastId: toast.toastId,
         transactions: transactions.map(({ hash, status }) => ({
           hash,
@@ -151,41 +145,40 @@ export class ToastManager {
         }))
       };
 
-      this.progressManager.start({
-        toastId: toast.toastId,
-        isCrossShard: getAreTransactionsOnSameShard(
-          transactions,
-          accountSelector(this.store.getState())?.shard
-        ),
-        isFinished: !isPending || isTimedOut
-      });
-
       this.transactionToasts.push(transactionToast);
     }
 
     await this.renderToasts();
   }
 
-  private handleProgressUpdate = (toastId: string, progress: number) => {
-    const toastIndex = this.transactionToasts.findIndex(
-      (toast) => toast.toastId === toastId
-    );
-    if (toastIndex !== -1) {
-      this.transactionToasts[toastIndex] = {
-        ...this.transactionToasts[toastIndex],
-        transactionProgressState: { currentRemaining: progress }
-      };
-      this.renderToasts();
-    }
-  };
-
-  private async renderToasts(): Promise<ToastList> {
-    if (!this.toastsElement) {
-      this.toastsElement = await createUIElement<ToastList>('toast-list');
+  private async ensureToastsElement(): Promise<ToastList> {
+    if (this.toastsElement) {
+      return this.toastsElement;
     }
 
-    const eventBus = await this.toastsElement.getEventBus();
+    if (!this.toastElementPromise) {
+      this.toastElementPromise = createUIElement<ToastList>('toast-list')
+        .then((element) => {
+          this.toastsElement = element;
+          this.toastElementPromise = null;
+          return element;
+        })
+        .catch((error) => {
+          this.toastElementPromise = null;
+          throw error;
+        });
+    }
 
+    return this.toastElementPromise;
+  }
+
+  private async renderToasts() {
+    const toastsElement = await this.ensureToastsElement();
+    if (!toastsElement) {
+      return;
+    }
+
+    const eventBus = await toastsElement.getEventBus();
     if (!eventBus) {
       throw new Error(ProviderErrorsEnum.eventBusError);
     }
@@ -194,21 +187,20 @@ export class ToastManager {
       ToastEventsEnum.TRANSACTION_TOAST_DATA_UPDATE,
       this.transactionToasts
     );
+
     eventBus.subscribe(ToastEventsEnum.CLOSE_TOAST, (toastId: string) => {
-      this.progressManager.stop(toastId);
       this.lifetimeManager.stop(toastId);
       removeTransactionToast(toastId);
     });
-    return this.toastsElement;
   }
 
-  private async renderCustomToasts(): Promise<ToastList> {
-    if (!this.toastsElement) {
-      this.toastsElement = await createUIElement<ToastList>('toast-list');
+  private async renderCustomToasts() {
+    const toastsElement = await this.ensureToastsElement();
+    if (!toastsElement) {
+      return;
     }
 
-    const eventBus = await this.toastsElement.getEventBus();
-
+    const eventBus = await toastsElement.getEventBus();
     if (!eventBus) {
       throw new Error(ProviderErrorsEnum.eventBusError);
     }
@@ -217,18 +209,16 @@ export class ToastManager {
       ToastEventsEnum.CUSTOM_TOAST_DATA_UPDATE,
       this.customToasts
     );
+
     eventBus.subscribe(ToastEventsEnum.CLOSE_TOAST, (toastId: string) => {
       this.lifetimeManager.stop(toastId);
-      const handleClose = customToastCloseHandlersDictionary[toastId];
-      handleClose?.();
+      customToastCloseHandlersDictionary[toastId]?.();
       removeCustomToast(toastId);
     });
-    return this.toastsElement;
   }
 
   public destroy() {
     this.unsubscribe();
-    this.progressManager?.destroy();
     this.lifetimeManager?.destroy();
     removeAllCustomToasts();
   }
