@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- [Added transaction accounts in controller processing](https://github.com/multiversx/mx-sdk-dapp-core/pull/72)
 - [Fixed track transactions web socket re-trigger](https://github.com/multiversx/mx-sdk-dapp-core/pull/75)
 - [Added devtools action names](https://github.com/multiversx/mx-sdk-dapp-core/pull/74)
 - [Added transaction display info support](https://github.com/multiversx/mx-sdk-dapp-core/pull/73)

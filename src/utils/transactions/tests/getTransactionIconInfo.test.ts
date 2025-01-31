@@ -1,5 +1,5 @@
-import { getTransactionIconInfo } from '../getTransactionIconInfo';
 import { faBan, faHourglass, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { getTransactionIconInfo } from '../getTransactionIconInfo';
 import * as getTransactionMessagesModule from '../getTransactionMessages';
 import * as getTransactionStatusModule from '../getTransactionStatus';
 

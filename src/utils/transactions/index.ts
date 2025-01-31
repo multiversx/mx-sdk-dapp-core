@@ -3,6 +3,7 @@ export { getActiveTransactionsStatus } from './getActiveTransactionsStatus';
 export { getExplorerLink } from './getExplorerLink';
 export { getHumanReadableTimeFormat } from './getHumanReadableTimeFormat';
 export { getInterpretedTransaction } from './getInterpretedTransaction';
+export { getLockedAccountName } from './getLockedAccountName';
 export { getOperationsMessages } from './getOperationsMessages';
 export { getReceiptMessage } from './getReceiptMessage';
 export { getScResultsMessages } from './getScResultsMessages';

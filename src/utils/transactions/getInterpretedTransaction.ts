@@ -7,16 +7,16 @@ import {
 import { TokenArgumentType } from 'types/serverTransactions.types';
 import { explorerUrlBuilder } from './explorerUrlBuilder';
 import { getExplorerLink } from './getExplorerLink';
+import { getHumanReadableTimeFormat } from './getHumanReadableTimeFormat';
 import { getTokenFromData } from './getTokenFromData';
+import { getTransactionIconInfo } from './getTransactionIconInfo';
 import { getTransactionMethod } from './getTransactionMethod';
 import { getTransactionReceiver } from './getTransactionReceiver';
 import { getTransactionReceiverAssets } from './getTransactionReceiverAssets';
 import { getTransactionTokens } from './getTransactionTokens';
 import { getTransactionTransferType } from './getTransactionTransferType';
-import { isContract } from '../validation';
 import { timeAgo } from '../operations/timeRemaining';
-import { getHumanReadableTimeFormat } from './getHumanReadableTimeFormat';
-import { getTransactionIconInfo } from './getTransactionIconInfo';
+import { isContract } from '../validation';
 
 export interface GetInterpretedTransactionType {
   address: string;
@@ -35,7 +35,7 @@ export function getInterpretedTransaction({
   const receiver = getTransactionReceiver(transaction);
   const receiverAssets = getTransactionReceiverAssets(transaction);
   const age: TransactionAgeType = {
-    age: timeAgo(transaction.timestamp * 1000, true),
+    timeAgo: timeAgo(transaction.timestamp * 1000, true),
     tooltip: getHumanReadableTimeFormat({
       value: transaction.timestamp,
       noSeconds: false,
@@ -45,8 +45,8 @@ export function getInterpretedTransaction({
 
   const direction = getTransactionTransferType(address, transaction, receiver);
   const method: TransactionMethodType = {
-    transactionActionDescription: transaction.action?.description,
-    method: getTransactionMethod(transaction)
+    actionDescription: transaction.action?.description,
+    name: getTransactionMethod(transaction)
   };
 
   const transactionTokens: TokenArgumentType[] =
