@@ -5,8 +5,19 @@ import {
   TransactionDirectionEnum
 } from 'types/serverTransactions.types';
 import { getInterpretedTransaction } from 'utils/transactions/getInterpretedTransaction';
-import { getLockedAccountName, getShardText, isContract } from '../../utils';
-import { TransactionsTableRowType } from './transactionsTableController.types';
+import {
+  getLockedAccountName,
+  getShardText,
+  isContract,
+  getTransactionValue
+} from 'utils';
+import {
+  TransactionsTableRowType,
+  TransactionValueType
+} from './transactionsTableController.types';
+import { NftEnumType } from 'types/tokens.types';
+import { DECIMALS, formatAmount } from 'lib/sdkDappUtils';
+import { FormatAmountController } from '../FormatAmountController';
 
 export class TransactionsTableController {
   public static async processTransactions(
@@ -42,6 +53,53 @@ export class TransactionsTableController {
             tokenId: transaction.tokenIdentifier
           });
 
+        const { egldValueData, tokenValueData, nftValueData } =
+          getTransactionValue({
+            transaction
+          });
+
+        const hideBadgeForMetaESDT =
+          nftValueData?.token.type === NftEnumType.MetaESDT;
+
+        const badge = hideBadgeForMetaESDT
+          ? undefined
+          : nftValueData?.badgeText;
+
+        const formattedAmount = FormatAmountController.getData({
+          input:
+            egldValueData?.value ??
+            tokenValueData?.value ??
+            nftValueData?.value ??
+            '',
+          decimals:
+            egldValueData?.decimals ??
+            tokenValueData?.decimals ??
+            nftValueData?.decimals ??
+            DECIMALS
+        });
+
+        const transactionValue: TransactionValueType = {
+          badge: badge ?? undefined,
+          collection:
+            tokenValueData?.token.collection ?? nftValueData?.token.collection,
+          link:
+            tokenValueData?.tokenExplorerLink ??
+            nftValueData?.tokenExplorerLink,
+          linkText:
+            tokenValueData?.tokenLinkText ?? nftValueData?.tokenLinkText,
+          name: tokenValueData?.token.name ?? nftValueData?.token.name,
+          showFormattedAmount: Boolean(
+            egldValueData ||
+              tokenValueData?.tokenFormattedAmount ||
+              nftValueData?.tokenFormattedAmount
+          ),
+          svgUrl: tokenValueData?.token.svgUrl ?? nftValueData?.token.svgUrl,
+          ticker: tokenValueData?.token.ticker ?? nftValueData?.token.ticker,
+          titleText: tokenValueData?.titleText ?? nftValueData?.titleText,
+          valueDecimal: formattedAmount.valueDecimal,
+          valueInteger: formattedAmount.valueInteger
+        };
+
         const transactionRow: TransactionsTableRowType = {
           age: transaction.transactionDetails.age,
           direction: transaction.transactionDetails.direction,
@@ -74,7 +132,8 @@ export class TransactionsTableController {
             showLink:
               transaction.transactionDetails.direction !==
               TransactionDirectionEnum.OUT
-          }
+          },
+          value: transactionValue
         };
 
         return transactionRow;
