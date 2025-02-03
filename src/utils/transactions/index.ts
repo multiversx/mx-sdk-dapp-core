@@ -16,3 +16,4 @@ export { getTransactionReceiverAssets } from './getTransactionReceiverAssets';
 export { getTransactionStatus } from './getTransactionStatus';
 export { getTransactionTokens } from './getTransactionTokens';
 export { getTransactionTransferType } from './getTransactionTransferType';
+export * from './getTransactionValue';
