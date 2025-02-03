@@ -1,5 +1,3 @@
-import { useGetAccount } from 'store/selectors/hooks/account/useGetAccount';
-import { useGetNetworkConfig } from 'store/selectors/hooks/network/useGetNetworkConfig';
 import {
   ServerTransactionType,
   TransactionDirectionEnum
@@ -16,20 +14,27 @@ import {
   TransactionValueType
 } from './transactionsTableController.types';
 import { NftEnumType } from 'types/tokens.types';
-import { DECIMALS, formatAmount } from 'lib/sdkDappUtils';
+import { DECIMALS } from 'lib/sdkDappUtils';
 import { FormatAmountController } from '../FormatAmountController';
 
-export class TransactionsTableController {
-  public static async processTransactions(
-    transactions: ServerTransactionType[]
-  ): Promise<TransactionsTableRowType[]> {
-    const { address } = useGetAccount();
-    const { network } = useGetNetworkConfig();
+interface TransactionsTableProcessTransactionsParamsType {
+  address: string;
+  explorerAddress: string;
+  transactions: ServerTransactionType[];
+}
 
+export class TransactionsTableController {
+  public static async processTransactions({
+    address,
+    explorerAddress,
+    transactions
+  }: TransactionsTableProcessTransactionsParamsType): Promise<
+    TransactionsTableRowType[]
+  > {
     const interpretedTransactions = transactions.map((transaction) =>
       getInterpretedTransaction({
         address,
-        explorerAddress: network.explorerAddress,
+        explorerAddress,
         transaction
       })
     );

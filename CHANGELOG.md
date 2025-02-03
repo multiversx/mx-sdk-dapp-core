@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- [Removed React hooks from `TransactionsTableController` `processTransaction` method](https://github.com/multiversx/mx-sdk-dapp-core/pull/79)
 - [Added transaction value in controller processing](https://github.com/multiversx/mx-sdk-dapp-core/pull/78)
 - [Enhance handle sign error](https://github.com/multiversx/mx-sdk-dapp-core/pull/77)
 - [Added transaction accounts in controller processing](https://github.com/multiversx/mx-sdk-dapp-core/pull/76)
