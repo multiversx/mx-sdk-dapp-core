@@ -9,6 +9,7 @@ MultiversX Front-End SDK for JavaScript and TypeScript (written in TypeScript).
 It is built for applications that use any of the following technologies:
 - React
 - Angular
+- Vue
 - Any other JavaScript framework (e.g. Solid.js etc.)
 - React Native
 - Next.js
@@ -17,11 +18,16 @@ It is built for applications that use any of the following technologies:
 The GitHub repository can be found here: [https://github.com/multiversx/mx-sdk-dapp-core](https://github.com/multiversx/mx-sdk-dapp-core)
 
 ## Live demo: template-dapp
-// TODO
+See [Dapp template](https://template-dapp.multiversx.com/) for live demo or checkout usage in the [Github repo](https://github.com/multiversx/mx-template-dapp)
+
 
 ## Requirements
 - Node.js version 12.16.2+
 - Npm version 6.14.4+
+
+## Distribution
+
+[npm](https://www.npmjs.com/package/@multiversx/sdk-dapp)
 
 ## Installation
 
@@ -35,6 +41,18 @@ or
 
 ```bash
 yarn add @multiversx/sdk-dapp-core
+```
+
+If you need only the core logic, without the additional UI, you can create a project-specific `.npmrc` file to configure per-package installation behavior. This will skip the installation of `@multiversx/sdk-dapp-core-ui`, but keep in mind that you may need to provide the UI components yourself.
+
+```bash
+## .npmrc
+@multiversx/sdk-dapp-core:omit-optional=true
+## ebable the option when needed with: 
+## @multiversx/sdk-dapp-core:omit-optional=false
+
+##Run Installation When you run npm install, NPM will use the configurations specified in the .npmrc file:
+npm install
 ```
 
 ## Debugging your dApp
