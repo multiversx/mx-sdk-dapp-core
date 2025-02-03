@@ -22,8 +22,8 @@ See [Dapp template](https://template-dapp.multiversx.com/) for live demo or chec
 
 
 ## Requirements
-- Node.js version 12.16.2+
-- Npm version 6.14.4+
+- Node.js version 20.13.1+
+- Npm version 10.5.2+
 
 ## Distribution
 
@@ -54,6 +54,52 @@ If you need only the core logic, without the additional UI, you can create a pro
 ##Run Installation When you run npm install, NPM will use the configurations specified in the .npmrc file:
 npm install
 ```
+
+If you're transitioning from @multiversx/sdk-dapp, you can check out the [Migration guide PR](https://github.com/multiversx/mx-template-dapp/pull/264) of Template Dapp
+
+## Project structure
+
+When inspectig the package, you will find multiple folders under `src`, but the one of intereset are:
+
+```bash
+src/
+├── apiCalls/ ### methods for interacting with the API
+├── constants/ ### useful constants from the ecosystem like ledger error codes, default gas limits for transactions etc.
+├── controllers/ ### business logic for UI elements like transactions and amount formatting
+├── core/ ### hosting provider the class, and all implementations for different signing providers
+└── store/ ### sore initialization, middleware, slices, selectors and actions
+```
+
+Since the project is developed as a universal solution for any Front-End dApp, it has 3 main parts: 
+- First is the business logic in `apiCalls`, `constants` and `core` (signing providers). 
+- Then comes the persistence layer using [zustand](https://zustand.docs.pmnd.rs/) under the hood.
+- Last are the UI components ...
+
+
+
+## Usage
+
+sdk-dapp-core aims to abstract and simplify the process of interacting with users' wallets and with the MultiversX blockchain, allowing developers to easily get started with new applications.
+
+```mermaid
+flowchart LR
+    A["Signing Providers & APIs"] <--> B["sdk-dapp-core"] <--> C["dApp"]
+```
+The library covers 4 main areas:
+| # | Type | Description |
+|---|------|-------------|
+| 1 | Network | Chain configuration |
+| 2 | Provider | The signing provider for logging in and singing transactions |
+| 3 | Account | Inspecting public key and balance |
+| 4 | Transactions Manager | Sending and tracking transactions |
+
+We will take them one by one and see what they consist of.
+
+### 1. Network configuration
+
+
+
+
 
 ## Debugging your dApp
 
