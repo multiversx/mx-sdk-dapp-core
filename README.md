@@ -59,7 +59,7 @@ If you're transitioning from @multiversx/sdk-dapp, you can check out the [Migrat
 
 ## Project structure
 
-When inspectig the package, you will find multiple folders under `src`, but the one of intereset are:
+When inspectig the package, you will find multiple folders under `src`, but the ones of intereset are:
 
 ```bash
 src/
@@ -72,10 +72,19 @@ src/
 
 Since the project is developed as a universal solution for any Front-End dApp, it has 3 main parts: 
 - First is the business logic in `apiCalls`, `constants` and `core` (signing providers). 
-- Then comes the persistence layer using [zustand](https://zustand.docs.pmnd.rs/) under the hood.
-- Last are the UI components ...
+- Then comes the persistence layer hosted in the `store` folder, using [Zustand](https://zustand.docs.pmnd.rs/) under the hood.
+- Last are the UI components hosted in [@multiversx/sdk-dapp-core](https://github.com/multiversx/mx-sdk-dapp-core-ui) with some components controlled on demand by classes defined in `controlles`
 
+These parts hold together different classes and functions that help put a dApp together:
 
+| # | Step | Description |
+|---|------|-------------|
+| 1 | Configuration | -  storage configuration (e.g. sessionStorage, localStorage etc.)<br>-  chain configuration<br>-  custom provider configuration (adding / disabling / changing providers) |
+| 2 | Provider interaction | -  logging in and out<br>-  siging transactions / messages |
+| 3 | Transactions | -  sending transactions<br>-  tracking transactions |
+| 4 | Presenting data | -  get store data (e.g. account balance, account address etc.)<br>-  use components to display data (e.g. balance, address, transactions list) |
+
+Each of these steps will be explained in more detail in the following sections.
 
 ## Usage
 
@@ -85,15 +94,34 @@ sdk-dapp-core aims to abstract and simplify the process of interacting with user
 flowchart LR
     A["Signing Providers & APIs"] <--> B["sdk-dapp-core"] <--> C["dApp"]
 ```
-The library covers 4 main areas:
+What we have detailed in the Project Structure chapter hold together different parts that help put toghether the following components:
+
 | # | Type | Description |
 |---|------|-------------|
 | 1 | Network | Chain configuration |
 | 2 | Provider | The signing provider for logging in and singing transactions |
 | 3 | Account | Inspecting public key and balance |
 | 4 | Transactions Manager | Sending and tracking transactions |
+| 5 | Components | Displaying UI information like balance, public keys etc. |
 
-We will take them one by one and see what they consist of.
+Conceptually, you could see building a dApp in the following way:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+We will describe them one by one and see what they consist of.
 
 ### 1. Network configuration
 
