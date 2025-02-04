@@ -13,6 +13,7 @@ export interface TransactionsTableRowType {
   receiver: TransactionAccountType;
   sender: TransactionAccountType;
   txHash: string;
+  value: TransactionValueType;
 }
 
 export interface TransactionIconInfoType {
@@ -30,4 +31,18 @@ export interface TransactionAccountType {
   shard?: string;
   shardLink?: string;
   showLink: boolean;
+}
+
+export interface TransactionValueType {
+  badge?: string;
+  collection?: string;
+  link?: string;
+  linkText?: string;
+  name?: string;
+  showFormattedAmount?: boolean;
+  svgUrl?: string;
+  ticker?: string;
+  titleText?: string;
+  valueDecimal: string;
+  valueInteger: string;
 }
