@@ -57,9 +57,28 @@ npm install
 
 If you're transitioning from @multiversx/sdk-dapp, you can check out the [Migration guide PR](https://github.com/multiversx/mx-template-dapp/pull/264) of Template Dapp
 
-## Project structure
+## Usage
 
-When inspectig the package, you will find multiple folders under `src`, but the ones of intereset are:
+sdk-dapp-core aims to abstract and simplify the process of interacting with users' wallets and with the MultiversX blockchain, allowing developers to easily get started with new applications.
+
+```mermaid
+flowchart LR
+    A["Signing Providers & APIs"] <--> B["sdk-dapp-core"] <--> C["dApp"]
+```
+
+The basic concepts you need to understand are configuration, provider interaction, transactions, and presenting data. These are the building blocks of any dApp, and they are abstracted in the `sdk-dapp-core` library.
+
+**Table 1**. Elements needed to build a dApp
+| # | Type | Description |
+|---|------|-------------|
+| 1 | Network | Chain configuration |
+| 2 | Provider | The signing provider for logging in and singing transactions |
+| 3 | Account | Inspecting user address and balance |
+| 4 | Transactions Manager | Sending and tracking transactions |
+| 5 | Components | Displaying UI information like balance, public keys etc. |
+
+Since these are a mixtures of business logic and UI components, the library is split into several folders to make it easier to navigate.
+When inspectig the package, there is more content under `src`, but the main folders of intereset are:
 
 ```bash
 src/
@@ -70,13 +89,14 @@ src/
 └── store/ ### sore initialization, middleware, slices, selectors and actions
 ```
 
-Since the project is developed as a universal solution for any Front-End dApp, it has 3 main parts: 
+Conceptually, these can be plit into 3 main parts: 
 - First is the business logic in `apiCalls`, `constants` and `core` (signing providers). 
 - Then comes the persistence layer hosted in the `store` folder, using [Zustand](https://zustand.docs.pmnd.rs/) under the hood.
 - Last are the UI components hosted in [@multiversx/sdk-dapp-core](https://github.com/multiversx/mx-sdk-dapp-core-ui) with some components controlled on demand by classes defined in `controlles`
 
-These parts hold together different classes and functions that help put a dApp together:
+Having this knowledge, we can considers several steps needed to dApp together:
 
+**Table 2**. Steps to build a dApp
 | # | Step | Description |
 |---|------|-------------|
 | 1 | Configuration | -  storage configuration (e.g. sessionStorage, localStorage etc.)<br>-  chain configuration<br>-  custom provider configuration (adding / disabling / changing providers) |
@@ -86,44 +106,40 @@ These parts hold together different classes and functions that help put a dApp t
 
 Each of these steps will be explained in more detail in the following sections.
 
-## Usage
+### 1. Configuring your dApp
 
-sdk-dapp-core aims to abstract and simplify the process of interacting with users' wallets and with the MultiversX blockchain, allowing developers to easily get started with new applications.
+Before your application bootstraps, you need to configure the storage, the network, and the signing providers. This is done by calling the `initApp` method from the `core/methods` folder.
 
-```mermaid
-flowchart LR
-    A["Signing Providers & APIs"] <--> B["sdk-dapp-core"] <--> C["dApp"]
+```typescript
+// index.tsx
+import { initApp } from '@multiversx/sdk-dapp-core/out/core/methods/initApp/initApp';
+import type { InitAppType } from '@multiversx/sdk-dapp-core/out/core/methods/initApp/initApp.types';
+import { EnvironmentsEnum } from '@multiversx/sdk-dapp-core/out/types/enums.types';
+import { App } from "./App";
+
+const config: InitAppType = {
+  storage: { getStorageCallback: () => sessionStorage },
+  dAppConfig: {
+    // nativeAuth: true, // optional
+    environment: EnvironmentsEnum.devnet,
+    // network: { // optional
+    //   walletAddress: 'https://devnet-wallet.multiversx.com'
+    // },
+    successfulToastLifetime: 5000
+  }
+  // customProviders: [myCustomProvider] // optional
+};
+
+initApp(config).then(() => {
+  render(() => <App />, root!); // render your app
+});
 ```
-What we have detailed in the Project Structure chapter hold together different parts that help put toghether the following components:
 
-| # | Type | Description |
-|---|------|-------------|
-| 1 | Network | Chain configuration |
-| 2 | Provider | The signing provider for logging in and singing transactions |
-| 3 | Account | Inspecting public key and balance |
-| 4 | Transactions Manager | Sending and tracking transactions |
-| 5 | Components | Displaying UI information like balance, public keys etc. |
 
-Conceptually, you could see building a dApp in the following way:
+Teo be able to accomplish the steps lined out in Table 1, you will need to have basic knowledge about the following elements:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-We will describe them one by one and see what they consist of.
-
-### 1. Network configuration
 
 
 
