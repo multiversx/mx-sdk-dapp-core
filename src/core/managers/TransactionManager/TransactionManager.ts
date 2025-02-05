@@ -84,7 +84,6 @@ export class TransactionManager {
     }
 
     const totalDuration = getToastDuration(parsedTransactions);
-    console.log('totalDuration', totalDuration);
     addTransactionToast(sessionId, totalDuration);
   };
 
