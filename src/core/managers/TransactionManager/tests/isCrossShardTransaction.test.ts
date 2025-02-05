@@ -1,5 +1,5 @@
 import { Address } from '@multiversx/sdk-core/out';
-import { getShardOfAddress } from '../../TransactionManager/helpers/getShardOfAddress';
+import { getShardOfAddress } from '../helpers/getShardOfAddress';
 import {
   isCrossShardTransaction,
   IsCrossShardTransactionPropsType
