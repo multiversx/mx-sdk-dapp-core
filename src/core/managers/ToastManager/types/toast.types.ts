@@ -29,8 +29,8 @@ export interface IToastDataState {
   iconClassName: string;
 }
 export interface ITransactionProgressState {
-  progressClass?: string;
-  currentRemaining: number;
+  startTime: number;
+  endTime: number;
 }
 export interface ITransaction {
   hash: string;
