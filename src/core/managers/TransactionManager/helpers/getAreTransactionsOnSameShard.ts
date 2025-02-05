@@ -1,6 +1,6 @@
-import { SignedTransactionType } from 'types/transactions.types';
 import { getAddressFromDataField } from 'utils';
-import { isCrossShardTransaction } from './isCrossShardTransaction';
+import { isCrossShardTransaction } from '../../TransactionManager/helpers/isCrossShardTransaction';
+import { SignedTransactionType } from 'types/transactions.types';
 
 export const getAreTransactionsOnSameShard = (
   transactions?: SignedTransactionType[],

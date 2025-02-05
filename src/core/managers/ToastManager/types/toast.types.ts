@@ -29,10 +29,8 @@ export interface IToastDataState {
   iconClassName: string;
 }
 export interface ITransactionProgressState {
-  progressClass?: string;
   startTime: number;
   endTime: number;
-  isCrossShard: boolean;
 }
 export interface ITransaction {
   hash: string;

@@ -4,8 +4,7 @@ import { IToastsSliceState } from './toastSlice.types';
 
 export const initialState: IToastsSliceState = {
   customToasts: [],
-  transactionToasts: [],
-  toastProgressConfig: {}
+  transactionToasts: []
 };
 
 function getToastSlice(): StateCreator<

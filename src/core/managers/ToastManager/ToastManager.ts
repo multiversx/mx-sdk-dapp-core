@@ -22,7 +22,6 @@ import { ProviderErrorsEnum } from 'types';
 import { createUIElement } from 'utils/createUIElement';
 import { getToastDataStateByStatus } from './helpers/getToastDataStateByStatus';
 import { getToastProceededStatus } from './helpers/getToastProceededStatus';
-import { handleToastProgressConfig } from './helpers/handleToastProgressConfig';
 import { LifetimeManager } from './helpers/LifetimeManager';
 import { ITransactionToast, ToastEventsEnum } from './types';
 
@@ -111,6 +110,7 @@ export class ToastManager {
         continue;
       }
 
+      const { startTime, toastId, endTime } = toast;
       const { status, transactions, transactionsDisplayInfo } =
         sessionTransactions;
       const isPending = getIsTransactionPending(status);
@@ -120,13 +120,8 @@ export class ToastManager {
       const isCompleted = isFailed || isSuccessful || isTimedOut;
 
       if (isCompleted && this.successfulToastLifetime) {
-        this.lifetimeManager.start(toast.toastId);
+        this.lifetimeManager.start(toastId);
       }
-
-      const toastProgressConfig = handleToastProgressConfig(
-        toast.toastId,
-        transactions
-      );
 
       const transactionToast: ITransactionToast = {
         toastDataState: getToastDataStateByStatus({
@@ -137,8 +132,13 @@ export class ToastManager {
           transactionsDisplayInfo
         }),
         processedTransactionsStatus: getToastProceededStatus(transactions),
-        transactionProgressState: isPending ? toastProgressConfig : null,
-        toastId: toast.toastId,
+        transactionProgressState: isPending
+          ? {
+              endTime,
+              startTime
+            }
+          : null,
+        toastId: toastId,
         transactions: transactions.map(({ hash, status }) => ({
           hash,
           status
@@ -157,19 +157,22 @@ export class ToastManager {
     }
 
     if (!this.toastElementPromise) {
-      this.toastElementPromise = createUIElement<ToastList>('toast-list')
-        .then((element) => {
-          this.toastsElement = element;
-          this.toastElementPromise = null;
-          return element;
-        })
-        .catch((error) => {
-          this.toastElementPromise = null;
-          throw error;
-        });
+      this.toastElementPromise = this.createToastElement();
     }
 
     return this.toastElementPromise;
+  }
+
+  private async createToastElement() {
+    try {
+      const element = await createUIElement<ToastList>('toast-list');
+      this.toastsElement = element;
+      this.toastElementPromise = null;
+      return element;
+    } catch (error) {
+      this.toastElementPromise = null;
+      throw error;
+    }
   }
 
   private async renderToasts() {

@@ -1,10 +1,6 @@
-import {
-  CustomToastType,
-  IToastProgressConfig,
-  ToastsEnum
-} from 'store/slices/toast/toastSlice.types';
+import { CustomToastType } from 'store/slices/toast/toastSlice.types';
 import { getStore } from 'store/store';
-import { getUnixTimestamp } from 'utils';
+import { getUnixTimestamp, getUnixTimestampWithAddedMilliseconds } from 'utils';
 
 export const customToastComponentDictionary: Record<string, () => HTMLElement> =
   {};
@@ -33,7 +29,6 @@ export const addCustomToast = (
 
       const newToast: CustomToastType = {
         ...customToast,
-        type: ToastsEnum.custom,
         toastId
       };
 
@@ -46,7 +41,6 @@ export const addCustomToast = (
 
       state.customToasts.push({
         ...newToast,
-        type: ToastsEnum.custom,
         toastId
       });
     },
@@ -77,7 +71,7 @@ export const removeAllCustomToasts = () => {
   );
 };
 
-export const addTransactionToast = (toastId: string) => {
+export const addTransactionToast = (toastId: string, totalDuration: number) => {
   getStore().setState(
     ({ toasts: state }) => {
       const lastToastIndex =
@@ -91,8 +85,8 @@ export const addTransactionToast = (toastId: string) => {
       const newToastId = toastId || `transaction-toast-${lastToastIndex + 1}`;
 
       state.transactionToasts.push({
-        type: ToastsEnum.transaction,
-        startTimestamp: getUnixTimestamp(),
+        startTime: getUnixTimestamp(),
+        endTime: getUnixTimestampWithAddedMilliseconds(totalDuration),
         toastId: newToastId
       });
     },
@@ -114,44 +108,6 @@ export const removeTransactionToast = (toastId: string) => {
 
   delete customToastCloseHandlersDictionary[toastId];
   delete customToastComponentDictionary[toastId];
-};
-
-export const getToastProgressConfig = (
-  toastId: string
-): IToastProgressConfig | undefined => {
-  const toastProgressConfig =
-    getStore().getState().toasts.toastProgressConfig || {};
-  return toastProgressConfig.hasOwnProperty(toastId)
-    ? toastProgressConfig[toastId]
-    : undefined;
-};
-
-export const updateToastProgressConfig = (
-  toastId: string,
-  progress: IToastProgressConfig
-) => {
-  getStore().setState(
-    ({ toasts: state }) => {
-      if (!state.toastProgressConfig) {
-        state.toastProgressConfig = {};
-      }
-      state.toastProgressConfig[toastId] = progress;
-    },
-    false,
-    'updateToastProgressConfig'
-  );
-};
-
-export const deleteToastProgressConfig = (toastId: string) => {
-  getStore().setState(
-    ({ toasts: state }) => {
-      if (state.toastProgressConfig?.hasOwnProperty(toastId)) {
-        delete state.toastProgressConfig[toastId];
-      }
-    },
-    false,
-    'deleteToastProgressConfig'
-  );
 };
 
 export const createCustomToast = (props: CustomToastType) => {
@@ -184,7 +140,6 @@ export const createCustomToast = (props: CustomToastType) => {
         const toast: CustomToastType = {
           ...props,
           instantiateToastElement: null,
-          type: ToastsEnum.custom,
           toastId
         };
 
