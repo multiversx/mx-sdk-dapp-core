@@ -1,5 +1,3 @@
-import { useGetAccount } from 'store/selectors/hooks/account/useGetAccount';
-import { useGetNetworkConfig } from 'store/selectors/hooks/network/useGetNetworkConfig';
 import {
   ServerTransactionType,
   TransactionDirectionEnum
@@ -16,20 +14,29 @@ import {
   TransactionValueType
 } from './transactionsTableController.types';
 import { NftEnumType } from 'types/tokens.types';
-import { DECIMALS, formatAmount } from 'lib/sdkDappUtils';
+import { DECIMALS } from 'lib/sdkDappUtils';
 import { FormatAmountController } from '../FormatAmountController';
 
-export class TransactionsTableController {
-  public static async processTransactions(
-    transactions: ServerTransactionType[]
-  ): Promise<TransactionsTableRowType[]> {
-    const { address } = useGetAccount();
-    const { network } = useGetNetworkConfig();
+interface TransactionsTableProcessTransactionsParamsType {
+  address: string;
+  egldLabel: string;
+  explorerAddress: string;
+  transactions: ServerTransactionType[];
+}
 
+export class TransactionsTableController {
+  public static async processTransactions({
+    address,
+    egldLabel,
+    explorerAddress,
+    transactions
+  }: TransactionsTableProcessTransactionsParamsType): Promise<
+    TransactionsTableRowType[]
+  > {
     const interpretedTransactions = transactions.map((transaction) =>
       getInterpretedTransaction({
         address,
-        explorerAddress: network.explorerAddress,
+        explorerAddress,
         transaction
       })
     );
@@ -75,13 +82,15 @@ export class TransactionsTableController {
             egldValueData?.decimals ??
             tokenValueData?.decimals ??
             nftValueData?.decimals ??
-            DECIMALS
+            DECIMALS,
+          digits: 2
         });
 
         const transactionValue: TransactionValueType = {
           badge: badge ?? undefined,
           collection:
             tokenValueData?.token.collection ?? nftValueData?.token.collection,
+          egldLabel: egldValueData ? egldLabel : '',
           link:
             tokenValueData?.tokenExplorerLink ??
             nftValueData?.tokenExplorerLink,
@@ -100,6 +109,9 @@ export class TransactionsTableController {
           valueInteger: formattedAmount.valueInteger
         };
 
+        const receiverShard = getShardText(transaction.receiverShard);
+        const senderShard = getShardText(transaction.senderShard);
+
         const transactionRow: TransactionsTableRowType = {
           age: transaction.transactionDetails.age,
           direction: transaction.transactionDetails.direction,
@@ -110,11 +122,11 @@ export class TransactionsTableController {
           receiver: {
             address: transaction.receiver,
             name: receiverName ?? '',
-            description: `${receiverName} (${transaction.receiver})`,
+            description: `${receiverName || transaction.receiver} (${transaction.receiver})`,
             isContract: isContract(transaction.receiver),
             isTokenLocked: Boolean(receiverLockedAccount),
             link: transaction.links.receiverLink ?? '',
-            shard: getShardText(transaction.receiverShard),
+            shard: receiverShard,
             shardLink: transaction.links.receiverLink,
             showLink:
               transaction.transactionDetails.direction !==
@@ -123,11 +135,11 @@ export class TransactionsTableController {
           sender: {
             address: transaction.sender,
             name: senderName ?? '',
-            description: `${senderName} (${transaction.sender})`,
+            description: `${senderName || transaction.sender} (${transaction.sender})`,
             isContract: isContract(transaction.sender),
             isTokenLocked: Boolean(senderLockedAccount),
             link: transaction.links.senderLink ?? '',
-            shard: getShardText(transaction.senderShard),
+            shard: senderShard,
             shardLink: transaction.links.senderShardLink,
             showLink:
               transaction.transactionDetails.direction !==
