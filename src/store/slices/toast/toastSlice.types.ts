@@ -3,7 +3,6 @@ import { SignedTransactionType } from 'types/transactions.types';
 export interface IToastsSliceState {
   customToasts: CustomToastType[];
   transactionToasts: ITransactionToast[];
-  toastProgress: Record<string, number>;
 }
 
 interface ISharedCustomToast {
@@ -12,7 +11,6 @@ interface ISharedCustomToast {
    * Duration in miliseconds
    */
   duration?: number;
-  type?: string;
   onClose?: () => void;
 }
 
@@ -49,17 +47,8 @@ export interface IComponentToast extends ISharedCustomToast {
 export type CustomToastType = ISimpleToast | IComponentToast;
 
 export interface ITransactionToast {
-  duration?: number;
-  icon?: string;
-  iconClassName?: string;
-  startTimestamp: number;
-  title?: string;
+  startTime: number;
+  endTime: number;
   toastId: string;
   transaction?: SignedTransactionType;
-  type: string;
-}
-
-export enum ToastsEnum {
-  custom = 'custom',
-  transaction = 'transaction'
 }
