@@ -138,7 +138,7 @@ export class ToastManager {
               startTime
             }
           : null,
-        toastId: toastId,
+        toastId,
         transactions: transactions.map(({ hash, status }) => ({
           hash,
           status
