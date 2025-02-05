@@ -6,11 +6,10 @@ import {
   networkSlice,
   accountSlice,
   loginInfoSlice,
-  transactionsSlice,
   configSlice,
   toastSlice
 } from './slices';
-import { trackedTransactionsSlice } from './slices/trackedTransactions';
+import { transactionsSlice } from './slices/transactions';
 import {
   InMemoryStorage,
   defaultStorageCallback,
@@ -36,11 +35,10 @@ export const createDAppStore = (getStorageCallback: StorageCallback) => {
       persist(
         immer((...args) => ({
           network: networkSlice(...args),
-          transactions: transactionsSlice(...args),
           account: accountSlice(...args),
           loginInfo: loginInfoSlice(...args),
           config: configSlice(...args),
-          trackedTransactions: trackedTransactionsSlice(...args),
+          transactions: transactionsSlice(...args),
           toasts: toastSlice(...args)
         })),
         {

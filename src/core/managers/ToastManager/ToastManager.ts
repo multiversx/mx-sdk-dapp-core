@@ -12,7 +12,7 @@ import {
   getIsTransactionPending,
   getIsTransactionSuccessful,
   getIsTransactionTimedOut
-} from 'store/actions/trackedTransactions/transactionStateByStatus';
+} from 'store/actions/transactions/transactionStateByStatus';
 import { accountSelector } from 'store/selectors/accountSelectors';
 import {
   CustomToastType,
@@ -62,12 +62,12 @@ export class ToastManager {
 
     this.unsubscribe = this.store.subscribe(
       (
-        { toasts, trackedTransactions },
-        { toasts: prevToasts, trackedTransactions: prevTrackedTransactions }
+        { toasts, transactions },
+        { toasts: prevToasts, transactions: prevTransactions }
       ) => {
         if (
           !isEqual(prevToasts.transactionToasts, toasts.transactionToasts) ||
-          !isEqual(prevTrackedTransactions, trackedTransactions)
+          !isEqual(prevTransactions, transactions)
         ) {
           this.updateTransactionToastsList(toasts);
         }
@@ -107,11 +107,11 @@ export class ToastManager {
   }
 
   private async updateTransactionToastsList(toastList: IToastsSliceState) {
-    const { trackedTransactions, account } = this.store.getState();
+    const { transactions: sessions, account } = this.store.getState();
     this.transactionToasts = [];
 
     for (const toast of toastList.transactionToasts) {
-      const sessionTransactions = trackedTransactions[toast.toastId];
+      const sessionTransactions = sessions[toast.toastId];
       if (!sessionTransactions) {
         continue;
       }

@@ -3,7 +3,7 @@ import axios, { AxiosError } from 'axios';
 import { BATCH_TRANSACTIONS_ID_SEPARATOR } from 'constants/transactions.constants';
 import { getAccount } from 'core/methods/account/getAccount';
 import { addTransactionToast } from 'store/actions/toasts/toastsActions';
-import { createTrackedTransactionsSession } from 'store/actions/trackedTransactions/trackedTransactionsActions';
+import { createTransactionsSession } from 'store/actions/transactions/transactionsActions';
 import { networkSelector } from 'store/selectors';
 import { getState } from 'store/store';
 import { TransactionServerStatusesEnum } from 'types/enums.types';
@@ -71,7 +71,7 @@ export class TransactionManager {
     const parsedTransactions = signedTransactions.map((transaction) =>
       this.parseSignedTransaction(transaction)
     );
-    const sessionId = createTrackedTransactionsSession({
+    const sessionId = createTransactionsSession({
       transactions: parsedTransactions,
       transactionsDisplayInfo: options.transactionsDisplayInfo
     });

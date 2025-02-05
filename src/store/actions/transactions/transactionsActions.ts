@@ -4,33 +4,39 @@ import {
   TransactionServerStatusesEnum
 } from 'types/enums.types';
 import { ServerTransactionType } from 'types/serverTransactions.types';
-import { SignedTransactionType } from 'types/transactions.types';
+import {
+  ITransactionsDisplayInfo,
+  SignedTransactionType
+} from 'types/transactions.types';
 import {
   getIsTransactionFailed,
   getIsTransactionNotExecuted,
   getIsTransactionSuccessful
 } from './transactionStateByStatus';
 
-export type UpdateSignedTransactionStatusPayloadType = {
+export interface IUpdateTransactionStatusPayload {
   sessionId: string;
   transactionHash: string;
   status: TransactionServerStatusesEnum | TransactionBatchStatusesEnum;
   serverTransaction?: ServerTransactionType;
   errorMessage?: string;
   inTransit?: boolean;
-};
+}
 
 export const createTransactionsSession = ({
-  transactions
+  transactions,
+  transactionsDisplayInfo
 }: {
   transactions: SignedTransactionType[];
+  transactionsDisplayInfo?: ITransactionsDisplayInfo;
 }) => {
   const sessionId = Date.now().toString();
   getStore().setState(
     ({ transactions: state }) => {
       state[sessionId] = {
         transactions,
-        status: TransactionBatchStatusesEnum.sent
+        status: TransactionBatchStatusesEnum.sent,
+        transactionsDisplayInfo
       };
     },
     false,
@@ -58,8 +64,8 @@ export const updateTransactionsSession = ({
   );
 };
 
-export const updateSignedTransactionStatus = (
-  payload: UpdateSignedTransactionStatusPayloadType
+export const updateTransactionStatus = (
+  payload: IUpdateTransactionStatusPayload
 ) => {
   const {
     sessionId,
@@ -113,6 +119,6 @@ export const updateSignedTransactionStatus = (
       }
     },
     false,
-    'updateSignedTransactionStatus'
+    'updateTransactionStatus'
   );
 };

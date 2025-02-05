@@ -7,7 +7,7 @@ import {
   SignedTransactionType
 } from 'types/transactions.types';
 
-export interface TrackedTransactionsSliceType {
+export interface ITransactionsSlice {
   [sessionId: string]: {
     transactions: SignedTransactionType[];
     status?: TransactionBatchStatusesEnum | TransactionServerStatusesEnum;

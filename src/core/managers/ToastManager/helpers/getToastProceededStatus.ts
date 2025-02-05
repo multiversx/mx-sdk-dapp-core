@@ -1,4 +1,4 @@
-import { isServerTransactionPending } from 'store/actions/trackedTransactions/transactionStateByStatus';
+import { isServerTransactionPending } from 'store/actions/transactions/transactionStateByStatus';
 import { TransactionServerStatusesEnum } from 'types';
 import { SignedTransactionType } from 'types/transactions.types';
 
