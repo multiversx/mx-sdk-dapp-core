@@ -31,7 +31,7 @@ interface IToastManager {
 
 export class ToastManager {
   private lifetimeManager: LifetimeManager;
-  private toastElementPromise: Promise<ToastList> | null = null;
+  private isCreatingElement: boolean = false;
   private toastsElement: ToastList | undefined;
   private transactionToasts: ITransactionToast[] = [];
   private customToasts: CustomToastType[] = [];
@@ -151,32 +151,23 @@ export class ToastManager {
     await this.renderToasts();
   }
 
-  private async ensureToastsElement(): Promise<ToastList> {
+  private async createToastListElement(): Promise<ToastList | null> {
     if (this.toastsElement) {
       return this.toastsElement;
     }
 
-    if (!this.toastElementPromise) {
-      this.toastElementPromise = this.createToastElement();
+    if (!this.isCreatingElement) {
+      this.isCreatingElement = true;
+      this.toastsElement = await createUIElement<ToastList>('toast-list');
+      this.isCreatingElement = false;
+      return this.toastsElement;
     }
 
-    return this.toastElementPromise;
-  }
-
-  private async createToastElement() {
-    try {
-      const element = await createUIElement<ToastList>('toast-list');
-      this.toastsElement = element;
-      this.toastElementPromise = null;
-      return element;
-    } catch (error) {
-      this.toastElementPromise = null;
-      throw error;
-    }
+    return null;
   }
 
   private async renderToasts() {
-    const toastsElement = await this.ensureToastsElement();
+    const toastsElement = await this.createToastListElement();
     if (!toastsElement) {
       return;
     }
@@ -198,7 +189,7 @@ export class ToastManager {
   }
 
   private async renderCustomToasts() {
-    const toastsElement = await this.ensureToastsElement();
+    const toastsElement = await this.createToastListElement();
     if (!toastsElement) {
       return;
     }
@@ -215,7 +206,8 @@ export class ToastManager {
 
     eventBus.subscribe(ToastEventsEnum.CLOSE_TOAST, (toastId: string) => {
       this.lifetimeManager.stop(toastId);
-      customToastCloseHandlersDictionary[toastId]?.();
+      const handleClose = customToastCloseHandlersDictionary[toastId];
+      handleClose?.();
       removeCustomToast(toastId);
     });
   }

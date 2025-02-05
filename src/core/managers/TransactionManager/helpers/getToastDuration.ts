@@ -1,5 +1,5 @@
 import { Transaction } from '@multiversx/sdk-core/out';
-import { getAreTransactionsOnSameShard } from './getAreTransactionsOnSameShard';
+import { getAreTransactionsCrossShards } from './getAreTransactionsCorssShards';
 import { getState } from 'store/store';
 import { accountSelector } from 'store/selectors';
 import { isBatchTransaction } from './isBatchTransaction';
@@ -17,7 +17,7 @@ export const getToastDuration = (
 
   if (isBatchTransaction(transactions)) {
     transactions.forEach((transactionGroup) => {
-      const isCrossShard = getAreTransactionsOnSameShard(
+      const isCrossShard = getAreTransactionsCrossShards(
         transactionGroup,
         accountShard
       );
@@ -28,7 +28,7 @@ export const getToastDuration = (
     return totalDuration;
   }
 
-  const isCrossShard = getAreTransactionsOnSameShard(
+  const isCrossShard = getAreTransactionsCrossShards(
     transactions,
     accountShard
   );

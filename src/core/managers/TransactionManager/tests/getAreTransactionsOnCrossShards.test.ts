@@ -4,7 +4,7 @@ import {
 } from 'types';
 import { SignedTransactionType } from 'types/transactions.types';
 import { getAddressFromDataField } from 'utils';
-import { getAreTransactionsOnSameShard } from '../helpers/getAreTransactionsOnSameShard';
+import { getAreTransactionsCrossShards } from '../helpers/getAreTransactionsCorssShards';
 import { isCrossShardTransaction } from '../helpers/isCrossShardTransaction';
 
 jest.mock('utils', () => ({
@@ -24,11 +24,11 @@ describe('getAreTransactionsOnSameShard', () => {
   });
 
   it('should return true if no transactions are provided', () => {
-    expect(getAreTransactionsOnSameShard()).toBe(true);
+    expect(getAreTransactionsCrossShards()).toBe(true);
   });
 
   it('should return true if transactions array is empty', () => {
-    expect(getAreTransactionsOnSameShard([])).toBe(true);
+    expect(getAreTransactionsCrossShards([])).toBe(true);
   });
 
   it('should return true if all transactions are on the same shard', () => {
@@ -63,7 +63,7 @@ describe('getAreTransactionsOnSameShard', () => {
       }
     ];
 
-    expect(getAreTransactionsOnSameShard(transactions, 1)).toBe(true);
+    expect(getAreTransactionsCrossShards(transactions, 1)).toBe(true);
   });
 
   it('should return false if any transaction is not on the same shard', () => {
@@ -105,7 +105,7 @@ describe('getAreTransactionsOnSameShard', () => {
       .mockReturnValueOnce(true)
       .mockReturnValueOnce(false);
 
-    expect(getAreTransactionsOnSameShard(transactions, 1)).toBe(false);
+    expect(getAreTransactionsCrossShards(transactions, 1)).toBe(false);
   });
 
   it('should skip transactions with null receiverAddress', () => {
@@ -144,6 +144,6 @@ describe('getAreTransactionsOnSameShard', () => {
 
     mockGetAddressFromDataField.mockReturnValue(null);
 
-    expect(getAreTransactionsOnSameShard(transactions, 2)).toBe(true);
+    expect(getAreTransactionsCrossShards(transactions, 2)).toBe(true);
   });
 });

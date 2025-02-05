@@ -37,8 +37,8 @@ export class TransactionManager {
 
     try {
       if (!isBatchTransaction(signedTransactions)) {
-        const hashes = await this.sendSignedTransactions(signedTransactions);
-        return hashes;
+        const flatHases = await this.sendSignedTransactions(signedTransactions);
+        return flatHases;
       }
 
       const sentTransactions =
@@ -84,7 +84,7 @@ export class TransactionManager {
     }
 
     const totalDuration = getToastDuration(parsedTransactions);
-    addTransactionToast(sessionId, totalDuration);
+    addTransactionToast({ toastId: sessionId, totalDuration });
   };
 
   private parsedSignedTransactions = (
