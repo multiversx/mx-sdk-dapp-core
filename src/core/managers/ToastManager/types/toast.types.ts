@@ -35,6 +35,7 @@ export interface ITransactionProgressState {
 export interface ITransaction {
   hash: string;
   status: string;
+  link: string;
 }
 export interface ITransactionToast {
   toastId: string;
@@ -42,7 +43,6 @@ export interface ITransactionToast {
   transactions: ITransaction[];
   toastDataState: IToastDataState;
   transactionProgressState?: ITransactionProgressState | null;
-  transactionLink: string;
 }
 
 export enum ToastEventsEnum {

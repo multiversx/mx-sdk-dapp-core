@@ -25,8 +25,8 @@ import { getToastDataStateByStatus } from './helpers/getToastDataStateByStatus';
 import { getToastProceededStatus } from './helpers/getToastProceededStatus';
 import { LifetimeManager } from './helpers/LifetimeManager';
 import { ITransactionToast, ToastEventsEnum } from './types';
+import { explorerUrlBuilder, getExplorerLink } from 'utils';
 import { getExplorerAddress } from 'core/methods/network/getExplorerAddress';
-import { TRANSACTIONS_ENDPOINT } from 'apiCalls';
 
 interface IToastManager {
   successfulToastLifetime?: number;
@@ -106,6 +106,7 @@ export class ToastManager {
   private async updateTransactionToastsList(toastList: IToastsSliceState) {
     const { transactions: sessions, account } = this.store.getState();
     this.transactionToasts = [];
+    const explorerAddress = getExplorerAddress();
 
     for (const toast of toastList.transactionToasts) {
       const sessionTransactions = sessions[toast.toastId];
@@ -121,8 +122,6 @@ export class ToastManager {
       const isFailed = getIsTransactionFailed(status);
       const isSuccessful = getIsTransactionSuccessful(status);
       const isCompleted = isFailed || isSuccessful || isTimedOut;
-
-      const explorerAddress = getExplorerAddress();
 
       if (isCompleted && this.successfulToastLifetime) {
         this.lifetimeManager.start(toastId);
@@ -146,9 +145,12 @@ export class ToastManager {
         toastId,
         transactions: transactions.map(({ hash, status }) => ({
           hash,
-          status
-        })),
-        transactionLink: `${explorerAddress}/${TRANSACTIONS_ENDPOINT}`
+          status,
+          link: getExplorerLink({
+            explorerAddress,
+            to: explorerUrlBuilder.transactionDetails(hash)
+          })
+        }))
       };
 
       this.transactionToasts.push(transactionToast);
