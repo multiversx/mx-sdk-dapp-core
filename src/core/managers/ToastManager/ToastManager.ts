@@ -16,7 +16,7 @@ import {
 
 import {
   CustomToastType,
-  IToastsSliceState
+  ToastsSliceType
 } from 'store/slices/toast/toastSlice.types';
 import { getStore } from 'store/store';
 import { ProviderErrorsEnum } from 'types';
@@ -76,7 +76,7 @@ export class ToastManager {
     );
   }
 
-  private async updateCustomToastList(toastList: IToastsSliceState) {
+  private async updateCustomToastList(toastList: ToastsSliceType) {
     this.customToasts = [];
     for (const toast of toastList.customToasts) {
       const isSimpleToast = 'message' in toast;
@@ -103,7 +103,7 @@ export class ToastManager {
     this.renderCustomToasts();
   }
 
-  private async updateTransactionToastsList(toastList: IToastsSliceState) {
+  private async updateTransactionToastsList(toastList: ToastsSliceType) {
     const { transactions: sessions, account } = this.store.getState();
     this.transactionToasts = [];
     const explorerAddress = getExplorerAddress();

@@ -85,7 +85,7 @@ export enum TransactionDirectionEnum {
 /**
  * Allows editing the title toast information
  */
-export interface ITransactionsDisplayInfo {
+export interface TransactionsDisplayInfoType {
   /**
    * Optional error message to be displayed in notification title in notification title if the transaction fails.
    */
@@ -134,5 +134,5 @@ export type SessionTransactionType = {
   /**
    * Optional custom information to be displayed in the toast notification.
    */
-  transactionsDisplayInfo?: ITransactionsDisplayInfo;
+  transactionsDisplayInfo?: TransactionsDisplayInfoType;
 };

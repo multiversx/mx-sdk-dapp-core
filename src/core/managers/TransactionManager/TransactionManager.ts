@@ -12,7 +12,7 @@ import {
 } from 'types/enums.types';
 import { BatchTransactionsResponseType } from 'types/serverTransactions.types';
 import {
-  ITransactionsDisplayInfo,
+  TransactionsDisplayInfoType,
   SignedTransactionType
 } from 'types/transactions.types';
 import { isGuardianTx } from 'utils/transactions/isGuardianTx';
@@ -71,7 +71,7 @@ export class TransactionManager {
     sentTransactions: SignedTransactionType[] | SignedTransactionType[][],
     options: {
       disableToasts?: boolean;
-      transactionsDisplayInfo?: ITransactionsDisplayInfo;
+      transactionsDisplayInfo?: TransactionsDisplayInfoType;
     } = { disableToasts: false }
   ) => {
     const flatTransactions = this.sequentialToFlatArray(sentTransactions);

@@ -2,7 +2,7 @@ import {
   TransactionBatchStatusesEnum,
   TransactionServerStatusesEnum
 } from 'types/enums.types';
-import { ITransactionsDisplayInfo } from 'types/transactions.types';
+import { TransactionsDisplayInfoType } from 'types/transactions.types';
 
 export enum TransactionsDefaultTitles {
   success = 'Transaction successful',
@@ -18,7 +18,7 @@ export interface GetToastsOptionsDataPropsType {
   sender: string;
   status?: TransactionBatchStatusesEnum | TransactionServerStatusesEnum;
   toastId: string;
-  transactionsDisplayInfo?: ITransactionsDisplayInfo;
+  transactionsDisplayInfo?: TransactionsDisplayInfoType;
 }
 
 export interface IToastDataState {
