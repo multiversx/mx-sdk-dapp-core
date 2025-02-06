@@ -177,6 +177,16 @@ export async function checkBatch({
         });
         return onFail?.(sessionId);
       }
+
+      const isInvalid = serverTransactions.every((tx) => tx.invalidTransaction);
+
+      if (isInvalid) {
+        updateTransactionsSession({
+          sessionId,
+          status: TransactionBatchStatusesEnum.invalid
+        });
+        return onFail?.(sessionId);
+      }
     }
   } catch (error) {
     console.error(error);

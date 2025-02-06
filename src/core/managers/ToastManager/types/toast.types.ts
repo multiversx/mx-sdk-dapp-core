@@ -38,11 +38,11 @@ export interface ITransaction {
 }
 export interface ITransactionToast {
   toastId: string;
-  wrapperClass?: string; // TODO: remove ?
   processedTransactionsStatus: string;
   transactions: ITransaction[];
   toastDataState: IToastDataState;
   transactionProgressState?: ITransactionProgressState | null;
+  transactionLink: string;
 }
 
 export enum ToastEventsEnum {

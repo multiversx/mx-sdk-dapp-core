@@ -12,6 +12,11 @@ export interface SignedTransactionType extends IPlainTransactionObject {
   inTransit?: boolean;
 }
 
+export interface ISentTransactions {
+  status: TransactionServerStatusesEnum | TransactionBatchStatusesEnum;
+  transactions: SignedTransactionType[] | SignedTransactionType[][];
+}
+
 export interface MultiSignTransactionType {
   multiTxData?: string;
   transactionIndex: number;

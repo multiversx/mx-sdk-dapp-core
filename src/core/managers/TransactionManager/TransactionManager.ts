@@ -6,15 +6,20 @@ import { addTransactionToast } from 'store/actions/toasts/toastsActions';
 import { createTransactionsSession } from 'store/actions/transactions/transactionsActions';
 import { networkSelector } from 'store/selectors';
 import { getState } from 'store/store';
-import { TransactionServerStatusesEnum } from 'types/enums.types';
+import {
+  TransactionBatchStatusesEnum,
+  TransactionServerStatusesEnum
+} from 'types/enums.types';
 import { BatchTransactionsResponseType } from 'types/serverTransactions.types';
 import {
+  ISentTransactions,
   ITransactionsDisplayInfo,
   SignedTransactionType
 } from 'types/transactions.types';
 import { isGuardianTx } from 'utils/transactions/isGuardianTx';
 import { isBatchTransaction } from './helpers/isBatchTransaction';
 import { getToastDuration } from './helpers/getToastDuration';
+import { getBatchStatus } from './helpers/getBatchStatus';
 
 export class TransactionManager {
   private static instance: TransactionManager | null = null;
@@ -30,15 +35,20 @@ export class TransactionManager {
 
   public send = async (
     signedTransactions: Transaction[] | Transaction[][]
-  ): Promise<string[] | string[][]> => {
+  ): Promise<ISentTransactions> => {
     if (signedTransactions.length === 0) {
       throw new Error('No transactions to send');
     }
 
     try {
       if (!isBatchTransaction(signedTransactions)) {
-        const flatHases = await this.sendSignedTransactions(signedTransactions);
-        return flatHases;
+        const flatTransactions =
+          await this.sendSignedTransactions(signedTransactions);
+
+        return {
+          status: TransactionBatchStatusesEnum.sent,
+          transactions: flatTransactions
+        };
       }
 
       const sentTransactions =
@@ -50,11 +60,10 @@ export class TransactionManager {
         );
       }
 
-      const groupedHashes = sentTransactions.data.transactions.map((txGroup) =>
-        txGroup.map((tx) => tx.hash)
-      );
-
-      return groupedHashes;
+      return {
+        status: getBatchStatus(sentTransactions.data.status),
+        transactions: sentTransactions.data.transactions
+      };
     } catch (error) {
       const responseData = <{ message: string }>(
         (error as AxiosError).response?.data
@@ -64,53 +73,31 @@ export class TransactionManager {
   };
 
   public track = async (
-    signedTransactions: Transaction[] | Transaction[][],
+    sentTransactions: ISentTransactions,
     options: {
       disableToasts?: boolean;
       transactionsDisplayInfo?: ITransactionsDisplayInfo;
     } = { disableToasts: false }
   ) => {
-    const parsedTransactions =
-      this.parsedSignedTransactions(signedTransactions);
-
-    const flatTransactions = this.sequentialToFlatArray(parsedTransactions);
+    const { status, transactions } = sentTransactions;
+    const flatTransactions = this.sequentialToFlatArray(transactions);
     const sessionId = createTransactionsSession({
       transactions: flatTransactions,
-      transactionsDisplayInfo: options.transactionsDisplayInfo
+      transactionsDisplayInfo: options.transactionsDisplayInfo,
+      status
     });
 
     if (options.disableToasts === true) {
       return;
     }
 
-    const totalDuration = getToastDuration(parsedTransactions);
+    const totalDuration = getToastDuration(transactions);
     addTransactionToast({ toastId: sessionId, totalDuration });
-  };
-
-  private parsedSignedTransactions = (
-    signedTransactions: Transaction[] | Transaction[][]
-  ): SignedTransactionType[] | SignedTransactionType[][] => {
-    if (isBatchTransaction(signedTransactions)) {
-      const parsedTransactions: SignedTransactionType[][] =
-        signedTransactions.map((transactionsGroup) =>
-          transactionsGroup.map((transaction) => {
-            return this.parseSignedTransaction(transaction);
-          })
-        );
-      return parsedTransactions;
-    }
-    const parsedTransactions: SignedTransactionType[] = signedTransactions.map(
-      (transaction) => {
-        return this.parseSignedTransaction(transaction);
-      }
-    );
-
-    return parsedTransactions;
   };
 
   private sendSignedTransactions = async (
     signedTransactions: Transaction[]
-  ): Promise<string[]> => {
+  ): Promise<SignedTransactionType[]> => {
     const { apiAddress, apiTimeout } = networkSelector(getState());
 
     const promises = signedTransactions.map((transaction) =>
@@ -121,7 +108,11 @@ export class TransactionManager {
 
     const response = await Promise.all(promises);
 
-    return response.map(({ data }) => data.txHash);
+    return response.map(({ data }) => ({
+      ...data,
+      status: TransactionServerStatusesEnum.pending,
+      hash: data.txHash
+    }));
   };
 
   private sendSignedBatchTransactions = async (

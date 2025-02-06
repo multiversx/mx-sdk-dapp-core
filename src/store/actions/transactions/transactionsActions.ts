@@ -25,17 +25,19 @@ export interface IUpdateTransactionStatusPayload {
 
 export const createTransactionsSession = ({
   transactions,
-  transactionsDisplayInfo
+  transactionsDisplayInfo,
+  status
 }: {
   transactions: SignedTransactionType[];
   transactionsDisplayInfo?: ITransactionsDisplayInfo;
+  status: TransactionBatchStatusesEnum | TransactionServerStatusesEnum;
 }) => {
   const sessionId = Date.now().toString();
   getStore().setState(
     ({ transactions: state }) => {
       state[sessionId] = {
         transactions,
-        status: TransactionBatchStatusesEnum.sent,
+        status,
         transactionsDisplayInfo
       };
     },
