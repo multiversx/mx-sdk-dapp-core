@@ -22,44 +22,47 @@ export const getLockedAccountName = async ({
     };
   }
 
-  const tokenDetails = await getPersistedTokenDetails({ tokenId });
+  try {
+    const tokenDetails = await getPersistedTokenDetails({ tokenId });
+    const lockedAccounts = tokenDetails?.assets?.lockedAccounts;
 
-  const lockedAccounts = tokenDetails?.assets?.lockedAccounts;
-
-  if (!lockedAccounts) {
-    return {
-      senderLockedAccount,
-      receiverLockedAccount
-    };
-  }
-
-  for (let account in lockedAccounts) {
-    if (addressIsValid(account)) {
-      if (sender === account) {
-        senderLockedAccount = account;
-      }
-
-      if (receiver === account) {
-        receiverLockedAccount = account;
-      }
-    }
-
-    if (addressIsValid(lockedAccounts[account])) {
-      if (sender === lockedAccounts[account]) {
-        senderLockedAccount = lockedAccounts[account];
-      }
-
-      if (receiver === lockedAccounts[account]) {
-        receiverLockedAccount = lockedAccounts[account];
-      }
-    }
-
-    if (senderLockedAccount && receiverLockedAccount) {
+    if (!lockedAccounts) {
       return {
         senderLockedAccount,
         receiverLockedAccount
       };
     }
+
+    for (let account in lockedAccounts) {
+      if (addressIsValid(account)) {
+        if (sender === account) {
+          senderLockedAccount = account;
+        }
+
+        if (receiver === account) {
+          receiverLockedAccount = account;
+        }
+      }
+
+      if (addressIsValid(lockedAccounts[account])) {
+        if (sender === lockedAccounts[account]) {
+          senderLockedAccount = lockedAccounts[account];
+        }
+
+        if (receiver === lockedAccounts[account]) {
+          receiverLockedAccount = lockedAccounts[account];
+        }
+      }
+
+      if (senderLockedAccount && receiverLockedAccount) {
+        return {
+          senderLockedAccount,
+          receiverLockedAccount
+        };
+      }
+    }
+  } catch (error) {
+    console.error('Error getting token details', error);
   }
 
   return {
