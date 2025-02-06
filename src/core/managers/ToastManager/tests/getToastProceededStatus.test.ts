@@ -1,9 +1,9 @@
-import { isServerTransactionPending } from 'store/actions/trackedTransactions/transactionStateByStatus';
+import { isServerTransactionPending } from 'store/actions/transactions/transactionStateByStatus';
 import { TransactionServerStatusesEnum } from 'types';
 import { SignedTransactionType } from 'types/transactions.types';
 import { getToastProceededStatus } from '../helpers/getToastProceededStatus';
 
-jest.mock('store/actions/trackedTransactions/transactionStateByStatus');
+jest.mock('store/actions/transactions/transactionStateByStatus');
 
 describe('getToastProceededStatus', () => {
   beforeEach(() => {

@@ -1,1 +1,1 @@
-export { transactionsSlice } from './transacitionsSlice';
+export { transactionsSlice } from './transactionsSlice';

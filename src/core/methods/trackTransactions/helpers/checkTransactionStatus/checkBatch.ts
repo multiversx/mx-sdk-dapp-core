@@ -1,9 +1,8 @@
 import { getTransactionsByHashes } from 'apiCalls/transactions/getTransactionsByHashes';
 import {
-  updateTrackedTransactionStatus,
-  updateTrackedTransactionsSession
-} from 'store/actions/trackedTransactions/trackedTransactionsActions';
-import { getIsTransactionFailed } from 'store/actions/transactions/transactionStateByStatus';
+  updateTransactionStatus,
+  updateTransactionsSession
+} from 'store/actions/transactions/transactionsActions';
 import {
   TransactionBatchStatusesEnum,
   TransactionServerStatusesEnum
@@ -18,6 +17,7 @@ import { refreshAccount } from 'utils/account';
 import { getPendingTransactions } from './getPendingTransactions';
 import { manageFailedTransactions } from './manageFailedTransactions';
 import { TransactionsTrackerType } from '../../trackTransactions.types';
+import { getIsTransactionFailed } from 'store/actions/transactions/transactionStateByStatus';
 
 export interface TransactionStatusTrackerPropsType
   extends TransactionsTrackerType {
@@ -63,7 +63,7 @@ function manageTransaction({
     const retriesForThisHash = retries[hash];
     if (retriesForThisHash > 30) {
       // consider transaction as stuck after 1 minute
-      updateTrackedTransactionsSession({
+      updateTransactionsSession({
         sessionId,
         status: TransactionBatchStatusesEnum.timedOut
       });
@@ -81,23 +81,27 @@ function manageTransaction({
     // The tx is from a sequential batch.
     // If the transactions before this are not successful then it means that no other tx will be processed
     if (isSequential && !status) {
-      updateTrackedTransactionStatus({
+      updateTransactionStatus({
         sessionId,
-        status,
-        transactionHash: hash,
-        inTransit,
-        serverTransaction: serverTransaction as unknown as ServerTransactionType
+        transaction: {
+          ...(serverTransaction as unknown as SignedTransactionType),
+          hash,
+          inTransit,
+          status
+        }
       });
       return;
     }
 
     if (hasStatusChanged) {
-      updateTrackedTransactionStatus({
+      updateTransactionStatus({
         sessionId,
-        status,
-        transactionHash: hash,
-        inTransit,
-        serverTransaction: serverTransaction as unknown as ServerTransactionType
+        transaction: {
+          ...(serverTransaction as unknown as SignedTransactionType),
+          hash,
+          inTransit,
+          status
+        }
       });
     }
 
@@ -111,7 +115,7 @@ function manageTransaction({
     }
   } catch (error) {
     console.error(error);
-    updateTrackedTransactionsSession({
+    updateTransactionsSession({
       sessionId,
       status: TransactionBatchStatusesEnum.timedOut
     });
@@ -159,7 +163,7 @@ export async function checkBatch({
       );
 
       if (isSuccessful) {
-        updateTrackedTransactionsSession({
+        updateTransactionsSession({
           sessionId,
           status: TransactionBatchStatusesEnum.success
         });
@@ -171,9 +175,19 @@ export async function checkBatch({
       );
 
       if (isFailed) {
-        updateTrackedTransactionsSession({
+        updateTransactionsSession({
           sessionId,
           status: TransactionBatchStatusesEnum.fail
+        });
+        return onFail?.(sessionId);
+      }
+
+      const isInvalid = serverTransactions.every((tx) => tx.invalidTransaction);
+
+      if (isInvalid) {
+        updateTransactionsSession({
+          sessionId,
+          status: TransactionBatchStatusesEnum.invalid
         });
         return onFail?.(sessionId);
       }
