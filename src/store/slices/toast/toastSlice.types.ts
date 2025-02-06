@@ -1,9 +1,9 @@
 import { SignedTransactionType } from 'types/transactions.types';
 
-export interface IToastsSliceState {
+export type ToastsSliceType = {
   customToasts: CustomToastType[];
   transactionToasts: ITransactionToast[];
-}
+};
 
 interface ISharedCustomToast {
   toastId: string;

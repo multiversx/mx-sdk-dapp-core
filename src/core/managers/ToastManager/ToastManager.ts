@@ -12,10 +12,11 @@ import {
   getIsTransactionPending,
   getIsTransactionSuccessful,
   getIsTransactionTimedOut
-} from 'store/actions/trackedTransactions/transactionStateByStatus';
+} from 'store/actions/transactions/transactionStateByStatus';
+
 import {
   CustomToastType,
-  IToastsSliceState
+  ToastsSliceType
 } from 'store/slices/toast/toastSlice.types';
 import { getStore } from 'store/store';
 import { ProviderErrorsEnum } from 'types';
@@ -24,6 +25,8 @@ import { getToastDataStateByStatus } from './helpers/getToastDataStateByStatus';
 import { getToastProceededStatus } from './helpers/getToastProceededStatus';
 import { LifetimeManager } from './helpers/LifetimeManager';
 import { ITransactionToast, ToastEventsEnum } from './types';
+import { explorerUrlBuilder, getExplorerLink } from 'utils';
+import { getExplorerAddress } from 'core/methods/network/getExplorerAddress';
 
 interface IToastManager {
   successfulToastLifetime?: number;
@@ -56,12 +59,12 @@ export class ToastManager {
 
     this.unsubscribe = this.store.subscribe(
       (
-        { toasts, trackedTransactions },
-        { toasts: prevToasts, trackedTransactions: prevTrackedTransactions }
+        { toasts, transactions },
+        { toasts: prevToasts, transactions: prevTransactions }
       ) => {
         if (
           !isEqual(prevToasts.transactionToasts, toasts.transactionToasts) ||
-          !isEqual(prevTrackedTransactions, trackedTransactions)
+          !isEqual(prevTransactions, transactions)
         ) {
           this.updateTransactionToastsList(toasts);
         }
@@ -73,7 +76,7 @@ export class ToastManager {
     );
   }
 
-  private async updateCustomToastList(toastList: IToastsSliceState) {
+  private async updateCustomToastList(toastList: ToastsSliceType) {
     this.customToasts = [];
     for (const toast of toastList.customToasts) {
       const isSimpleToast = 'message' in toast;
@@ -100,12 +103,13 @@ export class ToastManager {
     this.renderCustomToasts();
   }
 
-  private async updateTransactionToastsList(toastList: IToastsSliceState) {
-    const { trackedTransactions, account } = this.store.getState();
+  private async updateTransactionToastsList(toastList: ToastsSliceType) {
+    const { transactions: sessions, account } = this.store.getState();
     this.transactionToasts = [];
+    const explorerAddress = getExplorerAddress();
 
     for (const toast of toastList.transactionToasts) {
-      const sessionTransactions = trackedTransactions[toast.toastId];
+      const sessionTransactions = sessions[toast.toastId];
       if (!sessionTransactions) {
         continue;
       }
@@ -141,7 +145,11 @@ export class ToastManager {
         toastId,
         transactions: transactions.map(({ hash, status }) => ({
           hash,
-          status
+          status,
+          link: getExplorerLink({
+            explorerAddress,
+            to: explorerUrlBuilder.transactionDetails(hash)
+          })
         }))
       };
 
