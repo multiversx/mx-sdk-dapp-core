@@ -48,7 +48,7 @@ If you need only the core logic, without the additional UI, you can create a pro
 ```bash
 ## .npmrc
 @multiversx/sdk-dapp-core:omit-optional=true
-## ebable the option when needed with: 
+## enable the option when needed with: 
 ## @multiversx/sdk-dapp-core:omit-optional=false
 
 ##Run Installation When you run npm install, NPM will use the configurations specified in the .npmrc file:
@@ -68,45 +68,20 @@ flowchart LR
 
 The basic concepts you need to understand are configuration, provider interaction, transactions, and presenting data. These are the building blocks of any dApp, and they are abstracted in the `sdk-dapp-core` library.
 
-**Table 1**. Elements needed to build a dApp
-| # | Type | Description |
-|---|------|-------------|
-| 1 | Network | Chain configuration |
-| 2 | Provider | The signing provider for logging in and singing transactions |
-| 3 | Account | Inspecting user address and balance |
-| 4 | Transactions Manager | Sending and tracking transactions |
-| 5 | Components | Displaying UI information like balance, public keys etc. |
+Having this knowledge, we can consider several steps needed to put a dApp together:
 
-Since these are a mixtures of business logic and UI components, the library is split into several folders to make it easier to navigate.
-When inspectig the package, there is more content under `src`, but the main folders of intereset are:
-
-```bash
-src/
-├── apiCalls/ ### methods for interacting with the API
-├── constants/ ### useful constants from the ecosystem like ledger error codes, default gas limits for transactions etc.
-├── controllers/ ### business logic for UI elements like transactions and amount formatting
-├── core/ ### hosting provider the class, and all implementations for different signing providers
-└── store/ ### sore initialization, middleware, slices, selectors and actions
-```
-
-Conceptually, these can be plit into 3 main parts: 
-- First is the business logic in `apiCalls`, `constants` and `core` (signing providers). 
-- Then comes the persistence layer hosted in the `store` folder, using [Zustand](https://zustand.docs.pmnd.rs/) under the hood.
-- Last are the UI components hosted in [@multiversx/sdk-dapp-core](https://github.com/multiversx/mx-sdk-dapp-core-ui) with some components controlled on demand by classes defined in `controlles`
-
-Having this knowledge, we can considers several steps needed to dApp together:
-
-**Table 2**. Steps to build a dApp
+**Table 1**. Steps to build a dApp
 | # | Step | Description |
 |---|------|-------------|
 | 1 | Configuration | -  storage configuration (e.g. sessionStorage, localStorage etc.)<br>-  chain configuration<br>-  custom provider configuration (adding / disabling / changing providers) |
-| 2 | Provider interaction | -  logging in and out<br>-  siging transactions / messages |
-| 3 | Transactions | -  sending transactions<br>-  tracking transactions |
-| 4 | Presenting data | -  get store data (e.g. account balance, account address etc.)<br>-  use components to display data (e.g. balance, address, transactions list) |
+| 2 | Provider interaction | -  logging in and out<br>-  signing transactions / messages |
+| 3 | Presenting data | -  get store data (e.g. account balance, account address etc.)<br>-  use components to display data (e.g. balance, address, transactions list) |
+| 4 | Transactions | -  sending transactions<br>-  tracking transactions |
+
 
 Each of these steps will be explained in more detail in the following sections.
 
-### 1. Configuring your dApp
+### 1. Configuration
 
 Before your application bootstraps, you need to configure the storage, the network, and the signing providers. This is done by calling the `initApp` method from the `core/methods` folder.
 
@@ -135,19 +110,127 @@ initApp(config).then(() => {
 });
 ```
 
+### 2. Provider interaction
 
-Teo be able to accomplish the steps lined out in Table 1, you will need to have basic knowledge about the following elements:
+Once your dApp has loaded, the first user action is logging in with a chosen provider.
 
+```typescript
+import { ProviderTypeEnum } from '@multiversx/sdk-dapp-core/out/core/providers/types/providerFactory.types';
+import { ProviderFactory } from '@multiversx/sdk-dapp-core/out/core/providers/ProviderFactory';
 
+const provider = await ProviderFactory.create({ type: ProviderTypeEnum.extension });
+await provider.login();
+```
 
+### 3. Displaying user data
 
+Depending on the framework, you can either use hooks or selectors to get the user details:
 
+#### React hooks solution:
+```typescript
+import { useGetAccount } from '@multiversx/sdk-dapp-core/out/store/selectors/hooks/account/useGetAccount';
+import { useGetNetworkConfig } from '@multiversx/sdk-dapp-core/out/store/selectors/hooks/network/useGetNetworkConfig';
 
+const account = useGetAccount();
+const {
+  network: { egldLabel }
+} = useGetNetworkConfig();
 
+console.log(account.address);
+console.log(`${account.balance} ${egldLabel}`);
+```
+
+#### Store selector functions:
+```typescript
+import { getAccount } from '@multiversx/sdk-dapp-core/out/core/methods/account/getAccount';
+import { getNetworkConfig } from '@multiversx/sdk-dapp-core/out/core/methods/network/getNetworkConfig';
+
+const account = getAccount();
+const { egldLabel } = getNetworkConfig();
+```
+
+### 4. Transactions
+
+#### Signing transactions
+
+To sign transactions, you first need to create the `Transaction` object then pass it to the initialized provider.
+
+```typescript
+import { Transaction, TransactionPayload } from '@multiversx/sdk-core/out';
+import { GAS_PRICE, GAS_LIMIT } from '@multiversx/sdk-dapp-core/out/constants/mvx.constants';
+import { getAccountProvider } from '@multiversx/sdk-dapp-core/out/core/providers/helpers/accountProvider';
+import { refreshAccount } from '@multiversx/sdk-dapp-core/out/utils/account/refreshAccount';
+
+const pongTransaction = new Transaction({
+  value: '0',
+  data: new TransactionPayload('pong'),
+  receiver: contractAddress,
+  gasLimit: GAS_LIMIT,
+  gasPrice: GAS_PRICE,
+  chainID: network.chainId,
+  nonce: account.nonce,
+  sender: account.address,
+  version: 1
+});
+
+await refreshAccount(); // optionally, to get the latest nonce
+const provider = getAccountProvider();
+const signedTransactions = await provider.signTransactions(transactions);
+```
+
+#### Sending and tracking transactions
+
+Then, to send the transactions, you need to use the TransactionManager class and pass in the signedTransactions to the send method. You can optionally track the transactions by using the track method. This will create a toast notification with the transaction hash and its status.
+
+```typescript
+import { TransactionManager } from '@multiversx/sdk-dapp-core/out/core/managers/TransactionManager';
+
+const txManager = TransactionManager.getInstance();
+await txManager.send(signedTransactions);
+await txManager.track(signedTransactions);
+```
+
+Once the transactions are executed on the blockchain, the flow ends with the user logging out.
+
+```typescript
+import { getAccountProvider } from '@multiversx/sdk-dapp-core/out/core/providers/helpers/accountProvider';
+const provider = getAccountProvider();
+await provider.logout();
+```
+
+## Internal structure
+
+We have seen in the previous chapter what are the minimal steps to get up and running with a blockchain interaction using sdk-dapp-core. Next we will detail each element mentioned above
+
+**Table 2**. Elements needed to build a dApp
+| # | Type | Description |
+|---|------|-------------|
+| 1 | Network | Chain configuration |
+| 2 | Provider | The signing provider for logging in and singing transactions |
+| 3 | Account | Inspecting user address and balance |
+| 4 | Transactions Manager | Sending and tracking transactions |
+| 5 | Components | Displaying UI information like balance, public keys etc. |
+
+Since these are mixtures of business logic and UI components, the library is split into several folders to make it easier to navigate.
+When inspecting the package, there is more content under `src`, but the main folders of interest are:
+
+```bash
+src/
+├── apiCalls/ ### methods for interacting with the API
+├── constants/ ### useful constants from the ecosystem like ledger error codes, default gas limits for transactions etc.
+├── controllers/ ### business logic for UI elements like transactions and amount formatting
+├── core/ ### hosting the provider class, and all implementations for different signing providers
+└── store/ ### store initialization, middleware, slices, selectors and actions
+```
+
+Conceptually, these can be split into 3 main parts: 
+- First is the business logic in `apiCalls`, `constants` and `core` (signing providers). 
+- Then comes the persistence layer hosted in the `store` folder, using [Zustand](https://zustand.docs.pmnd.rs/) under the hood.
+- Last are the UI components hosted in [@multiversx/sdk-dapp-core](https://github.com/multiversx/mx-sdk-dapp-core-ui) with some components controlled on demand by classes defined in `controlles`
 
 ## Debugging your dApp
 
-Use lerna or
+Use lerna or npm link
 
 In your project, make sure to use the `preserveSymlinks` option in the server configuration to ensure that the symlinks are preserved, for ease of development.
 
