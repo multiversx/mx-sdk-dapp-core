@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "@lifeomic/axios-fetch": "3.0.1",
-    "@multiversx/sdk-core": ">= 13.17.0",
+    "@multiversx/sdk-core": ">= 13.17.1",
     "@multiversx/sdk-dapp-utils": ">= 1.0.5",
     "@multiversx/sdk-extension-provider": "4.0.0",
     "@multiversx/sdk-hw-provider": "7.0.0",
