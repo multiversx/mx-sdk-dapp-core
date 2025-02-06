@@ -3,16 +3,22 @@ import axios, { AxiosError } from 'axios';
 import { BATCH_TRANSACTIONS_ID_SEPARATOR } from 'constants/transactions.constants';
 import { getAccount } from 'core/methods/account/getAccount';
 import { addTransactionToast } from 'store/actions/toasts/toastsActions';
-import { createTrackedTransactionsSession } from 'store/actions/trackedTransactions/trackedTransactionsActions';
+import { createTransactionsSession } from 'store/actions/transactions/transactionsActions';
 import { networkSelector } from 'store/selectors';
 import { getState } from 'store/store';
-import { TransactionServerStatusesEnum } from 'types/enums.types';
+import {
+  TransactionBatchStatusesEnum,
+  TransactionServerStatusesEnum
+} from 'types/enums.types';
 import { BatchTransactionsResponseType } from 'types/serverTransactions.types';
 import {
-  ITransactionsDisplayInfo,
+  TransactionsDisplayInfoType,
   SignedTransactionType
 } from 'types/transactions.types';
 import { isGuardianTx } from 'utils/transactions/isGuardianTx';
+import { isBatchTransaction } from './helpers/isBatchTransaction';
+import { getToastDuration } from './helpers/getToastDuration';
+import { getTransactionsSessionStatus } from './helpers/getTransactionsStatus';
 
 export class TransactionManager {
   private static instance: TransactionManager | null = null;
@@ -28,15 +34,17 @@ export class TransactionManager {
 
   public send = async (
     signedTransactions: Transaction[] | Transaction[][]
-  ): Promise<string[]> => {
+  ): Promise<SignedTransactionType[] | SignedTransactionType[][]> => {
     if (signedTransactions.length === 0) {
       throw new Error('No transactions to send');
     }
 
     try {
-      if (!this.isBatchTransaction(signedTransactions)) {
-        const hashes = await this.sendSignedTransactions(signedTransactions);
-        return hashes;
+      if (!isBatchTransaction(signedTransactions)) {
+        const flatTransactions =
+          await this.sendSignedTransactions(signedTransactions);
+
+        return flatTransactions;
       }
 
       const sentTransactions =
@@ -48,11 +56,9 @@ export class TransactionManager {
         );
       }
 
-      const flatSentTransactions = this.sequentialToFlatArray(
-        sentTransactions.data.transactions
-      );
+      const groupedTransactions = sentTransactions.data.transactions;
 
-      return flatSentTransactions.map((transaction) => transaction.hash);
+      return groupedTransactions;
     } catch (error) {
       const responseData = <{ message: string }>(
         (error as AxiosError).response?.data
@@ -62,30 +68,33 @@ export class TransactionManager {
   };
 
   public track = async (
-    signedTransactions: Transaction[],
+    sentTransactions: SignedTransactionType[] | SignedTransactionType[][],
     options: {
       disableToasts?: boolean;
-      transactionsDisplayInfo?: ITransactionsDisplayInfo;
+      transactionsDisplayInfo?: TransactionsDisplayInfoType;
     } = { disableToasts: false }
   ) => {
-    const parsedTransactions = signedTransactions.map((transaction) =>
-      this.parseSignedTransaction(transaction)
-    );
-    const sessionId = createTrackedTransactionsSession({
-      transactions: parsedTransactions,
-      transactionsDisplayInfo: options.transactionsDisplayInfo
+    const flatTransactions = this.sequentialToFlatArray(sentTransactions);
+
+    const status = getTransactionsSessionStatus(flatTransactions);
+
+    const sessionId = createTransactionsSession({
+      transactions: flatTransactions,
+      transactionsDisplayInfo: options.transactionsDisplayInfo,
+      status: status ?? TransactionBatchStatusesEnum.sent
     });
 
     if (options.disableToasts === true) {
       return;
     }
 
-    addTransactionToast(sessionId);
+    const totalDuration = getToastDuration(sentTransactions);
+    addTransactionToast({ toastId: sessionId, totalDuration });
   };
 
   private sendSignedTransactions = async (
     signedTransactions: Transaction[]
-  ): Promise<string[]> => {
+  ): Promise<SignedTransactionType[]> => {
     const { apiAddress, apiTimeout } = networkSelector(getState());
 
     const promises = signedTransactions.map((transaction) =>
@@ -96,7 +105,11 @@ export class TransactionManager {
 
     const response = await Promise.all(promises);
 
-    return response.map(({ data }) => data.txHash);
+    return response.map(({ data }) => ({
+      ...data,
+      status: TransactionServerStatusesEnum.pending,
+      hash: data.txHash
+    }));
   };
 
   private sendSignedBatchTransactions = async (
@@ -139,7 +152,6 @@ export class TransactionManager {
     const sessionId = Date.now().toString();
     return `${sessionId}${BATCH_TRANSACTIONS_ID_SEPARATOR}${address}`;
   };
-
   private sequentialToFlatArray = (
     transactions: SignedTransactionType[] | SignedTransactionType[][] = []
   ) =>
@@ -151,13 +163,9 @@ export class TransactionManager {
     transactions?: SignedTransactionType[] | SignedTransactionType[][]
   ) => transactions?.every((transaction) => Array.isArray(transaction));
 
-  private isBatchTransaction = (
-    transactions: Transaction[] | Transaction[][]
-  ): transactions is Transaction[][] => {
-    return Array.isArray(transactions[0]);
-  };
-
-  private parseSignedTransaction = (signedTransaction: Transaction) => {
+  private parseSignedTransaction = (
+    signedTransaction: Transaction
+  ): SignedTransactionType => {
     const parsedTransaction = {
       ...signedTransaction.toPlainObject(),
       hash: signedTransaction.getHash().hex(),

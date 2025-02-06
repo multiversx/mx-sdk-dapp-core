@@ -1,7 +1,6 @@
-import { DECIMALS } from 'lib/sdkDappUtils';
+import { DECIMALS, formatAmount } from 'lib/sdkDappUtils';
 import { TokenArgumentType } from 'types/serverTransactions.types';
 import { explorerUrlBuilder } from './explorerUrlBuilder';
-import { formatAmount } from '../operations/formatAmount';
 
 export interface TransactionActionTokenType {
   token: TokenArgumentType;

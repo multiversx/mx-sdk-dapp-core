@@ -1,21 +1,44 @@
-import { stringIsInteger, stringIsFloat } from 'lib/sdkDappUtils';
-import { formatAmount } from 'utils/operations/formatAmount';
+import {
+  stringIsInteger,
+  stringIsFloat,
+  formatAmount,
+  DECIMALS
+} from 'lib/sdkDappUtils';
 import { FormatAmountControllerPropsType, FormatedAmountType } from './types';
 
 export class FormatAmountController {
-  public static getData(props: FormatAmountControllerPropsType) {
-    const formattedAmount = formatAmount(props);
-    const isValid =
-      stringIsInteger(props.input) && stringIsFloat(formattedAmount);
+  public static getData(
+    props: FormatAmountControllerPropsType
+  ): FormatedAmountType {
+    const { input, decimals = DECIMALS, digits = 2 } = props;
 
+    if (!input) {
+      return {
+        isValid: false,
+        label: this.getLabel(props),
+        valueInteger: '0',
+        valueDecimal: this.formatDecimalPart('0', props.digits)
+      };
+    }
+
+    const formattedAmount = formatAmount(props);
+    const isValid = stringIsInteger(input) && stringIsFloat(formattedAmount);
     const [valueInteger, valueDecimal] = formattedAmount.split('.');
-    const label = ` ${props.token ?? props.egldLabel}`.trimEnd();
 
     return {
       isValid,
-      label,
-      valueDecimal,
-      valueInteger
+      label: this.getLabel(props),
+      valueInteger: valueInteger || '0',
+      valueDecimal: this.formatDecimalPart(valueDecimal, props.digits)
     };
+  }
+
+  private static getLabel(props: FormatAmountControllerPropsType): string {
+    return ` ${props.token ?? props.egldLabel ?? ''}`.trimEnd();
+  }
+
+  private static formatDecimalPart(decimalPart = '', digits = 2): string {
+    const padded = decimalPart.padEnd(digits, '0').slice(0, digits);
+    return `.${padded || '0'.repeat(digits)}`;
   }
 }

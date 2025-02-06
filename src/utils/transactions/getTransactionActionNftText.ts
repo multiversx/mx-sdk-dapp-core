@@ -1,6 +1,6 @@
+import { formatAmount } from 'lib/sdkDappUtils';
 import { TokenArgumentType } from 'types/serverTransactions.types';
 import { NftEnumType } from 'types/tokens.types';
-import { formatAmount } from 'utils/operations/formatAmount';
 import { explorerUrlBuilder } from './explorerUrlBuilder';
 
 export interface TransactionActionNftType {
@@ -25,6 +25,7 @@ export function getTransactionActionNftText({
 }: TransactionActionNftType): TransactionActionNftReturnType {
   const isTokenAmountVisible =
     !noValue && token.value && token.type !== NftEnumType.NonFungibleESDT;
+
   const canShowFormattedAmount = token.decimals != null;
 
   let badgeText = '';

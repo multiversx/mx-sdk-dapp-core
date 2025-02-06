@@ -58,3 +58,17 @@ export enum GuardianActionsEnum {
   GuardAccount = 'GuardAccount',
   UnGuardAccount = 'UnGuardAccount'
 }
+
+export enum SigningErrorsEnum {
+  notInitialized = 'Provider not initialized',
+  errorSigning = 'Error when signing',
+  errorSigningTx = 'Error signing transaction',
+  missingProviderMessage = 'You need a signer/valid signer to send a transaction, use either WalletProvider, LedgerProvider or WalletConnect',
+  defaultTransactionStatusMessage = 'Undefined transaction status',
+  secondLoginAttemptError = 'Action not allowed. User is logged in. Call logout() first',
+  senderDifferentThanLoggedInAddress = 'You cannot sign transactions from a different account'
+}
+export enum SigningWarningsEnum {
+  cancelled = 'Cancelled',
+  transactionCancelled = 'Transaction canceled'
+}

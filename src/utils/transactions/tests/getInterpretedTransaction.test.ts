@@ -1,16 +1,17 @@
 import {
   InterpretedTransactionType,
   ServerTransactionType,
+  TransactionAgeType,
   TransactionDirectionEnum
 } from 'types/serverTransactions.types';
 import { getInterpretedTransaction } from '../getInterpretedTransaction';
 import { transactionMock } from './extended-transaction-mock';
-import { explorerUrlBuilder } from '../explorerUrlBuilder';
-import { getHumanReadableTimeFormat } from '../getHumanReadableTimeFormat';
-import { getTransactionMethod } from '../getTransactionMethod';
-import { getTransactionIconInfo } from '../getTransactionIconInfo';
 import { timeAgo } from '../../operations/timeRemaining';
 import { isContract } from '../../validation';
+import { explorerUrlBuilder } from '../explorerUrlBuilder';
+import { getHumanReadableTimeFormat } from '../getHumanReadableTimeFormat';
+import { getTransactionIconInfo } from '../getTransactionIconInfo';
+import { getTransactionMethod } from '../getTransactionMethod';
 
 const explorerAddress = 'https://testing.devnet.com';
 
@@ -29,8 +30,8 @@ describe('getInterpretedTransaction', () => {
       explorerAddress
     });
 
-    const expectedAge = {
-      age: timeAgo(transaction.timestamp * 1000, true),
+    const expectedAge: TransactionAgeType = {
+      timeAgo: timeAgo(transaction.timestamp * 1000, true),
       tooltip: getHumanReadableTimeFormat({
         value: transaction.timestamp,
         noSeconds: false,
@@ -53,8 +54,8 @@ describe('getInterpretedTransaction', () => {
         age: expectedAge,
         direction: TransactionDirectionEnum.OUT, // Assuming this is the correct direction for this case
         method: {
-          transactionActionDescription: transaction.action?.description,
-          method: getTransactionMethod(transaction)
+          actionDescription: transaction.action?.description,
+          name: getTransactionMethod(transaction)
         },
         iconInfo: getTransactionIconInfo(transaction),
         transactionTokens: [
