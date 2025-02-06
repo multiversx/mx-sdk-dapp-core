@@ -3,7 +3,7 @@ import { ConfigSliceType } from './slices/config/config.types';
 import { LoginInfoSliceType } from './slices/loginInfo/loginInfo.types';
 import { NetworkSliceType } from './slices/network/networkSlice.types';
 import { IToastsSliceState } from './slices/toast/toastSlice.types';
-import { ITransactionsSlice } from './slices/transactions/transactionsSlice.types';
+import { TransactionsSliceType } from './slices/transactions/transactionsSlice.types';
 
 export type StoreType = {
   network: NetworkSliceType;
@@ -11,7 +11,7 @@ export type StoreType = {
   loginInfo: LoginInfoSliceType;
   config: ConfigSliceType;
   toasts: IToastsSliceState;
-  transactions: ITransactionsSlice;
+  transactions: TransactionsSliceType;
 };
 
 export type MutatorsIn = [

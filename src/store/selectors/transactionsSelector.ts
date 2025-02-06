@@ -1,4 +1,4 @@
-import { ITransactionsSlice } from 'store/slices/transactions/transactionsSlice.types';
+import { TransactionsSliceType } from 'store/slices/transactions/transactionsSlice.types';
 import { StoreType } from 'store/store.types';
 import {
   TransactionBatchStatusesEnum,
@@ -9,10 +9,10 @@ import { SignedTransactionType } from 'types/transactions.types';
 export const transactionsSliceSelector = ({ transactions }: StoreType) =>
   transactions;
 
-export const pendingSessionsSelector = ({
+export const pendingTransactionsSessionsSelector = ({
   transactions: state
-}: StoreType): ITransactionsSlice => {
-  const pendingSessions: ITransactionsSlice = {};
+}: StoreType): TransactionsSliceType => {
+  const pendingSessions: TransactionsSliceType = {};
 
   Object.entries(state).forEach(([sessionId, data]) => {
     const hasPendingTransactions = data.transactions.some(
@@ -28,7 +28,7 @@ export const pendingSessionsSelector = ({
 
 export const pendingTransactionsSelector = ({
   transactions: state
-}: StoreType) => {
+}: StoreType): SignedTransactionType[] => {
   const pendingTransactions: SignedTransactionType[] = [];
 
   Object.values(state).forEach(({ transactions }) => {

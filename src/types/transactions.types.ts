@@ -12,11 +12,6 @@ export interface SignedTransactionType extends IPlainTransactionObject {
   inTransit?: boolean;
 }
 
-export interface ISentTransactions {
-  status: TransactionServerStatusesEnum | TransactionBatchStatusesEnum;
-  transactions: SignedTransactionType[] | SignedTransactionType[][];
-}
-
 export interface MultiSignTransactionType {
   multiTxData?: string;
   transactionIndex: number;
@@ -131,3 +126,13 @@ export interface ITransactionsDisplayInfo {
    */
   receivedMessage?: string;
 }
+
+export type SessionTransactionType = {
+  transactions: SignedTransactionType[];
+  status?: TransactionBatchStatusesEnum | TransactionServerStatusesEnum;
+  errorMessage?: string;
+  /**
+   * Optional custom information to be displayed in the toast notification.
+   */
+  transactionsDisplayInfo?: ITransactionsDisplayInfo;
+};

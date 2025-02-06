@@ -83,10 +83,12 @@ function manageTransaction({
     if (isSequential && !status) {
       updateTransactionStatus({
         sessionId,
-        status,
-        transactionHash: hash,
-        inTransit,
-        serverTransaction: serverTransaction as unknown as ServerTransactionType
+        transaction: {
+          ...(serverTransaction as unknown as SignedTransactionType),
+          hash,
+          inTransit,
+          status
+        }
       });
       return;
     }
@@ -94,10 +96,12 @@ function manageTransaction({
     if (hasStatusChanged) {
       updateTransactionStatus({
         sessionId,
-        status,
-        transactionHash: hash,
-        inTransit,
-        serverTransaction: serverTransaction as unknown as ServerTransactionType
+        transaction: {
+          ...(serverTransaction as unknown as SignedTransactionType),
+          hash,
+          inTransit,
+          status
+        }
       });
     }
 

@@ -12,14 +12,13 @@ import {
 } from 'types/enums.types';
 import { BatchTransactionsResponseType } from 'types/serverTransactions.types';
 import {
-  ISentTransactions,
   ITransactionsDisplayInfo,
   SignedTransactionType
 } from 'types/transactions.types';
 import { isGuardianTx } from 'utils/transactions/isGuardianTx';
 import { isBatchTransaction } from './helpers/isBatchTransaction';
 import { getToastDuration } from './helpers/getToastDuration';
-import { getBatchStatus } from './helpers/getBatchStatus';
+import { getTransactionsSessionStatus } from './helpers/getTransactionsStatus';
 
 export class TransactionManager {
   private static instance: TransactionManager | null = null;
@@ -35,7 +34,7 @@ export class TransactionManager {
 
   public send = async (
     signedTransactions: Transaction[] | Transaction[][]
-  ): Promise<ISentTransactions> => {
+  ): Promise<SignedTransactionType[] | SignedTransactionType[][]> => {
     if (signedTransactions.length === 0) {
       throw new Error('No transactions to send');
     }
@@ -45,10 +44,7 @@ export class TransactionManager {
         const flatTransactions =
           await this.sendSignedTransactions(signedTransactions);
 
-        return {
-          status: TransactionBatchStatusesEnum.sent,
-          transactions: flatTransactions
-        };
+        return flatTransactions;
       }
 
       const sentTransactions =
@@ -60,10 +56,9 @@ export class TransactionManager {
         );
       }
 
-      return {
-        status: getBatchStatus(sentTransactions.data.status),
-        transactions: sentTransactions.data.transactions
-      };
+      const groupedTransactions = sentTransactions.data.transactions;
+
+      return groupedTransactions;
     } catch (error) {
       const responseData = <{ message: string }>(
         (error as AxiosError).response?.data
@@ -73,25 +68,27 @@ export class TransactionManager {
   };
 
   public track = async (
-    sentTransactions: ISentTransactions,
+    sentTransactions: SignedTransactionType[] | SignedTransactionType[][],
     options: {
       disableToasts?: boolean;
       transactionsDisplayInfo?: ITransactionsDisplayInfo;
     } = { disableToasts: false }
   ) => {
-    const { status, transactions } = sentTransactions;
-    const flatTransactions = this.sequentialToFlatArray(transactions);
+    const flatTransactions = this.sequentialToFlatArray(sentTransactions);
+
+    const status = getTransactionsSessionStatus(flatTransactions);
+
     const sessionId = createTransactionsSession({
       transactions: flatTransactions,
       transactionsDisplayInfo: options.transactionsDisplayInfo,
-      status
+      status: status ?? TransactionBatchStatusesEnum.sent
     });
 
     if (options.disableToasts === true) {
       return;
     }
 
-    const totalDuration = getToastDuration(transactions);
+    const totalDuration = getToastDuration(sentTransactions);
     addTransactionToast({ toastId: sessionId, totalDuration });
   };
 

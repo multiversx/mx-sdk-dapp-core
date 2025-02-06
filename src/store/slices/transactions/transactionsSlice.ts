@@ -1,14 +1,14 @@
 import { StateCreator } from 'zustand/vanilla';
 import { StoreType, MutatorsIn } from 'store/store.types';
-import { ITransactionsSlice } from './transactionsSlice.types';
+import { TransactionsSliceType } from './transactionsSlice.types';
 
-export const initialState: ITransactionsSlice = {};
+export const initialState: TransactionsSliceType = {};
 
 function getTransactionsSlice(): StateCreator<
   StoreType,
   MutatorsIn,
   [],
-  ITransactionsSlice
+  TransactionsSliceType
 > {
   return () => initialState;
 }

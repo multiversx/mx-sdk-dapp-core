@@ -6,10 +6,8 @@ import {
   TransactionBatchStatusesEnum,
   TransactionServerStatusesEnum
 } from 'types/enums.types';
-import {
-  ResultType,
-  ServerTransactionType
-} from 'types/serverTransactions.types';
+import { ResultType } from 'types/serverTransactions.types';
+import { SignedTransactionType } from 'types/transactions.types';
 
 export function manageFailedTransactions({
   results,
@@ -25,12 +23,13 @@ export function manageFailedTransactions({
   );
 
   updateTransactionStatus({
-    transactionHash: hash,
     sessionId,
-    status: TransactionServerStatusesEnum.fail,
-    errorMessage: resultWithError?.returnMessage,
-    inTransit: false,
-    serverTransaction: resultWithError as unknown as ServerTransactionType
+    transaction: {
+      ...(resultWithError as unknown as SignedTransactionType),
+      hash,
+      status: TransactionServerStatusesEnum.fail,
+      inTransit: false
+    }
   });
 
   updateTransactionsSession({
