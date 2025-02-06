@@ -25,6 +25,7 @@ export function getTransactionActionNftText({
 }: TransactionActionNftType): TransactionActionNftReturnType {
   const isTokenAmountVisible =
     !noValue && token.value && token.type !== NftEnumType.NonFungibleESDT;
+
   const canShowFormattedAmount = token.decimals != null;
 
   let badgeText = '';

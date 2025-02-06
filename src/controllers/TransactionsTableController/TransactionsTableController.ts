@@ -3,12 +3,10 @@ import {
   TransactionDirectionEnum
 } from 'types/serverTransactions.types';
 import { getInterpretedTransaction } from 'utils/transactions/getInterpretedTransaction';
-import {
-  getLockedAccountName,
-  getShardText,
-  isContract,
-  getTransactionValue
-} from 'utils';
+import { getLockedAccountName } from 'utils/transactions/getLockedAccountName';
+import { getTransactionValue } from 'utils/transactions/getTransactionValue/getTransactionValue';
+import { isContract } from 'utils/validation/isContract';
+import { getShardText } from 'utils/transactions/getShardText';
 import {
   TransactionsTableRowType,
   TransactionValueType
@@ -122,7 +120,9 @@ export class TransactionsTableController {
           receiver: {
             address: transaction.receiver,
             name: receiverName ?? '',
-            description: `${receiverName || transaction.receiver} (${transaction.receiver})`,
+            description: `${receiverName || transaction.receiver} (${
+              transaction.receiver
+            })`,
             isContract: isContract(transaction.receiver),
             isTokenLocked: Boolean(receiverLockedAccount),
             link: transaction.links.receiverLink ?? '',
@@ -135,7 +135,9 @@ export class TransactionsTableController {
           sender: {
             address: transaction.sender,
             name: senderName ?? '',
-            description: `${senderName || transaction.sender} (${transaction.sender})`,
+            description: `${senderName || transaction.sender} (${
+              transaction.sender
+            })`,
             isContract: isContract(transaction.sender),
             isTokenLocked: Boolean(senderLockedAccount),
             link: transaction.links.senderLink ?? '',

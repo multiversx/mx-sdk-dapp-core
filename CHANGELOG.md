@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- [Added `FormatAmountController` and `TransactionsTableController` tests](https://github.com/multiversx/mx-sdk-dapp-core/pull/83)
 - [Enhance toast progress](https://github.com/multiversx/mx-sdk-dapp-core/pull/81)
 - [Fixed react type mismatch](https://github.com/multiversx/mx-sdk-dapp-core/pull/80)
 - [Removed React hooks from `TransactionsTableController` `processTransaction` method](https://github.com/multiversx/mx-sdk-dapp-core/pull/79)
