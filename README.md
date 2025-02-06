@@ -18,7 +18,7 @@ It is built for applications that use any of the following technologies:
 The GitHub repository can be found here: [https://github.com/multiversx/mx-sdk-dapp-core](https://github.com/multiversx/mx-sdk-dapp-core)
 
 ## Live demo: template-dapp
-See [Dapp template](https://template-dapp.multiversx.com/) for live demo or checkout usage in the [Github repo](https://github.com/multiversx/mx-template-dapp)
+See [Template dApp](https://template-dapp.multiversx.com/) for live demo or checkout usage in the [Github repo](https://github.com/multiversx/mx-template-dapp)
 
 
 ## Requirements
@@ -227,6 +227,60 @@ Conceptually, these can be split into 3 main parts:
 - First is the business logic in `apiCalls`, `constants` and `core` (signing providers). 
 - Then comes the persistence layer hosted in the `store` folder, using [Zustand](https://zustand.docs.pmnd.rs/) under the hood.
 - Last are the UI components hosted in [@multiversx/sdk-dapp-core](https://github.com/multiversx/mx-sdk-dapp-core-ui) with some components controlled on demand by classes defined in `controlles`
+
+Next, we will take the elements from Table 2 and detail them in the following sections.
+
+### Network
+
+The network configuration is done in the `initApp` method, where you can make several confgurations like:
+- specifying the environment (devnet, testnet, mainnet)
+- overriding certain network parameters like wallet address, explorer address etc.
+
+Once the network is configured, the `network` slice in the store will hold the network configuration.
+
+To query different network parameters, you can use the `getNetworkConfig` method from the `core/methods/network` folder.
+
+### Provider
+
+The provider is the main class that handles the signing of transactions and messages. It is initialized in the `initApp` method and can be accessed via the `getAccountProvider` method from the `core/providers/helpers` folder.
+
+#### Initialization
+
+It's important to initialize it on app load (this is take care of by `initApp`), since it restores the session from the store and allows signing transactions without the need to make a new login.
+
+#### Creating a custom provider
+
+If you need to create a custom signing provider make sure to extend the `IProvider` interface and implement all required methods (see example [here](https://github.com/multiversx/mx-template-dapp/tree/main/src/provider)). Next step would be to include it in the `customProviders` array in the `initApp` method or add it to the [window object](https://github.com/multiversx/mx-template-dapp/tree/main/src/initConfig). Last step is to login using the custom provider.
+
+```typescript
+export { ProviderTypeEnum } from '@multiversx/sdk-dapp-core/out/core/providers/types/providerFactory.types';
+
+const ADDITIONAL_PROVIDERS = {
+  myCustomProvider: 'myCustomProvider'
+} as const;
+
+// do this if you want to referece it later in your code
+const ExtendedProviders = { 
+  ...ProviderTypeEnum,
+  ...ADDITIONAL_PROVIDERS
+} as const;
+
+const provider = await ProviderFactory.create({
+  type: ExtendedProviders.myCustomProvider // or add a simple string here
+});
+await provider?.login();
+```
+#### Accessing provier methods
+
+Once the provider is initialized, you can get a reference to it using the `getAccountProvider` method. Then you can call the `login`, `logout`, `signTransactions`, `signMessage` methods, or other custom methods depending on the intialized provider (see ledger for example).
+
+
+
+
+
+```typescript
+
+
 
 ## Debugging your dApp
 
