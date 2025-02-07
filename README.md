@@ -43,7 +43,7 @@ or
 yarn add @multiversx/sdk-dapp-core
 ```
 
-If you need only the core logic, without the additional UI, you can create a project-specific `.npmrc` file to configure per-package installation behavior. This will skip the installation of `@multiversx/sdk-dapp-core-ui`, but keep in mind that you may need to provide the UI components yourself.
+If you need only the core behaviour, without the additional UI, you can create a project-specific `.npmrc` file to configure per-package installation behavior. This will skip the installation of `@multiversx/sdk-dapp-core-ui`, but keep in mind that you may need to provide the UI components yourself.
 
 ```bash
 ## .npmrc
@@ -51,7 +51,8 @@ If you need only the core logic, without the additional UI, you can create a pro
 ## enable the option when needed with: 
 ## @multiversx/sdk-dapp-core:omit-optional=false
 
-##Run Installation When you run npm install, NPM will use the configurations specified in the .npmrc file:
+## Run Installation 
+## When you run npm install, NPM will use the configurations specified in the .npmrc file:
 npm install
 ```
 
@@ -180,7 +181,7 @@ const signedTransactions = await provider.signTransactions(transactions);
 
 #### Sending and tracking transactions
 
-Then, to send the transactions, you need to use the TransactionManager class and pass in the signedTransactions to the send method. You can optionally track the transactions by using the track method. This will create a toast notification with the transaction hash and its status.
+Then, to send the transactions, you need to use the `TransactionManager` class and pass in the signedTransactions to the send method. You can optionally track the transactions by using the track method. This will create a toast notification with the transaction hash and its status.
 
 ```typescript
 import { TransactionManager } from '@multiversx/sdk-dapp-core/out/core/managers/TransactionManager';
@@ -250,7 +251,7 @@ It's important to initialize it on app load (this is take care of by `initApp`),
 
 #### Creating a custom provider
 
-If you need to create a custom signing provider make sure to extend the `IProvider` interface and implement all required methods (see example [here](https://github.com/multiversx/mx-template-dapp/tree/main/src/provider)). Next step would be to include it in the `customProviders` array in the `initApp` method or add it to the [window object](https://github.com/multiversx/mx-template-dapp/tree/main/src/initConfig). Last step is to login using the custom provider.
+If you need to create a custom signing provider, make sure to extend the `IProvider` interface and implement all required methods (see example [here](https://github.com/multiversx/mx-template-dapp/tree/main/src/provider)). Next step would be to include it in the `customProviders` array in the `initApp` method or add it to the [window object](https://github.com/multiversx/mx-template-dapp/tree/main/src/initConfig). Last step is to login using the custom provider.
 
 ```typescript
 export { ProviderTypeEnum } from '@multiversx/sdk-dapp-core/out/core/providers/types/providerFactory.types';
