@@ -276,7 +276,25 @@ await provider?.login();
 Once the provider is initialized, you can get a reference to it using the `getAccountProvider` method. Then you can call the `login`, `logout`, `signTransactions`, `signMessage` methods, or other custom methods depending on the intialized provider (see ledger for example).
 
 
+### Account
 
+Once the user loggs in, a call is made to the API for fetching the account data. This data is persisted in the store and accesible trough helpers found in `core/methods/account`. These functions are:
+
+**Table 3**. Getting account data
+| # | Helper | Description | React hook equivalent | 
+|---|------|-------------|----|
+|  | `core/methods/account` | path | `store/selectors/hooks/account` |
+| 1 | `getAccount()` |  returns all account data |`useGetAccount()` |
+| 2 | `getAddress()` | returns just the user's public key | `useGetAddress()`|
+| 3 | `getIsLoggedIn()` | returns a login status boolean | `useGetIsLoggedIn()` |
+| 4 | `getLatestNonce()` | returns the account nonce | `useGetLatestNonce()`
+
+
+
+
+
+#### Nonce management
+TBD
 
 
 ```typescript
