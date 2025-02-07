@@ -210,7 +210,7 @@ We have seen in the previous chapter what are the minimal steps to get up and ru
 | 2 | Provider | The signing provider for logging in and singing transactions |
 | 3 | Account | Inspecting user address and balance |
 | 4 | Transactions Manager | Sending and tracking transactions |
-| 5 | Components | Displaying UI information like balance, public keys etc. |
+| 5 | UI Components | Displaying UI information like balance, public keys etc. |
 
 Since these are mixtures of business logic and UI components, the library is split into several folders to make it easier to navigate.
 When inspecting the package, there is more content under `src`, but the main folders of interest are:
@@ -231,7 +231,7 @@ Conceptually, these can be split into 3 main parts:
 
 Next, we will take the elements from Table 2 and detail them in the following sections.
 
-### Network
+### 1. Network
 
 The network configuration is done in the `initApp` method, where you can make several confgurations like:
 - specifying the environment (devnet, testnet, mainnet)
@@ -241,7 +241,7 @@ Once the network is configured, the `network` slice in the store will hold the n
 
 To query different network parameters, you can use the `getNetworkConfig` method from the `core/methods/network` folder.
 
-### Provider
+### 2. Provider
 
 The provider is the main class that handles the signing of transactions and messages. It is initialized in the `initApp` method and can be accessed via the `getAccountProvider` method from the `core/providers/helpers` folder.
 
@@ -276,9 +276,11 @@ await provider?.login();
 Once the provider is initialized, you can get a reference to it using the `getAccountProvider` method. Then you can call the `login`, `logout`, `signTransactions`, `signMessage` methods, or other custom methods depending on the intialized provider (see ledger for example).
 
 
-### Account
+### 3. Account
 
-Once the user loggs in, a call is made to the API for fetching the account data. This data is persisted in the store and accesible trough helpers found in `core/methods/account`. These functions are:
+#### Getting account data
+
+Once the user logs in, a call is made to the API for fetching the account data. This data is persisted in the store and is accessible through helpers found in `core/methods/account`. These functions are:
 
 **Table 3**. Getting account data
 | # | Helper | Description | React hook equivalent | 
@@ -289,15 +291,41 @@ Once the user loggs in, a call is made to the API for fetching the account data.
 | 3 | `getIsLoggedIn()` | returns a login status boolean | `useGetIsLoggedIn()` |
 | 4 | `getLatestNonce()` | returns the account nonce | `useGetLatestNonce()`
 
-
-
-
-
 #### Nonce management
-TBD
 
+sdk-dapp-core has a mechanism that does its best to manage the account nonce. For example, if the user sends a transaction, the nonce gets incremented on the client so that if he sends a new transaction, it will have the correct increased nonce. If you want to make sure the nonce is in sync with the API account, you can call `refreshAccount()` as shown above in the **Signing transactions** section.
+
+
+### 4. Transactions Manager
+
+The transactions manager is a class that handles the sending and tracking of transactions. It is initialized in the `initApp` method and can be accessed via the `TransactionManager.getInstance()` method.
+
+After a transaction is sent, [what happens to the status...]
+
+### 5. UI Components
+
+sdk-dapp-core needs to make use of visual elements for allowing the user to interact with some providers (like the ledger), or to display messages to the user (like idle states or toasts). These visual elements consitst of webcomponents hosted in the `@multiversx/sdk-dapp-core-ui` package. Thus, sdk-dapp-core does not hold any UI elements, just business logic that controls external components. We can consider two types of UI components: internal and external. They are differentiated by the way they are controlled: private components are controlled by sdk-dapp-core's signing or logging in flows, while public components can be controlled by the dApp.
+
+#### Public components
+
+#### Private components
+
+The way private components are controlled are trough a [pub-sub pattern](https://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern) called EventBus. Each webcomponent has a method of exposing its EventBus, thus allowing sdk-dapp-core to get a reference to it and use it for communication.
+
+```mermaid
+flowchart LR
+    A["Controller"] <--> B["Event Bus"] <--> C["webcomponent"]
+```
 
 ```typescript
+const modalElement = await createUIElement<LedgerConnectModal>(
+      'ledger-connect-modal'
+    );
+const eventBus = await modalElement.getEventBus();
+eventBus.publish('TRANSACTION_TOAST_DATA_UPDATE', someData);
+```
+
+If you want to override private components and create your own, you can implement a similar strategy, of course by respecting each webcomponent's API (see an interface example [here](https://github.com/multiversx/mx-sdk-dapp-core/blob/main/src/core/providers/strategies/LedgerProviderStrategy/types/ledger.types.ts)).
 
 
 
@@ -307,7 +335,7 @@ Use lerna or npm link
 
 In your project, make sure to use the `preserveSymlinks` option in the server configuration to ensure that the symlinks are preserved, for ease of development.
 
-``` js
+```js
   resolve: {
     preserveSymlinks: true, // 👈
     alias: {
