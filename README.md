@@ -30,7 +30,7 @@ See [Template dApp](https://template-dapp.multiversx.com/) for live demo or chec
 
 ## Distribution
 
-[npm](https://www.npmjs.com/package/@multiversx/sdk-dapp)
+[npm](https://www.npmjs.com/package/@multiversx/sdk-dapp-core)
 
 ## Installation
 
@@ -465,4 +465,16 @@ If you preffer to use [npm link](https://docs.npmjs.com/cli/v11/commands/npm-lin
       src: "/src",
     },
   },
+```
+
+To build the library, run:
+
+```bash
+npm run build
+```
+
+To run the unit tests, run:
+
+```bash
+npm test
 ```
