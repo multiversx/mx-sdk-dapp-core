@@ -331,9 +331,9 @@ If you want to override private components and create your own, you can implemen
 
 ## Debugging your dApp
 
-Use lerna or npm link
+The recommended way to debug your application is by using [lerna](https://lerna.js.org/). Make sure you have the same package version in sdk-daap-core's package.json and in your project's package.json.
 
-In your project, make sure to use the `preserveSymlinks` option in the server configuration to ensure that the symlinks are preserved, for ease of development.
+If you preffer to use [npm link](https://docs.npmjs.com/cli/v11/commands/npm-link), make sure to use the `preserveSymlinks` option in the server configuration:
 
 ```js
   resolve: {
@@ -344,30 +344,3 @@ In your project, make sure to use the `preserveSymlinks` option in the server co
   },
 ```
 
-// TODO: DEMONSTRATE init app
-
-
-```mermaid
-flowchart TB;
-    id1{index.tsx} 
-    
-    -- sdk-dpp-core config --> 
-    
-    F(
-        persistance
-        network
-        custom providers
-    )
-        
-    -- await config --> 
-    
-    id2{/unlock}  
-    
-    -- user presses login --> 
-    
-    Provider.login
-
-    -- redirect --> 
-    
-    /dashboard
-```
