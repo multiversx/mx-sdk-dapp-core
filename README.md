@@ -344,3 +344,15 @@ If you preffer to use [npm link](https://docs.npmjs.com/cli/v11/commands/npm-lin
   },
 ```
 
+To build the library, run:
+
+```bash
+npm run build
+```
+
+To run the unit tests, run:
+
+```bash
+npm test
+```
+
