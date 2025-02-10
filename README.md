@@ -27,7 +27,7 @@ See [Template dApp](https://template-dapp.multiversx.com/) for live demo or chec
 
 ## Distribution
 
-[npm](https://www.npmjs.com/package/@multiversx/sdk-dapp)
+[npm](https://www.npmjs.com/package/@multiversx/sdk-dapp-core)
 
 ## Installation
 
