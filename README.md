@@ -349,7 +349,6 @@ In this way, all transactions are sent simultaneously. There is no limit to the 
 const transactionManager = TransactionManager.getInstance();
 const parallelTransactions: SigendTransactionType[] = [tx1, tx2, tx3, tx4];
 const sentTransactions = await transactionManager.send(parallelTransactions);
-console.log(response);
 ```
 
 2. Sending Batch Transactions 
@@ -363,7 +362,6 @@ const batchTransactions: SignedTransactionType[][] = [
  [tx3, tx4]
 ];
 const sentTransactions = await transactionManager.send(batchTransactions);
-console.log(response);
 ```
 
 3. Tracking Transactions
