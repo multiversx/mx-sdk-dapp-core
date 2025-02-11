@@ -323,7 +323,7 @@ The `TransactionManager` is a class that handles the process of sending and trac
 
 The transaction lifecycle consists of the following steps:
 1. **Creating** a `Transaction` object using the `@multiversx/sdk-core provider`
-2. **Signing** the transaction with the initialized provider, and receiving a `SignedTransaction` object
+2. **Signing** the transaction with the initialized provider, and receiving a `SignedTransactionType` object
 3. **Sending** the signed transaction using TransactionManager's `send()` function. wigned transactions can be sent in 2 ways:
 
 **Table 3**. Sending signed transactions
@@ -335,95 +335,56 @@ The transaction lifecycle consists of the following steps:
 4. **Tracking** transactions is made by using `transactionManager.track()`. Since the `send()` function returns the same arguments it has received, the same array payload can be passed in to the `track()` method. Under the hood, status updates are received via websocket or polling mechanism.
 Once a transaction array is tracked, it gets associated with a `sessionId`, stored in the `transactions` slice. Depending on the array's type (plain/batch) the sesion's status varies from initial (`pending`/`invalid`/`sent`) to final (`successful`/`failed`/`timedOut`). 
 
-5. **User feedback** is provided trough toast notifications which are triggered to inform about transactions progress. Additional tracking details can be displayed in the toast UI. 
+5. **User feedback** is provided trough toast notifications which are triggered to inform about transactions' progress. Additional tracking details can be optionally displayed in the toast UI. 
 
-6. 
-
-
-4. **Updating Transaction Status**
-
-   - Transactions move through various states such as `pending`, `processed`, `failed`, or `successful`.
-   - The UI and store are updated accordingly.
-
-5. **User Feedback**
-
-   - .
-   - 
-
-6. **Error Handling & Recovery**
-   - If a transaction fails, an error message is returned.
-   - Prompt the user to take action.
+6. **Error Handling & Recovery** is done trough a custom toast trat prompts the user to take appropriate action.
 
 #### Methods
 
-##### `send(signedTransactions: Transaction[] | Transaction[][]): Promise<SignedTransactionType[] | SignedTransactionType[][]>`
-
-Sends single or batch transactions based on the type provided as a parameter. It returns the signed transactions in the same form and order as originally sent.
-
-##### `track(sentTransactions: SignedTransactionType[] | SignedTransactionType[][], options?: { disableToasts?: boolean, transactionsDisplayInfo?: TransactionsDisplayInfoType })`
-
-Creates a session in the store with received transactions and tracks them, updating live status through a webhook or polling fallback mechanism. Provides options to disable toast notifications and customize toast titles.
-
-#### Usage
-
-##### Sending Transactions
-
-###### Sending a Single Transaction
+1. Sending Transactions
+  
+In this way all transactions are sent simultaneously. There is no limit to the number of transactions contained in the array.
 
 ```ts
 const transactionManager = TransactionManager.getInstance();
-const signedTransaction = new Transaction({
-  /* transaction details */
-});
-const sentTransactions = await transactionManager.send([signedTransaction]);
+const parallelTransactions: SigendTransactionType[] = [tx1, tx2, tx3, tx4];
+const sentTransactions = await transactionManager.send(parallelTransactions);
 console.log(response);
 ```
 
-###### Sending Parallel Transactions (All transactions are sent simultaneously)
+2. Sending Batch Transactions 
+
+In this sequential case, each batch waits for the previous one to complete.
 
 ```ts
 const transactionManager = TransactionManager.getInstance();
-const batchTransactions = [
-  [transaction1, transaction2, transaction3, transaction4]
+const batchTransactions: SignedTransactionType[][] = [
+  [tx1, tx2],
+  [tx3, tx4]
 ];
 const sentTransactions = await transactionManager.send(batchTransactions);
 console.log(response);
 ```
 
-###### Sending Sequential Batch Transactions (Each batch waits for the previous one to complete)
+3. Tracking Transactions
+
+The basic option is to use the built-in tracking which displays toast notifications with default messages.
 
 ```ts
-const transactionManager = TransactionManager.getInstance();
-const batchTransactions = [
-  [transaction1, transaction2],
-  [transaction3, transaction4]
-];
-const sentTransactions = await transactionManager.send(batchTransactions);
-console.log(response);
+await transactionManager.track(signedTransactions, 
+  // { disableToasts: true } optionally disable toast notifications
+);
 ```
 
-##### Tracking Transactions
 
-###### Default Tracking (Displays toast notifications with default messages)
-
-```ts
-await transactionManager.track(signedTransactions);
-```
-
-###### Tracking with Toasts Disabled
-
-```ts
-await transactionManager.track(signedTransactions, { disableToasts: true });
-```
-
-###### Tracking with Custom Toast Messages
+If you want to provide more human-friendly messages to your users you can enable tracking with custom toast messages:
 
 ```ts
 await transactionManager.track(signedTransactions, {
   transactionsDisplayInfo: {
-    errorMessage: 'Custom error message',
-    successMessage: 'Custom success message',
-    processingMessage: 'Custom processing message'
+    errorMessage: 'Failed adding stake',
+    successMessage: 'Stake successflly added',
+    processingMessage: 'Staking in progress'
   }
 });
 ```
