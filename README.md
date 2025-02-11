@@ -7,6 +7,7 @@ MultiversX Front-End SDK for JavaScript and TypeScript (written in TypeScript).
 `sdk-dapp-core` is a library that holds core functional logic that can be used to create a dApp on MultiversX Network.
 
 It is built for applications that use any of the following technologies:
+
 - React
 - Angular
 - Vue
@@ -15,13 +16,15 @@ It is built for applications that use any of the following technologies:
 - Next.js
 
 ## GitHub project
+
 The GitHub repository can be found here: [https://github.com/multiversx/mx-sdk-dapp-core](https://github.com/multiversx/mx-sdk-dapp-core)
 
 ## Live demo: template-dapp
+
 See [Template dApp](https://template-dapp.multiversx.com/) for live demo or checkout usage in the [Github repo](https://github.com/multiversx/mx-template-dapp)
 
-
 ## Requirements
+
 - Node.js version 20.13.1+
 - Npm version 10.5.2+
 
@@ -48,10 +51,10 @@ If you need only the core behaviour, without the additional UI, you can create a
 ```bash
 ## .npmrc
 @multiversx/sdk-dapp-core:omit-optional=true
-## enable the option when needed with: 
+## enable the option when needed with:
 ## @multiversx/sdk-dapp-core:omit-optional=false
 
-## Run Installation 
+## Run Installation
 ## When you run npm install, NPM will use the configurations specified in the .npmrc file:
 npm install
 ```
@@ -74,11 +77,10 @@ Having this knowledge, we can consider several steps needed to put a dApp togeth
 **Table 1**. Steps to build a dApp
 | # | Step | Description |
 |---|------|-------------|
-| 1 | Configuration | -  storage configuration (e.g. sessionStorage, localStorage etc.)<br>-  chain configuration<br>-  custom provider configuration (adding / disabling / changing providers) |
-| 2 | Provider interaction | -  logging in and out<br>-  signing transactions / messages |
-| 3 | Presenting data | -  get store data (e.g. account balance, account address etc.)<br>-  use components to display data (e.g. balance, address, transactions list) |
-| 4 | Transactions | -  sending transactions<br>-  tracking transactions |
-
+| 1 | Configuration | - storage configuration (e.g. sessionStorage, localStorage etc.)<br>- chain configuration<br>- custom provider configuration (adding / disabling / changing providers) |
+| 2 | Provider interaction | - logging in and out<br>- signing transactions / messages |
+| 3 | Presenting data | - get store data (e.g. account balance, account address etc.)<br>- use components to display data (e.g. balance, address, transactions list) |
+| 4 | Transactions | - sending transactions<br>- tracking transactions |
 
 Each of these steps will be explained in more detail in the following sections.
 
@@ -119,7 +121,9 @@ Once your dApp has loaded, the first user action is logging in with a chosen pro
 import { ProviderTypeEnum } from '@multiversx/sdk-dapp-core/out/core/providers/types/providerFactory.types';
 import { ProviderFactory } from '@multiversx/sdk-dapp-core/out/core/providers/ProviderFactory';
 
-const provider = await ProviderFactory.create({ type: ProviderTypeEnum.extension });
+const provider = await ProviderFactory.create({
+  type: ProviderTypeEnum.extension
+});
 await provider.login();
 ```
 
@@ -128,6 +132,7 @@ await provider.login();
 Depending on the framework, you can either use hooks or selectors to get the user details:
 
 #### React hooks solution:
+
 ```typescript
 import { useGetAccount } from '@multiversx/sdk-dapp-core/out/store/selectors/hooks/account/useGetAccount';
 import { useGetNetworkConfig } from '@multiversx/sdk-dapp-core/out/store/selectors/hooks/network/useGetNetworkConfig';
@@ -142,6 +147,7 @@ console.log(`${account.balance} ${egldLabel}`);
 ```
 
 #### Store selector functions:
+
 ```typescript
 import { getAccount } from '@multiversx/sdk-dapp-core/out/core/methods/account/getAccount';
 import { getNetworkConfig } from '@multiversx/sdk-dapp-core/out/core/methods/network/getNetworkConfig';
@@ -158,7 +164,10 @@ To sign transactions, you first need to create the `Transaction` object then pas
 
 ```typescript
 import { Transaction, TransactionPayload } from '@multiversx/sdk-core/out';
-import { GAS_PRICE, GAS_LIMIT } from '@multiversx/sdk-dapp-core/out/constants/mvx.constants';
+import {
+  GAS_PRICE,
+  GAS_LIMIT
+} from '@multiversx/sdk-dapp-core/out/constants/mvx.constants';
 import { getAccountProvider } from '@multiversx/sdk-dapp-core/out/core/providers/helpers/accountProvider';
 import { refreshAccount } from '@multiversx/sdk-dapp-core/out/utils/account/refreshAccount';
 
@@ -224,8 +233,9 @@ src/
 └── store/ ### store initialization, middleware, slices, selectors and actions
 ```
 
-Conceptually, these can be split into 3 main parts: 
-- First is the business logic in `apiCalls`, `constants` and `core` (signing providers). 
+Conceptually, these can be split into 3 main parts:
+
+- First is the business logic in `apiCalls`, `constants` and `core` (signing providers).
 - Then comes the persistence layer hosted in the `store` folder, using [Zustand](https://zustand.docs.pmnd.rs/) under the hood.
 - Last are the UI components hosted in [@multiversx/sdk-dapp-core](https://github.com/multiversx/mx-sdk-dapp-core-ui) with some components controlled on demand by classes defined in `controlles`
 
@@ -234,6 +244,7 @@ Next, we will take the elements from Table 2 and detail them in the following se
 ### 1. Network
 
 The network configuration is done in the `initApp` method, where you can make several confgurations like:
+
 - specifying the environment (devnet, testnet, mainnet)
 - overriding certain network parameters like wallet address, explorer address etc.
 
@@ -261,7 +272,7 @@ const ADDITIONAL_PROVIDERS = {
 } as const;
 
 // do this if you want to referece it later in your code
-const ExtendedProviders = { 
+const ExtendedProviders = {
   ...ProviderTypeEnum,
   ...ADDITIONAL_PROVIDERS
 } as const;
@@ -271,10 +282,10 @@ const provider = await ProviderFactory.create({
 });
 await provider?.login();
 ```
+
 #### Accessing provier methods
 
 Once the provider is initialized, you can get a reference to it using the `getAccountProvider` method. Then you can call the `login`, `logout`, `signTransactions`, `signMessage` methods, or other custom methods depending on the intialized provider (see ledger for example).
-
 
 ### 3. Account
 
@@ -283,10 +294,10 @@ Once the provider is initialized, you can get a reference to it using the `getAc
 Once the user logs in, a call is made to the API for fetching the account data. This data is persisted in the store and is accessible through helpers found in `core/methods/account`. These functions are:
 
 **Table 3**. Getting account data
-| # | Helper | Description | React hook equivalent | 
+| # | Helper | Description | React hook equivalent |
 |---|------|-------------|----|
-|  | `core/methods/account` | path | `store/selectors/hooks/account` |
-| 1 | `getAccount()` |  returns all account data |`useGetAccount()` |
+| | `core/methods/account` | path | `store/selectors/hooks/account` |
+| 1 | `getAccount()` | returns all account data |`useGetAccount()` |
 | 2 | `getAddress()` | returns just the user's public key | `useGetAddress()`|
 | 3 | `getIsLoggedIn()` | returns a login status boolean | `useGetIsLoggedIn()` |
 | 4 | `getLatestNonce()` | returns the account nonce | `useGetLatestNonce()`
@@ -295,12 +306,126 @@ Once the user logs in, a call is made to the API for fetching the account data. 
 
 sdk-dapp-core has a mechanism that does its best to manage the account nonce. For example, if the user sends a transaction, the nonce gets incremented on the client so that if he sends a new transaction, it will have the correct increased nonce. If you want to make sure the nonce is in sync with the API account, you can call `refreshAccount()` as shown above in the **Signing transactions** section.
 
-
 ### 4. Transactions Manager
 
-The transactions manager is a class that handles the sending and tracking of transactions. It is initialized in the `initApp` method and can be accessed via the `TransactionManager.getInstance()` method.
+#### Overview
 
-After a transaction is sent, [what happens to the status...]
+The `TransactionManager` is a singleton class that simplifies the process of sending and tracking transactions in the MultiversX ecosystem. It provides methods to send single and batch transactions while handling tracking, error management, and toasts for user notifications. It is initialized in the `initApp` method and can be accessed via `TransactionManager.getInstance()`.
+
+#### Features
+
+- **Singleton Pattern:** Ensures only one instance of `TransactionManager` is used throughout the application.
+- **Supports Single and Batch Transactions:** Handles individual transactions as well as grouped batch transactions.
+- **Automatic Tracking:** Monitors transaction status and updates accordingly through a webhook or polling fallback mechanism.
+- **Toast Notifications:** Displays status updates for user feedback, with options to disable notifications and customize toast titles.
+- **Error Handling:** Catches and processes errors during transaction submission.maUsage
+
+#### Transactions Lifecycle
+
+1. **Signing the Transaction**
+
+   - A transaction is created and signed using the `@multiversx/sdk-core provider`
+   - Returns a `Transaction[]` model
+
+2. **Sending the Transaction**
+
+   - The signed transaction is sent using `transactionManager.send()`, either as a single transaction, a parallel batch, or sequential batches.
+   - Accepts `SignedTransaction[]` or `SignedTransaction[][]` as input
+   - If `SignedTransaction[][]` is provided, transactions are processed in sequential batches, with each batch waiting for the previous one to complete.
+   - Returns the transactions in the same format as received.
+
+3. **Tracking the Transaction**
+
+   - The transaction status is monitored via `transactionManager.track()`.
+   - Status updates are received via a webhook or polling mechanism.
+
+4. **Updating Transaction Status**
+
+   - Transactions move through various states such as `pending`, `processed`, `failed`, or `successful`.
+   - The UI and store are updated accordingly.
+
+5. **User Feedback**
+
+   - Toast notifications are triggered to inform the user about transaction progress.
+   - If enabled, additional tracking details can be displayed in the UI.
+
+6. **Error Handling & Recovery**
+   - If a transaction fails, an error message is returned.
+   - Prompt the user to take action.
+
+#### Methods
+
+##### `send(signedTransactions: Transaction[] | Transaction[][]): Promise<SignedTransactionType[] | SignedTransactionType[][]>`
+
+Sends single or batch transactions based on the type provided as a parameter. It returns the signed transactions in the same form and order as originally sent.
+
+##### `track(sentTransactions: SignedTransactionType[] | SignedTransactionType[][], options?: { disableToasts?: boolean, transactionsDisplayInfo?: TransactionsDisplayInfoType })`
+
+Creates a session in the store with received transactions and tracks them, updating live status through a webhook or polling fallback mechanism. Provides options to disable toast notifications and customize toast titles.
+
+#### Usage
+
+##### Sending Transactions
+
+###### Sending a Single Transaction
+
+```ts
+const transactionManager = TransactionManager.getInstance();
+const signedTransaction = new Transaction({
+  /* transaction details */
+});
+const sentTransactions = await transactionManager.send([signedTransaction]);
+console.log(response);
+```
+
+###### Sending Parallel Transactions (All transactions are sent simultaneously)
+
+```ts
+const transactionManager = TransactionManager.getInstance();
+const batchTransactions = [
+  [transaction1, transaction2, transaction3, transaction4]
+];
+const sentTransactions = await transactionManager.send(batchTransactions);
+console.log(response);
+```
+
+###### Sending Sequential Batch Transactions (Each batch waits for the previous one to complete)
+
+```ts
+const transactionManager = TransactionManager.getInstance();
+const batchTransactions = [
+  [transaction1, transaction2],
+  [transaction3, transaction4]
+];
+const sentTransactions = await transactionManager.send(batchTransactions);
+console.log(response);
+```
+
+##### Tracking Transactions
+
+###### Default Tracking (Displays toast notifications with default messages)
+
+```ts
+await transactionManager.track(signedTransactions);
+```
+
+###### Tracking with Toasts Disabled
+
+```ts
+await transactionManager.track(signedTransactions, { disableToasts: true });
+```
+
+###### Tracking with Custom Toast Messages
+
+```ts
+await transactionManager.track(signedTransactions, {
+  transactionsDisplayInfo: {
+    errorMessage: 'Custom error message',
+    successMessage: 'Custom success message',
+    processingMessage: 'Custom processing message'
+  }
+});
+```
 
 ### 5. UI Components
 
@@ -319,15 +444,13 @@ flowchart LR
 
 ```typescript
 const modalElement = await createUIElement<LedgerConnectModal>(
-      'ledger-connect-modal'
-    );
+  'ledger-connect-modal'
+);
 const eventBus = await modalElement.getEventBus();
 eventBus.publish('TRANSACTION_TOAST_DATA_UPDATE', someData);
 ```
 
 If you want to override private components and create your own, you can implement a similar strategy, of course by respecting each webcomponent's API (see an interface example [here](https://github.com/multiversx/mx-sdk-dapp-core/blob/main/src/core/providers/strategies/LedgerProviderStrategy/types/ledger.types.ts)).
-
-
 
 ## Debugging your dApp
 
@@ -355,4 +478,3 @@ To run the unit tests, run:
 ```bash
 npm test
 ```
-
