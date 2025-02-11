@@ -310,34 +310,35 @@ sdk-dapp-core has a mechanism that does its best to manage the account nonce. Fo
 
 #### Overview
 
-The `TransactionManager` is a singleton class that simplifies the process of sending and tracking transactions in the MultiversX ecosystem. It provides methods to send single and batch transactions while handling tracking, error management, and toasts for user notifications. It is initialized in the `initApp` method and can be accessed via `TransactionManager.getInstance()`.
+The `TransactionManager` is a class that handles the process of sending and tracking transactions in the MultiversX ecosystem. It provides methods to send single and batch transactions while handling tracking, error management, and toasts for user notifications. It is initialized in the `initApp` method and can be accessed via `TransactionManager.getInstance()`.
 
 #### Features
 
-- **Singleton Pattern:** Ensures only one instance of `TransactionManager` is used throughout the application.
 - **Supports Single and Batch Transactions:** Handles individual transactions as well as grouped batch transactions.
 - **Automatic Tracking:** Monitors transaction status and updates accordingly through a webhook or polling fallback mechanism.
 - **Toast Notifications:** Displays status updates for user feedback, with options to disable notifications and customize toast titles.
-- **Error Handling:** Catches and processes errors during transaction submission.maUsage
+- **Error Handling:** Catches and processes errors during transaction submission
 
 #### Transactions Lifecycle
 
-1. **Signing the Transaction**
+The transaction lifecycle consists of the following steps:
+1. **Creating** a `Transaction` object using the `@multiversx/sdk-core provider`
+2. **Signing** the transaction with the initialized provider, and receiving a `SignedTransaction` object
+3. **Sending** the signed transaction using TransactionManager's `send()` function. wigned transactions can be sent in 2 ways:
 
-   - A transaction is created and signed using the `@multiversx/sdk-core provider`
-   - Returns a `Transaction[]` model
+**Table 3**. Sending signed transactions
+| # | Signature | Method | Description |
+|---|------|-------------|-------------|
+| 1 | `send([tx1, tx2])` | `POST` to `/transactions` | Transactions are executed in parallel
+| 2 | `send([[tx1, tx2], [tx3]])` | `POST` to `/batch` | First batch of two transactions are executed, and the second batch of one transaction waits for the finised results, and is then executed
 
-2. **Sending the Transaction**
+4. **Tracking** transactions is made by using `transactionManager.track()`. Since the `send()` function returns the same arguments it has received, the same array payload can be passed in to the `track()` method. Under the hood, status updates are received via websocket or polling mechanism.
+Once a transaction array is tracked, it gets associated with a `sessionId`, stored in the `transactions` slice. Depending on the array's type (plain/batch) the sesion's status varies from initial (`pending`/`invalid`/`sent`) to final (`successful`/`failed`/`timedOut`). 
 
-   - The signed transaction is sent using `transactionManager.send()`, either as a single transaction, a parallel batch, or sequential batches.
-   - Accepts `SignedTransaction[]` or `SignedTransaction[][]` as input
-   - If `SignedTransaction[][]` is provided, transactions are processed in sequential batches, with each batch waiting for the previous one to complete.
-   - Returns the transactions in the same format as received.
+5. **User feedback** is provided trough toast notifications which are triggered to inform about transactions progress. Additional tracking details can be displayed in the toast UI. 
 
-3. **Tracking the Transaction**
+6. 
 
-   - The transaction status is monitored via `transactionManager.track()`.
-   - Status updates are received via a webhook or polling mechanism.
 
 4. **Updating Transaction Status**
 
@@ -346,8 +347,8 @@ The `TransactionManager` is a singleton class that simplifies the process of sen
 
 5. **User Feedback**
 
-   - Toast notifications are triggered to inform the user about transaction progress.
-   - If enabled, additional tracking details can be displayed in the UI.
+   - .
+   - 
 
 6. **Error Handling & Recovery**
    - If a transaction fails, an error message is returned.
