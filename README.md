@@ -326,7 +326,7 @@ The transaction lifecycle consists of the following steps:
 2. **Signing** the transaction with the initialized provider and receiving a `SignedTransactionType` object
 3. **Sending** the signed transaction using TransactionManager's `send()` function. Signed transactions can be sent in 2 ways:
 
-**Table 3**. Sending signed transactions
+**Table 4**. Sending signed transactions
 | # | Signature | Method | Description |
 |---|------|-------------|-------------|
 | 1 | `send([tx1, tx2])` | `POST` to `/transactions` | Transactions are executed in parallel
