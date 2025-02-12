@@ -54,7 +54,7 @@ export function getTokenFromData(data?: string): {
         amount
       };
     } catch (err) {
-      console.error('Error getting token from transaction data', err);
+      console.warn('Error getting token from transaction data', err);
     }
   }
 
@@ -75,7 +75,7 @@ export function getTokenFromData(data?: string): {
         };
       }
     } catch (err) {
-      console.error('Error decoding NFT transfer data', err);
+      console.warn('Error decoding NFT transfer data', err);
     }
   }
 
@@ -91,7 +91,7 @@ export function getTokenFromData(data?: string): {
         };
       }
     } catch (err) {
-      console.error('Error decoding NFT burn data', err);
+      console.warn('Error decoding NFT burn data', err);
     }
   }
 
