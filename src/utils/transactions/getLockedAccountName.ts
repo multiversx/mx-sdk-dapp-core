@@ -1,5 +1,5 @@
-import { addressIsValid } from '../validation';
 import { getPersistedTokenDetails } from 'apiCalls/tokens/getPersistedTokenDetails';
+import { addressIsValid } from '../validation';
 
 interface GetLockedAccountNameParamsType {
   receiver: string;

@@ -1,14 +1,13 @@
-import { getState } from 'store/store';
-import { accountSelector } from 'store/selectors';
 import {
   AVERAGE_TX_DURATION_MS,
   CROSS_SHARD_ROUNDS
 } from 'constants/transactions.constants';
-import { getToastDuration } from '../helpers/getToastDuration';
-import { SignedTransactionType } from 'types/transactions.types';
+import { accountSelector } from 'store/selectors';
 import { TransactionServerStatusesEnum } from 'types';
-import { isBatchTransaction } from '../helpers/isBatchTransaction';
+import { SignedTransactionType } from 'types/transactions.types';
 import { getAreTransactionsCrossShards } from '../helpers/getAreTransactionsCorssShards';
+import { getToastDuration } from '../helpers/getToastDuration';
+import { isBatchTransaction } from '../helpers/isBatchTransaction';
 
 const mockTransaction: SignedTransactionType = {
   hash: 'mockHash',

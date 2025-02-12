@@ -3,6 +3,7 @@ import {
   updateTransactionStatus,
   updateTransactionsSession
 } from 'store/actions/transactions/transactionsActions';
+import { getIsTransactionFailed } from 'store/actions/transactions/transactionStateByStatus';
 import {
   TransactionBatchStatusesEnum,
   TransactionServerStatusesEnum
@@ -14,7 +15,6 @@ import {
 
 import { getPendingTransactions } from './getPendingTransactions';
 import { manageFailedTransactions } from './manageFailedTransactions';
-import { getIsTransactionFailed } from 'store/actions/transactions/transactionStateByStatus';
 
 export interface TransactionStatusTrackerPropsType {
   sessionId: string;

@@ -9,9 +9,9 @@ import {
   IProvider,
   ProviderTypeEnum
 } from 'core/providers/types/providerFactory.types';
-import { computeNonces } from '../computeNonces/computeNonces';
 import { setAccountNonce } from 'store/actions';
 import { refreshAccount } from 'utils';
+import { computeNonces } from '../computeNonces/computeNonces';
 
 export type SignTransactionsOptionsType = {
   skipGuardian?: boolean;

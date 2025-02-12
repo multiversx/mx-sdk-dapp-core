@@ -1,3 +1,4 @@
+import { getTransactionsSessionStatus } from 'core/managers/TransactionManager/helpers/getTransactionsStatus';
 import { getStore } from 'store/store';
 import {
   TransactionBatchStatusesEnum,
@@ -7,8 +8,6 @@ import {
   TransactionsDisplayInfoType,
   SignedTransactionType
 } from 'types/transactions.types';
-
-import { getTransactionsSessionStatus } from 'core/managers/TransactionManager/helpers/getTransactionsStatus';
 
 export const createTransactionsSession = ({
   transactions,

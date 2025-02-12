@@ -1,8 +1,8 @@
-import { getLatestNonce } from '../getLatestNonce';
-import { getState } from 'store/store';
 import { accountNonceSelector } from 'store/selectors/accountSelectors';
 import { transactionsSliceSelector } from 'store/selectors/transactionsSelector';
+import { getState } from 'store/store';
 import { AccountType } from 'types/account.types';
+import { getLatestNonce } from '../getLatestNonce';
 
 jest.mock('store/store');
 jest.mock('store/selectors/accountSelectors');
