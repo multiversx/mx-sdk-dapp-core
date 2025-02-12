@@ -66,8 +66,8 @@ export const updateTransactionStatus = ({
         state[sessionId].transactions = transactions.map((transaction) => {
           if (transaction.hash === updatedTransaction.hash) {
             return {
-              ...(updatedTransaction ?? {}),
-              ...transaction
+              ...transaction,
+              ...(updatedTransaction ?? {})
             };
           }
           return transaction;

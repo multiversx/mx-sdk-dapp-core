@@ -9,6 +9,9 @@ import {
   IProvider,
   ProviderTypeEnum
 } from 'core/providers/types/providerFactory.types';
+import { setAccountNonce } from 'store/actions';
+import { refreshAccount } from 'utils';
+import { computeNonces } from '../computeNonces/computeNonces';
 
 export type SignTransactionsOptionsType = {
   skipGuardian?: boolean;
@@ -25,12 +28,18 @@ export async function signTransactionsWithProvider({
   transactions,
   options = {}
 }: SignTransactionsType): Promise<Transaction[]> {
-  const { isGuarded, activeGuardianAddress } = getAccount();
+  await refreshAccount();
+  const { isGuarded, activeGuardianAddress, nonce } = getAccount();
   const isLedger = provider.getType() === ProviderTypeEnum.ledger;
+
+  const transactionsWithComputedNonce = computeNonces({
+    latestNonce: nonce,
+    transactions
+  });
 
   const transactionsToSign =
     activeGuardianAddress && isGuarded && !options.skipGuardian
-      ? transactions?.map((transaction) => {
+      ? transactionsWithComputedNonce?.map((transaction) => {
           transaction.setVersion(TransactionVersion.withTxOptions());
           const options = {
             guarded: true,
@@ -41,10 +50,12 @@ export async function signTransactionsWithProvider({
 
           return transaction;
         })
-      : transactions;
+      : transactionsWithComputedNonce;
 
   const signedTransactions: Transaction[] =
     (await provider.signTransactions(transactionsToSign)) ?? [];
+
+  setAccountNonce(nonce + signedTransactions.length);
 
   return signedTransactions;
 }
