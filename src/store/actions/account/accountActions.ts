@@ -89,3 +89,13 @@ export const setWebsocketBatchEvent = (data: BatchTransactionsWSResponseType) =>
     false,
     'setWebsocketBatchEvent'
   );
+
+export const setAccountNonce = (nonce: number) => {
+  getStore().setState(
+    ({ account: state }) => {
+      state.accounts[state.address].nonce = nonce;
+    },
+    false,
+    'setAccountNonce'
+  );
+};

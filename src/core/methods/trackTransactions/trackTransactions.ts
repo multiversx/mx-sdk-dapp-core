@@ -22,9 +22,7 @@ export async function trackTransactions() {
     websocketConnection.status === WebsocketConnectionStatusEnum.COMPLETED;
 
   const recheckStatus = () => {
-    checkTransactionStatus({
-      shouldRefreshBalance: isWebsocketCompleted
-    });
+    checkTransactionStatus();
   };
 
   recheckStatus();
