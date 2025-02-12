@@ -1,7 +1,4 @@
-import {
-  InterpretedTransactionType,
-  ServerTransactionType
-} from 'types/serverTransactions.types';
+import { ServerTransactionType } from 'types/serverTransactions.types';
 import { getOperationsMessages } from './getOperationsMessages';
 import { getReceiptMessage } from './getReceiptMessage';
 import { getScResultsMessages } from './getScResultsMessages';

@@ -1,18 +1,18 @@
+import { DECIMALS } from 'lib/sdkDappUtils';
 import {
   ServerTransactionType,
   TransactionDirectionEnum
 } from 'types/serverTransactions.types';
+import { NftEnumType } from 'types/tokens.types';
 import { getInterpretedTransaction } from 'utils/transactions/getInterpretedTransaction';
 import { getLockedAccountName } from 'utils/transactions/getLockedAccountName';
+import { getShardText } from 'utils/transactions/getShardText';
 import { getTransactionValue } from 'utils/transactions/getTransactionValue/getTransactionValue';
 import { isContract } from 'utils/validation/isContract';
-import { getShardText } from 'utils/transactions/getShardText';
 import {
   TransactionsTableRowType,
   TransactionValueType
 } from './transactionsTableController.types';
-import { NftEnumType } from 'types/tokens.types';
-import { DECIMALS } from 'lib/sdkDappUtils';
 import { FormatAmountController } from '../FormatAmountController';
 
 interface TransactionsTableProcessTransactionsParamsType {

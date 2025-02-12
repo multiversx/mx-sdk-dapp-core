@@ -1,4 +1,5 @@
 import isEqual from 'lodash.isequal';
+import { getExplorerAddress } from 'core/methods/network/getExplorerAddress';
 import { ToastList } from 'lib/sdkDappCoreUi';
 import {
   customToastCloseHandlersDictionary,
@@ -20,13 +21,12 @@ import {
 } from 'store/slices/toast/toastSlice.types';
 import { getStore } from 'store/store';
 import { ProviderErrorsEnum } from 'types';
+import { explorerUrlBuilder, getExplorerLink } from 'utils';
 import { createUIElement } from 'utils/createUIElement';
 import { getToastDataStateByStatus } from './helpers/getToastDataStateByStatus';
 import { getToastProceededStatus } from './helpers/getToastProceededStatus';
 import { LifetimeManager } from './helpers/LifetimeManager';
 import { ITransactionToast, ToastEventsEnum } from './types';
-import { explorerUrlBuilder, getExplorerLink } from 'utils';
-import { getExplorerAddress } from 'core/methods/network/getExplorerAddress';
 
 interface IToastManager {
   successfulToastLifetime?: number;

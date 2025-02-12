@@ -13,7 +13,7 @@ export function getValueFromDataField(transaction: InterpretedTransactionType) {
     if (!value.isNaN()) {
       return getEgldValueData(value.toString(10));
     }
-  } catch (err) {
+  } catch {
     if (!warningLogged) {
       console.error(
         `Unable to extract value for txHash: ${transaction.txHash}`

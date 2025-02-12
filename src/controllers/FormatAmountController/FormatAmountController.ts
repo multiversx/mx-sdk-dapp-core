@@ -1,16 +1,11 @@
-import {
-  stringIsInteger,
-  stringIsFloat,
-  formatAmount,
-  DECIMALS
-} from 'lib/sdkDappUtils';
+import { stringIsInteger, stringIsFloat, formatAmount } from 'lib/sdkDappUtils';
 import { FormatAmountControllerPropsType, FormatedAmountType } from './types';
 
 export class FormatAmountController {
   public static getData(
     props: FormatAmountControllerPropsType
   ): FormatedAmountType {
-    const { input, decimals = DECIMALS, digits = 2 } = props;
+    const { input } = props;
 
     if (!input) {
       return {

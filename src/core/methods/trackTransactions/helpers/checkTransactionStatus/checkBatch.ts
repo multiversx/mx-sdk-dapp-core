@@ -3,11 +3,11 @@ import {
   updateTransactionStatus,
   updateTransactionsSession
 } from 'store/actions/transactions/transactionsActions';
+import { getIsTransactionFailed } from 'store/actions/transactions/transactionStateByStatus';
 import {
   TransactionBatchStatusesEnum,
   TransactionServerStatusesEnum
 } from 'types/enums.types';
-import { ServerTransactionType } from 'types/serverTransactions.types';
 import {
   GetTransactionsByHashesReturnType,
   SignedTransactionType
@@ -17,7 +17,6 @@ import { refreshAccount } from 'utils/account';
 import { getPendingTransactions } from './getPendingTransactions';
 import { manageFailedTransactions } from './manageFailedTransactions';
 import { TransactionsTrackerType } from '../../trackTransactions.types';
-import { getIsTransactionFailed } from 'store/actions/transactions/transactionStateByStatus';
 
 export interface TransactionStatusTrackerPropsType
   extends TransactionsTrackerType {

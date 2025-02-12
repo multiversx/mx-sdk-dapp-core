@@ -1,13 +1,12 @@
-import { Transaction } from '@multiversx/sdk-core/out';
-import { getAreTransactionsCrossShards } from './getAreTransactionsCorssShards';
-import { getState } from 'store/store';
-import { accountSelector } from 'store/selectors';
-import { isBatchTransaction } from './isBatchTransaction';
 import {
   AVERAGE_TX_DURATION_MS,
   CROSS_SHARD_ROUNDS
 } from 'constants/transactions.constants';
+import { accountSelector } from 'store/selectors';
+import { getState } from 'store/store';
 import { SignedTransactionType } from 'types/transactions.types';
+import { getAreTransactionsCrossShards } from './getAreTransactionsCorssShards';
+import { isBatchTransaction } from './isBatchTransaction';
 
 export const getToastDuration = (
   transactions: SignedTransactionType[] | SignedTransactionType[][]

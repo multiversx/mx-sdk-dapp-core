@@ -1,5 +1,7 @@
-import { TransactionsTableController } from '../TransactionsTableController';
+import { testAddress } from '__mocks__';
+import { account } from '__mocks__/data';
 import { getPersistedTokenDetails } from 'apiCalls/tokens/getPersistedTokenDetails';
+import { AssetType } from 'types/account.types';
 import {
   ServerTransactionType,
   TokenArgumentType,
@@ -8,11 +10,9 @@ import {
   TransactionDirectionEnum,
   TransferTypeEnum
 } from 'types/serverTransactions.types';
-import { getShardText } from 'utils/transactions/getShardText';
 import { NftEnumType } from 'types/tokens.types';
-import { AssetType } from 'types/account.types';
-import { testAddress } from '__mocks__';
-import { account } from '__mocks__/data';
+import { getShardText } from 'utils/transactions/getShardText';
+import { TransactionsTableController } from '../TransactionsTableController';
 
 jest.mock('apiCalls/tokens/getPersistedTokenDetails', () => ({
   getPersistedTokenDetails: jest.fn()

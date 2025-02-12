@@ -53,8 +53,8 @@ export function getTokenFromData(data?: string): {
         tokenId,
         amount
       };
-    } catch (e) {
-      console.error('Error getting token from transaction data', e);
+    } catch (err) {
+      console.error('Error getting token from transaction data', err);
     }
   }
 
@@ -74,7 +74,9 @@ export function getTokenFromData(data?: string): {
           receiver: new Address(receiver).bech32()
         };
       }
-    } catch (err) {}
+    } catch (err) {
+      console.error('Error decoding NFT transfer data', err);
+    }
   }
 
   if (isNftBurn) {
@@ -88,7 +90,9 @@ export function getTokenFromData(data?: string): {
           nonce
         };
       }
-    } catch (err) {}
+    } catch (err) {
+      console.error('Error decoding NFT burn data', err);
+    }
   }
 
   return noData;

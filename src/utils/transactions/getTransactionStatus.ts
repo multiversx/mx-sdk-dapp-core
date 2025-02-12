@@ -1,8 +1,5 @@
 import { TransactionServerStatusesEnum } from 'types/enums.types';
-import {
-  InterpretedTransactionType,
-  ServerTransactionType
-} from 'types/serverTransactions.types';
+import { ServerTransactionType } from 'types/serverTransactions.types';
 
 export function getTransactionStatus(transaction: ServerTransactionType) {
   const statusIs = (compareTo: string) =>

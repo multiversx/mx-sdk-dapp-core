@@ -16,9 +16,9 @@ import {
   SignedTransactionType
 } from 'types/transactions.types';
 import { isGuardianTx } from 'utils/transactions/isGuardianTx';
-import { isBatchTransaction } from './helpers/isBatchTransaction';
 import { getToastDuration } from './helpers/getToastDuration';
 import { getTransactionsSessionStatus } from './helpers/getTransactionsStatus';
+import { isBatchTransaction } from './helpers/isBatchTransaction';
 
 export class TransactionManager {
   private static instance: TransactionManager | null = null;

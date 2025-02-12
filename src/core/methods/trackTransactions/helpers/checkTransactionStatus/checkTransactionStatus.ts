@@ -1,8 +1,8 @@
+import { pendingTransactionsSessionsSelector } from 'store/selectors/transactionsSelector';
+import { getState } from 'store/store';
 import { refreshAccount } from 'utils/account';
 import { checkBatch } from './checkBatch';
 import { TransactionsTrackerType } from '../../trackTransactions.types';
-import { pendingTransactionsSessionsSelector } from 'store/selectors/transactionsSelector';
-import { getState } from 'store/store';
 
 export async function checkTransactionStatus(
   props: TransactionsTrackerType & {
