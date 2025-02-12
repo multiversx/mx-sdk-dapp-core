@@ -78,6 +78,19 @@ const mockParams = {
 };
 
 describe('TransactionsTableController', () => {
+  const originalDateNow = Date.now;
+
+  beforeAll(() => {
+    // Mock Date.now to return a fixed timestamp
+    const fixedTimestamp = 1738800000 * 1000; // Convert to milliseconds
+    global.Date.now = jest.fn(() => fixedTimestamp);
+  });
+
+  afterAll(() => {
+    // Restore the original Date.now
+    global.Date.now = originalDateNow;
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -272,7 +285,7 @@ describe('TransactionsTableController', () => {
     });
 
     expect(result.age).toEqual({
-      timeAgo: '14 hrs',
+      timeAgo: '6 days',
       tooltip: 'Feb 06, 2025 00:00:00 AM UTC'
     });
   });

@@ -36,9 +36,9 @@ export function getTokenFromData(data?: string): {
   const isNftBurn =
     data.startsWith(TransactionTypesEnum.ESDTNFTBurn) && data.includes('@');
 
-  if (isTokenTransfer) {
-    const [, encodedToken, encodedAmount] = data.split('@');
-    try {
+  try {
+    if (isTokenTransfer) {
+      const [, encodedToken, encodedAmount] = data.split('@');
       const tokenId = Buffer.from(encodedToken, 'hex').toString('ascii');
 
       if (!tokenId) {
@@ -53,15 +53,14 @@ export function getTokenFromData(data?: string): {
         tokenId,
         amount
       };
-    } catch (err) {
-      console.warn('Error getting token from transaction data', err);
     }
-  }
 
-  if (isNftTransfer) {
-    try {
+    const decodedData = decodeData(data);
+
+    if (isNftTransfer) {
       const [, /*ESDTNFTTransfer*/ collection, nonce, quantity, receiver] =
-        decodeData(data);
+        decodedData;
+
       if (
         [collection, nonce, quantity, receiver].every((el) => Boolean(el)) &&
         addressIsValid(new Address(receiver).bech32())
@@ -74,14 +73,11 @@ export function getTokenFromData(data?: string): {
           receiver: new Address(receiver).bech32()
         };
       }
-    } catch (err) {
-      console.warn('Error decoding NFT transfer data', err);
     }
-  }
 
-  if (isNftBurn) {
-    try {
-      const [, /*ESDTNFTBurn*/ collection, nonce, quantity] = decodeData(data);
+    if (isNftBurn) {
+      const [, /*ESDTNFTBurn*/ collection, nonce, quantity] = decodedData;
+
       if ([collection, nonce, quantity].every((el) => Boolean(el))) {
         return {
           tokenId: `${collection}-${nonce}`,
@@ -90,9 +86,9 @@ export function getTokenFromData(data?: string): {
           nonce
         };
       }
-    } catch (err) {
-      console.warn('Error decoding NFT burn data', err);
     }
+  } catch {
+    return noData;
   }
 
   return noData;
