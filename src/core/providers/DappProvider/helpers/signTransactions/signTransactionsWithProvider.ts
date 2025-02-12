@@ -9,7 +9,7 @@ import {
   IProvider,
   ProviderTypeEnum
 } from 'core/providers/types/providerFactory.types';
-import { computeTransactionsNonce } from '../computeTransactionsNonce/computeTransactionsNonce';
+import { computeNonces } from '../computeNonces/computeNonces';
 import { setAccountNonce } from 'store/actions';
 import { refreshAccount } from 'utils';
 
@@ -32,7 +32,7 @@ export async function signTransactionsWithProvider({
   const { isGuarded, activeGuardianAddress, nonce } = getAccount();
   const isLedger = provider.getType() === ProviderTypeEnum.ledger;
 
-  const transactionsWithComputedNonce = computeTransactionsNonce({
+  const transactionsWithComputedNonce = computeNonces({
     latestNonce: nonce,
     transactions
   });
