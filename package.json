@@ -36,7 +36,7 @@
     "@multiversx/sdk-core": ">= 13.17.1",
     "@multiversx/sdk-dapp-utils": ">= 1.0.5",
     "@multiversx/sdk-extension-provider": "4.0.0",
-    "@multiversx/sdk-hw-provider": "7.0.0",
+    "@multiversx/sdk-hw-provider": "7.1.0-beta.0",
     "@multiversx/sdk-metamask-provider": "1.0.0",
     "@multiversx/sdk-native-auth-client": "^1.0.8",
     "@multiversx/sdk-opera-provider": "1.0.0-alpha.1",
