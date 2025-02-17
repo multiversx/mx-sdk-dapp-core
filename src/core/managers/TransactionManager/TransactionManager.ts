@@ -73,7 +73,7 @@ export class TransactionManager {
       disableToasts?: boolean;
       transactionsDisplayInfo?: TransactionsDisplayInfoType;
     } = { disableToasts: false }
-  ) => {
+  ): Promise<string> => {
     const flatTransactions = this.sequentialToFlatArray(sentTransactions);
 
     const status = getTransactionsSessionStatus(flatTransactions);
@@ -85,11 +85,12 @@ export class TransactionManager {
     });
 
     if (options.disableToasts === true) {
-      return;
+      return sessionId;
     }
 
     const totalDuration = getToastDuration(sentTransactions);
     addTransactionToast({ toastId: sessionId, totalDuration });
+    return sessionId;
   };
 
   private sendSignedTransactions = async (
