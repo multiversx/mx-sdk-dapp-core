@@ -333,7 +333,7 @@ The transaction lifecycle consists of the following steps:
 | 2 | `send([[tx1, tx2], [tx3]])` | `POST` to `/batch` | First batch of two transactions is executed, and the second batch of one transaction waits for the finished results, and is then executed
 
 4. **Tracking** transactions is made by using `transactionManager.track()`. Since the `send()` function returns the same arguments it has received, the same array payload can be passed into the `track()` method. Under the hood, status updates are received via a WebSocket or polling mechanism.
-Once a transaction array is tracked, it gets associated with a `sessionId` stored in the `transactions` slice. Depending on the array's type (plain/batch), the session's status varies from initial (`pending`/`invalid`/`sent`) to final (`successful`/`failed`/`timedOut`). 
+Once a transaction array is tracked, it gets associated with a `sessionId`, returned by the `track()` method and stored in the `transactions` slice. Depending on the array's type (plain/batch), the session's status varies from initial (`pending`/`invalid`/`sent`) to final (`successful`/`failed`/`timedOut`). 
 
 5. **User feedback** is provided through toast notifications, which are triggered to inform about transactions' progress. Additional tracking details can be optionally displayed in the toast UI. 
 
@@ -369,7 +369,7 @@ const sentTransactions = await transactionManager.send(batchTransactions);
 The basic option is to use the built-in tracking, which displays toast notifications with default messages.
 
 ```ts
-await transactionManager.track(signedTransactions, 
+const sessionId = await transactionManager.track(sentTransactions, 
   // { disableToasts: true } optionally disable toast notifications
 );
 ```
@@ -378,12 +378,27 @@ await transactionManager.track(signedTransactions,
 If you want to provide more human-friendly messages to your users, you can enable tracking with custom toast messages:
 
 ```ts
-await transactionManager.track(signedTransactions, {
- transactionsDisplayInfo: {
- errorMessage: 'Failed adding stake',
- successMessage: 'Stake successflly added',
- processingMessage: 'Staking in progress'
- }
+const sessionId = await transactionManager.track(sentTransactions, {
+  transactionsDisplayInfo: {
+    errorMessage: 'Failed adding stake',
+    successMessage: 'Stake successfully added',
+    processingMessage: 'Staking in progress'
+  }
+}); 
+```
+
+#### Advanced Usage
+If you need to check the status of the signed transactions, you can query the store direclty using the `sessionId` returned by the `track()` method.
+
+```ts
+import { getStore } from '@multiversx/sdk-dapp-core/out/store/store';
+import { transactionsSliceSelector } from '@multiversx/sdk-dapp-core/out/store/selectors/transactionsSelector';
+
+const state = transactionsSliceSelector(getStore());
+Object.entries(state).forEach(([sessionKey, data]) => {
+  if(sessionKey === sessionId) {
+    console.log(data.status);
+  }
 });
 ```
 
