@@ -1,8 +1,8 @@
 import { faBan } from '@fortawesome/free-solid-svg-icons/faBan';
 import { faHourglass } from '@fortawesome/free-solid-svg-icons/faHourglass';
 import { faTimes } from '@fortawesome/free-solid-svg-icons/faTimes';
-import upperFirst from 'lodash/upperFirst';
 import { ServerTransactionType } from 'types/serverTransactions.types';
+import { capitalize } from 'utils/operations/capitalize';
 import { getTransactionMessages } from './getTransactionMessages';
 import { getTransactionStatus } from './getTransactionStatus';
 
@@ -24,7 +24,7 @@ export const getTransactionIconInfo = (transaction: ServerTransactionType) => {
   const showErrorText = (failed || invalid) && transactionMessages.length > 0;
   const errorText = showErrorText ? transactionMessages.join(',') : '';
 
-  const tooltip = `${upperFirst(transaction.status)} ${errorText}`;
+  const tooltip = `${capitalize(transaction.status)} ${errorText}`;
 
   return { icon, tooltip };
 };
