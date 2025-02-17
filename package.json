@@ -45,7 +45,6 @@
     "@multiversx/sdk-web-wallet-cross-window-provider": ">= 2.0.4",
     "@multiversx/sdk-web-wallet-iframe-provider": "2.0.1",
     "@multiversx/sdk-web-wallet-provider": "3.2.1",
-    "lodash": "4.17.21",
     "lodash.isequal": "^4.5.0",
     "lodash.isstring": "^4.0.1",
     "protobufjs": "7.3.0",
