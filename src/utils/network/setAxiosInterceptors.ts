@@ -5,7 +5,7 @@ interface InterceptAxiosCallsConfig {
   bearerToken?: string;
 }
 
-export const interceptAxiosCalls = ({
+export const setAxiosInterceptors = ({
   authenticatedDomains,
   bearerToken
 }: InterceptAxiosCallsConfig): void => {
