@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [[0.0.0-alpha.13](https://github.com/multiversx/mx-sdk-dapp-core/pull/92)] - 2025-02-18
+
 - [Fixed lint errors](https://github.com/multiversx/mx-sdk-dapp-core/pull/89)
 - [Added nonce management](https://github.com/multiversx/mx-sdk-dapp-core/pull/88)
 - [Added `FormatAmountController` and `TransactionsTableController` tests](https://github.com/multiversx/mx-sdk-dapp-core/pull/83)

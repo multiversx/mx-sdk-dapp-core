@@ -1,6 +1,6 @@
 {
   "name": "@multiversx/sdk-dapp-core",
-  "version": "0.0.0-alpha.12",
+  "version": "0.0.0-alpha.13",
   "main": "out/index.js",
   "module": "out/index.js",
   "types": "out/index.d.ts",
@@ -59,7 +59,7 @@
     "bignumber.js": "9.x"
   },
   "optionalDependencies": {
-    "@multiversx/sdk-dapp-core-ui": "0.0.0-alpha.2"
+    "@multiversx/sdk-dapp-core-ui": "0.0.0-alpha.3"
   },
   "resolutions": {
     "string-width": "4.1.0"
