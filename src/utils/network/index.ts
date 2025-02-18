@@ -1,1 +1,1 @@
-export * from './interceptAxiosCalls';
+export * from './setAxiosInterceptors';
