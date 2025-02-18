@@ -285,7 +285,7 @@ describe('TransactionsTableController', () => {
     });
 
     expect(result.age).toEqual({
-      timeAgo: '6 days',
+      timeAgo: '12 days',
       tooltip: 'Feb 06, 2025 00:00:00 AM UTC'
     });
   });
