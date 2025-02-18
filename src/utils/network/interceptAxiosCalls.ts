@@ -9,11 +9,9 @@ export const interceptAxiosCalls = ({
   authenticatedDomains,
   bearerToken
 }: InterceptAxiosCallsConfig): void => {
-  // Remove any existing interceptors by ejecting them
   axios.interceptors.request.clear();
   axios.interceptors.response.clear();
 
-  // Add response interceptor for error logging
   axios.interceptors.response.use(
     (response) => response,
     (error: AxiosError) => {
@@ -27,7 +25,6 @@ export const interceptAxiosCalls = ({
     }
   );
 
-  // Add request interceptor for authentication
   axios.interceptors.request.use(
     async (config: InternalAxiosRequestConfig) => {
       if (
