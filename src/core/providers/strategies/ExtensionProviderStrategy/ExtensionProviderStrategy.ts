@@ -68,9 +68,9 @@ export class ExtensionProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    const modalElement = await createUIElement<PendingTransactionsModal>(
-      'pending-transactions-modal'
-    );
+    const modalElement = await createUIElement<PendingTransactionsModal>({
+      name: 'pending-transactions-modal'
+    });
     const { eventBus, manager, onClose } =
       await this.getModalHandlers(modalElement);
 
@@ -97,9 +97,9 @@ export class ExtensionProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    const modalElement = await createUIElement<PendingTransactionsModal>(
-      'pending-transactions-modal'
-    );
+    const modalElement = await createUIElement<PendingTransactionsModal>({
+      name: 'pending-transactions-modal'
+    });
 
     const { eventBus, manager, onClose } =
       await this.getModalHandlers(modalElement);

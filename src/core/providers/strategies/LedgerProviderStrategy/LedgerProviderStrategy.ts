@@ -12,6 +12,7 @@ import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import { IProvider } from 'core/providers/types/providerFactory.types';
 import {
   defineCustomElements,
+  LedgerConnect,
   LedgerConnectModal,
   PendingTransactionsModal
 } from 'lib/sdkDappCoreUi';
@@ -47,11 +48,13 @@ export class LedgerProviderStrategy {
     this.address = address || '';
   }
 
-  public createProvider = async (): Promise<IProvider> => {
+  public createProvider = async (options: {
+    anchor?: HTMLElement;
+  }): Promise<IProvider> => {
     this.initialize();
     await defineCustomElements(safeWindow);
 
-    const eventBus = await this.createEventBus();
+    const eventBus = await this.createEventBus(options.anchor);
 
     if (eventBus) {
       this.manager = new LedgerConnectStateManager(eventBus);
@@ -109,17 +112,22 @@ export class LedgerProviderStrategy {
     this.address = address;
   };
 
-  private createEventBus = async () => {
+  private createEventBus = async (anchor?: HTMLElement) => {
     const shouldInitiateLogin = !getIsLoggedIn();
 
     if (!shouldInitiateLogin) {
       return;
     }
 
-    const modalElement = await createUIElement<LedgerConnectModal>(
-      'ledger-connect-modal'
-    );
-    const eventBus = await modalElement.getEventBus();
+    const element = anchor
+      ? await createUIElement<LedgerConnect>({
+          name: 'ledger-connect',
+          anchor
+        })
+      : await createUIElement<LedgerConnectModal>({
+          name: 'ledger-connect-modal'
+        });
+    const eventBus = await element.getEventBus();
 
     if (!eventBus) {
       throw new Error(ProviderErrorsEnum.eventBusError);
@@ -175,9 +183,9 @@ export class LedgerProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    const modalElement = await createUIElement<PendingTransactionsModal>(
-      'pending-transactions-modal'
-    );
+    const modalElement = await createUIElement<PendingTransactionsModal>({
+      name: 'pending-transactions-modal'
+    });
 
     const { eventBus, manager, onClose } =
       await this.getModalHandlers(modalElement);

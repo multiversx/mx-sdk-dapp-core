@@ -43,9 +43,9 @@ export async function signTransactions({
   const network = networkSelector(getState());
 
   const egldLabel = getEgldLabel();
-  const signModalElement = await createUIElement<SignTransactionsModal>(
-    'sign-transactions-modal'
-  );
+  const signModalElement = await createUIElement<SignTransactionsModal>({
+    name: 'sign-transactions-modal'
+  });
 
   const { allTransactions, getTxInfoByDataField } =
     getMultiEsdtTransferData(transactions);

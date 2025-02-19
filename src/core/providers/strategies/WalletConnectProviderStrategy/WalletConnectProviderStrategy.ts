@@ -161,9 +161,9 @@ export class WalletConnectProviderStrategy {
       return;
     }
 
-    const modalElement = await createUIElement<WalletConnectModal>(
-      'wallet-connect-modal'
-    );
+    const modalElement = await createUIElement<WalletConnectModal>({
+      name: 'wallet-connect-modal'
+    });
 
     const eventBus = await modalElement.getEventBus();
     return eventBus;
@@ -306,9 +306,9 @@ export class WalletConnectProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    const modalElement = await createUIElement<PendingTransactionsModal>(
-      'pending-transactions-modal'
-    );
+    const modalElement = await createUIElement<PendingTransactionsModal>({
+      name: 'pending-transactions-modal'
+    });
     const { eventBus, manager, onClose } =
       await this.getModalHandlers(modalElement);
 
@@ -341,9 +341,9 @@ export class WalletConnectProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    const modalElement = await createUIElement<PendingTransactionsModal>(
-      'pending-transactions-modal'
-    );
+    const modalElement = await createUIElement<PendingTransactionsModal>({
+      name: 'pending-transactions-modal'
+    });
     const { eventBus, manager, onClose } =
       await this.getModalHandlers(modalElement);
 

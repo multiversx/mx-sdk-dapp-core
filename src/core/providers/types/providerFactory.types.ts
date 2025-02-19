@@ -42,6 +42,7 @@ export interface IProviderFactory<
   T extends ProviderTypeEnum = ProviderTypeEnum
 > {
   type: T[keyof T];
+  anchor?: HTMLElement;
 }
 
 export interface ICustomProvider<

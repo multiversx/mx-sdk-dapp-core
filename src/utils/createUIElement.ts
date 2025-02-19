@@ -6,9 +6,13 @@ export interface CreateEventBusUIElementType extends HTMLElement {
   getEventBus: () => Promise<IEventBus | undefined>;
 }
 
-export const createUIElement = async <T = CreateEventBusUIElementType>(
-  name: string
-) => {
+export const createUIElement = async <T = CreateEventBusUIElementType>({
+  name,
+  anchor
+}: {
+  name: string;
+  anchor?: HTMLElement;
+}) => {
   await defineCustomElements(safeWindow);
 
   if (!safeWindow.document) {
@@ -16,7 +20,8 @@ export const createUIElement = async <T = CreateEventBusUIElementType>(
   }
 
   const element = safeWindow.document.createElement(name);
-  safeWindow.document.body.appendChild(element);
+  const rootElement = anchor || safeWindow.document.body;
+  rootElement.appendChild(element);
   await customElements.whenDefined(name);
 
   return element as T;

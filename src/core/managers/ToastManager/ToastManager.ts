@@ -166,7 +166,9 @@ export class ToastManager {
 
     if (!this.isCreatingElement) {
       this.isCreatingElement = true;
-      this.toastsElement = await createUIElement<ToastList>('toast-list');
+      this.toastsElement = await createUIElement<ToastList>({
+        name: 'toast-list'
+      });
       this.isCreatingElement = false;
       return this.toastsElement;
     }

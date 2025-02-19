@@ -25,7 +25,8 @@ export class ProviderFactory {
   }
 
   public static async create({
-    type
+    type,
+    anchor
   }: IProviderFactory): Promise<DappProvider> {
     let createdProvider: IProvider | null = null;
 
@@ -46,7 +47,7 @@ export class ProviderFactory {
 
       case ProviderTypeEnum.ledger: {
         const providerInstance = new LedgerProviderStrategy();
-        createdProvider = await providerInstance.createProvider();
+        createdProvider = await providerInstance.createProvider({ anchor });
 
         break;
       }
