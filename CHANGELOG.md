@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- [FormatAmountController validation improvements](https://github.com/multiversx/mx-sdk-dapp-core/pull/96)
 - [Added setAxiosInterceptors utility function](https://github.com/multiversx/mx-sdk-dapp-core/pull/94)
 
 ## [[0.0.0-alpha.14](https://github.com/multiversx/mx-sdk-dapp-core/pull/93)] - 2025-02-18
