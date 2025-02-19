@@ -88,4 +88,18 @@ describe('FormatAmountController', () => {
       expect(result.valueDecimal).toEqual('.01');
     });
   });
+
+  it('handles non-integer input', () => {
+    const result = FormatAmountController.getData({
+      input: 'abc123',
+      egldLabel: 'EGLD'
+    });
+
+    expect(result).toEqual({
+      isValid: false,
+      label: ' EGLD',
+      valueInteger: '0',
+      valueDecimal: '.00'
+    });
+  });
 });

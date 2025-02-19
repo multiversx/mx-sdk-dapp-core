@@ -51,7 +51,6 @@ export const nativeAuth = (config?: NativeAuthConfigType) => {
         getBlockHash,
         initProps?.noCache
       ));
-    console.log(response);
 
     const { hash, timestamp } = response;
     const encodedExtraInfo = nativeAuthClient.encodeValue(

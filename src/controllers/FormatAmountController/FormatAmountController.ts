@@ -7,7 +7,7 @@ export class FormatAmountController {
   ): FormatedAmountType {
     const { input } = props;
 
-    if (!input) {
+    if (!input || !stringIsInteger(input)) {
       return {
         isValid: false,
         label: this.getLabel(props),
@@ -17,7 +17,7 @@ export class FormatAmountController {
     }
 
     const formattedAmount = formatAmount(props);
-    const isValid = stringIsInteger(input) && stringIsFloat(formattedAmount);
+    const isValid = stringIsFloat(formattedAmount);
     const [valueInteger, valueDecimal] = formattedAmount.split('.');
 
     return {

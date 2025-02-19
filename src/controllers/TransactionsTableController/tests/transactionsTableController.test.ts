@@ -11,11 +11,16 @@ import {
   TransferTypeEnum
 } from 'types/serverTransactions.types';
 import { NftEnumType } from 'types/tokens.types';
+import { timeAgo } from 'utils/operations/timeRemaining';
 import { getShardText } from 'utils/transactions/getShardText';
 import { TransactionsTableController } from '../TransactionsTableController';
-
 jest.mock('apiCalls/tokens/getPersistedTokenDetails', () => ({
   getPersistedTokenDetails: jest.fn()
+}));
+
+jest.mock('utils/operations/timeRemaining', () => ({
+  ...jest.requireActual('utils/operations/timeRemaining'),
+  timeAgo: jest.fn()
 }));
 
 const mockTransactionBase: ServerTransactionType = {
@@ -78,23 +83,6 @@ const mockParams = {
 };
 
 describe('TransactionsTableController', () => {
-  const originalDateNow = Date.now;
-
-  beforeAll(() => {
-    // Mock Date.now to return a fixed timestamp
-    const fixedTimestamp = 1738800000 * 1000; // Convert to milliseconds
-    global.Date.now = jest.fn(() => fixedTimestamp);
-  });
-
-  afterAll(() => {
-    // Restore the original Date.now
-    global.Date.now = originalDateNow;
-  });
-
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
   it('should handle locked accounts', async () => {
     (getPersistedTokenDetails as jest.Mock).mockResolvedValue({
       assets: {
@@ -274,6 +262,13 @@ describe('TransactionsTableController', () => {
   });
 
   it('should handle time-sensitive transactions near midnight', async () => {
+    const timeAgoMock = {
+      timeAgo: '13 days',
+      tooltip: 'Feb 06, 2025 00:00:00 AM UTC'
+    };
+
+    (timeAgo as jest.Mock).mockReturnValue(timeAgoMock.timeAgo);
+
     const nearMidnightTransaction = {
       ...mockTransactionBase,
       timestamp: 1738800000 // Exact midnight in some timezone
@@ -284,10 +279,7 @@ describe('TransactionsTableController', () => {
       transactions: [nearMidnightTransaction]
     });
 
-    expect(result.age).toEqual({
-      timeAgo: '12 days',
-      tooltip: 'Feb 06, 2025 00:00:00 AM UTC'
-    });
+    expect(result.age).toEqual(timeAgoMock);
   });
 
   it('should handle missing token ID', async () => {
