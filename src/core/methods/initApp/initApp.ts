@@ -1,8 +1,8 @@
-import { ProviderTypeEnum } from 'core/providers/ProviderTypeEnum';
 import { safeWindow } from 'constants/index';
 import { ToastManager } from 'core/managers/ToastManager/ToastManager';
 import { restoreProvider } from 'core/providers/helpers/restoreProvider';
 import { ProviderFactory } from 'core/providers/ProviderFactory';
+import { ProviderTypeEnum } from 'core/providers/types/providerFactory.types';
 import { getDefaultNativeAuthConfig } from 'services/nativeAuth/methods/getDefaultNativeAuthConfig';
 import { NativeAuthConfigType } from 'services/nativeAuth/nativeAuth.types';
 import { initializeNetwork } from 'store/actions';
