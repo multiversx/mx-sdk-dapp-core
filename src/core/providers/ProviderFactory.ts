@@ -10,6 +10,7 @@ import {
 import { setProviderType } from 'store/actions/loginInfo/loginInfoActions';
 import { DappProvider } from './DappProvider/DappProvider';
 import { setAccountProvider } from './helpers/accountProvider';
+import { WebviewProviderStrategy } from './strategies/WebviewProviderStrategy';
 import {
   ICustomProvider,
   IProvider,
@@ -74,6 +75,12 @@ export class ProviderFactory {
         const providerInstance = new WalletConnectProviderStrategy();
         createdProvider = await providerInstance.createProvider();
 
+        break;
+      }
+
+      case ProviderTypeEnum.webview: {
+        const providerInstance = new WebviewProviderStrategy();
+        createdProvider = await providerInstance.createProvider();
         break;
       }
 

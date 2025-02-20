@@ -1,3 +1,4 @@
+import { ProviderTypeEnum } from 'core/providers/ProviderTypeEnum';
 import { safeWindow } from 'constants/index';
 import { ToastManager } from 'core/managers/ToastManager/ToastManager';
 import { restoreProvider } from 'core/providers/helpers/restoreProvider';
@@ -12,6 +13,7 @@ import {
 } from 'store/actions/config/configActions';
 import { defaultStorageCallback } from 'store/storage';
 import { initStore } from 'store/store';
+import { getIsInIframe } from 'utils/window/getIsInIframe';
 import { InitAppType } from './initApp.types';
 import { getIsLoggedIn } from '../account/getIsLoggedIn';
 import { registerWebsocketListener } from './websocket/registerWebsocket';
@@ -64,12 +66,23 @@ export async function initApp({
     setCrossWindowConfig(dAppConfig.providers.crossWindow);
   }
 
+  const isInIframe = getIsInIframe();
+  let isLoggedIn = getIsLoggedIn();
+
+  if (isInIframe && !isLoggedIn) {
+    const provider = await ProviderFactory.create({
+      type: ProviderTypeEnum.webview
+    });
+
+    await provider.login();
+    isLoggedIn = getIsLoggedIn();
+  }
+
   const toastManager = new ToastManager({
     successfulToastLifetime: dAppConfig.successfulToastLifetime
   });
-  toastManager.init();
 
-  const isLoggedIn = getIsLoggedIn();
+  toastManager.init();
 
   const usedProviders = [
     ...((safeWindow as any)?.multiversx?.providers || []),
@@ -81,7 +94,6 @@ export async function initApp({
   if (isLoggedIn) {
     await restoreProvider();
     await registerWebsocketListener();
-    //track transactions needs to be called after the registerWebsocketListener
     trackTransactions();
   }
 }
