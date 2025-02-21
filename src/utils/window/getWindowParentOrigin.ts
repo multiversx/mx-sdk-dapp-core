@@ -7,7 +7,7 @@ export function getWindowParentOrigin() {
 
   try {
     if (safeWindow.document.referrer) {
-      return new URL(document.referrer).origin;
+      return new URL(safeWindow.document.referrer).origin;
     }
 
     const ancestorOrigins = safeWindow.location.ancestorOrigins;
