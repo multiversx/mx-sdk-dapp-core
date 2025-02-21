@@ -1,3 +1,4 @@
+import { fallbackWalletConnectConfigurations } from 'constants/walletConnect.constants';
 import { CrossWindowConfig } from 'core/providers/strategies/CrossWindowProviderStrategy/types';
 import { WalletConnectConfig } from 'core/providers/strategies/WalletConnectProviderStrategy/types';
 import { NativeAuthConfigType } from 'services/nativeAuth/nativeAuth.types';
@@ -11,7 +12,18 @@ export const setNativeAuthConfig = (config: NativeAuthConfigType) =>
 export const setWalletConnectConfig = (config: WalletConnectConfig) =>
   getStore().setState(
     ({ config: state }) => {
-      state.walletConnectConfig = config;
+      const walletConnectV2RelayAddress =
+        config.walletConnectV2RelayAddress ||
+        fallbackWalletConnectConfigurations.walletConnectV2RelayAddress;
+      const walletConnectDeepLink =
+        config.walletConnectDeepLink ||
+        fallbackWalletConnectConfigurations.walletConnectDeepLink;
+
+      state.walletConnectConfig = {
+        ...config,
+        walletConnectDeepLink,
+        walletConnectV2RelayAddress
+      };
     },
     false,
     'setWalletConnectConfig'

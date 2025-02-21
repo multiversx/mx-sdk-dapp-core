@@ -26,12 +26,8 @@ export interface IWalletConnectModalData {
 
 export interface WalletConnectConfig {
   walletConnectV2ProjectId: string;
-  /**
-   * Function to be called when disconnecting the dApp from xPortal.
-   * Handles user redirection or cleanup after logout.
-   */
-  onLogout: () => Promise<void>;
   walletConnectV2RelayAddress?: string;
   walletConnectV2Options?: WalletConnectV2ProviderOptionsType;
-  customRequestMethods?: Array<string>;
+  customRequestMethods?: string[];
+  walletConnectDeepLink?: string;
 }

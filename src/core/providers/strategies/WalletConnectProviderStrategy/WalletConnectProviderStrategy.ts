@@ -185,8 +185,7 @@ export class WalletConnectProviderStrategy {
 
     const handleOnLogin = () => {};
 
-    const handleOnLogout = async () => {
-      await config.onLogout?.();
+    const handleOnLogout = () => {
       logoutAction();
     };
 
