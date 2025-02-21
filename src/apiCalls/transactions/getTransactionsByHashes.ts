@@ -9,13 +9,13 @@ import {
 } from 'types/enums.types';
 import { ServerTransactionType } from 'types/serverTransactions.types';
 import {
-  GetTransactionsByHashesReturnType,
-  PendingTransactionsType
+  TrackedTransactionResultType,
+  SignedTransactionType
 } from 'types/transactions.types';
 
 export const getTransactionsByHashes = async (
-  pendingTransactions: PendingTransactionsType
-): Promise<GetTransactionsByHashesReturnType> => {
+  pendingTransactions: SignedTransactionType[]
+): Promise<TrackedTransactionResultType[]> => {
   const { apiAddress } = networkSelector(getState());
   const hashes = pendingTransactions.map((tx) => tx.hash);
 
@@ -29,24 +29,22 @@ export const getTransactionsByHashes = async (
     }
   );
 
-  return pendingTransactions.map(({ hash, previousStatus }) => {
+  return pendingTransactions.map((transaction) => {
     const txOnNetwork = responseData.find(
-      (txResponse: ServerTransactionType) => txResponse?.txHash === hash
+      (txResponse: ServerTransactionType) =>
+        txResponse?.txHash === transaction.hash
     );
 
     return {
-      hash,
-      data: txOnNetwork?.data ?? '',
-      invalidTransaction: txOnNetwork == null,
+      ...transaction,
       status: txOnNetwork?.status as
         | TransactionServerStatusesEnum
         | TransactionBatchStatusesEnum,
+      invalidTransaction: txOnNetwork == null,
       results: txOnNetwork?.results ?? [],
-      sender: txOnNetwork?.sender ?? '',
-      receiver: txOnNetwork?.receiver ?? '',
-      previousStatus,
+      previousStatus: transaction.status,
       hasStatusChanged: Boolean(
-        txOnNetwork && txOnNetwork.status !== previousStatus
+        txOnNetwork && txOnNetwork.status !== transaction.status
       )
     };
   });
