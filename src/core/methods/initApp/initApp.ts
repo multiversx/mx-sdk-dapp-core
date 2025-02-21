@@ -68,7 +68,7 @@ export async function initApp({
   }
 
   const isInIframe = getIsInIframe();
-  let isLoggedIn = getIsLoggedIn();
+  const isLoggedIn = getIsLoggedIn();
 
   if (isInIframe && !isLoggedIn) {
     const provider = await ProviderFactory.create({

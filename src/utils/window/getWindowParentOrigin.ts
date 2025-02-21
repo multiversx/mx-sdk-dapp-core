@@ -1,10 +1,16 @@
+import { safeWindow } from 'constants/window.constants';
+
 export function getWindowParentOrigin() {
+  if (!safeWindow) {
+    return '';
+  }
+
   try {
-    if (document.referrer) {
+    if (safeWindow.document.referrer) {
       return new URL(document.referrer).origin;
     }
 
-    const ancestorOrigins = window.location.ancestorOrigins;
+    const ancestorOrigins = safeWindow.location.ancestorOrigins;
 
     if (ancestorOrigins.length < 1) {
       return '';
