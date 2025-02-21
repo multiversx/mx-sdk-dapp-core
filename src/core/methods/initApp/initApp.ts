@@ -1,7 +1,9 @@
 import { safeWindow } from 'constants/index';
 import { ToastManager } from 'core/managers/ToastManager/ToastManager';
+import { login } from 'core/providers/DappProvider/helpers/login/login';
 import { restoreProvider } from 'core/providers/helpers/restoreProvider';
 import { ProviderFactory } from 'core/providers/ProviderFactory';
+import { ProviderTypeEnum } from 'core/providers/types/providerFactory.types';
 import { getDefaultNativeAuthConfig } from 'services/nativeAuth/methods/getDefaultNativeAuthConfig';
 import { NativeAuthConfigType } from 'services/nativeAuth/nativeAuth.types';
 import { initializeNetwork } from 'store/actions';
@@ -12,6 +14,7 @@ import {
 } from 'store/actions/config/configActions';
 import { defaultStorageCallback } from 'store/storage';
 import { initStore } from 'store/store';
+import { getIsInIframe } from 'utils/window/getIsInIframe';
 import { InitAppType } from './initApp.types';
 import { getIsLoggedIn } from '../account/getIsLoggedIn';
 import { registerWebsocketListener } from './websocket/registerWebsocket';
@@ -64,12 +67,22 @@ export async function initApp({
     setCrossWindowConfig(dAppConfig.providers.crossWindow);
   }
 
+  const isInIframe = getIsInIframe();
+  const isLoggedIn = getIsLoggedIn();
+
+  if (isInIframe && !isLoggedIn) {
+    const provider = await ProviderFactory.create({
+      type: ProviderTypeEnum.webview
+    });
+
+    await login(provider.getProvider());
+  }
+
   const toastManager = new ToastManager({
     successfulToastLifetime: dAppConfig.successfulToastLifetime
   });
-  toastManager.init();
 
-  const isLoggedIn = getIsLoggedIn();
+  toastManager.init();
 
   const usedProviders = [
     ...((safeWindow as any)?.multiversx?.providers || []),
@@ -81,7 +94,6 @@ export async function initApp({
   if (isLoggedIn) {
     await restoreProvider();
     await registerWebsocketListener();
-    //track transactions needs to be called after the registerWebsocketListener
     trackTransactions();
   }
 }

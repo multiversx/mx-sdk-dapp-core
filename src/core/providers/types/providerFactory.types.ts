@@ -35,6 +35,7 @@ export enum ProviderTypeEnum {
   opera = 'opera',
   metamask = 'metamask',
   passkey = 'passkey',
+  webview = 'webview',
   none = ''
 }
 

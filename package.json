@@ -45,12 +45,13 @@
     "@multiversx/sdk-web-wallet-cross-window-provider": ">= 2.0.4",
     "@multiversx/sdk-web-wallet-iframe-provider": "2.0.1",
     "@multiversx/sdk-web-wallet-provider": "3.2.1",
+    "@multiversx/sdk-webview-provider": "2.0.3",
+    "immer": "10.1.1",
     "lodash.isequal": "^4.5.0",
     "lodash.isstring": "^4.0.1",
     "protobufjs": "7.3.0",
     "socket.io-client": "4.7.5",
-    "zustand": "4.4.7",
-    "immer": "10.1.1"
+    "zustand": "4.4.7"
   },
   "peerDependencies": {
     "@multiversx/sdk-core": ">= 13.17.1",
