@@ -14,6 +14,8 @@ import { NftEnumType } from 'types/tokens.types';
 import { timeAgo } from 'utils/operations/timeRemaining';
 import { getShardText } from 'utils/transactions/getShardText';
 import { TransactionsTableController } from '../TransactionsTableController';
+import { TransactionServerStatusesEnum } from 'types';
+
 jest.mock('apiCalls/tokens/getPersistedTokenDetails', () => ({
   getPersistedTokenDetails: jest.fn()
 }));
@@ -46,7 +48,7 @@ const mockTransactionBase: ServerTransactionType = {
   nonce: 1,
   round: 1,
   signature: 'signature123',
-  status: 'success',
+  status: TransactionServerStatusesEnum.success,
   price: 0,
   type: TransferTypeEnum.Transaction,
   fee: '1000000000',

@@ -53,27 +53,12 @@ export type TransactionsDataTokensType =
   | Record<string, TransactionDataTokenType>
   | undefined;
 
-export type PendingTransactionsType = {
-  hash: string;
-  previousStatus: string;
-}[];
-
-export type GetTransactionsByHashesReturnType = {
-  hash: string;
+export type TrackedTransactionResultType = SignedTransactionType & {
   invalidTransaction: boolean;
-  status: TransactionServerStatusesEnum | TransactionBatchStatusesEnum;
-  inTransit?: boolean;
   results: ResultType[];
-  sender: string;
-  receiver: string;
-  data: string;
   previousStatus: string;
   hasStatusChanged: boolean;
-}[];
-
-export type GetTransactionsByHashesType = (
-  pendingTransactions: PendingTransactionsType
-) => Promise<GetTransactionsByHashesReturnType>;
+};
 
 export enum TransactionDirectionEnum {
   SELF = 'Self',

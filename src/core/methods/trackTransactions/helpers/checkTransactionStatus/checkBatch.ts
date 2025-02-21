@@ -9,7 +9,7 @@ import {
   TransactionServerStatusesEnum
 } from 'types/enums.types';
 import {
-  GetTransactionsByHashesReturnType,
+  TrackedTransactionResultType,
   SignedTransactionType
 } from 'types/transactions.types';
 
@@ -27,32 +27,21 @@ interface RetriesType {
 }
 
 const retries: RetriesType = {};
-const timeouts: string[] = [];
 
 interface ManageTransactionType {
-  serverTransaction: GetTransactionsByHashesReturnType[0];
+  serverTransaction: TrackedTransactionResultType;
   sessionId: string;
   isSequential?: boolean;
 }
 
 function manageTransaction({
-  serverTransaction,
+  serverTransaction: transaction,
   sessionId,
   isSequential
 }: ManageTransactionType) {
-  const {
-    hash,
-    status,
-    inTransit,
-    results,
-    invalidTransaction,
-    hasStatusChanged
-  } = serverTransaction;
+  const { hash, status, results, invalidTransaction, hasStatusChanged } =
+    transaction;
   try {
-    if (timeouts.includes(hash)) {
-      return;
-    }
-
     const retriesForThisHash = retries[hash];
     if (retriesForThisHash > 30) {
       // consider transaction as stuck after 1 minute
@@ -76,12 +65,7 @@ function manageTransaction({
     if (isSequential && !status) {
       updateTransactionStatus({
         sessionId,
-        transaction: {
-          ...(serverTransaction as unknown as SignedTransactionType),
-          hash,
-          inTransit,
-          status
-        }
+        transaction
       });
       return;
     }
@@ -89,12 +73,7 @@ function manageTransaction({
     if (hasStatusChanged) {
       updateTransactionStatus({
         sessionId,
-        transaction: {
-          ...(serverTransaction as unknown as SignedTransactionType),
-          hash,
-          inTransit,
-          status
-        }
+        transaction
       });
     }
 
@@ -120,7 +99,7 @@ export async function checkBatch({
       return;
     }
 
-    const pendingTransactions = getPendingTransactions(transactions, timeouts);
+    const pendingTransactions = getPendingTransactions(transactions);
 
     const serverTransactions =
       await getTransactionsByHashes(pendingTransactions);
