@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- [Added webview provider](https://github.com/multiversx/mx-sdk-dapp-core/pull/97)
+- [Added webview provider](https://github.com/multiversx/mx-sdk-dapp-core/pull/99)
+- [Clean-up tracking types](https://github.com/multiversx/mx-sdk-dapp-core/pull/98)
+- [Clean-up network configuration](https://github.com/multiversx/mx-sdk-dapp-core/pull/97)
 - [FormatAmountController validation improvements](https://github.com/multiversx/mx-sdk-dapp-core/pull/96)
 - [Added setAxiosInterceptors utility function](https://github.com/multiversx/mx-sdk-dapp-core/pull/94)
 

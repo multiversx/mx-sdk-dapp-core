@@ -1,6 +1,6 @@
-import { CurrentNetworkType } from 'types/network.types';
+import { NetworkType } from 'types/network.types';
 
 export interface NetworkSliceType {
-  network: CurrentNetworkType;
+  network: NetworkType;
   customWalletAddress: string;
 }

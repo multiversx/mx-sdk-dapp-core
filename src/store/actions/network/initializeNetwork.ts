@@ -2,7 +2,7 @@ import { getServerConfiguration } from 'apiCalls/configuration/getServerConfigur
 import { fallbackNetworkConfigurations } from 'constants/network.constants';
 import { emptyNetwork } from 'store/slices/network/emptyNetwork';
 import { EnvironmentsEnum } from 'types/enums.types';
-import { CustomNetworkType, NetworkType } from 'types/network.types';
+import { NetworkType, CustomNetworkType } from 'types/network.types';
 import { initializeNetworkConfig } from './networkActions';
 
 export type InitializeNetworkPropsType = {
@@ -32,12 +32,7 @@ export const initializeNetwork = async ({
 
   const localConfig: NetworkType = {
     ...baseConfig,
-    apiTimeout: String(baseConfig.apiTimeout),
-    walletConnectBridgeAddresses: baseConfig.walletConnectBridgeAddresses || [],
-    walletConnectV2RelayAddresses:
-      'walletConnectV2RelayAddresses' in baseConfig
-        ? baseConfig.walletConnectV2RelayAddresses
-        : ['wss://relay.walletconnect.com']
+    apiTimeout: String(baseConfig.apiTimeout)
   };
 
   const fallbackApiAddress = fallbackConfig?.apiAddress;

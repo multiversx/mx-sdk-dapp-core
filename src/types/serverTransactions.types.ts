@@ -2,6 +2,10 @@ import { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import { AssetType, ScamInfoType } from './account.types';
 import { EsdtEnumType, NftEnumType } from './tokens.types';
 import { SignedTransactionType } from './transactions.types';
+import {
+  TransactionBatchStatusesEnum,
+  TransactionServerStatusesEnum
+} from './enums.types';
 
 //#region server trasactions
 
@@ -242,7 +246,7 @@ export interface ServerTransactionType {
   sender: string;
   senderShard: number;
   signature: string;
-  status: string;
+  status: TransactionServerStatusesEnum | TransactionBatchStatusesEnum;
   inTransit?: boolean;
   timestamp: number;
   value: string;
