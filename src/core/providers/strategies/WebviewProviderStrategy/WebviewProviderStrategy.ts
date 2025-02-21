@@ -1,5 +1,6 @@
 import { Message, Transaction } from '@multiversx/sdk-core/out';
 import { WebviewProvider } from '@multiversx/sdk-webview-provider/out/WebviewProvider';
+import { safeWindow } from 'constants/window.constants';
 import { getAddress } from 'core/methods/account/getAddress';
 import { IProvider } from 'core/providers/types/providerFactory.types';
 import { ProviderErrorsEnum } from 'types/provider.types';
@@ -28,17 +29,17 @@ export class WebviewProviderStrategy {
     if (!this.provider) {
       this.provider = WebviewProvider.getInstance({
         resetStateCallback: () => {
-          // Add your reset state callback logic here if needed
+          safeWindow.localStorage?.clear?.();
+          safeWindow.sessionStorage?.clear?.();
         }
       });
+
       await this.provider.init();
     }
 
     // Bind in order to break reference
     this._signTransactions = this.provider.signTransactions.bind(this.provider);
     this._signMessage = this.provider.signMessage.bind(this.provider);
-
-    this.provider.setAccount({ address: this.address });
 
     return this.buildProvider();
   };
