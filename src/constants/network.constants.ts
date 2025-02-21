@@ -13,10 +13,6 @@ export const fallbackNetworkConfigurations: Record<
     decimals: '18',
     digits: '4',
     gasPerDataByte: '1500',
-    walletConnectDeepLink:
-      'https://maiar.page.link/?apn=com.elrond.maiar.wallet&isi=1519405832&ibi=com.elrond.maiar.wallet&link=https://xportal.com/',
-    walletConnectBridgeAddresses: ['https://bridge.walletconnect.org'],
-    walletConnectV2RelayAddresses: ['wss://relay.walletconnect.com'],
     walletAddress: 'https://devnet-wallet.multiversx.com',
     iframeWalletAddress: 'https://devnet-snap-wallet.multiversx.com',
     xAliasAddress: 'https://devnet.xalias.com',
@@ -33,10 +29,6 @@ export const fallbackNetworkConfigurations: Record<
     decimals: '18',
     digits: '4',
     gasPerDataByte: '1500',
-    walletConnectDeepLink:
-      'https://maiar.page.link/?apn=com.elrond.maiar.wallet&isi=1519405832&ibi=com.elrond.maiar.wallet&link=https://xportal.com/',
-    walletConnectBridgeAddresses: ['https://bridge.walletconnect.org'],
-    walletConnectV2RelayAddresses: ['wss://relay.walletconnect.com'],
     walletAddress: 'https://testnet-wallet.multiversx.com',
     iframeWalletAddress: 'https://testnet-snap-wallet.multiversx.com',
     xAliasAddress: 'https://testnet.xalias.com',
@@ -53,10 +45,6 @@ export const fallbackNetworkConfigurations: Record<
     decimals: '18',
     digits: '4',
     gasPerDataByte: '1500',
-    walletConnectDeepLink:
-      'https://maiar.page.link/?apn=com.elrond.maiar.wallet&isi=1519405832&ibi=com.elrond.maiar.wallet&link=https://xportal.com/',
-    walletConnectBridgeAddresses: ['https://bridge.walletconnect.org'],
-    walletConnectV2RelayAddresses: ['wss://relay.walletconnect.com'],
     walletAddress: 'https://wallet.multiversx.com',
     iframeWalletAddress: 'https://snap-wallet.multiversx.com',
     xAliasAddress: 'https://xalias.com',
