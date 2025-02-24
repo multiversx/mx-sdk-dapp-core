@@ -20,6 +20,7 @@ const RETRY_INTERVAL = 500;
 const MESSAGE_DELAY = 1000;
 const BATCH_UPDATED_EVENT = 'batchUpdated';
 const CONNECT = 'connect';
+const CONNECT_ERROR = 'connect_error';
 const DISCONNECT = 'disconnect';
 
 // eslint-disable-next-line no-undef
@@ -52,8 +53,44 @@ export async function initializeWebsocketConnection() {
     }, MESSAGE_DELAY);
   };
 
+  const retryWebsocketConnect = () => {
+    setTimeout(() => {
+      if (address) {
+        console.log('Websocket reconnecting...');
+        websocketConnection.status = WebsocketConnectionStatusEnum.PENDING;
+        websocketConnection.instance?.connect();
+      }
+    }, RETRY_INTERVAL);
+  };
+
+  const closeConnection = () => {
+    if (websocketConnection.instance) {
+      websocketConnection.instance.off(CONNECT_ERROR);
+      websocketConnection.instance.off(CONNECT);
+      websocketConnection.instance.off(BATCH_UPDATED_EVENT);
+      websocketConnection.instance.close();
+    }
+
+    websocketConnection.status = WebsocketConnectionStatusEnum.NOT_INITIALIZED;
+    websocketConnection.instance = null;
+
+    if (messageTimeout) {
+      clearTimeout(messageTimeout);
+    }
+
+    if (batchTimeout) {
+      clearTimeout(batchTimeout);
+    }
+  };
+
   const initializeConnection = retryMultipleTimes(
     async () => {
+      if (!address) {
+        websocketConnection.status =
+          WebsocketConnectionStatusEnum.NOT_INITIALIZED;
+        return;
+      }
+
       // To avoid multiple connections to the same endpoint
       websocketConnection.status = WebsocketConnectionStatusEnum.PENDING;
 
@@ -62,17 +99,18 @@ export async function initializeWebsocketConnection() {
 
       if (!websocketUrl) {
         console.warn('Cannot get websocket URL');
+        websocketConnection.status =
+          WebsocketConnectionStatusEnum.NOT_INITIALIZED;
         return;
       }
 
       websocketConnection.instance = io(websocketUrl, {
         forceNew: true,
+        reconnection: true,
         reconnectionAttempts: RECONNECTION_ATTEMPTS,
         timeout: TIMEOUT,
         query: { address }
       });
-
-      websocketConnection.status = WebsocketConnectionStatusEnum.COMPLETED;
 
       websocketConnection.instance.onAny(handleMessageReceived);
 
@@ -80,29 +118,32 @@ export async function initializeWebsocketConnection() {
 
       websocketConnection.instance.on(CONNECT, () => {
         console.log('Websocket connected.');
+        websocketConnection.status = WebsocketConnectionStatusEnum.COMPLETED;
+      });
+
+      websocketConnection.instance.on(CONNECT_ERROR, (error) => {
+        console.warn('Websocket connect error: ', error.message);
+
+        if (address) {
+          retryWebsocketConnect();
+        } else {
+          websocketConnection.status =
+            WebsocketConnectionStatusEnum.NOT_INITIALIZED;
+        }
       });
 
       websocketConnection.instance.on(DISCONNECT, () => {
-        console.warn('Websocket disconnected. Trying to reconnect...');
-        setTimeout(() => {
-          console.log('Websocket reconnecting...');
-          websocketConnection.instance?.connect();
-        }, RETRY_INTERVAL);
+        if (address) {
+          console.warn('Websocket disconnected. Trying to reconnect...');
+          retryWebsocketConnect();
+        } else {
+          websocketConnection.status =
+            WebsocketConnectionStatusEnum.NOT_INITIALIZED;
+        }
       });
     },
     { retries: 2, delay: RETRY_INTERVAL }
   );
-
-  const closeConnection = () => {
-    websocketConnection.instance?.close();
-    websocketConnection.status = WebsocketConnectionStatusEnum.NOT_INITIALIZED;
-    if (messageTimeout) {
-      clearTimeout(messageTimeout);
-    }
-    if (batchTimeout) {
-      clearTimeout(batchTimeout);
-    }
-  };
 
   if (
     address &&
