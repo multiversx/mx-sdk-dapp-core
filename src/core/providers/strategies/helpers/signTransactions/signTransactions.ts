@@ -13,6 +13,7 @@ import {
 } from 'core/managers/SignTransactionsStateManager/types';
 import { getAddress } from 'core/methods/account/getAddress';
 import { getEgldLabel } from 'core/methods/network/getEgldLabel';
+import { cancelCrossWindowAction } from 'core/providers/helpers/cancelCrossWindowAction';
 import { IProvider } from 'core/providers/types/providerFactory.types';
 import { SignTransactionsModal } from 'lib/sdkDappCoreUi';
 import { formatAmount } from 'lib/sdkDappUtils';
@@ -190,8 +191,9 @@ export async function signTransactions({
         manager.updateData(data);
       };
 
-      const onCancel = () => {
+      const onCancel = async () => {
         reject(new Error('Transaction signing cancelled by user'));
+        await cancelCrossWindowAction();
         signModalElement.remove();
       };
 
