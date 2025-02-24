@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- [Added wallet connect anchor support](https://github.com/multiversx/mx-sdk-dapp-core/pull/100)
 - [Added webview provider](https://github.com/multiversx/mx-sdk-dapp-core/pull/99)
 - [Clean-up tracking types](https://github.com/multiversx/mx-sdk-dapp-core/pull/98)
 - [Clean-up network configuration](https://github.com/multiversx/mx-sdk-dapp-core/pull/97)

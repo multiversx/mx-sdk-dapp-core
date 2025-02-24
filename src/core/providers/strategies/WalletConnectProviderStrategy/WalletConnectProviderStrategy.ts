@@ -69,11 +69,13 @@ export class WalletConnectProviderStrategy {
     this.config = config;
   }
 
-  public createProvider = async (): Promise<IProvider> => {
+  public createProvider = async (options: {
+    anchor?: HTMLElement;
+  }): Promise<IProvider> => {
     this.initialize();
     await defineCustomElements(safeWindow);
 
-    const eventBus = await this.createEventBus();
+    const eventBus = await this.createEventBus(options.anchor);
 
     if (eventBus) {
       const manager = new WalletConnectStateManager(eventBus);
@@ -154,7 +156,7 @@ export class WalletConnectProviderStrategy {
     this.config = walletConnectConfig;
   };
 
-  private createEventBus = async () => {
+  private createEventBus = async (anchor?: HTMLElement) => {
     const shouldInitiateLogin = !getIsLoggedIn();
 
     if (!shouldInitiateLogin) {
@@ -162,7 +164,8 @@ export class WalletConnectProviderStrategy {
     }
 
     const modalElement = await createUIElement<WalletConnectModal>({
-      name: 'wallet-connect-modal'
+      name: 'wallet-connect-modal',
+      anchor
     });
 
     const eventBus = await modalElement.getEventBus();
