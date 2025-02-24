@@ -73,11 +73,10 @@ export class ProviderFactory {
       }
       case ProviderTypeEnum.walletConnect: {
         const providerInstance = new WalletConnectProviderStrategy();
-        createdProvider = await providerInstance.createProvider();
+        createdProvider = await providerInstance.createProvider({ anchor });
 
         break;
       }
-
       case ProviderTypeEnum.webview: {
         const providerInstance = new WebviewProviderStrategy();
         createdProvider = await providerInstance.createProvider();
