@@ -5,6 +5,7 @@ import {
   PendingTransactionsEventsEnum
 } from 'core/managers';
 import { getAddress } from 'core/methods/account/getAddress';
+import { clearInitiatedLogins } from 'core/providers/helpers/clearInitiatedLogins';
 import { IProvider } from 'core/providers/types/providerFactory.types';
 import { PendingTransactionsModal } from 'lib/sdkDappCoreUi';
 import { ProviderErrorsEnum } from 'types';
@@ -26,6 +27,8 @@ export class ExtensionProviderStrategy {
     this.initialize();
 
     if (!this.provider) {
+      clearInitiatedLogins();
+
       this.provider = ExtensionProvider.getInstance();
       await this.provider.init();
     }

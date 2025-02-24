@@ -5,7 +5,9 @@ import {
   PendingTransactionsEventsEnum
 } from 'core/managers';
 import { getAddress } from 'core/methods/account/getAddress';
+import { clearInitiatedLogins } from 'core/providers/helpers/clearInitiatedLogins';
 import { IProvider } from 'core/providers/types/providerFactory.types';
+import { ProviderTypeEnum } from 'core/providers/types/providerFactory.types';
 import { PendingTransactionsModal } from 'lib/sdkDappCoreUi';
 import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
 import { crossWindowConfigSelector } from 'store/selectors';
@@ -40,6 +42,10 @@ export class CrossWindowProviderStrategy {
     const network = networkSelector(getState());
 
     if (!this.provider) {
+      clearInitiatedLogins({
+        skipLoginMethod: ProviderTypeEnum.crossWindow
+      });
+
       this.provider = CrossWindowProvider.getInstance();
       this.provider.init();
     }

@@ -9,6 +9,7 @@ import {
 } from 'core/managers';
 import { getAddress } from 'core/methods/account/getAddress';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
+import { clearInitiatedLogins } from 'core/providers/helpers/clearInitiatedLogins';
 import { IProvider } from 'core/providers/types/providerFactory.types';
 import {
   defineCustomElements,
@@ -61,6 +62,8 @@ export class LedgerProviderStrategy {
     }
 
     if (!this.provider) {
+      clearInitiatedLogins();
+
       const { ledgerProvider, ledgerConfig } = await new Promise<
         Awaited<ReturnType<typeof getLedgerProvider>>
       >((resolve, reject) =>

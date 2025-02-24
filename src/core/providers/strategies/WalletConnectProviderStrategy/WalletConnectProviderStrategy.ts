@@ -13,6 +13,7 @@ import {
 import { WalletConnectStateManager } from 'core/managers/WalletConnectStateManager/WalletConnectStateManager';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import { getAccountProvider } from 'core/providers/helpers/accountProvider';
+import { clearInitiatedLogins } from 'core/providers/helpers/clearInitiatedLogins';
 import { IProvider } from 'core/providers/types/providerFactory.types';
 import {
   defineCustomElements,
@@ -83,6 +84,8 @@ export class WalletConnectProviderStrategy {
     }
 
     if (!this.provider && this.config) {
+      clearInitiatedLogins();
+
       const { walletConnectProvider, dappMethods } =
         await this.createWalletConnectProvider(this.config);
 

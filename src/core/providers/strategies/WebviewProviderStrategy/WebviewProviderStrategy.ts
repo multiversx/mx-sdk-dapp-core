@@ -2,6 +2,7 @@ import { Message, Transaction } from '@multiversx/sdk-core/out';
 import { WebviewProvider } from '@multiversx/sdk-webview-provider/out/WebviewProvider';
 import { safeWindow } from 'constants/window.constants';
 import { getAddress } from 'core/methods/account/getAddress';
+import { clearInitiatedLogins } from 'core/providers/helpers/clearInitiatedLogins';
 import { IProvider } from 'core/providers/types/providerFactory.types';
 import { ProviderErrorsEnum } from 'types/provider.types';
 
@@ -27,6 +28,8 @@ export class WebviewProviderStrategy {
     this.initialize();
 
     if (!this.provider) {
+      clearInitiatedLogins();
+
       this.provider = WebviewProvider.getInstance({
         resetStateCallback: () => {
           safeWindow.localStorage?.clear?.();
