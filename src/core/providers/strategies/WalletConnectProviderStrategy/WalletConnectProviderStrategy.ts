@@ -163,10 +163,14 @@ export class WalletConnectProviderStrategy {
       return;
     }
 
-    const modalElement = await createUIElement<WalletConnectModal>({
-      name: 'wallet-connect-modal',
-      anchor
-    });
+    const modalElement = anchor
+      ? await createUIElement<WalletConnectModal>({
+          name: 'wallet-connect',
+          anchor
+        })
+      : await createUIElement<WalletConnectModal>({
+          name: 'wallet-connect-modal'
+        });
 
     const eventBus = await modalElement.getEventBus();
     return eventBus;
