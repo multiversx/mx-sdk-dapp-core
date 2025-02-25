@@ -16,6 +16,7 @@ import {
   LedgerConnectModal,
   PendingTransactionsModal
 } from 'lib/sdkDappCoreUi';
+import { SigningWarningsEnum } from 'types/enums.types';
 import { ProviderErrorsEnum } from 'types/provider.types';
 import { createUIElement } from 'utils/createUIElement';
 import { getLedgerProvider } from './helpers';
@@ -48,13 +49,13 @@ export class LedgerProviderStrategy {
     this.address = address || '';
   }
 
-  public createProvider = async (options: {
+  public createProvider = async (options?: {
     anchor?: HTMLElement;
   }): Promise<IProvider> => {
     this.initialize();
     await defineCustomElements(safeWindow);
 
-    const eventBus = await this.createEventBus(options.anchor);
+    const eventBus = await this.createEventBus(options?.anchor);
 
     if (eventBus) {
       this.manager = new LedgerConnectStateManager(eventBus);
@@ -178,34 +179,44 @@ export class LedgerProviderStrategy {
     };
   };
 
-  private signMessage = async (message: Message) => {
-    if (!this.provider || !this._signMessage) {
-      throw new Error(ProviderErrorsEnum.notInitialized);
-    }
+  private signMessage = async (message: Message): Promise<Message> => {
+    const msg = await new Promise<Awaited<Message>>(async (resolve, reject) => {
+      if (!this.provider || !this._signMessage) {
+        return reject(ProviderErrorsEnum.notInitialized);
+      }
 
-    const modalElement = await createUIElement<PendingTransactionsModal>({
-      name: 'pending-transactions-modal'
+      const modalElement = await createUIElement<PendingTransactionsModal>({
+        name: 'pending-transactions-modal'
+      });
+
+      const { eventBus, manager, onClose } =
+        await this.getModalHandlers(modalElement);
+
+      const closeModal = () => {
+        onClose();
+        reject({ message: SigningWarningsEnum.cancelled });
+      };
+
+      eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, closeModal);
+
+      manager.updateData({
+        isPending: true,
+        title: 'Message Signing',
+        subtitle: 'Check your Ledger device to sign the message'
+      });
+
+      try {
+        const signedMessage = await this._signMessage(message);
+
+        resolve(signedMessage);
+      } catch (err) {
+        reject(err);
+      } finally {
+        onClose();
+        eventBus.unsubscribe(PendingTransactionsEventsEnum.CLOSE, closeModal);
+      }
     });
-
-    const { eventBus, manager, onClose } =
-      await this.getModalHandlers(modalElement);
-
-    eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
-
-    manager.updateData({
-      isPending: true,
-      title: 'Message Signing',
-      subtitle: 'Check your Ledger device to sign the message'
-    });
-
-    try {
-      const signedMessage = await this._signMessage(message);
-
-      return signedMessage;
-    } finally {
-      onClose();
-      eventBus.unsubscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
-    }
+    return msg;
   };
 
   private getModalHandlers = async (modalElement: PendingTransactionsModal) => {
