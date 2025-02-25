@@ -7,11 +7,7 @@ import {
 } from 'core/managers';
 import { getAccount } from 'core/methods/account/getAccount';
 import { getAddress } from 'core/methods/account/getAddress';
-import { clearInitiatedLogins } from 'core/providers/helpers/clearInitiatedLogins';
-import {
-  IProvider,
-  ProviderTypeEnum
-} from 'core/providers/types/providerFactory.types';
+import { IProvider } from 'core/providers/types/providerFactory.types';
 import { PendingTransactionsModal } from 'lib/sdkDappCoreUi';
 import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
@@ -42,10 +38,6 @@ export class IFrameProviderStrategy {
     }
 
     if (!this.provider) {
-      clearInitiatedLogins({
-        skipLoginMethod: ProviderTypeEnum.metamask
-      });
-
       this.provider = IframeProvider.getInstance();
       await this.provider.init();
     }
