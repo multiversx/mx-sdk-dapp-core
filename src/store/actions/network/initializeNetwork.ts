@@ -1,3 +1,4 @@
+import { getNetworkConfigFromApi } from 'apiCalls/configuration/getNetworkConfigFromApi';
 import { getServerConfiguration } from 'apiCalls/configuration/getServerConfiguration';
 import { fallbackNetworkConfigurations } from 'constants/network.constants';
 import { emptyNetwork } from 'store/slices/network/emptyNetwork';
@@ -37,15 +38,22 @@ export const initializeNetwork = async ({
 
   const fallbackApiAddress = fallbackConfig?.apiAddress;
 
-  if (fetchConfigFromServer) {
-    const serverConfig = await getServerConfiguration(
-      customNetworkApiAddress || fallbackApiAddress
-    );
+  if (!isFoundEnv && fetchConfigFromServer) {
+    const apiAddress = customNetworkApiAddress || fallbackApiAddress;
+    const dappConfig = await getServerConfiguration(apiAddress);
 
-    if (serverConfig != null) {
+    const networkConfig = !localConfig.roundDuration
+      ? await getNetworkConfigFromApi(apiAddress)
+      : null;
+
+    if (networkConfig != null) {
+      localConfig.roundDuration = networkConfig.erd_round_duration;
+    }
+
+    if (dappConfig != null) {
       const apiConfig: NetworkType = {
-        ...fallbackConfig,
-        ...serverConfig,
+        ...localConfig,
+        ...dappConfig,
         ...customNetworkConfig
       };
 
