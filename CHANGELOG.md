@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- [Fixed cancel Ledger message signing](https://github.com/multiversx/mx-sdk-dapp-core/pull/106)
 - [Update default iframe network addresses](https://github.com/multiversx/mx-sdk-dapp-core/pull/101)
 - [Added wallet connect anchor support](https://github.com/multiversx/mx-sdk-dapp-core/pull/100)
 - [Added webview provider](https://github.com/multiversx/mx-sdk-dapp-core/pull/99)
