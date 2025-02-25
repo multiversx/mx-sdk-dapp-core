@@ -10,6 +10,7 @@ import {
 import { setProviderType } from 'store/actions/loginInfo/loginInfoActions';
 import { DappProvider } from './DappProvider/DappProvider';
 import { setAccountProvider } from './helpers/accountProvider';
+import { clearInitiatedLogins } from './helpers/clearInitiatedLogins';
 import { WebviewProviderStrategy } from './strategies/WebviewProviderStrategy';
 import {
   ICustomProvider,
@@ -103,7 +104,19 @@ export class ProviderFactory {
     const dappProvider = new DappProvider(createdProvider);
 
     setAccountProvider(dappProvider);
-    setProviderType(type as ProviderTypeEnum);
+    const providerType = type as ProviderTypeEnum;
+    setProviderType(providerType);
+
+    const shouldClearInitiatedLogins = [
+      ProviderTypeEnum.crossWindow,
+      ProviderTypeEnum.metamask,
+      ProviderTypeEnum.passkey
+    ].includes(providerType);
+
+    // Clear initiated logins and skip the login method if it's crossWindow or metamask
+    clearInitiatedLogins(
+      shouldClearInitiatedLogins ? { skipLoginMethod: providerType } : null
+    );
 
     return dappProvider;
   }

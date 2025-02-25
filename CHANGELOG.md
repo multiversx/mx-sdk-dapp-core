@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- [Added clear initiated logins on provider creation](https://github.com/multiversx/mx-sdk-dapp-core/pull/104)
 - [Fixed cancel action in cross window does not close child window](https://github.com/multiversx/mx-sdk-dapp-core/pull/103)
 - [Added wallet-connect when anchor is provided](https://github.com/multiversx/mx-sdk-dapp-core/pull/102)
 - [Update default iframe network addresses](https://github.com/multiversx/mx-sdk-dapp-core/pull/101)
