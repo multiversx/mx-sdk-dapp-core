@@ -47,17 +47,7 @@ export const initializeNetwork = async ({
     const apiAddress = customNetworkApiAddress || fallbackApiAddress;
     const dappConfig = await getServerConfiguration(apiAddress);
 
-    const needsRoundDurationForPollingInterval =
-      localConfig.chainId &&
-      ![DEVNET_CHAIN_ID, TESTNET_CHAIN_ID, MAINNET_CHAIN_ID].includes(
-        localConfig.chainId
-      ) &&
-      !localConfig.roundDuration;
-
-    const shouldGetConfig =
-      !localConfig.chainId || needsRoundDurationForPollingInterval;
-
-    const networkConfig = shouldGetConfig
+    const networkConfig = !localConfig.roundDuration
       ? await getNetworkConfigFromApi(apiAddress)
       : null;
 
