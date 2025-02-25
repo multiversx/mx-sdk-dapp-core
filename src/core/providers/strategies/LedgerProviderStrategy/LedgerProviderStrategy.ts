@@ -16,6 +16,7 @@ import {
   LedgerConnectModal,
   PendingTransactionsModal
 } from 'lib/sdkDappCoreUi';
+import { SigningWarningsEnum } from 'types/enums.types';
 import { ProviderErrorsEnum } from 'types/provider.types';
 import { createUIElement } from 'utils/createUIElement';
 import { getLedgerProvider } from './helpers';
@@ -193,7 +194,7 @@ export class LedgerProviderStrategy {
 
       const closeModal = () => {
         onClose();
-        reject('Message signing was cancelled');
+        reject({ message: SigningWarningsEnum.cancelled });
       };
 
       eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, closeModal);
@@ -208,8 +209,10 @@ export class LedgerProviderStrategy {
         const signedMessage = await this._signMessage(message);
 
         resolve(signedMessage);
+      } catch (err) {
+        reject(err);
       } finally {
-        closeModal();
+        onClose();
         eventBus.unsubscribe(PendingTransactionsEventsEnum.CLOSE, closeModal);
       }
     });

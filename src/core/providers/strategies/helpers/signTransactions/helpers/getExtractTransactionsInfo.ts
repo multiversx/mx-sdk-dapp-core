@@ -1,6 +1,6 @@
 import { getAccountFromApi } from 'apiCalls/account';
 import { getScamAddressData } from 'apiCalls/utils/getScamAddressData';
-import { SENDER_DIFFERENT_THAN_LOGGED_IN_ADDRESS } from 'constants/errorMessages.constants';
+import { SigningErrorsEnum } from 'types/enums.types';
 
 import { MultiSignTransactionType } from 'types/transactions.types';
 import { checkIsValidSender } from './checkIsValidSender';
@@ -51,8 +51,8 @@ export function getExtractTransactionsInfo({
       const isValidSender = checkIsValidSender(senderAccount, address);
 
       if (!isValidSender) {
-        console.error(SENDER_DIFFERENT_THAN_LOGGED_IN_ADDRESS);
-        throw SENDER_DIFFERENT_THAN_LOGGED_IN_ADDRESS;
+        console.error(SigningErrorsEnum.senderDifferentThanLoggedInAddress);
+        throw SigningErrorsEnum.senderDifferentThanLoggedInAddress;
       }
     }
 
