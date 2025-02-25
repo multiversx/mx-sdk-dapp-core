@@ -1,6 +1,11 @@
 import { getNetworkConfigFromApi } from 'apiCalls/configuration/getNetworkConfigFromApi';
 import { getServerConfiguration } from 'apiCalls/configuration/getServerConfiguration';
-import { fallbackNetworkConfigurations } from 'constants/network.constants';
+import {
+  DEVNET_CHAIN_ID,
+  fallbackNetworkConfigurations,
+  MAINNET_CHAIN_ID,
+  TESTNET_CHAIN_ID
+} from 'constants/network.constants';
 import { emptyNetwork } from 'store/slices/network/emptyNetwork';
 import { EnvironmentsEnum } from 'types/enums.types';
 import { NetworkType, CustomNetworkType } from 'types/network.types';
@@ -38,23 +43,34 @@ export const initializeNetwork = async ({
 
   const fallbackApiAddress = fallbackConfig?.apiAddress;
 
-  if (fetchConfigFromServer) {
+  if (!isFoundEnv && fetchConfigFromServer) {
     const apiAddress = customNetworkApiAddress || fallbackApiAddress;
-    const [dappConfig, networkConfig] = await Promise.all([
-      getServerConfiguration(apiAddress),
-      getNetworkConfigFromApi(apiAddress)
-    ]);
+    const dappConfig = await getServerConfiguration(apiAddress);
+
+    const needsRoundDurationForPollingInterval =
+      localConfig.chainId &&
+      ![DEVNET_CHAIN_ID, TESTNET_CHAIN_ID, MAINNET_CHAIN_ID].includes(
+        localConfig.chainId
+      ) &&
+      !localConfig.roundDuration;
+
+    const shouldGetConfig =
+      !localConfig.chainId || needsRoundDurationForPollingInterval;
+
+    const networkConfig = shouldGetConfig
+      ? await getNetworkConfigFromApi(apiAddress)
+      : null;
+
+    if (networkConfig != null) {
+      localConfig.roundDuration = networkConfig.erd_round_duration;
+    }
 
     if (dappConfig != null) {
       const apiConfig: NetworkType = {
-        ...fallbackConfig,
+        ...localConfig,
         ...dappConfig,
         ...customNetworkConfig
       };
-
-      if (networkConfig != null) {
-        apiConfig.roundDuration = networkConfig.erd_round_duration;
-      }
 
       initializeNetworkConfig(apiConfig);
       return apiConfig;
