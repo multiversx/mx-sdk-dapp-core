@@ -10,6 +10,7 @@ import {
 import { setProviderType } from 'store/actions/loginInfo/loginInfoActions';
 import { DappProvider } from './DappProvider/DappProvider';
 import { setAccountProvider } from './helpers/accountProvider';
+import { clearInitiatedLogins } from './helpers/clearInitiatedLogins';
 import { WebviewProviderStrategy } from './strategies/WebviewProviderStrategy';
 import {
   ICustomProvider,
@@ -104,6 +105,15 @@ export class ProviderFactory {
 
     setAccountProvider(dappProvider);
     setProviderType(type as ProviderTypeEnum);
+
+    // Clear initiated logins and skip the login method if it's crossWindow or metamask
+    clearInitiatedLogins(
+      [ProviderTypeEnum.crossWindow, ProviderTypeEnum.metamask].includes(
+        type as ProviderTypeEnum
+      )
+        ? { skipLoginMethod: type as ProviderTypeEnum }
+        : undefined
+    );
 
     return dappProvider;
   }

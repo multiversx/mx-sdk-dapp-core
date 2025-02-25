@@ -42,10 +42,6 @@ export class CrossWindowProviderStrategy {
     const network = networkSelector(getState());
 
     if (!this.provider) {
-      clearInitiatedLogins({
-        skipLoginMethod: ProviderTypeEnum.crossWindow
-      });
-
       this.provider = CrossWindowProvider.getInstance();
       this.provider.init();
     }
