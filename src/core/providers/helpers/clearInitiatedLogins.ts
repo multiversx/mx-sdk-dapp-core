@@ -2,9 +2,11 @@ import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
 import { IframeProvider } from 'lib/sdkWebWalletIframeProvider';
 import { ProviderTypeEnum } from '../types/providerFactory.types';
 
-export const clearInitiatedLogins = (props?: {
-  skipLoginMethod: ProviderTypeEnum;
-}) => {
+export const clearInitiatedLogins = (
+  props?: {
+    skipLoginMethod: ProviderTypeEnum;
+  } | null
+) => {
   Object.values(ProviderTypeEnum).forEach((method) => {
     if (method === props?.skipLoginMethod) {
       return;
@@ -19,13 +21,15 @@ export const clearInitiatedLogins = (props?: {
         break;
       }
 
-      case ProviderTypeEnum.metamask: {
+      case ProviderTypeEnum.metamask:
+      case ProviderTypeEnum.passkey: {
         const iframeProvider = IframeProvider.getInstance();
         if (iframeProvider.isInitialized()) {
           iframeProvider.dispose();
         }
         break;
       }
+
       default:
         break;
     }
