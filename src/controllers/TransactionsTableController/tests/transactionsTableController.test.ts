@@ -2,6 +2,7 @@ import { testAddress } from '__mocks__';
 import { account } from '__mocks__/data';
 import { getPersistedTokenDetails } from 'apiCalls/tokens/getPersistedTokenDetails';
 import { AssetType } from 'types/account.types';
+import { TransactionServerStatusesEnum } from 'types/enums.types';
 import {
   ServerTransactionType,
   TokenArgumentType,
@@ -14,7 +15,6 @@ import { NftEnumType } from 'types/tokens.types';
 import { timeAgo } from 'utils/operations/timeRemaining';
 import { getShardText } from 'utils/transactions/getShardText';
 import { TransactionsTableController } from '../TransactionsTableController';
-import { TransactionServerStatusesEnum } from 'types';
 
 jest.mock('apiCalls/tokens/getPersistedTokenDetails', () => ({
   getPersistedTokenDetails: jest.fn()
