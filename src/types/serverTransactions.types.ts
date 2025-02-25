@@ -1,11 +1,11 @@
 import { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import { AssetType, ScamInfoType } from './account.types';
-import { EsdtEnumType, NftEnumType } from './tokens.types';
-import { SignedTransactionType } from './transactions.types';
 import {
   TransactionBatchStatusesEnum,
   TransactionServerStatusesEnum
 } from './enums.types';
+import { EsdtEnumType, NftEnumType } from './tokens.types';
+import { SignedTransactionType } from './transactions.types';
 
 //#region server trasactions
 
