@@ -1,11 +1,6 @@
 import { getNetworkConfigFromApi } from 'apiCalls/configuration/getNetworkConfigFromApi';
 import { getServerConfiguration } from 'apiCalls/configuration/getServerConfiguration';
-import {
-  DEVNET_CHAIN_ID,
-  fallbackNetworkConfigurations,
-  MAINNET_CHAIN_ID,
-  TESTNET_CHAIN_ID
-} from 'constants/network.constants';
+import { fallbackNetworkConfigurations } from 'constants/network.constants';
 import { emptyNetwork } from 'store/slices/network/emptyNetwork';
 import { EnvironmentsEnum } from 'types/enums.types';
 import { NetworkType, CustomNetworkType } from 'types/network.types';
