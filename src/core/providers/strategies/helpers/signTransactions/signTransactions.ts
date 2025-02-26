@@ -6,11 +6,11 @@ import {
   GAS_PRICE_MODIFIER,
   MULTI_TRANSFER_EGLD_TOKEN
 } from 'constants/mvx.constants';
-import { SignTransactionsStateManager } from 'core/managers/SignTransactionsStateManager/SignTransactionsStateManager';
+import { SignTransactionsStateManager } from 'core/managers/internal/SignTransactionsStateManager/SignTransactionsStateManager';
 import {
   ISignTransactionsModalData,
   SignEventsEnum
-} from 'core/managers/SignTransactionsStateManager/types';
+} from 'core/managers/internal/SignTransactionsStateManager/types';
 import { getAddress } from 'core/methods/account/getAddress';
 import { getEgldLabel } from 'core/methods/network/getEgldLabel';
 import { cancelCrossWindowAction } from 'core/providers/helpers/cancelCrossWindowAction';

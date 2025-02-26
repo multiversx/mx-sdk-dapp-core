@@ -1,5 +1,5 @@
 import { safeWindow } from 'constants/index';
-import { ToastManager } from 'core/managers/ToastManager/ToastManager';
+import { ToastManager } from 'core/managers/internal/ToastManager/ToastManager';
 import { login } from 'core/providers/DappProvider/helpers/login/login';
 import { restoreProvider } from 'core/providers/helpers/restoreProvider';
 import { ProviderFactory } from 'core/providers/ProviderFactory';
