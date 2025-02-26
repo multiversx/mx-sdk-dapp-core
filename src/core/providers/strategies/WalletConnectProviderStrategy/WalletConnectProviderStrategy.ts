@@ -6,11 +6,10 @@ import {
   OptionalOperation
 } from '@multiversx/sdk-wallet-connect-provider/out';
 import { safeWindow } from 'constants/window.constants';
-import {
-  PendingTransactionsStateManager,
-  PendingTransactionsEventsEnum
-} from 'core/managers';
-import { WalletConnectStateManager } from 'core/managers/WalletConnectStateManager/WalletConnectStateManager';
+
+import { PendingTransactionsStateManager } from 'core/managers/internal/PendingTransactionsStateManager/PendingTransactionsStateManager';
+import { PendingTransactionsEventsEnum } from 'core/managers/internal/PendingTransactionsStateManager/types/pendingTransactions.types';
+import { WalletConnectStateManager } from 'core/managers/internal/WalletConnectStateManager/WalletConnectStateManager';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import { getAccountProvider } from 'core/providers/helpers/accountProvider';
 import { IProvider } from 'core/providers/types/providerFactory.types';

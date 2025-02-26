@@ -2,11 +2,10 @@ import { Message, Transaction } from '@multiversx/sdk-core/out';
 import { IDAppProviderOptions } from '@multiversx/sdk-dapp-utils/out';
 import { HWProvider } from '@multiversx/sdk-hw-provider';
 import { safeWindow } from 'constants/index';
-import {
-  LedgerConnectStateManager,
-  PendingTransactionsEventsEnum,
-  PendingTransactionsStateManager
-} from 'core/managers';
+
+import { LedgerConnectStateManager } from 'core/managers/internal/LedgerConnectStateManager/LedgerConnectStateManager';
+import { PendingTransactionsStateManager } from 'core/managers/internal/PendingTransactionsStateManager/PendingTransactionsStateManager';
+import { PendingTransactionsEventsEnum } from 'core/managers/internal/PendingTransactionsStateManager/types/pendingTransactions.types';
 import { getAddress } from 'core/methods/account/getAddress';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import { IProvider } from 'core/providers/types/providerFactory.types';

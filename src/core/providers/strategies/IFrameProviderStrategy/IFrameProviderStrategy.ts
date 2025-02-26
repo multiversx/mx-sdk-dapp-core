@@ -1,10 +1,9 @@
 import { Message, Transaction } from '@multiversx/sdk-core/out';
 import { IframeProvider } from '@multiversx/sdk-web-wallet-iframe-provider/out';
 import { IframeLoginTypes } from '@multiversx/sdk-web-wallet-iframe-provider/out/constants';
-import {
-  PendingTransactionsStateManager,
-  PendingTransactionsEventsEnum
-} from 'core/managers';
+
+import { PendingTransactionsStateManager } from 'core/managers/internal/PendingTransactionsStateManager/PendingTransactionsStateManager';
+import { PendingTransactionsEventsEnum } from 'core/managers/internal/PendingTransactionsStateManager/types/pendingTransactions.types';
 import { getAccount } from 'core/methods/account/getAccount';
 import { getAddress } from 'core/methods/account/getAddress';
 import { IProvider } from 'core/providers/types/providerFactory.types';
