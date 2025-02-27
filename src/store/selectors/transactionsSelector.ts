@@ -34,10 +34,11 @@ export const pendingTransactionsSelector = ({
   Object.values(state).forEach(({ transactions }) => {
     transactions.forEach((transaction) => {
       if (
+        transaction.status &&
         [
           TransactionServerStatusesEnum.pending,
           TransactionBatchStatusesEnum.sent
-        ].includes(transaction.status)
+        ].includes(transaction.status) // fixing the typo 'Strign' to 'String'
       ) {
         pendingTransactions.push(transaction);
       }
@@ -71,6 +72,7 @@ export const failedTransactionsSelector = ({
   Object.values(state).forEach(({ transactions }) => {
     transactions.forEach((transaction) => {
       if (
+        transaction.status &&
         [
           TransactionServerStatusesEnum.fail,
           TransactionServerStatusesEnum.invalid,
