@@ -28,28 +28,28 @@ export async function extractAccountFromToken({
     address
   });
 
+  if (!accountDetails.account) {
+    return accountDetails;
+  }
+
   if (accountDetails.modifiedLoginToken) {
     setLoginToken(accountDetails.modifiedLoginToken);
   }
 
-  if (accountDetails.account) {
-    // TODO remove this as is already done before this function is called
-    loginAction({
-      address: accountDetails.address,
-      providerType: provider.getType()
-    });
+  loginAction({
+    address: accountDetails.address,
+    providerType: provider.getType()
+  });
 
-    const newAccount: AccountType = {
-      ...accountDetails.account,
-      nonce: getLatestNonce(accountDetails.account)
-    };
+  const newAccount: AccountType = {
+    ...accountDetails.account,
+    nonce: getLatestNonce(accountDetails.account)
+  };
 
-    setAccount(newAccount);
-    return {
-      ...accountDetails,
-      account: newAccount
-    };
-  }
+  setAccount(newAccount);
 
-  return accountDetails;
+  return {
+    ...accountDetails,
+    account: newAccount
+  };
 }
