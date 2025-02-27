@@ -103,6 +103,9 @@ export class NotificationsFeedManager {
   private async updateNotificationsFeed() {
     const notificationsFeedElement =
       await this.createNotificationsFeedElement();
+
+    console.log('updateNotificationsFeed');
+
     if (!notificationsFeedElement) {
       return;
     }

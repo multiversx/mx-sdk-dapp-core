@@ -183,6 +183,7 @@ export class ToastManager {
 
     // Listen for VIEW_ALL event from toasts
     eventBus.subscribe(ToastEventsEnum.VIEW_ALL, () => {
+      console.log('VIEW_ALL');
       // Open the notifications feed when "View All" is clicked
       this.notificationsFeedManager.openNotificationsFeed();
     });
