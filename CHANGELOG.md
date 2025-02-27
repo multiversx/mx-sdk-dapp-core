@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- [Fixed getWindowParentOrigin.test](https://github.com/multiversx/mx-sdk-dapp-core/pull/109)
+- [Fixed getWindowParentOrigin.test](https://github.com/multiversx/mx-sdk-dapp-core/pull/111)
 - [Updated managers to use internal folder](https://github.com/multiversx/mx-sdk-dapp-core/pull/108)
 - [Added network round duration initialization](https://github.com/multiversx/mx-sdk-dapp-core/pull/107)
 - [Fixed cancel Ledger message signing](https://github.com/multiversx/mx-sdk-dapp-core/pull/106)
