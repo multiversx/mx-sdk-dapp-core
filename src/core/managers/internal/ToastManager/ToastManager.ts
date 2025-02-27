@@ -1,4 +1,5 @@
 import isEqual from 'lodash.isequal';
+import { NotificationsFeedManager } from 'core/managers/internal/NotificationsFeedManager';
 import { getExplorerAddress } from 'core/methods/network/getExplorerAddress';
 import { ToastList } from 'lib/sdkDappCoreUi';
 import {
@@ -42,6 +43,7 @@ export class ToastManager {
   private customToasts: CustomToastType[] = [];
   private successfulToastLifetime?: number;
   private unsubscribe: () => void = () => null;
+  private notificationsFeedManager: NotificationsFeedManager;
 
   store = getStore();
 
@@ -52,12 +54,18 @@ export class ToastManager {
     this.lifetimeManager = new LifetimeManager({
       successfulToastLifetime
     });
+
+    // Create the notifications feed manager
+    this.notificationsFeedManager = new NotificationsFeedManager();
   }
 
   public init() {
     const { toasts } = this.store.getState();
     this.updateTransactionToastsList(toasts);
     this.updateCustomToastList(toasts);
+
+    // Initialize the notifications feed manager
+    this.notificationsFeedManager.init();
 
     this.unsubscribe = this.store.subscribe(
       (
@@ -198,6 +206,12 @@ export class ToastManager {
       this.lifetimeManager.stop(toastId);
       removeTransactionToast(toastId);
     });
+
+    // Listen for VIEW_ALL event from toasts
+    eventBus.subscribe(ToastEventsEnum.VIEW_ALL, () => {
+      // Open the notifications feed when "View All" is clicked
+      this.notificationsFeedManager.openNotificationsFeed();
+    });
   }
 
   private async renderCustomToasts() {
@@ -227,6 +241,7 @@ export class ToastManager {
   public destroy() {
     this.unsubscribe();
     this.lifetimeManager?.destroy();
+    this.notificationsFeedManager?.destroy();
     removeAllCustomToasts();
   }
 }
