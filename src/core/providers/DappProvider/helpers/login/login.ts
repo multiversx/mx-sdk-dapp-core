@@ -12,8 +12,7 @@ import { extractAccountFromToken } from './helpers/extractAccountFromToken';
 async function loginWithoutNativeToken(provider: IProvider) {
   await provider.login();
 
-  // TODO update this when the provider will be standardized
-  const address = await provider.getAddress?.();
+  const address = await provider.getAddress();
 
   if (!address) {
     throw new Error('Address not found');
