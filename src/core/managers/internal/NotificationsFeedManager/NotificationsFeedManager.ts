@@ -1,22 +1,11 @@
 import isEqual from 'lodash.isequal';
-import { getExplorerAddress } from 'core/methods/network/getExplorerAddress';
 import { ToastList } from 'lib/sdkDappCoreUi';
 import { clearCompletedTransactions } from 'store/actions/transactions/transactionsActions';
-import {
-  getIsTransactionFailed,
-  getIsTransactionPending,
-  getIsTransactionSuccessful,
-  getIsTransactionTimedOut
-} from 'store/actions/transactions/transactionStateByStatus';
 import { getStore } from 'store/store';
-import { TransactionServerStatusesEnum } from 'types/enums.types';
 import { ProviderErrorsEnum } from 'types/provider.types';
-import { createUIElement } from 'utils/createUIElement';
-import { explorerUrlBuilder } from 'utils/transactions/explorerUrlBuilder';
-import { getExplorerLink } from 'utils/transactions/getExplorerLink';
 import { NotificationsFeedEventsEnum } from './types';
-import { getToastDataStateByStatus } from '../ToastManager/helpers/getToastDataStateByStatus';
-import { getToastProceededStatus } from '../ToastManager/helpers/getToastProceededStatus';
+import { createUiElement } from '../ToastManager/helpers/createUiElement';
+import { processTransactions } from '../ToastManager/helpers/processTransactions';
 import { ITransactionToast } from '../ToastManager/types/toast.types';
 
 export class NotificationsFeedManager {
@@ -68,123 +57,47 @@ export class NotificationsFeedManager {
 
   private async updateTransactions(toastList: any) {
     const { transactions: sessions, account } = this.store.getState();
-    // Reset processing transactions before updating
-    this.processingTransactions = [];
-    const explorerAddress = getExplorerAddress();
 
-    for (const toast of toastList.transactionToasts) {
-      const sessionTransactions = sessions[toast.toastId];
-      if (!sessionTransactions) {
-        continue;
-      }
+    // Use the shared helper to process transactions
+    const { processingTransactions, completedTransactions } =
+      processTransactions(
+        toastList,
+        sessions,
+        account,
+        this.transactionsHistory
+      );
 
-      const { startTime, toastId, endTime } = toast;
-      const { status, transactions, transactionsDisplayInfo } =
-        sessionTransactions;
-      const isPending = getIsTransactionPending(status);
-      const isTimedOut = getIsTransactionTimedOut(status);
-      const isFailed = getIsTransactionFailed(status);
-      const isSuccessful = getIsTransactionSuccessful(status);
-      const isCompleted = isFailed || isSuccessful || isTimedOut;
+    // Update local state
+    this.processingTransactions = processingTransactions;
+    this.transactionsHistory = completedTransactions;
 
-      if (isCompleted) {
-        // Add completed transactions to history if not already present
-        if (!this.transactionsHistory.some((t) => t.toastId === toastId)) {
-          const completedTransaction = this.createTransactionToast({
-            toast,
-            account,
-            status,
-            transactions,
-            transactionsDisplayInfo,
-            explorerAddress,
-            startTime,
-            endTime
-          });
-          this.transactionsHistory.push(completedTransaction);
-        }
-      } else if (isPending) {
-        // Add processing transactions
-        const transactionToast = this.createTransactionToast({
-          toast,
-          account,
-          status,
-          transactions,
-          transactionsDisplayInfo,
-          explorerAddress,
-          startTime,
-          endTime
-        });
-        this.processingTransactions.push(transactionToast);
-      }
-    }
-
-    // Only update the UI if the panel is visible or we're forcing it
+    // Only update the UI if the panel is visible
     if (this.isVisible) {
       await this.updateNotificationsFeed();
     }
   }
 
-  private createTransactionToast({
-    toast,
-    account,
-    status,
-    transactions,
-    transactionsDisplayInfo,
-    explorerAddress,
-    startTime,
-    endTime
-  }: any): ITransactionToast {
-    const { toastId } = toast;
-    const isPending = getIsTransactionPending(status);
-
-    return {
-      toastDataState: getToastDataStateByStatus({
-        address: account.address,
-        sender: transactions[0]?.sender,
-        toastId,
-        status,
-        transactionsDisplayInfo
-      }),
-      processedTransactionsStatus: getToastProceededStatus(transactions),
-      transactionProgressState: isPending
-        ? {
-            endTime,
-            startTime
-          }
-        : null,
-      toastId,
-      transactions: transactions.map(({ hash, status }: any) => ({
-        hash,
-        status: status ?? TransactionServerStatusesEnum.pending,
-        link: getExplorerLink({
-          explorerAddress,
-          to: explorerUrlBuilder.transactionDetails(hash)
-        })
-      }))
-    };
-  }
-
-  private async createNotificationsFeedElement(): Promise<ToastList | null> {
+  private async createNotificationsFeedElement(): Promise<
+    ToastList | undefined
+  > {
     if (this.notificationsFeedElement) {
       return this.notificationsFeedElement;
     }
 
     if (!this.isCreatingElement) {
       this.isCreatingElement = true;
-      this.notificationsFeedElement = await createUIElement<ToastList>({
-        name: 'notifications-feed'
-      });
+      // Use the shared helper to create the UI element
+      const element = await createUiElement<ToastList>(
+        'notifications-feed',
+        this.isVisible
+      );
 
-      // Initially hide the element if not meant to be visible
-      if (!this.isVisible && this.notificationsFeedElement) {
-        this.notificationsFeedElement.style.display = 'none';
-      }
-
+      this.notificationsFeedElement = element || undefined;
       this.isCreatingElement = false;
       return this.notificationsFeedElement;
     }
 
-    return null;
+    return undefined;
   }
 
   private async updateNotificationsFeed() {
@@ -239,24 +152,6 @@ export class NotificationsFeedManager {
         this.transactionsHistory
       );
     });
-  }
-
-  /**
-   * Trigger the "View All" action to show the full notifications feed
-   * This method can be called programmatically or bound to UI elements
-   */
-  public viewAll() {
-    const publishViewAllEvent = async () => {
-      const element = await this.createNotificationsFeedElement();
-      if (element) {
-        const eventBus = await element.getEventBus();
-        if (eventBus) {
-          eventBus.publish(NotificationsFeedEventsEnum.VIEW_ALL);
-        }
-      }
-    };
-
-    publishViewAllEvent();
   }
 
   public destroy() {

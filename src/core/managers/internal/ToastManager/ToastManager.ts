@@ -1,6 +1,5 @@
 import isEqual from 'lodash.isequal';
 import { NotificationsFeedManager } from 'core/managers/internal/NotificationsFeedManager';
-import { getExplorerAddress } from 'core/methods/network/getExplorerAddress';
 import { ToastList } from 'lib/sdkDappCoreUi';
 import {
   customToastCloseHandlersDictionary,
@@ -11,7 +10,6 @@ import {
 } from 'store/actions/toasts/toastsActions';
 import {
   getIsTransactionFailed,
-  getIsTransactionPending,
   getIsTransactionSuccessful,
   getIsTransactionTimedOut
 } from 'store/actions/transactions/transactionStateByStatus';
@@ -21,14 +19,10 @@ import {
   ToastsSliceType
 } from 'store/slices/toast/toastSlice.types';
 import { getStore } from 'store/store';
-import { TransactionServerStatusesEnum } from 'types/enums.types';
 import { ProviderErrorsEnum } from 'types/provider.types';
-import { createUIElement } from 'utils/createUIElement';
-import { explorerUrlBuilder } from 'utils/transactions/explorerUrlBuilder';
-import { getExplorerLink } from 'utils/transactions/getExplorerLink';
-import { getToastDataStateByStatus } from './helpers/getToastDataStateByStatus';
-import { getToastProceededStatus } from './helpers/getToastProceededStatus';
+import { createUiElement } from './helpers/createUiElement';
 import { LifetimeManager } from './helpers/LifetimeManager';
+import { processTransactions } from './helpers/processTransactions';
 import { ITransactionToast, ToastEventsEnum } from './types';
 
 interface IToastManager {
@@ -115,19 +109,25 @@ export class ToastManager {
 
   private async updateTransactionToastsList(toastList: ToastsSliceType) {
     const { transactions: sessions, account } = this.store.getState();
-    this.transactionToasts = [];
-    const explorerAddress = getExplorerAddress();
 
+    // Use the shared helper to process transactions
+    const { processingTransactions } = processTransactions(
+      toastList,
+      sessions,
+      account
+    );
+
+    this.transactionToasts = processingTransactions;
+
+    // Start lifetime management for completed transactions
     for (const toast of toastList.transactionToasts) {
       const sessionTransactions = sessions[toast.toastId];
       if (!sessionTransactions) {
         continue;
       }
 
-      const { startTime, toastId, endTime } = toast;
-      const { status, transactions, transactionsDisplayInfo } =
-        sessionTransactions;
-      const isPending = getIsTransactionPending(status);
+      const { toastId } = toast;
+      const { status } = sessionTransactions;
       const isTimedOut = getIsTransactionTimedOut(status);
       const isFailed = getIsTransactionFailed(status);
       const isSuccessful = getIsTransactionSuccessful(status);
@@ -136,54 +136,28 @@ export class ToastManager {
       if (isCompleted && this.successfulToastLifetime) {
         this.lifetimeManager.start(toastId);
       }
-
-      const transactionToast: ITransactionToast = {
-        toastDataState: getToastDataStateByStatus({
-          address: account.address,
-          sender: transactions[0]?.sender,
-          toastId: toast.toastId,
-          status,
-          transactionsDisplayInfo
-        }),
-        processedTransactionsStatus: getToastProceededStatus(transactions),
-        transactionProgressState: isPending
-          ? {
-              endTime,
-              startTime
-            }
-          : null,
-        toastId,
-        transactions: transactions.map(({ hash, status }) => ({
-          hash,
-          status: status ?? TransactionServerStatusesEnum.pending,
-          link: getExplorerLink({
-            explorerAddress,
-            to: explorerUrlBuilder.transactionDetails(hash)
-          })
-        }))
-      };
-
-      this.transactionToasts.push(transactionToast);
     }
 
     await this.renderToasts();
   }
 
-  private async createToastListElement(): Promise<ToastList | null> {
+  private async createToastListElement(): Promise<ToastList | undefined> {
     if (this.toastsElement) {
       return this.toastsElement;
     }
 
     if (!this.isCreatingElement) {
       this.isCreatingElement = true;
-      this.toastsElement = await createUIElement<ToastList>({
-        name: 'toast-list'
-      });
+
+      // Use the shared helper to create the UI element
+      const element = await createUiElement<ToastList>('toast-list', true);
+
+      this.toastsElement = element || undefined;
       this.isCreatingElement = false;
       return this.toastsElement;
     }
 
-    return null;
+    return undefined;
   }
 
   private async renderToasts() {
