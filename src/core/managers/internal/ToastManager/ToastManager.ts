@@ -181,9 +181,8 @@ export class ToastManager {
       removeTransactionToast(toastId);
     });
 
-    // Listen for VIEW_ALL event from toasts
-    eventBus.subscribe(ToastEventsEnum.VIEW_ALL, () => {
-      console.log('VIEW_ALL');
+    // Listen for OPEN_NOTIFICATIONS_FEED event from toasts
+    eventBus.subscribe(ToastEventsEnum.OPEN_NOTIFICATIONS_FEED, () => {
       // Open the notifications feed when "View All" is clicked
       this.notificationsFeedManager.openNotificationsFeed();
     });

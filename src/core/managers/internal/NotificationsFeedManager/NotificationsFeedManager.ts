@@ -1,5 +1,5 @@
 import isEqual from 'lodash.isequal';
-import { ToastList } from 'lib/sdkDappCoreUi';
+import { NotificationsFeed } from 'lib/sdkDappCoreUi';
 import { clearCompletedTransactions } from 'store/actions/transactions/transactionsActions';
 import { getStore } from 'store/store';
 import { ProviderErrorsEnum } from 'types/provider.types';
@@ -10,7 +10,7 @@ import { ITransactionToast } from '../ToastManager/types/toast.types';
 
 export class NotificationsFeedManager {
   private isCreatingElement: boolean = false;
-  private notificationsFeedElement: ToastList | undefined;
+  private notificationsFeedElement: NotificationsFeed | undefined;
   private processingTransactions: ITransactionToast[] = [];
   private transactionsHistory: ITransactionToast[] = [];
   private unsubscribe: () => void = () => null;
@@ -47,6 +47,7 @@ export class NotificationsFeedManager {
    */
   public openNotificationsFeed() {
     this.isVisible = true;
+
     if (this.notificationsFeedElement) {
       this.notificationsFeedElement.style.display = 'block';
     } else {
@@ -78,7 +79,7 @@ export class NotificationsFeedManager {
   }
 
   private async createNotificationsFeedElement(): Promise<
-    ToastList | undefined
+    NotificationsFeed | undefined
   > {
     if (this.notificationsFeedElement) {
       return this.notificationsFeedElement;
@@ -87,7 +88,7 @@ export class NotificationsFeedManager {
     if (!this.isCreatingElement) {
       this.isCreatingElement = true;
       // Use the shared helper to create the UI element
-      const element = await createUiElement<ToastList>(
+      const element = await createUiElement<NotificationsFeed>(
         'notifications-feed',
         this.isVisible
       );
@@ -111,9 +112,14 @@ export class NotificationsFeedManager {
     }
 
     const eventBus = await notificationsFeedElement.getEventBus();
+
     if (!eventBus) {
       throw new Error(ProviderErrorsEnum.eventBusError);
     }
+
+    console.log('processingTransactions', this.processingTransactions);
+
+    eventBus.publish(NotificationsFeedEventsEnum.OPEN_NOTIFICATIONS_FEED);
 
     // Send processing transactions update to the notifications-feed component
     eventBus.publish(
@@ -127,34 +133,53 @@ export class NotificationsFeedManager {
       this.transactionsHistory
     );
 
-    // Listen for VIEW_ALL event
-    eventBus.subscribe(NotificationsFeedEventsEnum.VIEW_ALL, () => {
-      this.openNotificationsFeed();
-    });
-
-    // Listen for CLOSE event
-    eventBus.subscribe(NotificationsFeedEventsEnum.CLOSE, () => {
-      // Close the notifications-feed component
-      if (this.notificationsFeedElement) {
-        this.notificationsFeedElement.style.display = 'none';
-        this.isVisible = false;
+    // Listen for OPEN_NOTIFICATIONS_FEED event
+    eventBus.subscribe(
+      NotificationsFeedEventsEnum.OPEN_NOTIFICATIONS_FEED,
+      () => {
+        this.openNotificationsFeed();
       }
-    });
+    );
 
-    // Listen for CLEAR event
-    eventBus.subscribe(NotificationsFeedEventsEnum.CLEAR, () => {
-      // Clear all completed transactions from the store
-      clearCompletedTransactions();
+    // Listen for CLOSE_NOTIFICATIONS_FEED event
+    eventBus.subscribe(
+      NotificationsFeedEventsEnum.CLOSE_NOTIFICATIONS_FEED,
+      () => {
+        // Close the notifications-feed component
+        if (this.notificationsFeedElement) {
+          this.notificationsFeedElement.style.display = 'none';
+          this.isVisible = false;
+        }
+      }
+    );
 
-      // Clear the local history
-      this.transactionsHistory = [];
+    // Listen for CLEAR_NOTIFICATIONS_FEED_HISTORY event
+    eventBus.subscribe(
+      NotificationsFeedEventsEnum.CLEAR_NOTIFICATIONS_FEED_HISTORY,
+      () => {
+        // Clear all completed transactions from the store
+        clearCompletedTransactions();
 
-      // Update the notifications-feed component
-      eventBus.publish(
-        NotificationsFeedEventsEnum.TRANSACTIONS_HISTORY_UPDATE,
-        this.transactionsHistory
-      );
-    });
+        // Clear the local history
+        this.transactionsHistory = [];
+
+        // Update the notifications-feed component
+        eventBus.publish(
+          NotificationsFeedEventsEnum.TRANSACTIONS_HISTORY_UPDATE,
+          this.transactionsHistory
+        );
+      }
+    );
+  }
+
+  /**
+   * Trigger the "View All" action to show the full notifications feed
+   * This method can be called programmatically or bound to UI elements
+   */
+  public async viewAll() {
+    // Directly call openNotificationsFeed instead of publishing an event
+    // to avoid circular event handling
+    this.openNotificationsFeed();
   }
 
   public destroy() {
