@@ -1,79 +1,57 @@
+import { isServerTransactionPending } from 'store/actions/transactions/transactionStateByStatus';
 import { TransactionServerStatusesEnum } from 'types/enums.types';
+import { SignedTransactionType } from 'types/transactions.types';
 import { getToastProceededStatus } from '../getToastProceededStatus';
 import { createMockTransaction } from './mocks/mockTypes';
 
-// Mock the function to avoid type issues
-jest.mock('../getToastProceededStatus', () => ({
-  getToastProceededStatus: jest.fn().mockImplementation((transactions) => {
-    if (transactions.length === 0) {
-      return { status: 'pending', withTransactionsHidden: false };
-    }
-
-    const hasPending = transactions.some(
-      (tx) => tx.status === TransactionServerStatusesEnum.pending || !tx.status
-    );
-
-    const hasFailed = transactions.some(
-      (tx) => tx.status === TransactionServerStatusesEnum.fail
-    );
-
-    const hasSuccess = transactions.some(
-      (tx) => tx.status === TransactionServerStatusesEnum.success
-    );
-
-    let status = 'pending';
-
-    if (hasPending) {
-      status = 'pending';
-    } else if (hasFailed) {
-      status = 'fail';
-    } else if (hasSuccess) {
-      status = 'success';
-    }
-
-    return {
-      status,
-      withTransactionsHidden: transactions.length >= 6
-    };
-  })
+// Mock the transaction status checking function
+jest.mock('store/actions/transactions/transactionStateByStatus', () => ({
+  isServerTransactionPending: jest.fn()
 }));
 
 describe('getToastProceededStatus', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Default behavior for isServerTransactionPending
+    (isServerTransactionPending as jest.Mock).mockImplementation(
+      (status) => status === TransactionServerStatusesEnum.pending
+    );
   });
 
-  it('should return pending for a single pending transaction', () => {
+  it('should return proper message for a single pending transaction', () => {
     const transactions = [
       createMockTransaction('tx-1', TransactionServerStatusesEnum.pending)
     ];
 
+    (isServerTransactionPending as jest.Mock).mockReturnValue(true);
+
     const result = getToastProceededStatus(transactions);
 
-    expect(result.status).toBe('pending');
-    expect(result.withTransactionsHidden).toBe(false);
+    expect(result).toContain('0 / 1 transactions processed');
   });
 
-  it('should return success for a single successful transaction', () => {
+  it('should return proper message for a single successful transaction', () => {
     const transactions = [
       createMockTransaction('tx-1', TransactionServerStatusesEnum.success)
     ];
 
+    (isServerTransactionPending as jest.Mock).mockReturnValue(false);
+
     const result = getToastProceededStatus(transactions);
 
-    expect(result.status).toBe('success');
-    expect(result.withTransactionsHidden).toBe(false);
+    expect(result).toContain('Transaction processed');
   });
 
-  it('should return fail for a single failed transaction', () => {
+  it('should return proper message for a single failed transaction', () => {
     const transactions = [
       createMockTransaction('tx-1', TransactionServerStatusesEnum.fail)
     ];
 
+    (isServerTransactionPending as jest.Mock).mockReturnValue(false);
+
     const result = getToastProceededStatus(transactions);
 
-    expect(result.status).toBe('fail');
-    expect(result.withTransactionsHidden).toBe(false);
+    expect(result).toContain('Transaction processed');
   });
 
   it('should handle multiple transactions with all pending', () => {
@@ -82,98 +60,78 @@ describe('getToastProceededStatus', () => {
       createMockTransaction('tx-2', TransactionServerStatusesEnum.pending)
     ];
 
+    (isServerTransactionPending as jest.Mock).mockReturnValue(true);
+
     const result = getToastProceededStatus(transactions);
 
-    expect(result.status).toBe('pending');
-    expect(result.withTransactionsHidden).toBe(false);
+    expect(result).toContain('0 / 2 transactions processed');
   });
 
-  it('should handle multiple transactions with all success', () => {
+  it('should handle multiple transactions with all processed', () => {
     const transactions = [
       createMockTransaction('tx-1', TransactionServerStatusesEnum.success),
       createMockTransaction('tx-2', TransactionServerStatusesEnum.success)
     ];
 
+    (isServerTransactionPending as jest.Mock).mockReturnValue(false);
+
     const result = getToastProceededStatus(transactions);
 
-    expect(result.status).toBe('success');
-    expect(result.withTransactionsHidden).toBe(false);
+    expect(result).toContain('2 / 2 transactions processed');
   });
 
-  it('should handle multiple transactions with mixed status (with pending)', () => {
+  it('should handle multiple transactions with mixed status', () => {
     const transactions = [
       createMockTransaction('tx-1', TransactionServerStatusesEnum.success),
       createMockTransaction('tx-2', TransactionServerStatusesEnum.pending)
     ];
 
-    const result = getToastProceededStatus(transactions);
-
-    // Should prioritize pending status when mixed
-    expect(result.status).toBe('pending');
-    expect(result.withTransactionsHidden).toBe(false);
-  });
-
-  it('should handle multiple transactions with mixed status (success and fail)', () => {
-    const transactions = [
-      createMockTransaction('tx-1', TransactionServerStatusesEnum.success),
-      createMockTransaction('tx-2', TransactionServerStatusesEnum.fail)
-    ];
+    // Simulate one pending, one not pending
+    (isServerTransactionPending as jest.Mock).mockImplementation(
+      (status) => status === TransactionServerStatusesEnum.pending
+    );
 
     const result = getToastProceededStatus(transactions);
 
-    // Should prioritize fail status when mixed with success
-    expect(result.status).toBe('fail');
-    expect(result.withTransactionsHidden).toBe(false);
+    expect(result).toContain('1 / 2 transactions processed');
   });
 
-  it('should handle multiple transactions with mixed status (all types)', () => {
+  it('should handle multiple transactions with all types', () => {
     const transactions = [
       createMockTransaction('tx-1', TransactionServerStatusesEnum.success),
       createMockTransaction('tx-2', TransactionServerStatusesEnum.pending),
       createMockTransaction('tx-3', TransactionServerStatusesEnum.fail)
     ];
 
-    const result = getToastProceededStatus(transactions);
-
-    // Should prioritize pending status
-    expect(result.status).toBe('pending');
-    expect(result.withTransactionsHidden).toBe(false);
-  });
-
-  it('should set withTransactionsHidden to true when many transactions', () => {
-    const transactions = Array(6)
-      .fill(0)
-      .map((_, index) =>
-        createMockTransaction(
-          `tx-${index}`,
-          TransactionServerStatusesEnum.pending
-        )
-      );
+    // Simulate pending check based on status
+    (isServerTransactionPending as jest.Mock).mockImplementation(
+      (status) => status === TransactionServerStatusesEnum.pending
+    );
 
     const result = getToastProceededStatus(transactions);
 
-    expect(result.withTransactionsHidden).toBe(true);
+    expect(result).toContain('2 / 3 transactions processed');
   });
 
   it('should handle empty transactions array', () => {
-    const transactions = [];
+    const transactions: SignedTransactionType[] = [];
 
     const result = getToastProceededStatus(transactions);
 
-    expect(result.status).toBe('pending');
-    expect(result.withTransactionsHidden).toBe(false);
+    expect(result).toContain('0 / 0 transactions processed');
   });
 
   it('should handle transactions without status', () => {
-    // Create transaction without explicitly setting status (will default to pending)
+    // Create transaction without explicitly setting status
     const transactions = [
       { ...createMockTransaction('tx-1'), status: undefined }
     ];
 
+    // Default behavior for undefined status
+    (isServerTransactionPending as jest.Mock).mockReturnValue(true);
+
     const result = getToastProceededStatus(transactions);
 
-    // Should default to pending
-    expect(result.status).toBe('pending');
-    expect(result.withTransactionsHidden).toBe(false);
+    expect(result).toContain('0 / 1 transactions processed');
   });
 });

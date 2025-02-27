@@ -26,6 +26,30 @@ export interface MockToastsSlice {
 }
 
 /**
+ * Type definitions for mock types to ensure compatibility
+ */
+export interface MockTransactionToast {
+  toastId: string;
+  processedTransactionsStatus?: string;
+  transactions: SignedTransactionType[];
+  toastDataState: {
+    id: string;
+    icon: string;
+    hasCloseButton: boolean;
+    title: string;
+    iconClassName?: string;
+  };
+}
+
+/**
+ * Types for toast proceeded status
+ */
+export interface ToastProceededStatusType {
+  status: string;
+  withTransactionsHidden: boolean;
+}
+
+/**
  * Create a mock signed transaction object
  */
 export const createMockTransaction = (
@@ -43,7 +67,9 @@ export const createMockTransaction = (
   receiver: 'mock-receiver',
   gasPrice: 1000000000,
   gasLimit: 50000,
-  data: ''
+  data: '',
+  signature: 'mock-signature',
+  guardian: 'mock-guardian'
 });
 
 /**
@@ -77,9 +103,40 @@ export const createMockSessions = (
         transactions.length > 0
           ? transactions
           : [createMockTransaction(`tx-${index}`)],
-      transactionsDisplayInfo: { title: `Transaction ${index + 1}` }
+      transactionsDisplayInfo: {
+        title: `Transaction ${index + 1}`,
+        successMessage: 'Success',
+        errorMessage: 'Error',
+        processingMessage: 'Processing',
+        pendingMessage: 'Pending'
+      }
     };
   });
 
   return result;
 };
+
+/**
+ * Create a mock transaction toast
+ */
+export const createMockTransactionToast = (
+  toastId: string,
+  status: string = 'pending'
+): MockTransactionToast => ({
+  toastId,
+  processedTransactionsStatus: status,
+  transactions: [createMockTransaction(`tx-${toastId}`)],
+  toastDataState: {
+    id: toastId,
+    icon:
+      status === 'pending'
+        ? 'pending'
+        : status === 'success'
+          ? 'check'
+          : 'error',
+    hasCloseButton: status !== 'pending',
+    title: `${status.charAt(0).toUpperCase() + status.slice(1)} Transaction`,
+    iconClassName:
+      status === 'success' ? 'success' : status === 'fail' ? 'error' : undefined
+  }
+});
