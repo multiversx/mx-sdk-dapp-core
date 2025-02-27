@@ -112,10 +112,6 @@ export class EmptyProvider implements IProvider {
     throw new Error(notInitializedError('getAddress'));
   }
 
-  getTokenLoginSignature(): string | undefined {
-    throw new Error(notInitializedError('getSignature'));
-  }
-
   getType(): ProviderTypeEnum {
     return ProviderTypeEnum.none;
   }
