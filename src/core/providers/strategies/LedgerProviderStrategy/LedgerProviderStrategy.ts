@@ -184,6 +184,7 @@ export class LedgerProviderStrategy {
         return reject(ProviderErrorsEnum.notInitialized);
       }
 
+      // TODO: extract this to a separate method for all providers
       const modalElement = await createUIElement<PendingTransactionsModal>({
         name: 'pending-transactions-modal'
       });
