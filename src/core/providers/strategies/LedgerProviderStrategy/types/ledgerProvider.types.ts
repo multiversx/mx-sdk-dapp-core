@@ -1,5 +1,5 @@
 import { IProviderAccount } from '@multiversx/sdk-wallet-connect-provider/out';
-import { LedgerConnectStateManager } from 'core/managers';
+import { LedgerConnectStateManager } from 'core/managers/internal/LedgerConnectStateManager/LedgerConnectStateManager';
 import { IEventBus } from 'types/manager.types';
 import { ILedgerConnectModalData } from './ledger.types';
 

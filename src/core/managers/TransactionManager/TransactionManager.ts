@@ -74,7 +74,12 @@ export class TransactionManager {
       transactionsDisplayInfo?: TransactionsDisplayInfoType;
     } = { disableToasts: false }
   ): Promise<string> => {
-    const flatTransactions = this.sequentialToFlatArray(sentTransactions);
+    const flatTransactions = this.sequentialToFlatArray(sentTransactions).map(
+      (transaction) => ({
+        ...transaction,
+        status: transaction.status ?? TransactionServerStatusesEnum.pending
+      })
+    );
 
     const status = getTransactionsSessionStatus(flatTransactions);
 

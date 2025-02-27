@@ -8,7 +8,7 @@ import { ResultType } from './serverTransactions.types';
 
 export interface SignedTransactionType extends IPlainTransactionObject {
   hash: string;
-  status: TransactionServerStatusesEnum | TransactionBatchStatusesEnum;
+  status?: TransactionServerStatusesEnum | TransactionBatchStatusesEnum;
   inTransit?: boolean;
 }
 

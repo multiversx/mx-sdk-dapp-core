@@ -25,7 +25,7 @@ type BaseDappConfigType = {
 
 export type EnvironmentDappConfigType = BaseDappConfigType & {
   /**
-   * If passed in, will automatically initialize the network with the given environment.
+   * If passed in, will automatically initialize the network with the given environment and skip fetching `/dapp/config` data from server.
    */
   environment: EnvironmentsEnum;
   network?: CustomNetworkType;

@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 - [Fixed minor TODOs](https://github.com/multiversx/mx-sdk-dapp-core/pull/102)
+- [Updated managers to use internal folder](https://github.com/multiversx/mx-sdk-dapp-core/pull/108)
+- [Added network round duration initialization](https://github.com/multiversx/mx-sdk-dapp-core/pull/107)
+- [Fixed cancel Ledger message signing](https://github.com/multiversx/mx-sdk-dapp-core/pull/106)
+- [Fixed websocket connection error handling](https://github.com/multiversx/mx-sdk-dapp-core/pull/105)
+- [Added clear initiated logins on provider creation](https://github.com/multiversx/mx-sdk-dapp-core/pull/104)
+- [Fixed cancel action in cross window does not close child window](https://github.com/multiversx/mx-sdk-dapp-core/pull/103)
 - [Added wallet-connect when anchor is provided](https://github.com/multiversx/mx-sdk-dapp-core/pull/102)
 - [Update default iframe network addresses](https://github.com/multiversx/mx-sdk-dapp-core/pull/101)
 - [Added wallet connect anchor support](https://github.com/multiversx/mx-sdk-dapp-core/pull/100)

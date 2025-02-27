@@ -20,9 +20,11 @@ import {
   ToastsSliceType
 } from 'store/slices/toast/toastSlice.types';
 import { getStore } from 'store/store';
-import { ProviderErrorsEnum } from 'types';
-import { explorerUrlBuilder, getExplorerLink } from 'utils';
+import { TransactionServerStatusesEnum } from 'types/enums.types';
+import { ProviderErrorsEnum } from 'types/provider.types';
 import { createUIElement } from 'utils/createUIElement';
+import { explorerUrlBuilder } from 'utils/transactions/explorerUrlBuilder';
+import { getExplorerLink } from 'utils/transactions/getExplorerLink';
 import { getToastDataStateByStatus } from './helpers/getToastDataStateByStatus';
 import { getToastProceededStatus } from './helpers/getToastProceededStatus';
 import { LifetimeManager } from './helpers/LifetimeManager';
@@ -145,7 +147,7 @@ export class ToastManager {
         toastId,
         transactions: transactions.map(({ hash, status }) => ({
           hash,
-          status,
+          status: status ?? TransactionServerStatusesEnum.pending,
           link: getExplorerLink({
             explorerAddress,
             to: explorerUrlBuilder.transactionDetails(hash)

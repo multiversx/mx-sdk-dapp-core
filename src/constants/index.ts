@@ -1,5 +1,4 @@
 export * from './browser.constants';
-export * from './errorMessages.constants';
 export * from './ledger.constants';
 export * from './mvx.constants';
 export * from './network.constants';

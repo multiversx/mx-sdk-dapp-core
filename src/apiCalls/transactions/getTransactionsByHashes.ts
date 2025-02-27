@@ -42,7 +42,7 @@ export const getTransactionsByHashes = async (
         | TransactionBatchStatusesEnum,
       invalidTransaction: txOnNetwork == null,
       results: txOnNetwork?.results ?? [],
-      previousStatus: transaction.status,
+      previousStatus: transaction.status?.toString() || '',
       hasStatusChanged: Boolean(
         txOnNetwork && txOnNetwork.status !== transaction.status
       )

@@ -265,13 +265,13 @@ It's important to initialize it on app load (this is take care of by `initApp`),
 If you need to create a custom signing provider, make sure to extend the `IProvider` interface and implement all required methods (see example [here](https://github.com/multiversx/mx-template-dapp/tree/main/src/provider)). Next step would be to include it in the `customProviders` array in the `initApp` method or add it to the [window object](https://github.com/multiversx/mx-template-dapp/tree/main/src/initConfig). Last step is to login using the custom provider.
 
 ```typescript
-export { ProviderTypeEnum } from '@multiversx/sdk-dapp-core/out/core/providers/types/providerFactory.types';
+import { ProviderTypeEnum } from '@multiversx/sdk-dapp-core/out/core/providers/types/providerFactory.types';
 
 const ADDITIONAL_PROVIDERS = {
   myCustomProvider: 'myCustomProvider'
 } as const;
 
-// do this if you want to referece it later in your code
+// do this if you want to reference it later in your code
 const ExtendedProviders = {
   ...ProviderTypeEnum,
   ...ADDITIONAL_PROVIDERS
@@ -385,6 +385,38 @@ const sessionId = await transactionManager.track(sentTransactions, {
     processingMessage: 'Staking in progress'
   }
 }); 
+```
+
+**Tracking transactions without being logged in**
+
+If your application needs to track transactions sent by a server and the user does not need to login to see the outcome of these transactions, there are several steps that you need to do to enable this process.
+
+Step 1. Enabling the tracking mechanism
+
+By default the tracking mechanism is enabled only after the user logs in. That is the moment when the WebSocket connection is established. If you want to enable tracking before the user logs in, you need to call the `trackTransactions` method from the `core/methods/trackTransactions` folder. This method will enable a polling mechanism.
+
+```typescript
+import { trackTransactions } from '@multiversx/sdk-dapp-core/out/core/methods/trackTransactions/trackTransactions';
+
+initApp(config).then(async () => {
+  await trackTransactions(); // enable here since by default tracking will be enabled only after login
+  render(() => <App />, root!); 
+});
+```
+
+Then, you can track transactions by calling the `track` method from the `TransactionManager` class with a plain transaction containing the transaction hash.
+
+```typescript
+import { Transaction, TransactionsConverter } from '@multiversx/sdk-core/out';
+
+const tManager = TransactionManager.getInstance();
+const txConverter = new TransactionsConverter();
+const transaction = txConverter.plainObjectToTransaction(signedTx);
+
+const hash = transaction.getHash().toString(); // get the transaction hash
+
+const plainTransaction = { ...transaction.toPlainObject(), hash };
+await tManager.track([plainTransaction]);
 ```
 
 #### Advanced Usage

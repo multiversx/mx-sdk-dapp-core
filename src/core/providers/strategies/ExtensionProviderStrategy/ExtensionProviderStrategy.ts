@@ -1,13 +1,12 @@
 import { Message, Transaction } from '@multiversx/sdk-core/out';
 import { ExtensionProvider } from '@multiversx/sdk-extension-provider/out/extensionProvider';
-import {
-  PendingTransactionsStateManager,
-  PendingTransactionsEventsEnum
-} from 'core/managers';
+import { PendingTransactionsStateManager } from 'core/managers/internal/PendingTransactionsStateManager/PendingTransactionsStateManager';
+import { PendingTransactionsEventsEnum } from 'core/managers/internal/PendingTransactionsStateManager/types/pendingTransactions.types';
+
 import { getAddress } from 'core/methods/account/getAddress';
 import { IProvider } from 'core/providers/types/providerFactory.types';
 import { PendingTransactionsModal } from 'lib/sdkDappCoreUi';
-import { ProviderErrorsEnum } from 'types';
+import { ProviderErrorsEnum } from 'types/provider.types';
 import { createUIElement } from 'utils/createUIElement';
 
 export class ExtensionProviderStrategy {
