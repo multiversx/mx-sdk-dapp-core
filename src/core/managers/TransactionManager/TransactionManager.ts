@@ -173,7 +173,7 @@ export class TransactionManager {
       status: TransactionServerStatusesEnum.pending
     };
 
-    // TODO: Remove when the protocol supports usernames for guardian transactions
+    // Remove when the protocol supports usernames for guardian transactions
     if (isGuardianTx({ data: parsedTransaction.data })) {
       delete parsedTransaction.senderUsername;
       delete parsedTransaction.receiverUsername;
