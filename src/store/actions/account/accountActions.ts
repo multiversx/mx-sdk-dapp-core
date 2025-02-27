@@ -28,7 +28,6 @@ export const setAccount = (account: AccountType) => {
   );
 };
 
-// TODO: check if needed
 export const setLedgerAccount = (ledgerAccount: LedgerAccountType | null) =>
   getStore().setState(
     ({ account: state }) => {
@@ -36,25 +35,6 @@ export const setLedgerAccount = (ledgerAccount: LedgerAccountType | null) =>
     },
     false,
     'setLedgerAccount'
-  );
-
-// TODO: check if needed
-export const updateLedgerAccount = ({
-  index,
-  address
-}: {
-  index: LedgerAccountType['index'];
-  address: LedgerAccountType['address'];
-}) =>
-  getStore().setState(
-    ({ account: state }) => {
-      if (state.ledgerAccount) {
-        state.ledgerAccount.address = address;
-        state.ledgerAccount.index = index;
-      }
-    },
-    false,
-    'updateLedgerAccount'
   );
 
 export const setWalletConnectAccount = (walletConnectAccount: string | null) =>

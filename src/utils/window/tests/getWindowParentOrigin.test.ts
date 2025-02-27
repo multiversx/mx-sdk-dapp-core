@@ -1,13 +1,29 @@
+// Mock the safeWindow constant
+jest.mock('constants/window.constants', () => {
+  let mockSafeWindow = window;
+  return {
+    get safeWindow() {
+      return mockSafeWindow;
+    },
+    set safeWindow(value) {
+      mockSafeWindow = value;
+    }
+  };
+});
+
 describe('getWindowParentOrigin', () => {
-  let windowSpy: jest.SpyInstance;
+  let constants: any;
 
   beforeEach(() => {
-    windowSpy = jest.spyOn(window, 'window', 'get');
+    // Import the mocked constants module
+    constants = require('constants/window.constants');
+    // Reset to default window
+    constants.safeWindow = window;
   });
 
   afterEach(() => {
-    windowSpy.mockRestore();
     jest.clearAllMocks();
+    jest.resetModules();
   });
 
   it('should return origin from document.referrer when available', () => {
@@ -33,11 +49,17 @@ describe('getWindowParentOrigin', () => {
       1: 'https://second.com'
     };
 
-    windowSpy.mockImplementation(() => ({
+    const mockWindow = {
+      document: {
+        referrer: ''
+      },
       location: {
         ancestorOrigins: mockAncestorOrigins
       }
-    }));
+    };
+
+    // Set the mock safeWindow
+    constants.safeWindow = mockWindow;
 
     const { getWindowParentOrigin } = require('../getWindowParentOrigin');
     expect(getWindowParentOrigin()).toBe('https://second.com');
@@ -49,11 +71,17 @@ describe('getWindowParentOrigin', () => {
       value: ''
     });
 
-    windowSpy.mockImplementation(() => ({
+    const mockWindow = {
+      document: {
+        referrer: ''
+      },
       location: {
         ancestorOrigins: { length: 0 }
       }
-    }));
+    };
+
+    // Set the mock safeWindow
+    constants.safeWindow = mockWindow;
 
     const { getWindowParentOrigin } = require('../getWindowParentOrigin');
     expect(getWindowParentOrigin()).toBe('');
