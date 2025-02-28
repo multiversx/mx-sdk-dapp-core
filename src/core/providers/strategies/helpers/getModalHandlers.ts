@@ -19,11 +19,11 @@ export async function getModalHandlers<T>(props?: {
   const manager = new PendingTransactionsStateManager(eventBus);
 
   const onClose = async (shouldCancelAction = true) => {
-    if (shouldCancelAction) {
-      await props?.cancelAction?.();
-    }
-
     manager.closeAndReset();
+
+    if (shouldCancelAction && props?.cancelAction) {
+      await props.cancelAction();
+    }
   };
   return { eventBus, manager, onClose };
 }

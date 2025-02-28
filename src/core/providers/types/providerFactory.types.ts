@@ -39,6 +39,19 @@ export enum ProviderTypeEnum {
   none = ''
 }
 
+export const providerLabels: Record<ProviderTypeEnum, string> = {
+  [ProviderTypeEnum.iframe]: 'Linked Wallet',
+  [ProviderTypeEnum.crossWindow]: 'Web Wallet',
+  [ProviderTypeEnum.extension]: 'De-Fi Wallet',
+  [ProviderTypeEnum.walletConnect]: 'xPortal Wallet',
+  [ProviderTypeEnum.ledger]: 'Ledger Device',
+  [ProviderTypeEnum.opera]: 'Opera Wallet',
+  [ProviderTypeEnum.metamask]: 'MetaMask Wallet',
+  [ProviderTypeEnum.passkey]: 'Passkey Wallet',
+  [ProviderTypeEnum.webview]: 'App',
+  [ProviderTypeEnum.none]: ''
+};
+
 export interface IProviderFactory<
   T extends ProviderTypeEnum = ProviderTypeEnum
 > {

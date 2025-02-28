@@ -1,31 +1,28 @@
 import { Message } from '@multiversx/sdk-core/out';
 import { PendingTransactionsEventsEnum } from 'core/managers/internal/PendingTransactionsStateManager/types/pendingTransactions.types';
 import { SigningWarningsEnum } from 'types/enums.types';
-import { ProviderErrorsEnum } from 'types/provider.types';
 import { getModalHandlers } from '../getModalHandlers';
 
 type SignMessagePropsType<T> = {
   message: Message;
   handleSignMessage: (message: Message) => Promise<Message>;
   cancelAction?: () => Promise<T> | undefined;
+  providerType: string;
 };
 
 export async function signMessage<T>({
   message,
   handleSignMessage,
-  cancelAction
+  cancelAction,
+  providerType
 }: SignMessagePropsType<T>): Promise<Message> {
   const msg = await new Promise<Awaited<Message>>(async (resolve, reject) => {
-    if (!handleSignMessage) {
-      return reject(ProviderErrorsEnum.notInitialized);
-    }
-
     const { eventBus, manager, onClose } = await getModalHandlers({
       cancelAction
     });
 
-    const closeModal = () => {
-      onClose();
+    const closeModal = async () => {
+      await onClose(false);
       reject({ message: SigningWarningsEnum.cancelled });
     };
 
@@ -34,16 +31,18 @@ export async function signMessage<T>({
     manager.updateData({
       isPending: true,
       title: 'Message Signing',
-      subtitle: 'Check your Ledger device to sign the message'
+      subtitle: `Check your ${providerType} to sign the message`
     });
 
     try {
       const signedMessage = await handleSignMessage(message);
+      await onClose(false);
       resolve(signedMessage);
     } catch (err) {
+      // TODO: Add warning instead of error and log error to the console
+      await onClose(false);
       reject(err);
     } finally {
-      onClose();
       eventBus.unsubscribe(PendingTransactionsEventsEnum.CLOSE, closeModal);
     }
   });
