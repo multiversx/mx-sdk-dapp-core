@@ -3,6 +3,7 @@ import { NotificationsFeed } from 'lib/sdkDappCoreUi';
 import { clearCompletedTransactions } from 'store/actions/transactions/transactionsActions';
 import { getStore } from 'store/store';
 import { ProviderErrorsEnum } from 'types/provider.types';
+import { SignedTransactionType } from 'types/transactions.types';
 import { NotificationsFeedEventsEnum } from './types';
 import { createUiElement } from '../ToastManager/helpers/createUiElement';
 import { processTransactions } from '../ToastManager/helpers/processTransactions';
@@ -13,7 +14,7 @@ export class NotificationsFeedManager {
   private isCreatingElement: boolean = false;
   private notificationsFeedElement: NotificationsFeed | undefined;
   private processingTransactions: ITransactionToast[] = [];
-  private transactionsHistory: ITransactionToast[] = [];
+  private transactionsHistory: SignedTransactionType[] = [];
   private unsubscribe: () => void = () => null;
   private isOpen: boolean = false;
 
@@ -29,6 +30,10 @@ export class NotificationsFeedManager {
     }
 
     return NotificationsFeedManager.instance;
+  }
+
+  public isNotificationsFeedOpen(): boolean {
+    return this.isOpen;
   }
 
   public async init() {
@@ -109,16 +114,20 @@ export class NotificationsFeedManager {
   private async updateTransactions(toastList: any) {
     const { transactions: sessions, account } = this.store.getState();
 
-    const { processingTransactions, completedTransactions } =
-      processTransactions(
-        toastList,
-        sessions,
-        account,
-        this.transactionsHistory
-      );
+    // Get the current session's transactions
+    const currentSessionId = Object.keys(sessions).sort().pop();
+    const currentSession = currentSessionId ? sessions[currentSessionId] : null;
+
+    const { processingTransactions } = processTransactions(
+      toastList,
+      sessions,
+      account
+    );
 
     this.processingTransactions = processingTransactions;
-    this.transactionsHistory = completedTransactions;
+
+    // Set transactions history to current session's transactions
+    this.transactionsHistory = currentSession?.transactions || [];
 
     await this.updateNotificationsFeed();
   }
@@ -151,15 +160,24 @@ export class NotificationsFeedManager {
 
     if (!this.notificationsFeedElement) {
       await this.createNotificationsFeedElement();
-    } else {
-      const eventBus = await this.notificationsFeedElement.getEventBus();
-
-      if (eventBus) {
-        this.isOpen = true;
-        this.notificationsFeedElement.style.display = 'block';
-        eventBus.publish(NotificationsFeedEventsEnum.OPEN_NOTIFICATIONS_FEED);
-      }
     }
+
+    if (!this.notificationsFeedElement) {
+      throw new Error('Failed to create notifications feed element');
+    }
+
+    const eventBus = await this.notificationsFeedElement.getEventBus();
+    if (!eventBus) {
+      throw new Error(ProviderErrorsEnum.eventBusError);
+    }
+
+    // Update transactions from store before opening
+    const { toasts } = this.store.getState();
+    await this.updateTransactions(toasts);
+
+    this.isOpen = true;
+    this.notificationsFeedElement.style.display = 'block';
+    eventBus.publish(NotificationsFeedEventsEnum.OPEN_NOTIFICATIONS_FEED);
   }
 
   public destroy() {

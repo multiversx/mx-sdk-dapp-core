@@ -161,6 +161,11 @@ export class ToastManager {
   }
 
   private async renderToasts() {
+    // Don't render toasts if notifications feed is open
+    if (this.notificationsFeedManager.isNotificationsFeedOpen()) {
+      return;
+    }
+
     const toastsElement = await this.createToastListElement();
     if (!toastsElement) {
       return;
@@ -183,12 +188,24 @@ export class ToastManager {
 
     // Listen for OPEN_NOTIFICATIONS_FEED event from toasts
     eventBus.subscribe(ToastEventsEnum.VIEW_ALL, () => {
+      // Clear all toasts
+      this.transactionToasts = [];
+      eventBus.publish(
+        ToastEventsEnum.TRANSACTION_TOAST_DATA_UPDATE,
+        this.transactionToasts
+      );
+
       // Open the notifications feed when "View All" is clicked
       this.notificationsFeedManager.openNotificationsFeed();
     });
   }
 
   private async renderCustomToasts() {
+    // Don't render custom toasts if notifications feed is open
+    if (this.notificationsFeedManager.isNotificationsFeedOpen()) {
+      return;
+    }
+
     const toastsElement = await this.createToastListElement();
     if (!toastsElement) {
       return;
