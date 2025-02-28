@@ -1,14 +1,15 @@
 import { PendingTransactionsStateManager } from 'core/managers/internal/PendingTransactionsStateManager/PendingTransactionsStateManager';
 import { PendingTransactionsModal } from 'lib/sdkDappCoreUi';
 import { ProviderErrorsEnum } from 'types/provider.types';
+import { createUIElement } from 'utils/createUIElement';
 
-export async function getModalHandlers<T>({
-  modalElement,
-  cancelAction
-}: {
-  modalElement: PendingTransactionsModal;
+export async function getModalHandlers<T>(props?: {
   cancelAction?: () => Promise<T> | undefined;
 }) {
+  const modalElement = await createUIElement<PendingTransactionsModal>({
+    name: 'pending-transactions-modal'
+  });
+
   const eventBus = await modalElement.getEventBus();
 
   if (!eventBus) {
@@ -19,7 +20,7 @@ export async function getModalHandlers<T>({
 
   const onClose = async (shouldCancelAction = true) => {
     if (shouldCancelAction) {
-      await cancelAction?.();
+      await props?.cancelAction?.();
     }
 
     manager.closeAndReset();

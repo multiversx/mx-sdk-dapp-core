@@ -3,13 +3,11 @@ import { isBrowserWithPopupConfirmation } from 'constants/browser.constants';
 import { PendingTransactionsEventsEnum } from 'core/managers/internal/PendingTransactionsStateManager/types/pendingTransactions.types';
 import { getAddress } from 'core/methods/account/getAddress';
 import { IProvider } from 'core/providers/types/providerFactory.types';
-import { PendingTransactionsModal } from 'lib/sdkDappCoreUi';
 import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
 import { crossWindowConfigSelector } from 'store/selectors';
 import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
 import { ProviderErrorsEnum } from 'types/provider.types';
-import { createUIElement } from 'utils/createUIElement';
 import { getModalHandlers } from '../helpers/getModalHandlers';
 import { guardTransactions } from '../helpers/signTransactions/helpers/guardTransactions/guardTransactions';
 
@@ -87,11 +85,7 @@ export class CrossWindowProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    const modalElement = await createUIElement<PendingTransactionsModal>({
-      name: 'pending-transactions-modal'
-    });
     const { eventBus, onClose, manager } = await getModalHandlers({
-      modalElement,
       cancelAction: this.provider.cancelAction.bind(this.provider)
     });
 
@@ -127,11 +121,7 @@ export class CrossWindowProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    const modalElement = await createUIElement<PendingTransactionsModal>({
-      name: 'pending-transactions-modal'
-    });
     const { eventBus, onClose, manager } = await getModalHandlers({
-      modalElement,
       cancelAction: this.provider.cancelAction.bind(this)
     });
 

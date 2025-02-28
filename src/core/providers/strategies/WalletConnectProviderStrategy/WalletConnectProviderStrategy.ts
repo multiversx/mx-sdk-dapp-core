@@ -12,11 +12,7 @@ import { WalletConnectStateManager } from 'core/managers/internal/WalletConnectS
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import { getAccountProvider } from 'core/providers/helpers/accountProvider';
 import { IProvider } from 'core/providers/types/providerFactory.types';
-import {
-  defineCustomElements,
-  PendingTransactionsModal,
-  WalletConnectModal
-} from 'lib/sdkDappCoreUi';
+import { defineCustomElements, WalletConnectModal } from 'lib/sdkDappCoreUi';
 import { logoutAction } from 'store/actions';
 import {
   chainIdSelector,
@@ -311,12 +307,7 @@ export class WalletConnectProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    const modalElement = await createUIElement<PendingTransactionsModal>({
-      name: 'pending-transactions-modal'
-    });
-
     const { eventBus, manager, onClose } = await getModalHandlers({
-      modalElement,
       cancelAction: this.cancelAction.bind(this)
     });
 
@@ -349,12 +340,7 @@ export class WalletConnectProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    const modalElement = await createUIElement<PendingTransactionsModal>({
-      name: 'pending-transactions-modal'
-    });
-
     const { eventBus, manager, onClose } = await getModalHandlers({
-      modalElement,
       cancelAction: this.cancelAction.bind(this)
     });
 

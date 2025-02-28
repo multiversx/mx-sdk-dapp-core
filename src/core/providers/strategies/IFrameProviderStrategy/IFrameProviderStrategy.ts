@@ -6,11 +6,9 @@ import { PendingTransactionsEventsEnum } from 'core/managers/internal/PendingTra
 import { getAccount } from 'core/methods/account/getAccount';
 import { getAddress } from 'core/methods/account/getAddress';
 import { IProvider } from 'core/providers/types/providerFactory.types';
-import { PendingTransactionsModal } from 'lib/sdkDappCoreUi';
 import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
 import { ProviderErrorsEnum } from 'types/provider.types';
-import { createUIElement } from 'utils/createUIElement';
 import { IFrameProviderType } from './types';
 import { getModalHandlers } from '../helpers/getModalHandlers';
 
@@ -83,11 +81,7 @@ export class IFrameProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    const modalElement = await createUIElement<PendingTransactionsModal>({
-      name: 'pending-transactions-modal'
-    });
     const { eventBus, manager, onClose } = await getModalHandlers({
-      modalElement,
       cancelAction: this.provider.cancelAction.bind(this.provider)
     });
 
@@ -117,11 +111,7 @@ export class IFrameProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    const modalElement = await createUIElement<PendingTransactionsModal>({
-      name: 'pending-transactions-modal'
-    });
     const { eventBus, manager, onClose } = await getModalHandlers({
-      modalElement,
       cancelAction: this.provider.cancelAction.bind(this.provider)
     });
 

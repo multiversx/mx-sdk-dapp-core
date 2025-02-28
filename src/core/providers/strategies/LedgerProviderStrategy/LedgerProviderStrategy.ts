@@ -11,8 +11,7 @@ import { IProvider } from 'core/providers/types/providerFactory.types';
 import {
   defineCustomElements,
   LedgerConnect,
-  LedgerConnectModal,
-  PendingTransactionsModal
+  LedgerConnectModal
 } from 'lib/sdkDappCoreUi';
 import { SigningWarningsEnum } from 'types/enums.types';
 import { ProviderErrorsEnum } from 'types/provider.types';
@@ -184,14 +183,7 @@ export class LedgerProviderStrategy {
         return reject(ProviderErrorsEnum.notInitialized);
       }
 
-      // TODO: extract this to a separate method for all providers
-      const modalElement = await createUIElement<PendingTransactionsModal>({
-        name: 'pending-transactions-modal'
-      });
-
-      const { eventBus, manager, onClose } = await getModalHandlers({
-        modalElement
-      });
+      const { eventBus, manager, onClose } = await getModalHandlers();
 
       const closeModal = () => {
         onClose();
