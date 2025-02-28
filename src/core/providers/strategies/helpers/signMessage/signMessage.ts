@@ -1,9 +1,7 @@
 import { Message } from '@multiversx/sdk-core/out';
 import { PendingTransactionsEventsEnum } from 'core/managers/internal/PendingTransactionsStateManager/types/pendingTransactions.types';
-import { PendingTransactionsModal } from 'lib/sdkDappCoreUi';
 import { SigningWarningsEnum } from 'types/enums.types';
 import { ProviderErrorsEnum } from 'types/provider.types';
-import { createUIElement } from 'utils/createUIElement';
 import { getModalHandlers } from '../getModalHandlers';
 
 type SignMessagePropsType<T> = {
@@ -22,12 +20,7 @@ export async function signMessage<T>({
       return reject(ProviderErrorsEnum.notInitialized);
     }
 
-    const modalElement = await createUIElement<PendingTransactionsModal>({
-      name: 'pending-transactions-modal'
-    });
-
     const { eventBus, manager, onClose } = await getModalHandlers({
-      modalElement,
       cancelAction
     });
 
