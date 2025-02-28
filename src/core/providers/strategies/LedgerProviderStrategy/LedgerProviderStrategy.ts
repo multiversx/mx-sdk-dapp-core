@@ -4,7 +4,6 @@ import { HWProvider } from '@multiversx/sdk-hw-provider';
 import { safeWindow } from 'constants/index';
 
 import { LedgerConnectStateManager } from 'core/managers/internal/LedgerConnectStateManager/LedgerConnectStateManager';
-import { PendingTransactionsStateManager } from 'core/managers/internal/PendingTransactionsStateManager/PendingTransactionsStateManager';
 import { PendingTransactionsEventsEnum } from 'core/managers/internal/PendingTransactionsStateManager/types/pendingTransactions.types';
 import { getAddress } from 'core/methods/account/getAddress';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
@@ -27,6 +26,7 @@ import {
   LedgerEventBusType,
   LedgerLoginType
 } from './types/ledgerProvider.types';
+import { getModalHandlers } from '../helpers/getModalHandlers';
 import { signTransactions } from '../helpers/signTransactions/signTransactions';
 
 export class LedgerProviderStrategy {
@@ -189,8 +189,9 @@ export class LedgerProviderStrategy {
         name: 'pending-transactions-modal'
       });
 
-      const { eventBus, manager, onClose } =
-        await this.getModalHandlers(modalElement);
+      const { eventBus, manager, onClose } = await getModalHandlers({
+        modalElement
+      });
 
       const closeModal = () => {
         onClose();
@@ -217,22 +218,5 @@ export class LedgerProviderStrategy {
       }
     });
     return msg;
-  };
-
-  private getModalHandlers = async (modalElement: PendingTransactionsModal) => {
-    const eventBus = await modalElement.getEventBus();
-
-    if (!eventBus) {
-      throw new Error(ProviderErrorsEnum.eventBusError);
-    }
-
-    const manager = new PendingTransactionsStateManager(eventBus);
-
-    const onClose = () => {
-      modalElement.remove();
-      manager.closeAndReset();
-    };
-
-    return { eventBus, manager, onClose };
   };
 }

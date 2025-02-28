@@ -2,7 +2,6 @@ import { Message, Transaction } from '@multiversx/sdk-core/out';
 import { IframeProvider } from '@multiversx/sdk-web-wallet-iframe-provider/out';
 import { IframeLoginTypes } from '@multiversx/sdk-web-wallet-iframe-provider/out/constants';
 
-import { PendingTransactionsStateManager } from 'core/managers/internal/PendingTransactionsStateManager/PendingTransactionsStateManager';
 import { PendingTransactionsEventsEnum } from 'core/managers/internal/PendingTransactionsStateManager/types/pendingTransactions.types';
 import { getAccount } from 'core/methods/account/getAccount';
 import { getAddress } from 'core/methods/account/getAddress';
@@ -13,6 +12,7 @@ import { getState } from 'store/store';
 import { ProviderErrorsEnum } from 'types/provider.types';
 import { createUIElement } from 'utils/createUIElement';
 import { IFrameProviderType } from './types';
+import { getModalHandlers } from '../helpers/getModalHandlers';
 
 export class IFrameProviderStrategy {
   private provider: IframeProvider | null = null;
@@ -86,8 +86,10 @@ export class IFrameProviderStrategy {
     const modalElement = await createUIElement<PendingTransactionsModal>({
       name: 'pending-transactions-modal'
     });
-    const { eventBus, manager, onClose } =
-      await this.getModalHandlers(modalElement);
+    const { eventBus, manager, onClose } = await getModalHandlers({
+      modalElement,
+      cancelAction: this.provider.cancelAction.bind(this.provider)
+    });
 
     eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
 
@@ -118,8 +120,10 @@ export class IFrameProviderStrategy {
     const modalElement = await createUIElement<PendingTransactionsModal>({
       name: 'pending-transactions-modal'
     });
-    const { eventBus, manager, onClose } =
-      await this.getModalHandlers(modalElement);
+    const { eventBus, manager, onClose } = await getModalHandlers({
+      modalElement,
+      cancelAction: this.provider.cancelAction.bind(this.provider)
+    });
 
     eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
 
@@ -140,29 +144,5 @@ export class IFrameProviderStrategy {
       onClose(false);
       eventBus.unsubscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
     }
-  };
-
-  private getModalHandlers = async (modalElement: PendingTransactionsModal) => {
-    const eventBus = await modalElement.getEventBus();
-
-    if (!eventBus) {
-      throw new Error(ProviderErrorsEnum.eventBusError);
-    }
-
-    const manager = new PendingTransactionsStateManager(eventBus);
-
-    const onClose = (cancelAction = true) => {
-      if (!this.provider) {
-        throw new Error(ProviderErrorsEnum.notInitialized);
-      }
-
-      if (cancelAction) {
-        this.provider.cancelAction();
-      }
-
-      manager.closeAndReset();
-    };
-
-    return { eventBus, manager, onClose };
   };
 }

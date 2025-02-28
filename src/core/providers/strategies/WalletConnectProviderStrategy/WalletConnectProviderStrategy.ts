@@ -7,7 +7,6 @@ import {
 } from '@multiversx/sdk-wallet-connect-provider/out';
 import { safeWindow } from 'constants/window.constants';
 
-import { PendingTransactionsStateManager } from 'core/managers/internal/PendingTransactionsStateManager/PendingTransactionsStateManager';
 import { PendingTransactionsEventsEnum } from 'core/managers/internal/PendingTransactionsStateManager/types/pendingTransactions.types';
 import { WalletConnectStateManager } from 'core/managers/internal/WalletConnectStateManager/WalletConnectStateManager';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
@@ -38,6 +37,7 @@ import {
   WalletConnectConfig,
   IWalletConnectModalData
 } from './types';
+import { getModalHandlers } from '../helpers/getModalHandlers';
 
 const dappMethods: string[] = [
   WalletConnectOptionalMethodsEnum.CANCEL_ACTION,
@@ -314,8 +314,11 @@ export class WalletConnectProviderStrategy {
     const modalElement = await createUIElement<PendingTransactionsModal>({
       name: 'pending-transactions-modal'
     });
-    const { eventBus, manager, onClose } =
-      await this.getModalHandlers(modalElement);
+
+    const { eventBus, manager, onClose } = await getModalHandlers({
+      modalElement,
+      cancelAction: this.cancelAction.bind(this)
+    });
 
     eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
 
@@ -349,8 +352,11 @@ export class WalletConnectProviderStrategy {
     const modalElement = await createUIElement<PendingTransactionsModal>({
       name: 'pending-transactions-modal'
     });
-    const { eventBus, manager, onClose } =
-      await this.getModalHandlers(modalElement);
+
+    const { eventBus, manager, onClose } = await getModalHandlers({
+      modalElement,
+      cancelAction: this.cancelAction.bind(this)
+    });
 
     eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
 
@@ -376,13 +382,20 @@ export class WalletConnectProviderStrategy {
     }
   };
 
-  private sendCustomRequest = async ({
+  private async cancelAction() {
+    await this.sendCustomRequest({
+      method: WalletConnectOptionalMethodsEnum.CANCEL_ACTION,
+      action: OptionalOperation.CANCEL_ACTION
+    });
+  }
+
+  private async sendCustomRequest({
     action,
     method
   }: {
     action: OptionalOperation;
     method: WalletConnectOptionalMethodsEnum;
-  }) => {
+  }) {
     if (!this.provider) {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
@@ -397,32 +410,5 @@ export class WalletConnectProviderStrategy {
     } catch (error) {
       console.error(WalletConnectV2Error.actionError, error);
     }
-  };
-
-  private getModalHandlers = async (modalElement: PendingTransactionsModal) => {
-    const eventBus = await modalElement.getEventBus();
-
-    if (!eventBus) {
-      throw new Error(ProviderErrorsEnum.eventBusError);
-    }
-
-    const manager = new PendingTransactionsStateManager(eventBus);
-
-    const onClose = async (cancelAction = true) => {
-      if (!this.provider) {
-        throw new Error(ProviderErrorsEnum.notInitialized);
-      }
-
-      if (cancelAction) {
-        await this.sendCustomRequest({
-          method: WalletConnectOptionalMethodsEnum.CANCEL_ACTION,
-          action: OptionalOperation.CANCEL_ACTION
-        });
-      }
-
-      manager.closeAndReset();
-    };
-
-    return { eventBus, manager, onClose };
-  };
+  }
 }

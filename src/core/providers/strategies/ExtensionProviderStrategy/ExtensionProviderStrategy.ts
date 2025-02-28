@@ -1,6 +1,5 @@
 import { Message, Transaction } from '@multiversx/sdk-core/out';
 import { ExtensionProvider } from '@multiversx/sdk-extension-provider/out/extensionProvider';
-import { PendingTransactionsStateManager } from 'core/managers/internal/PendingTransactionsStateManager/PendingTransactionsStateManager';
 import { PendingTransactionsEventsEnum } from 'core/managers/internal/PendingTransactionsStateManager/types/pendingTransactions.types';
 
 import { getAddress } from 'core/methods/account/getAddress';
@@ -8,6 +7,7 @@ import { IProvider } from 'core/providers/types/providerFactory.types';
 import { PendingTransactionsModal } from 'lib/sdkDappCoreUi';
 import { ProviderErrorsEnum } from 'types/provider.types';
 import { createUIElement } from 'utils/createUIElement';
+import { getModalHandlers } from '../helpers/getModalHandlers';
 
 export class ExtensionProviderStrategy {
   private address: string = '';
@@ -70,8 +70,10 @@ export class ExtensionProviderStrategy {
     const modalElement = await createUIElement<PendingTransactionsModal>({
       name: 'pending-transactions-modal'
     });
-    const { eventBus, manager, onClose } =
-      await this.getModalHandlers(modalElement);
+    const { eventBus, manager, onClose } = await getModalHandlers({
+      modalElement,
+      cancelAction: this.provider.cancelAction.bind(this.provider)
+    });
 
     eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
 
@@ -100,8 +102,10 @@ export class ExtensionProviderStrategy {
       name: 'pending-transactions-modal'
     });
 
-    const { eventBus, manager, onClose } =
-      await this.getModalHandlers(modalElement);
+    const { eventBus, manager, onClose } = await getModalHandlers({
+      modalElement,
+      cancelAction: this.provider.cancelAction.bind(this.provider)
+    });
 
     eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
 
@@ -122,29 +126,5 @@ export class ExtensionProviderStrategy {
       onClose(false);
       eventBus.unsubscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
     }
-  };
-
-  private getModalHandlers = async (modalElement: PendingTransactionsModal) => {
-    const eventBus = await modalElement.getEventBus();
-
-    if (!eventBus) {
-      throw new Error(ProviderErrorsEnum.eventBusError);
-    }
-
-    const manager = new PendingTransactionsStateManager(eventBus);
-
-    const onClose = (cancelAction = true) => {
-      if (!this.provider) {
-        throw new Error(ProviderErrorsEnum.notInitialized);
-      }
-
-      if (cancelAction) {
-        this.provider.cancelAction();
-      }
-
-      manager.closeAndReset();
-    };
-
-    return { eventBus, manager, onClose };
   };
 }

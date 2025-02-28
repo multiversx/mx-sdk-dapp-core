@@ -1,7 +1,5 @@
 import { Message, Transaction } from '@multiversx/sdk-core/out';
 import { isBrowserWithPopupConfirmation } from 'constants/browser.constants';
-
-import { PendingTransactionsStateManager } from 'core/managers/internal/PendingTransactionsStateManager/PendingTransactionsStateManager';
 import { PendingTransactionsEventsEnum } from 'core/managers/internal/PendingTransactionsStateManager/types/pendingTransactions.types';
 import { getAddress } from 'core/methods/account/getAddress';
 import { IProvider } from 'core/providers/types/providerFactory.types';
@@ -12,6 +10,7 @@ import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
 import { ProviderErrorsEnum } from 'types/provider.types';
 import { createUIElement } from 'utils/createUIElement';
+import { getModalHandlers } from '../helpers/getModalHandlers';
 import { guardTransactions } from '../helpers/signTransactions/helpers/guardTransactions/guardTransactions';
 
 type CrossWindowProviderProps = {
@@ -91,8 +90,10 @@ export class CrossWindowProviderStrategy {
     const modalElement = await createUIElement<PendingTransactionsModal>({
       name: 'pending-transactions-modal'
     });
-    const { eventBus, onClose, manager } =
-      await this.getModalHandlers(modalElement);
+    const { eventBus, onClose, manager } = await getModalHandlers({
+      modalElement,
+      cancelAction: this.provider.cancelAction.bind(this.provider)
+    });
 
     eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
 
@@ -129,8 +130,10 @@ export class CrossWindowProviderStrategy {
     const modalElement = await createUIElement<PendingTransactionsModal>({
       name: 'pending-transactions-modal'
     });
-    const { eventBus, onClose, manager } =
-      await this.getModalHandlers(modalElement);
+    const { eventBus, onClose, manager } = await getModalHandlers({
+      modalElement,
+      cancelAction: this.provider.cancelAction.bind(this)
+    });
 
     eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
 
@@ -168,28 +171,5 @@ export class CrossWindowProviderStrategy {
     ) {
       this.provider.setShouldShowConsentPopup(true);
     }
-  };
-
-  private getModalHandlers = async (modalElement: PendingTransactionsModal) => {
-    const eventBus = await modalElement.getEventBus();
-
-    if (!eventBus) {
-      throw new Error(ProviderErrorsEnum.eventBusError);
-    }
-
-    const manager = new PendingTransactionsStateManager(eventBus);
-
-    const onClose = (cancelAction = true) => {
-      if (!this.provider) {
-        throw new Error(ProviderErrorsEnum.notInitialized);
-      }
-
-      if (cancelAction) {
-        this.provider.cancelAction();
-      }
-
-      manager.closeAndReset();
-    };
-    return { eventBus, manager, onClose };
   };
 }
