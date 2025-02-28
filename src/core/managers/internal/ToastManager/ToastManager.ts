@@ -50,7 +50,7 @@ export class ToastManager {
     });
 
     // Create the notifications feed manager
-    this.notificationsFeedManager = new NotificationsFeedManager();
+    this.notificationsFeedManager = NotificationsFeedManager.getInstance();
   }
 
   public init() {
@@ -182,7 +182,7 @@ export class ToastManager {
     });
 
     // Listen for OPEN_NOTIFICATIONS_FEED event from toasts
-    eventBus.subscribe(ToastEventsEnum.OPEN_NOTIFICATIONS_FEED, () => {
+    eventBus.subscribe(ToastEventsEnum.VIEW_ALL, () => {
       // Open the notifications feed when "View All" is clicked
       this.notificationsFeedManager.openNotificationsFeed();
     });
