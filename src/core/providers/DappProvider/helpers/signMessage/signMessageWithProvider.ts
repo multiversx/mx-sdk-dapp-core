@@ -15,7 +15,7 @@ export type SignMessageType = {
   };
 };
 
-export async function signMessage({
+export async function signMessageWithProvider({
   message,
   provider,
   options
@@ -33,7 +33,7 @@ export async function signMessage({
   ) {
     (provider as unknown as CrossWindowProvider).setShouldShowConsentPopup(
       true
-    );
+    ); // TODO: is this still needed ?
   }
 
   const signedMessage = await provider.signMessage(messageToSign, options);

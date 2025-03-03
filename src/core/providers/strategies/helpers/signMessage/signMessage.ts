@@ -3,7 +3,7 @@ import { PendingTransactionsEventsEnum } from 'core/managers/internal/PendingTra
 import { SigningWarningsEnum } from 'types/enums.types';
 import { getModalHandlers } from '../getModalHandlers';
 
-type SignMessagePropsType<T> = {
+type SignMessageWithModalPropsType<T> = {
   message: Message;
   handleSignMessage: (message: Message) => Promise<Message>;
   cancelAction?: () => Promise<T> | undefined;
@@ -15,7 +15,7 @@ export async function signMessage<T>({
   handleSignMessage,
   cancelAction,
   providerType
-}: SignMessagePropsType<T>): Promise<Message> {
+}: SignMessageWithModalPropsType<T>): Promise<Message> {
   const msg = await new Promise<Awaited<Message>>(async (resolve, reject) => {
     const { eventBus, manager, onClose } = await getModalHandlers({
       cancelAction
@@ -39,7 +39,6 @@ export async function signMessage<T>({
       await onClose(false);
       resolve(signedMessage);
     } catch (err) {
-      // TODO: Add warning instead of error and log error to the console
       await onClose(false);
       reject(err);
     } finally {

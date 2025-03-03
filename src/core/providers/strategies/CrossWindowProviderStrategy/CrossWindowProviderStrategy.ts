@@ -2,13 +2,17 @@ import { Message, Transaction } from '@multiversx/sdk-core/out';
 import { isBrowserWithPopupConfirmation } from 'constants/browser.constants';
 import { PendingTransactionsEventsEnum } from 'core/managers/internal/PendingTransactionsStateManager/types/pendingTransactions.types';
 import { getAddress } from 'core/methods/account/getAddress';
-import { IProvider } from 'core/providers/types/providerFactory.types';
+import {
+  IProvider,
+  providerLabels
+} from 'core/providers/types/providerFactory.types';
 import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
 import { crossWindowConfigSelector } from 'store/selectors';
 import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
 import { ProviderErrorsEnum } from 'types/provider.types';
 import { getModalHandlers } from '../helpers/getModalHandlers';
+import { signMessage } from '../helpers/signMessage/signMessage';
 import { guardTransactions } from '../helpers/signTransactions/helpers/guardTransactions/guardTransactions';
 
 type CrossWindowProviderProps = {
@@ -121,31 +125,16 @@ export class CrossWindowProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    const { eventBus, onClose, manager } = await getModalHandlers({
-      cancelAction: this.provider.cancelAction.bind(this)
-    });
-
-    eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
-
-    manager.updateData({
-      isPending: true,
-      title: 'Message Signing',
-      subtitle: 'Check your MultiversX Web Wallet to sign the message'
-    });
-
     this.setPopupConsent();
 
-    try {
-      const signedMessage = await this._signMessage(message);
+    const signedMessage = await signMessage({
+      message,
+      handleSignMessage: this._signMessage.bind(this.provider),
+      cancelAction: this.provider.cancelAction.bind(this.provider),
+      providerType: providerLabels.crossWindow
+    });
 
-      return signedMessage;
-    } catch (error) {
-      this.provider.cancelAction();
-      throw error;
-    } finally {
-      onClose(false);
-      eventBus.unsubscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
-    }
+    return signedMessage;
   };
 
   private setPopupConsent = () => {
