@@ -30,6 +30,7 @@ import { getScCall } from './helpers/getScCall';
 import { getTokenType } from './helpers/getTokenType';
 import { getUsdValue } from './helpers/getUsdValue';
 import { guardTransactions as getGuardedTransactions } from './helpers/guardTransactions/guardTransactions';
+import { SdkDappCoreUiTagsEnum } from 'constants/sdkDappCoreUiTags';
 
 export async function signTransactions({
   transactions = [],
@@ -45,7 +46,7 @@ export async function signTransactions({
 
   const egldLabel = getEgldLabel();
   const signModalElement = await createUIElement<SignTransactionsModal>({
-    name: 'sign-transactions-modal'
+    name: SdkDappCoreUiTagsEnum.SIGN_TRANSACTIONS_MODAL
   });
 
   const { allTransactions, getTxInfoByDataField } =

@@ -1,31 +1,30 @@
 import { getIsTransactionPending } from 'store/actions/transactions/transactionStateByStatus';
 import { TransactionServerStatusesEnum } from 'types/enums.types';
-import { SignedTransactionType } from 'types/transactions.types';
+import {
+  SignedTransactionType,
+  TransactionsDisplayInfoType
+} from 'types/transactions.types';
 import { explorerUrlBuilder } from 'utils/transactions/explorerUrlBuilder';
 import { getExplorerLink } from 'utils/transactions/getExplorerLink';
 import { getToastDataStateByStatus } from './getToastDataStateByStatus';
 import { getToastProceededStatus } from './getToastProceededStatus';
 import { ITransactionToast } from '../types/toast.types';
 
-interface CreateTransactionToastProps {
+interface CreateTransactionToastParamsType {
   toast: {
     toastId: string;
   };
   account: {
     address: string;
   };
-  status: any;
+  status: TransactionServerStatusesEnum;
   transactions: SignedTransactionType[];
-  transactionsDisplayInfo?: any;
+  transactionsDisplayInfo?: TransactionsDisplayInfoType;
   explorerAddress: string;
   startTime: number;
   endTime: number;
 }
 
-/**
- * Creates a transaction toast object based on transaction data
- * This is shared between ToastManager and NotificationsFeedManager
- */
 export const createTransactionToast = ({
   toast,
   account,
@@ -35,7 +34,7 @@ export const createTransactionToast = ({
   explorerAddress,
   startTime,
   endTime
-}: CreateTransactionToastProps): ITransactionToast => {
+}: CreateTransactionToastParamsType): ITransactionToast => {
   const { toastId } = toast;
   const isPending = getIsTransactionPending(status);
 

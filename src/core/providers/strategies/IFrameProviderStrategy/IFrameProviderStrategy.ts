@@ -2,6 +2,7 @@ import { Message, Transaction } from '@multiversx/sdk-core/out';
 import { IframeProvider } from '@multiversx/sdk-web-wallet-iframe-provider/out';
 import { IframeLoginTypes } from '@multiversx/sdk-web-wallet-iframe-provider/out/constants';
 
+import { SdkDappCoreUiTagsEnum } from 'constants/sdkDappCoreUiTags';
 import { PendingTransactionsStateManager } from 'core/managers/internal/PendingTransactionsStateManager/PendingTransactionsStateManager';
 import { PendingTransactionsEventsEnum } from 'core/managers/internal/PendingTransactionsStateManager/types/pendingTransactions.types';
 import { getAccount } from 'core/methods/account/getAccount';
@@ -84,7 +85,7 @@ export class IFrameProviderStrategy {
     }
 
     const modalElement = await createUIElement<PendingTransactionsModal>({
-      name: 'pending-transactions-modal'
+      name: SdkDappCoreUiTagsEnum.PENDING_TRANSACTIONS_MODAL
     });
     const { eventBus, manager, onClose } =
       await this.getModalHandlers(modalElement);
@@ -116,7 +117,7 @@ export class IFrameProviderStrategy {
     }
 
     const modalElement = await createUIElement<PendingTransactionsModal>({
-      name: 'pending-transactions-modal'
+      name: SdkDappCoreUiTagsEnum.PENDING_TRANSACTIONS_MODAL
     });
     const { eventBus, manager, onClose } =
       await this.getModalHandlers(modalElement);

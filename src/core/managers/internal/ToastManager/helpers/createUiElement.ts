@@ -1,3 +1,4 @@
+import { SdkDappCoreUiTagsEnum } from 'constants/sdkDappCoreUiTags';
 import { ProviderErrorsEnum } from 'types/provider.types';
 import { createUIElement as baseCreateUIElement } from 'utils/createUIElement';
 
@@ -6,7 +7,7 @@ import { createUIElement as baseCreateUIElement } from 'utils/createUIElement';
  * This is shared between ToastManager and NotificationsFeedManager
  */
 export const createUiElement = async <T extends HTMLElement>(
-  name: string,
+  name: SdkDappCoreUiTagsEnum,
   isVisible: boolean = true
 ): Promise<T | null> => {
   try {

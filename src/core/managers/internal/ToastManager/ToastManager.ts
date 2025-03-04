@@ -1,4 +1,5 @@
 import isEqual from 'lodash.isequal';
+import { SdkDappCoreUiTagsEnum } from 'constants/sdkDappCoreUiTags';
 import { NotificationsFeedManager } from 'core/managers/internal/NotificationsFeedManager';
 import { ToastList } from 'lib/sdkDappCoreUi';
 import {
@@ -21,9 +22,9 @@ import {
 import { getStore } from 'store/store';
 import { ProviderErrorsEnum } from 'types/provider.types';
 import { NotificationsFeedEventsEnum } from '../NotificationsFeedManager/types';
+import { createToastsFromTransactions } from './helpers/createToastsFromTransactions';
 import { createUiElement } from './helpers/createUiElement';
 import { LifetimeManager } from './helpers/LifetimeManager';
-import { processTransactions } from './helpers/processTransactions';
 import { ITransactionToast, ToastEventsEnum } from './types';
 
 interface IToastManager {
@@ -32,7 +33,7 @@ interface IToastManager {
 
 export class ToastManager {
   private lifetimeManager: LifetimeManager;
-  private isCreatingElement: boolean = false;
+  private isCreatingElement = false;
   private toastsElement: ToastList | undefined;
   private transactionToasts: ITransactionToast[] = [];
   private customToasts: CustomToastType[] = [];
@@ -50,7 +51,6 @@ export class ToastManager {
       successfulToastLifetime
     });
 
-    // Create the notifications feed manager
     this.notificationsFeedManager = NotificationsFeedManager.getInstance();
   }
 
@@ -59,7 +59,6 @@ export class ToastManager {
     this.updateTransactionToastsList(toasts);
     this.updateCustomToastList(toasts);
 
-    // Initialize the notifications feed manager
     await this.notificationsFeedManager.init();
 
     this.unsubscribe = this.store.subscribe(
@@ -95,14 +94,12 @@ export class ToastManager {
           };
       this.customToasts.push(newToast);
 
-      if (!toast.duration) {
-        continue;
+      if (toast.duration) {
+        this.lifetimeManager.startWithCustomDuration(
+          toast.toastId,
+          toast.duration
+        );
       }
-
-      this.lifetimeManager.startWithCustomDuration(
-        toast.toastId,
-        toast.duration
-      );
     }
 
     this.renderCustomToasts();
@@ -111,8 +108,7 @@ export class ToastManager {
   private async updateTransactionToastsList(toastList: ToastsSliceType) {
     const { transactions: sessions, account } = this.store.getState();
 
-    // Use the shared helper to process transactions
-    const { processingTransactions } = processTransactions(
+    const { processingTransactions } = createToastsFromTransactions(
       toastList,
       sessions,
       account
@@ -120,7 +116,6 @@ export class ToastManager {
 
     this.transactionToasts = processingTransactions;
 
-    // Start lifetime management for completed transactions
     for (const toast of toastList.transactionToasts) {
       const sessionTransactions = sessions[toast.toastId];
       if (!sessionTransactions) {
@@ -150,8 +145,10 @@ export class ToastManager {
     if (!this.isCreatingElement) {
       this.isCreatingElement = true;
 
-      // Use the shared helper to create the UI element
-      const element = await createUiElement<ToastList>('toast-list', true);
+      const element = await createUiElement<ToastList>(
+        SdkDappCoreUiTagsEnum.TOAST_LIST,
+        true
+      );
 
       this.toastsElement = element || undefined;
       this.isCreatingElement = false;
@@ -167,7 +164,6 @@ export class ToastManager {
   }
 
   private async renderToasts() {
-    // Don't render toasts if notifications feed is open
     if (this.notificationsFeedManager.isNotificationsFeedOpen()) {
       return;
     }
@@ -204,22 +200,18 @@ export class ToastManager {
       this.handleTransactionToastClose.bind(this)
     );
 
-    // Listen for OPEN_NOTIFICATIONS_FEED event from toasts
     eventBus.subscribe(ToastEventsEnum.VIEW_ALL, () => {
-      // Clear all toasts
       this.transactionToasts = [];
       eventBus.publish(
         ToastEventsEnum.TRANSACTION_TOAST_DATA_UPDATE,
         this.transactionToasts
       );
 
-      // Open the notifications feed when "View All" is clicked
       this.notificationsFeedManager.openNotificationsFeed();
     });
   }
 
   private async renderCustomToasts() {
-    // Don't render custom toasts if notifications feed is open
     if (this.notificationsFeedManager.isNotificationsFeedOpen()) {
       return;
     }

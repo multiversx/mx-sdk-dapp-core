@@ -1,30 +1,29 @@
 import isEqual from 'lodash.isequal';
+import { SdkDappCoreUiTagsEnum } from 'constants/sdkDappCoreUiTags';
 import { NotificationsFeed } from 'lib/sdkDappCoreUi';
 import { clearCompletedTransactions } from 'store/actions/transactions/transactionsActions';
 import { getStore } from 'store/store';
 import { ProviderErrorsEnum } from 'types/provider.types';
 import { SignedTransactionType } from 'types/transactions.types';
 import { NotificationsFeedEventsEnum } from './types';
+import { createToastsFromTransactions } from '../ToastManager/helpers/createToastsFromTransactions';
 import { createUiElement } from '../ToastManager/helpers/createUiElement';
-import { processTransactions } from '../ToastManager/helpers/processTransactions';
 import { ITransactionToast } from '../ToastManager/types/toast.types';
 
 export class NotificationsFeedManager {
   private static instance: NotificationsFeedManager;
-  private isCreatingElement: boolean = false;
+  private isCreatingElement = false;
   private notificationsFeedElement: NotificationsFeed | undefined;
   private processingTransactions: ITransactionToast[] = [];
   private transactionsHistory: SignedTransactionType[] = [];
   private unsubscribe: () => void = () => null;
-  private isOpen: boolean = false;
-
+  private isOpen = false;
   store = getStore();
 
   public static getInstance(): NotificationsFeedManager {
     if (!NotificationsFeedManager.instance) {
       NotificationsFeedManager.instance = new NotificationsFeedManager();
     }
-
     return NotificationsFeedManager.instance;
   }
 
@@ -51,7 +50,6 @@ export class NotificationsFeedManager {
 
   public async init() {
     await this.createNotificationsFeedElement();
-
     const { toasts } = this.store.getState();
     this.updateTransactions(toasts);
 
@@ -81,8 +79,9 @@ export class NotificationsFeedManager {
 
     if (!this.isCreatingElement) {
       this.isCreatingElement = true;
-      const element =
-        await createUiElement<NotificationsFeed>('notifications-feed');
+      const element = await createUiElement<NotificationsFeed>(
+        SdkDappCoreUiTagsEnum.NOTIFICATIONS_FEED
+      );
       this.notificationsFeedElement = element || undefined;
       this.isCreatingElement = false;
     }
@@ -96,7 +95,6 @@ export class NotificationsFeedManager {
     }
 
     const eventBus = await this.notificationsFeedElement.getEventBus();
-
     if (!eventBus) {
       throw new Error(ProviderErrorsEnum.eventBusError);
     }
@@ -105,7 +103,6 @@ export class NotificationsFeedManager {
       NotificationsFeedEventsEnum.CLOSE_NOTIFICATIONS_FEED,
       () => {
         this.isOpen = false;
-
         if (this.notificationsFeedElement) {
           this.notificationsFeedElement.style.display = 'none';
         }
@@ -124,21 +121,16 @@ export class NotificationsFeedManager {
 
   private async updateTransactions(toastList: any) {
     const { transactions: sessions, account } = this.store.getState();
-
-    const { processingTransactions } = processTransactions(
+    const { processingTransactions } = createToastsFromTransactions(
       toastList,
       sessions,
       account
     );
-
     this.processingTransactions = processingTransactions;
 
-    // Sort session keys (timestamps) in descending order
     const sortedSessionKeys = Object.keys(sessions).sort(
       (a, b) => Number(b) - Number(a)
     );
-
-    // Merge all transactions from all sessions
     this.transactionsHistory = sortedSessionKeys.reduce<
       SignedTransactionType[]
     >((allTransactions, sessionKey) => {
@@ -155,7 +147,6 @@ export class NotificationsFeedManager {
     }
 
     const eventBus = await this.notificationsFeedElement.getEventBus();
-
     if (!eventBus) {
       throw new Error(ProviderErrorsEnum.eventBusError);
     }
@@ -164,7 +155,6 @@ export class NotificationsFeedManager {
       NotificationsFeedEventsEnum.PROCESSING_TRANSACTIONS_UPDATE,
       this.processingTransactions
     );
-
     eventBus.publish(
       NotificationsFeedEventsEnum.TRANSACTIONS_HISTORY_UPDATE,
       this.transactionsHistory
@@ -185,7 +175,6 @@ export class NotificationsFeedManager {
     }
 
     const eventBus = await this.notificationsFeedElement.getEventBus();
-
     if (!eventBus) {
       throw new Error(ProviderErrorsEnum.eventBusError);
     }
@@ -203,11 +192,9 @@ export class NotificationsFeedManager {
 
     if (this.notificationsFeedElement) {
       const parentElement = this.notificationsFeedElement.parentElement;
-
       if (parentElement) {
         parentElement.removeChild(this.notificationsFeedElement);
       }
-
       this.notificationsFeedElement = undefined;
     }
     this.isOpen = false;

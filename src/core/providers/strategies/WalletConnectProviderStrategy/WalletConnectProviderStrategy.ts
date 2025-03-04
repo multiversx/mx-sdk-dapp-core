@@ -5,6 +5,7 @@ import {
   SessionTypes,
   OptionalOperation
 } from '@multiversx/sdk-wallet-connect-provider/out';
+import { SdkDappCoreUiTagsEnum } from 'constants/sdkDappCoreUiTags';
 import { safeWindow } from 'constants/window.constants';
 
 import { PendingTransactionsStateManager } from 'core/managers/internal/PendingTransactionsStateManager/PendingTransactionsStateManager';
@@ -164,11 +165,10 @@ export class WalletConnectProviderStrategy {
 
     const modalElement = anchor
       ? await createUIElement<WalletConnectModal>({
-          name: 'wallet-connect',
-          anchor
+          name: SdkDappCoreUiTagsEnum.WALLET_CONNECT_MODAL
         })
       : await createUIElement<WalletConnectModal>({
-          name: 'wallet-connect-modal'
+          name: SdkDappCoreUiTagsEnum.WALLET_CONNECT_MODAL
         });
 
     const eventBus = await modalElement.getEventBus();
@@ -312,7 +312,7 @@ export class WalletConnectProviderStrategy {
     }
 
     const modalElement = await createUIElement<PendingTransactionsModal>({
-      name: 'pending-transactions-modal'
+      name: SdkDappCoreUiTagsEnum.PENDING_TRANSACTIONS_MODAL
     });
     const { eventBus, manager, onClose } =
       await this.getModalHandlers(modalElement);
@@ -347,7 +347,7 @@ export class WalletConnectProviderStrategy {
     }
 
     const modalElement = await createUIElement<PendingTransactionsModal>({
-      name: 'pending-transactions-modal'
+      name: SdkDappCoreUiTagsEnum.PENDING_TRANSACTIONS_MODAL
     });
     const { eventBus, manager, onClose } =
       await this.getModalHandlers(modalElement);

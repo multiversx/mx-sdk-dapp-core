@@ -1,137 +1,98 @@
+import { testAddress } from '__mocks__/accountConfig';
 import { isServerTransactionPending } from 'store/actions/transactions/transactionStateByStatus';
 import { TransactionServerStatusesEnum } from 'types/enums.types';
 import { SignedTransactionType } from 'types/transactions.types';
 import { getToastProceededStatus } from '../getToastProceededStatus';
-import { createMockTransaction } from './mocks/mockTypes';
 
-// Mock the transaction status checking function
 jest.mock('store/actions/transactions/transactionStateByStatus', () => ({
   isServerTransactionPending: jest.fn()
 }));
 
 describe('getToastProceededStatus', () => {
+  const baseTransaction: Omit<SignedTransactionType, 'status' | 'hash'> = {
+    nonce: 1,
+    value: '1000000000000000000',
+    receiver: testAddress,
+    sender: testAddress,
+    gasPrice: 1000000000,
+    gasLimit: 50000,
+    data: 'data',
+    chainID: '1',
+    version: 1,
+    options: 0
+  };
+
   beforeEach(() => {
     jest.clearAllMocks();
-    // Default behavior for isServerTransactionPending
-    (isServerTransactionPending as jest.Mock).mockImplementation(
-      (status) => status === TransactionServerStatusesEnum.pending
-    );
   });
 
-  it('should return proper message for a single pending transaction', () => {
-    const transactions = [
-      createMockTransaction('tx-1', TransactionServerStatusesEnum.pending)
-    ];
+  it('should return correct message for single pending or completed transaction', () => {
+    const pendingTx: SignedTransactionType = {
+      ...baseTransaction,
+      hash: 'tx1',
+      status: TransactionServerStatusesEnum.pending
+    };
 
-    (isServerTransactionPending as jest.Mock).mockReturnValue(true);
+    const successTx: SignedTransactionType = {
+      ...baseTransaction,
+      hash: 'tx2',
+      status: TransactionServerStatusesEnum.success
+    };
 
-    const result = getToastProceededStatus(transactions);
-
-    expect(result).toContain('0 / 1 transactions processed');
-  });
-
-  it('should return proper message for a single successful transaction', () => {
-    const transactions = [
-      createMockTransaction('tx-1', TransactionServerStatusesEnum.success)
-    ];
-
-    (isServerTransactionPending as jest.Mock).mockReturnValue(false);
-
-    const result = getToastProceededStatus(transactions);
-
-    expect(result).toContain('Transaction processed');
-  });
-
-  it('should return proper message for a single failed transaction', () => {
-    const transactions = [
-      createMockTransaction('tx-1', TransactionServerStatusesEnum.fail)
-    ];
-
-    (isServerTransactionPending as jest.Mock).mockReturnValue(false);
-
-    const result = getToastProceededStatus(transactions);
-
-    expect(result).toContain('Transaction processed');
-  });
-
-  it('should handle multiple transactions with all pending', () => {
-    const transactions = [
-      createMockTransaction('tx-1', TransactionServerStatusesEnum.pending),
-      createMockTransaction('tx-2', TransactionServerStatusesEnum.pending)
-    ];
-
-    (isServerTransactionPending as jest.Mock).mockReturnValue(true);
-
-    const result = getToastProceededStatus(transactions);
-
-    expect(result).toContain('0 / 2 transactions processed');
-  });
-
-  it('should handle multiple transactions with all processed', () => {
-    const transactions = [
-      createMockTransaction('tx-1', TransactionServerStatusesEnum.success),
-      createMockTransaction('tx-2', TransactionServerStatusesEnum.success)
-    ];
-
-    (isServerTransactionPending as jest.Mock).mockReturnValue(false);
-
-    const result = getToastProceededStatus(transactions);
-
-    expect(result).toContain('2 / 2 transactions processed');
-  });
-
-  it('should handle multiple transactions with mixed status', () => {
-    const transactions = [
-      createMockTransaction('tx-1', TransactionServerStatusesEnum.success),
-      createMockTransaction('tx-2', TransactionServerStatusesEnum.pending)
-    ];
-
-    // Simulate one pending, one not pending
     (isServerTransactionPending as jest.Mock).mockImplementation(
       (status) => status === TransactionServerStatusesEnum.pending
     );
 
-    const result = getToastProceededStatus(transactions);
+    expect(getToastProceededStatus([pendingTx])).toBe(
+      '0 / 1 transactions processed'
+    );
 
-    expect(result).toContain('1 / 2 transactions processed');
+    expect(getToastProceededStatus([successTx])).toBe('Transaction processed');
   });
 
-  it('should handle multiple transactions with all types', () => {
-    const transactions = [
-      createMockTransaction('tx-1', TransactionServerStatusesEnum.success),
-      createMockTransaction('tx-2', TransactionServerStatusesEnum.pending),
-      createMockTransaction('tx-3', TransactionServerStatusesEnum.fail)
+  it('should show fraction of completed transactions when handling multiple transactions with mixed states', () => {
+    const transactions: SignedTransactionType[] = [
+      {
+        ...baseTransaction,
+        hash: 'tx1',
+        status: TransactionServerStatusesEnum.success
+      },
+      {
+        ...baseTransaction,
+        hash: 'tx2',
+        status: TransactionServerStatusesEnum.pending
+      },
+      {
+        ...baseTransaction,
+        hash: 'tx3',
+        status: TransactionServerStatusesEnum.fail
+      }
     ];
 
-    // Simulate pending check based on status
     (isServerTransactionPending as jest.Mock).mockImplementation(
       (status) => status === TransactionServerStatusesEnum.pending
     );
 
-    const result = getToastProceededStatus(transactions);
-
-    expect(result).toContain('2 / 3 transactions processed');
+    expect(getToastProceededStatus(transactions)).toBe(
+      '2 / 3 transactions processed'
+    );
   });
 
-  it('should handle empty transactions array', () => {
-    const transactions: SignedTransactionType[] = [];
+  it('should handle empty array and transactions with undefined status', () => {
+    const emptyTransactions: SignedTransactionType[] = [];
+    const undefinedStatusTx: SignedTransactionType = {
+      ...baseTransaction,
+      hash: 'tx1'
+    };
 
-    const result = getToastProceededStatus(transactions);
-
-    expect(result).toContain('0 / 0 transactions processed');
-  });
-
-  it('should handle transactions without status', () => {
-    // Create transaction without explicitly setting status
-    const transactions = [
-      { ...createMockTransaction('tx-1'), status: undefined }
-    ];
-
-    // Default behavior for undefined status
     (isServerTransactionPending as jest.Mock).mockReturnValue(true);
 
-    const result = getToastProceededStatus(transactions);
+    expect(getToastProceededStatus(emptyTransactions)).toBe(
+      '0 / 0 transactions processed'
+    );
 
-    expect(result).toContain('0 / 1 transactions processed');
+    expect(getToastProceededStatus([undefinedStatusTx])).toBe(
+      '0 / 1 transactions processed'
+    );
   });
 });
