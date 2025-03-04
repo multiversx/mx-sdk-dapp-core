@@ -2,10 +2,6 @@ import { SdkDappCoreUiTagsEnum } from 'constants/sdkDappCoreUiTags';
 import { ProviderErrorsEnum } from 'types/provider.types';
 import { createUIElement as baseCreateUIElement } from 'utils/createUIElement';
 
-/**
- * Creates a UI element with control over its initial visibility
- * This is shared between ToastManager and NotificationsFeedManager
- */
 export const createUiElement = async <T extends HTMLElement>(
   name: SdkDappCoreUiTagsEnum,
   isVisible: boolean = true
@@ -15,7 +11,6 @@ export const createUiElement = async <T extends HTMLElement>(
       name
     });
 
-    // Set initial visibility if needed
     if (!isVisible && element) {
       element.style.display = 'none';
     }

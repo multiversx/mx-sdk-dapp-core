@@ -5,8 +5,8 @@ import {
   getIsTransactionSuccessful,
   getIsTransactionTimedOut
 } from 'store/actions/transactions/transactionStateByStatus';
+import { AccountSliceType } from 'store/slices/account/account.types';
 import { ToastsSliceType } from 'store/slices/toast/toastSlice.types';
-import { AccountType } from 'types/account.types';
 import { TransactionServerStatusesEnum } from 'types/enums.types';
 import { SessionTransactionType } from 'types/transactions.types';
 import { createTransactionToast } from './createTransactionToast';
@@ -20,7 +20,7 @@ interface CreateToastsFromTransactionsReturnType {
 interface CreateToastsFromTransactionsParamsType {
   toastList: ToastsSliceType;
   sessions: Record<string, SessionTransactionType>;
-  account: AccountType;
+  account: AccountSliceType;
   existingCompletedTransactions?: ITransactionToast[];
 }
 

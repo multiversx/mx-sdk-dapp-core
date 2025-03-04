@@ -108,11 +108,11 @@ export class ToastManager {
   private async updateTransactionToastsList(toastList: ToastsSliceType) {
     const { transactions: sessions, account } = this.store.getState();
 
-    const { processingTransactions } = createToastsFromTransactions(
+    const { processingTransactions } = createToastsFromTransactions({
       toastList,
       sessions,
       account
-    );
+    });
 
     this.transactionToasts = processingTransactions;
 
@@ -152,10 +152,9 @@ export class ToastManager {
 
       this.toastsElement = element || undefined;
       this.isCreatingElement = false;
-      return this.toastsElement;
     }
 
-    return undefined;
+    return this.toastsElement;
   }
 
   private handleTransactionToastClose(toastId: string) {
@@ -178,16 +177,6 @@ export class ToastManager {
 
     if (!eventBus) {
       throw new Error(ProviderErrorsEnum.eventBusError);
-    }
-
-    const notificationsFeedEventBus =
-      await this.notificationsFeedManager.getEventBus();
-
-    if (notificationsFeedEventBus) {
-      notificationsFeedEventBus.subscribe(
-        NotificationsFeedEventsEnum.CLOSE_NOTIFICATIONS_FEED,
-        this.handleTransactionToastClose.bind(this)
-      );
     }
 
     eventBus.publish(

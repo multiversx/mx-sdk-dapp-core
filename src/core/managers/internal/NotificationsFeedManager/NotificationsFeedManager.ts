@@ -5,9 +5,10 @@ import { clearCompletedTransactions } from 'store/actions/transactions/transacti
 import { getStore } from 'store/store';
 import { ProviderErrorsEnum } from 'types/provider.types';
 import { SignedTransactionType } from 'types/transactions.types';
+import { createUIElement } from 'utils/createUIElement';
+import { createTransactionsHistoryFromSessions } from './helpers/createTransactionsHistoryFromSessions';
 import { NotificationsFeedEventsEnum } from './types';
 import { createToastsFromTransactions } from '../ToastManager/helpers/createToastsFromTransactions';
-import { createUiElement } from '../ToastManager/helpers/createUiElement';
 import { ITransactionToast } from '../ToastManager/types/toast.types';
 
 export class NotificationsFeedManager {
@@ -31,27 +32,9 @@ export class NotificationsFeedManager {
     return this.isOpen;
   }
 
-  public async getEventBus() {
-    if (!this.notificationsFeedElement) {
-      await this.createNotificationsFeedElement();
-    }
-
-    if (!this.notificationsFeedElement) {
-      throw new Error('Failed to create notifications feed element');
-    }
-
-    const eventBus = await this.notificationsFeedElement.getEventBus();
-    if (!eventBus) {
-      throw new Error(ProviderErrorsEnum.eventBusError);
-    }
-
-    return eventBus;
-  }
-
   public async init() {
     await this.createNotificationsFeedElement();
-    const { toasts } = this.store.getState();
-    this.updateTransactions(toasts);
+    this.updateData();
 
     this.unsubscribe = this.store.subscribe(
       (
@@ -62,7 +45,7 @@ export class NotificationsFeedManager {
           !isEqual(prevToasts.transactionToasts, toasts.transactionToasts) ||
           !isEqual(prevTransactions, transactions)
         ) {
-          this.updateTransactions(toasts);
+          this.updateData();
         }
       }
     );
@@ -79,9 +62,9 @@ export class NotificationsFeedManager {
 
     if (!this.isCreatingElement) {
       this.isCreatingElement = true;
-      const element = await createUiElement<NotificationsFeed>(
-        SdkDappCoreUiTagsEnum.NOTIFICATIONS_FEED
-      );
+      const element = await createUIElement<NotificationsFeed>({
+        name: SdkDappCoreUiTagsEnum.NOTIFICATIONS_FEED
+      });
       this.notificationsFeedElement = element || undefined;
       this.isCreatingElement = false;
     }
@@ -103,9 +86,6 @@ export class NotificationsFeedManager {
       NotificationsFeedEventsEnum.CLOSE_NOTIFICATIONS_FEED,
       () => {
         this.isOpen = false;
-        if (this.notificationsFeedElement) {
-          this.notificationsFeedElement.style.display = 'none';
-        }
       }
     );
 
@@ -119,24 +99,16 @@ export class NotificationsFeedManager {
     );
   }
 
-  private async updateTransactions(toastList: any) {
-    const { transactions: sessions, account } = this.store.getState();
-    const { processingTransactions } = createToastsFromTransactions(
-      toastList,
+  private async updateData() {
+    const { transactions: sessions, account, toasts } = this.store.getState();
+    const { processingTransactions } = createToastsFromTransactions({
+      toastList: toasts,
       sessions,
       account
-    );
-    this.processingTransactions = processingTransactions;
+    });
 
-    const sortedSessionKeys = Object.keys(sessions).sort(
-      (a, b) => Number(b) - Number(a)
-    );
-    this.transactionsHistory = sortedSessionKeys.reduce<
-      SignedTransactionType[]
-    >((allTransactions, sessionKey) => {
-      const sessionTransactions = sessions[sessionKey]?.transactions || [];
-      return [...allTransactions, ...sessionTransactions];
-    }, []);
+    this.processingTransactions = processingTransactions;
+    this.transactionsHistory = createTransactionsHistoryFromSessions(sessions);
 
     await this.updateNotificationsFeed();
   }
@@ -147,6 +119,7 @@ export class NotificationsFeedManager {
     }
 
     const eventBus = await this.notificationsFeedElement.getEventBus();
+
     if (!eventBus) {
       throw new Error(ProviderErrorsEnum.eventBusError);
     }
@@ -155,6 +128,7 @@ export class NotificationsFeedManager {
       NotificationsFeedEventsEnum.PROCESSING_TRANSACTIONS_UPDATE,
       this.processingTransactions
     );
+
     eventBus.publish(
       NotificationsFeedEventsEnum.TRANSACTIONS_HISTORY_UPDATE,
       this.transactionsHistory
@@ -175,13 +149,12 @@ export class NotificationsFeedManager {
     }
 
     const eventBus = await this.notificationsFeedElement.getEventBus();
+
     if (!eventBus) {
       throw new Error(ProviderErrorsEnum.eventBusError);
     }
 
-    const { toasts } = this.store.getState();
-    await this.updateTransactions(toasts);
-
+    await this.updateData();
     this.isOpen = true;
     this.notificationsFeedElement.style.display = 'block';
     eventBus.publish(NotificationsFeedEventsEnum.OPEN_NOTIFICATIONS_FEED);
@@ -192,11 +165,14 @@ export class NotificationsFeedManager {
 
     if (this.notificationsFeedElement) {
       const parentElement = this.notificationsFeedElement.parentElement;
+
       if (parentElement) {
         parentElement.removeChild(this.notificationsFeedElement);
       }
+
       this.notificationsFeedElement = undefined;
     }
+
     this.isOpen = false;
   }
 }

@@ -71,7 +71,7 @@ describe('createTransactionToast', () => {
       transactions: [
         { ...baseTransaction, status: TransactionServerStatusesEnum.pending }
       ],
-      transactionsDisplayInfo: { title: 'Pending Transaction' },
+      transactionsDisplayInfo: { processingMessage: 'Pending Transaction' },
       explorerAddress: EXPLORER_ADDRESS,
       startTime: now,
       endTime: now + 1000
@@ -109,7 +109,7 @@ describe('createTransactionToast', () => {
       transactions: [
         { ...baseTransaction, status: TransactionServerStatusesEnum.success }
       ],
-      transactionsDisplayInfo: { title: 'Successful Transaction' },
+      transactionsDisplayInfo: { successMessage: 'Successful Transaction' },
       explorerAddress: EXPLORER_ADDRESS,
       startTime: 1000,
       endTime: 2000
@@ -155,7 +155,10 @@ describe('createTransactionToast', () => {
       account: { address: testAddress },
       status: TransactionServerStatusesEnum.success,
       transactions,
-      transactionsDisplayInfo: { title: 'Multiple Transactions' },
+      transactionsDisplayInfo: {
+        processingMessage: 'Multiple Transactions',
+        successMessage: 'Multiple Transactions Description'
+      },
       explorerAddress: EXPLORER_ADDRESS,
       startTime: 1000,
       endTime: 2000

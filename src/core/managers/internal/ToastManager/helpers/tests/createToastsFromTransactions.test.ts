@@ -3,7 +3,7 @@ import {
   getIsTransactionPending,
   getIsTransactionSuccessful
 } from 'store/actions/transactions/transactionStateByStatus';
-import { AccountType } from 'types/account.types';
+import { AccountSliceType } from 'store/slices/account/account.types';
 import { TransactionServerStatusesEnum } from 'types/enums.types';
 import {
   SignedTransactionType,
@@ -34,16 +34,14 @@ describe('createToastsFromTransactions', () => {
     MISSING: 'missing-toast'
   } as const;
 
-  const mockAccount: AccountType = {
+  const mockAccount: AccountSliceType = {
     address: testAddress,
-    balance: '0',
-    nonce: 0,
-    txCount: 0,
-    scrCount: 0,
-    username: '',
-    code: '',
-    claimableRewards: '0',
-    isGuarded: false
+    accounts: {},
+    publicKey: '',
+    ledgerAccount: null,
+    walletConnectAccount: null,
+    websocketEvent: null,
+    websocketBatchEvent: null
   };
 
   const mockTransaction: SignedTransactionType = {
