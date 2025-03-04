@@ -21,9 +21,8 @@ import {
 } from 'store/slices/toast/toastSlice.types';
 import { getStore } from 'store/store';
 import { ProviderErrorsEnum } from 'types/provider.types';
-import { NotificationsFeedEventsEnum } from '../NotificationsFeedManager/types';
+import { createUIElement } from 'utils/createUIElement';
 import { createToastsFromTransactions } from './helpers/createToastsFromTransactions';
-import { createUiElement } from './helpers/createUiElement';
 import { LifetimeManager } from './helpers/LifetimeManager';
 import { ITransactionToast, ToastEventsEnum } from './types';
 
@@ -145,12 +144,10 @@ export class ToastManager {
     if (!this.isCreatingElement) {
       this.isCreatingElement = true;
 
-      const element = await createUiElement<ToastList>(
-        SdkDappCoreUiTagsEnum.TOAST_LIST,
-        true
-      );
+      this.toastsElement = await createUIElement<ToastList>({
+        name: SdkDappCoreUiTagsEnum.TOAST_LIST
+      });
 
-      this.toastsElement = element || undefined;
       this.isCreatingElement = false;
     }
 
