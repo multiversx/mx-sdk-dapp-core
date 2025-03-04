@@ -20,6 +20,7 @@ import {
 } from 'store/slices/toast/toastSlice.types';
 import { getStore } from 'store/store';
 import { ProviderErrorsEnum } from 'types/provider.types';
+import { NotificationsFeedEventsEnum } from '../NotificationsFeedManager/types';
 import { createUiElement } from './helpers/createUiElement';
 import { LifetimeManager } from './helpers/LifetimeManager';
 import { processTransactions } from './helpers/processTransactions';
@@ -53,13 +54,13 @@ export class ToastManager {
     this.notificationsFeedManager = NotificationsFeedManager.getInstance();
   }
 
-  public init() {
+  public async init() {
     const { toasts } = this.store.getState();
     this.updateTransactionToastsList(toasts);
     this.updateCustomToastList(toasts);
 
     // Initialize the notifications feed manager
-    this.notificationsFeedManager.init();
+    await this.notificationsFeedManager.init();
 
     this.unsubscribe = this.store.subscribe(
       (
@@ -160,6 +161,11 @@ export class ToastManager {
     return undefined;
   }
 
+  private handleTransactionToastClose(toastId: string) {
+    this.lifetimeManager.stop(toastId);
+    removeTransactionToast(toastId);
+  }
+
   private async renderToasts() {
     // Don't render toasts if notifications feed is open
     if (this.notificationsFeedManager.isNotificationsFeedOpen()) {
@@ -167,13 +173,25 @@ export class ToastManager {
     }
 
     const toastsElement = await this.createToastListElement();
+
     if (!toastsElement) {
       return;
     }
 
     const eventBus = await toastsElement.getEventBus();
+
     if (!eventBus) {
       throw new Error(ProviderErrorsEnum.eventBusError);
+    }
+
+    const notificationsFeedEventBus =
+      await this.notificationsFeedManager.getEventBus();
+
+    if (notificationsFeedEventBus) {
+      notificationsFeedEventBus.subscribe(
+        NotificationsFeedEventsEnum.CLOSE_NOTIFICATIONS_FEED,
+        this.handleTransactionToastClose.bind(this)
+      );
     }
 
     eventBus.publish(
@@ -181,10 +199,10 @@ export class ToastManager {
       this.transactionToasts
     );
 
-    eventBus.subscribe(ToastEventsEnum.CLOSE_TOAST, (toastId: string) => {
-      this.lifetimeManager.stop(toastId);
-      removeTransactionToast(toastId);
-    });
+    eventBus.subscribe(
+      ToastEventsEnum.CLOSE_TOAST,
+      this.handleTransactionToastClose.bind(this)
+    );
 
     // Listen for OPEN_NOTIFICATIONS_FEED event from toasts
     eventBus.subscribe(ToastEventsEnum.VIEW_ALL, () => {

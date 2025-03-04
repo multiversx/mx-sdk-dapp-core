@@ -32,6 +32,23 @@ export class NotificationsFeedManager {
     return this.isOpen;
   }
 
+  public async getEventBus() {
+    if (!this.notificationsFeedElement) {
+      await this.createNotificationsFeedElement();
+    }
+
+    if (!this.notificationsFeedElement) {
+      throw new Error('Failed to create notifications feed element');
+    }
+
+    const eventBus = await this.notificationsFeedElement.getEventBus();
+    if (!eventBus) {
+      throw new Error(ProviderErrorsEnum.eventBusError);
+    }
+
+    return eventBus;
+  }
+
   public async init() {
     await this.createNotificationsFeedElement();
 
@@ -79,6 +96,7 @@ export class NotificationsFeedManager {
     }
 
     const eventBus = await this.notificationsFeedElement.getEventBus();
+
     if (!eventBus) {
       throw new Error(ProviderErrorsEnum.eventBusError);
     }
@@ -87,6 +105,7 @@ export class NotificationsFeedManager {
       NotificationsFeedEventsEnum.CLOSE_NOTIFICATIONS_FEED,
       () => {
         this.isOpen = false;
+
         if (this.notificationsFeedElement) {
           this.notificationsFeedElement.style.display = 'none';
         }
