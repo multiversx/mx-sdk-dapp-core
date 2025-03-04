@@ -38,29 +38,37 @@ export const createTransactionToast = ({
   const { toastId } = toast;
   const isPending = getIsTransactionPending(status);
 
-  return {
-    toastDataState: getToastDataStateByStatus({
-      address: account.address,
-      sender: transactions[0]?.sender || '',
-      toastId,
-      status,
-      transactionsDisplayInfo
-    }),
-    processedTransactionsStatus: getToastProceededStatus(transactions),
-    transactionProgressState: isPending
-      ? {
-          endTime,
-          startTime
-        }
-      : null,
+  const toastDataState = getToastDataStateByStatus({
+    address: account.address,
+    sender: transactions[0]?.sender || '',
     toastId,
-    transactions: transactions.map(({ hash, status: txStatus }) => ({
-      hash,
-      status: txStatus ?? TransactionServerStatusesEnum.pending,
-      link: getExplorerLink({
-        explorerAddress,
-        to: explorerUrlBuilder.transactionDetails(hash)
-      })
-    }))
+    status,
+    transactionsDisplayInfo
+  });
+
+  const processedTransactionsStatus = getToastProceededStatus(transactions);
+
+  const transactionProgressState = isPending
+    ? {
+        endTime,
+        startTime
+      }
+    : null;
+
+  const mappedTransactions = transactions.map(({ hash, status: txStatus }) => ({
+    hash,
+    status: txStatus ?? TransactionServerStatusesEnum.pending,
+    link: getExplorerLink({
+      explorerAddress,
+      to: explorerUrlBuilder.transactionDetails(hash)
+    })
+  }));
+
+  return {
+    toastDataState,
+    processedTransactionsStatus,
+    transactionProgressState,
+    toastId,
+    transactions: mappedTransactions
   };
 };

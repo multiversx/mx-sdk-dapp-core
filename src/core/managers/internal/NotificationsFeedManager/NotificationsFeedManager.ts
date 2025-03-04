@@ -156,7 +156,6 @@ export class NotificationsFeedManager {
 
     await this.updateData();
     this.isOpen = true;
-    this.notificationsFeedElement.style.display = 'block';
     eventBus.publish(NotificationsFeedEventsEnum.OPEN_NOTIFICATIONS_FEED);
   }
 
