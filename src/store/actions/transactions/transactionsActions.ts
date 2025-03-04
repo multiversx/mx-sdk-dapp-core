@@ -87,10 +87,8 @@ export const updateTransactionStatus = ({
 export const clearCompletedTransactions = () => {
   getStore().setState(
     ({ transactions: state, toasts: toastsState }) => {
-      // Get all session IDs
       const sessionIds = Object.keys(state);
 
-      // Filter out completed transaction sessions
       const completedSessionIds = sessionIds.filter((sessionId) => {
         const session = state[sessionId];
         if (!session) {
@@ -99,25 +97,23 @@ export const clearCompletedTransactions = () => {
 
         const { status } = session;
 
-        // Check if transaction is pending/in progress
         const isPending =
           status === TransactionServerStatusesEnum.pending ||
           status === TransactionBatchStatusesEnum.signed ||
           status === TransactionBatchStatusesEnum.sent;
 
-        // If not pending, it's completed (successful, failed, or timed out)
         return !isPending;
       });
 
-      // Remove completed transaction sessions from state
       completedSessionIds.forEach((sessionId) => {
         delete state[sessionId];
       });
 
-      // Also remove the corresponding toast entries for these sessions
-      toastsState.transactionToasts = toastsState.transactionToasts.filter(
+      const filteredTransactionToasts = toastsState.transactionToasts.filter(
         (toast) => !completedSessionIds.includes(toast.toastId)
       );
+
+      toastsState.transactionToasts = filteredTransactionToasts;
     },
     false,
     'clearCompletedTransactions'
