@@ -1,14 +1,15 @@
 import { Message, Transaction } from '@multiversx/sdk-core/out';
 import { ExtensionProvider } from '@multiversx/sdk-extension-provider/out/extensionProvider';
-import { UITagsEnum } from 'constants/UITags.enum';
-import { PendingTransactionsStateManager } from 'core/managers/internal/PendingTransactionsStateManager/PendingTransactionsStateManager';
 import { PendingTransactionsEventsEnum } from 'core/managers/internal/PendingTransactionsStateManager/types/pendingTransactions.types';
 
 import { getAddress } from 'core/methods/account/getAddress';
-import { IProvider } from 'core/providers/types/providerFactory.types';
-import { PendingTransactionsModal } from 'lib/sdkDappCoreUi';
+import {
+  IProvider,
+  providerLabels
+} from 'core/providers/types/providerFactory.types';
 import { ProviderErrorsEnum } from 'types/provider.types';
-import { createUIElement } from 'utils/createUIElement';
+import { getModalHandlers } from '../helpers/getModalHandlers';
+import { signMessage } from '../helpers/signMessage/signMessage';
 
 export class ExtensionProviderStrategy {
   private address: string = '';
@@ -68,11 +69,9 @@ export class ExtensionProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    const modalElement = await createUIElement<PendingTransactionsModal>({
-      name: UITagsEnum.PENDING_TRANSACTIONS_MODAL
+    const { eventBus, manager, onClose } = await getModalHandlers({
+      cancelAction: this.provider.cancelAction.bind(this.provider)
     });
-    const { eventBus, manager, onClose } =
-      await this.getModalHandlers(modalElement);
 
     eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
 
@@ -97,55 +96,13 @@ export class ExtensionProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    const modalElement = await createUIElement<PendingTransactionsModal>({
-      name: UITagsEnum.PENDING_TRANSACTIONS_MODAL
+    const signedMessage = await signMessage({
+      message,
+      handleSignMessage: this._signMessage.bind(this.provider),
+      cancelAction: this.provider.cancelAction.bind(this.provider),
+      providerType: providerLabels.extension
     });
 
-    const { eventBus, manager, onClose } =
-      await this.getModalHandlers(modalElement);
-
-    eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
-
-    manager.updateData({
-      isPending: true,
-      title: 'Message Signing',
-      subtitle: 'Check your MultiversX Wallet Extension to sign the message'
-    });
-
-    try {
-      const signedMessage = await this._signMessage(message);
-
-      return signedMessage;
-    } catch (error) {
-      this.provider.cancelAction();
-      throw error;
-    } finally {
-      onClose(false);
-      eventBus.unsubscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
-    }
-  };
-
-  private getModalHandlers = async (modalElement: PendingTransactionsModal) => {
-    const eventBus = await modalElement.getEventBus();
-
-    if (!eventBus) {
-      throw new Error(ProviderErrorsEnum.eventBusError);
-    }
-
-    const manager = new PendingTransactionsStateManager(eventBus);
-
-    const onClose = (cancelAction = true) => {
-      if (!this.provider) {
-        throw new Error(ProviderErrorsEnum.notInitialized);
-      }
-
-      if (cancelAction) {
-        this.provider.cancelAction();
-      }
-
-      manager.closeAndReset();
-    };
-
-    return { eventBus, manager, onClose };
+    return signedMessage;
   };
 }

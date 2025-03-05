@@ -14,6 +14,11 @@ export function getLedgerErrorCodes(err?: any) {
       ? ledgerAppErrorText
       : message;
   }
+
+  if (!errorMessage && String(err).includes('The device was disconnected.')) {
+    errorMessage = 'The device was disconnected';
+  }
+
   return {
     errorMessage,
     defaultErrorMessage: ledgerAppErrorText

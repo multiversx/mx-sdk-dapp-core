@@ -32,15 +32,17 @@ import { getTokenType } from './helpers/getTokenType';
 import { getUsdValue } from './helpers/getUsdValue';
 import { guardTransactions as getGuardedTransactions } from './helpers/guardTransactions/guardTransactions';
 
+type SignTransactionsParamsType = {
+  transactions?: Transaction[];
+  handleSign: IProvider['signTransactions'];
+  guardTransactions?: typeof getGuardedTransactions;
+};
+
 export async function signTransactions({
   transactions = [],
   handleSign,
   guardTransactions = getGuardedTransactions
-}: {
-  transactions?: Transaction[];
-  handleSign: IProvider['signTransactions'];
-  guardTransactions?: typeof getGuardedTransactions;
-}) {
+}: SignTransactionsParamsType): Promise<Transaction[]> {
   const address = getAddress();
   const network = networkSelector(getState());
 

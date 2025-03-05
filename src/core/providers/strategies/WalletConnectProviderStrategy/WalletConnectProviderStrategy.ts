@@ -8,17 +8,15 @@ import {
 import { UITagsEnum } from 'constants/UITags.enum';
 import { safeWindow } from 'constants/window.constants';
 
-import { PendingTransactionsStateManager } from 'core/managers/internal/PendingTransactionsStateManager/PendingTransactionsStateManager';
 import { PendingTransactionsEventsEnum } from 'core/managers/internal/PendingTransactionsStateManager/types/pendingTransactions.types';
 import { WalletConnectStateManager } from 'core/managers/internal/WalletConnectStateManager/WalletConnectStateManager';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import { getAccountProvider } from 'core/providers/helpers/accountProvider';
-import { IProvider } from 'core/providers/types/providerFactory.types';
 import {
-  defineCustomElements,
-  PendingTransactionsModal,
-  WalletConnectModal
-} from 'lib/sdkDappCoreUi';
+  IProvider,
+  providerLabels
+} from 'core/providers/types/providerFactory.types';
+import { defineCustomElements, WalletConnectModal } from 'lib/sdkDappCoreUi';
 import { logoutAction } from 'store/actions';
 import {
   chainIdSelector,
@@ -39,6 +37,8 @@ import {
   WalletConnectConfig,
   IWalletConnectModalData
 } from './types';
+import { getModalHandlers } from '../helpers/getModalHandlers';
+import { signMessage } from '../helpers/signMessage/signMessage';
 
 const dappMethods: string[] = [
   WalletConnectOptionalMethodsEnum.CANCEL_ACTION,
@@ -311,11 +311,9 @@ export class WalletConnectProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    const modalElement = await createUIElement<PendingTransactionsModal>({
-      name: UITagsEnum.PENDING_TRANSACTIONS_MODAL
+    const { eventBus, manager, onClose } = await getModalHandlers({
+      cancelAction: this.cancelAction.bind(this)
     });
-    const { eventBus, manager, onClose } =
-      await this.getModalHandlers(modalElement);
 
     eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
 
@@ -346,43 +344,37 @@ export class WalletConnectProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    const modalElement = await createUIElement<PendingTransactionsModal>({
-      name: UITagsEnum.PENDING_TRANSACTIONS_MODAL
-    });
-    const { eventBus, manager, onClose } =
-      await this.getModalHandlers(modalElement);
-
-    eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
-
-    manager.updateData({
-      isPending: true,
-      title: 'Message Signing',
-      subtitle: 'Check your MultiversX xPortal App to sign the message'
-    });
-
-    try {
-      const signedMessage = await this._signMessage(message);
-
-      return signedMessage;
-    } catch (error) {
-      await this.sendCustomRequest({
+    const cancelAction = () => {
+      return this.sendCustomRequest({
         method: WalletConnectOptionalMethodsEnum.CANCEL_ACTION,
         action: OptionalOperation.CANCEL_ACTION
       });
-      throw error;
-    } finally {
-      onClose(false);
-      eventBus.unsubscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
-    }
+    };
+
+    const signedMessage = await signMessage({
+      message,
+      handleSignMessage: this._signMessage.bind(this.provider),
+      cancelAction,
+      providerType: providerLabels.extension
+    });
+
+    return signedMessage;
   };
 
-  private sendCustomRequest = async ({
+  private async cancelAction() {
+    await this.sendCustomRequest({
+      method: WalletConnectOptionalMethodsEnum.CANCEL_ACTION,
+      action: OptionalOperation.CANCEL_ACTION
+    });
+  }
+
+  private async sendCustomRequest({
     action,
     method
   }: {
     action: OptionalOperation;
     method: WalletConnectOptionalMethodsEnum;
-  }) => {
+  }) {
     if (!this.provider) {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
@@ -397,32 +389,5 @@ export class WalletConnectProviderStrategy {
     } catch (error) {
       console.error(WalletConnectV2Error.actionError, error);
     }
-  };
-
-  private getModalHandlers = async (modalElement: PendingTransactionsModal) => {
-    const eventBus = await modalElement.getEventBus();
-
-    if (!eventBus) {
-      throw new Error(ProviderErrorsEnum.eventBusError);
-    }
-
-    const manager = new PendingTransactionsStateManager(eventBus);
-
-    const onClose = async (cancelAction = true) => {
-      if (!this.provider) {
-        throw new Error(ProviderErrorsEnum.notInitialized);
-      }
-
-      if (cancelAction) {
-        await this.sendCustomRequest({
-          method: WalletConnectOptionalMethodsEnum.CANCEL_ACTION,
-          action: OptionalOperation.CANCEL_ACTION
-        });
-      }
-
-      manager.closeAndReset();
-    };
-
-    return { eventBus, manager, onClose };
-  };
+  }
 }
