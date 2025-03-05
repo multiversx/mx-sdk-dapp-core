@@ -84,10 +84,7 @@ export class DappProvider {
       });
       return signedMessage;
     } catch (error) {
-      const errorMessage = handleSignError({
-        message: (error as Error).message,
-        name: 'warning'
-      });
+      const errorMessage = handleSignError(error, 'warning');
       throw new Error(errorMessage);
     }
   }

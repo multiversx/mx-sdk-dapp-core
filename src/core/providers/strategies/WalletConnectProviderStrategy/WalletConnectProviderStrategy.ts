@@ -11,7 +11,10 @@ import { PendingTransactionsEventsEnum } from 'core/managers/internal/PendingTra
 import { WalletConnectStateManager } from 'core/managers/internal/WalletConnectStateManager/WalletConnectStateManager';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import { getAccountProvider } from 'core/providers/helpers/accountProvider';
-import { IProvider } from 'core/providers/types/providerFactory.types';
+import {
+  IProvider,
+  providerLabels
+} from 'core/providers/types/providerFactory.types';
 import { defineCustomElements, WalletConnectModal } from 'lib/sdkDappCoreUi';
 import { logoutAction } from 'store/actions';
 import {
@@ -34,6 +37,7 @@ import {
   IWalletConnectModalData
 } from './types';
 import { getModalHandlers } from '../helpers/getModalHandlers';
+import { signMessage } from '../helpers/signMessage/signMessage';
 
 const dappMethods: string[] = [
   WalletConnectOptionalMethodsEnum.CANCEL_ACTION,
@@ -340,32 +344,21 @@ export class WalletConnectProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    const { eventBus, manager, onClose } = await getModalHandlers({
-      cancelAction: this.cancelAction.bind(this)
-    });
-
-    eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
-
-    manager.updateData({
-      isPending: true,
-      title: 'Message Signing',
-      subtitle: 'Check your MultiversX xPortal App to sign the message'
-    });
-
-    try {
-      const signedMessage = await this._signMessage(message);
-
-      return signedMessage;
-    } catch (error) {
-      await this.sendCustomRequest({
+    const cancelAction = () => {
+      return this.sendCustomRequest({
         method: WalletConnectOptionalMethodsEnum.CANCEL_ACTION,
         action: OptionalOperation.CANCEL_ACTION
       });
-      throw error;
-    } finally {
-      onClose(false);
-      eventBus.unsubscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
-    }
+    };
+
+    const signedMessage = await signMessage({
+      message,
+      handleSignMessage: this._signMessage.bind(this.provider),
+      cancelAction,
+      providerType: providerLabels.extension
+    });
+
+    return signedMessage;
   };
 
   private async cancelAction() {

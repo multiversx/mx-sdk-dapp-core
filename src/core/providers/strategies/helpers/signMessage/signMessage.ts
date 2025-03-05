@@ -16,34 +16,36 @@ export async function signMessage<T>({
   cancelAction,
   providerType
 }: SignMessageWithModalPropsType<T>): Promise<Message> {
-  const msg = await new Promise<Awaited<Message>>(async (resolve, reject) => {
-    const { eventBus, manager, onClose } = await getModalHandlers({
-      cancelAction
-    });
+  const signedMsg = await new Promise<Awaited<Message>>(
+    async (resolve, reject) => {
+      const { eventBus, manager, onClose } = await getModalHandlers({
+        cancelAction
+      });
 
-    const closeModal = async () => {
-      await onClose(false);
-      reject({ message: SigningWarningsEnum.cancelled });
-    };
+      const closeModal = async () => {
+        await onClose(false);
+        reject({ message: SigningWarningsEnum.cancelled });
+      };
 
-    eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, closeModal);
+      eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, closeModal);
 
-    manager.updateData({
-      isPending: true,
-      title: 'Message Signing',
-      subtitle: `Check your ${providerType} to sign the message`
-    });
+      manager.updateData({
+        isPending: true,
+        title: 'Message Signing',
+        subtitle: `Check your ${providerType} to sign the message`
+      });
 
-    try {
-      const signedMessage = await handleSignMessage(message);
-      await onClose(false);
-      resolve(signedMessage);
-    } catch (err) {
-      await onClose(false);
-      reject(err);
-    } finally {
-      eventBus.unsubscribe(PendingTransactionsEventsEnum.CLOSE, closeModal);
+      try {
+        const signedMessage = await handleSignMessage(message);
+        await onClose(false);
+        resolve(signedMessage);
+      } catch (err) {
+        await onClose(false);
+        reject(err);
+      } finally {
+        eventBus.unsubscribe(PendingTransactionsEventsEnum.CLOSE, closeModal);
+      }
     }
-  });
-  return msg;
+  );
+  return signedMsg;
 }

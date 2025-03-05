@@ -4,16 +4,17 @@ import { HWProvider } from '@multiversx/sdk-hw-provider';
 import { safeWindow } from 'constants/index';
 
 import { LedgerConnectStateManager } from 'core/managers/internal/LedgerConnectStateManager/LedgerConnectStateManager';
-import { PendingTransactionsEventsEnum } from 'core/managers/internal/PendingTransactionsStateManager/types/pendingTransactions.types';
 import { getAddress } from 'core/methods/account/getAddress';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
-import { IProvider } from 'core/providers/types/providerFactory.types';
+import {
+  IProvider,
+  providerLabels
+} from 'core/providers/types/providerFactory.types';
 import {
   defineCustomElements,
   LedgerConnect,
   LedgerConnectModal
 } from 'lib/sdkDappCoreUi';
-import { SigningWarningsEnum } from 'types/enums.types';
 import { ProviderErrorsEnum } from 'types/provider.types';
 import { createUIElement } from 'utils/createUIElement';
 import { getLedgerProvider } from './helpers';
@@ -25,7 +26,7 @@ import {
   LedgerEventBusType,
   LedgerLoginType
 } from './types/ledgerProvider.types';
-import { getModalHandlers } from '../helpers/getModalHandlers';
+import { signMessage } from '../helpers/signMessage/signMessage';
 import { signTransactions } from '../helpers/signTransactions/signTransactions';
 
 export class LedgerProviderStrategy {
@@ -76,6 +77,7 @@ export class LedgerProviderStrategy {
       this._login = ledgerProvider.login.bind(ledgerProvider);
       this._signTransactions =
         ledgerProvider.signTransactions.bind(ledgerProvider);
+
       this._signMessage = ledgerProvider.signMessage.bind(ledgerProvider);
     }
 
@@ -178,37 +180,16 @@ export class LedgerProviderStrategy {
   };
 
   private signMessage = async (message: Message): Promise<Message> => {
-    const msg = await new Promise<Awaited<Message>>(async (resolve, reject) => {
-      if (!this.provider || !this._signMessage) {
-        return reject(ProviderErrorsEnum.notInitialized);
-      }
+    if (!this.provider || !this._signMessage) {
+      throw new Error(ProviderErrorsEnum.notInitialized);
+    }
 
-      const { eventBus, manager, onClose } = await getModalHandlers();
-
-      const closeModal = () => {
-        onClose();
-        reject({ message: SigningWarningsEnum.cancelled });
-      };
-
-      eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, closeModal);
-
-      manager.updateData({
-        isPending: true,
-        title: 'Message Signing',
-        subtitle: 'Check your Ledger device to sign the message'
-      });
-
-      try {
-        const signedMessage = await this._signMessage(message);
-
-        resolve(signedMessage);
-      } catch (err) {
-        reject(err);
-      } finally {
-        onClose();
-        eventBus.unsubscribe(PendingTransactionsEventsEnum.CLOSE, closeModal);
-      }
+    const signedMessage = await signMessage({
+      message,
+      handleSignMessage: this._signMessage.bind(this.provider),
+      providerType: providerLabels.ledger
     });
-    return msg;
+
+    return signedMessage;
   };
 }

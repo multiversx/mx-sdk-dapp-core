@@ -69,6 +69,6 @@ export enum SigningErrorsEnum {
   senderDifferentThanLoggedInAddress = 'You cannot sign transactions from a different account'
 }
 export enum SigningWarningsEnum {
-  cancelled = 'Cancelled by user',
+  cancelled = 'Signing canceled',
   transactionCancelled = 'Transaction canceled'
 }

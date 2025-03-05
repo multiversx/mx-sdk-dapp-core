@@ -5,12 +5,16 @@ import { IframeLoginTypes } from '@multiversx/sdk-web-wallet-iframe-provider/out
 import { PendingTransactionsEventsEnum } from 'core/managers/internal/PendingTransactionsStateManager/types/pendingTransactions.types';
 import { getAccount } from 'core/methods/account/getAccount';
 import { getAddress } from 'core/methods/account/getAddress';
-import { IProvider } from 'core/providers/types/providerFactory.types';
+import {
+  IProvider,
+  providerLabels
+} from 'core/providers/types/providerFactory.types';
 import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
 import { ProviderErrorsEnum } from 'types/provider.types';
 import { IFrameProviderType } from './types';
 import { getModalHandlers } from '../helpers/getModalHandlers';
+import { signMessage } from '../helpers/signMessage/signMessage';
 
 export class IFrameProviderStrategy {
   private provider: IframeProvider | null = null;
@@ -111,28 +115,13 @@ export class IFrameProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    const { eventBus, manager, onClose } = await getModalHandlers({
-      cancelAction: this.provider.cancelAction.bind(this.provider)
+    const signedMessage = await signMessage({
+      message,
+      handleSignMessage: this._signMessage.bind(this.provider),
+      cancelAction: this.provider.cancelAction.bind(this.provider),
+      providerType: providerLabels[this.type]
     });
 
-    eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
-
-    manager.updateData({
-      isPending: true,
-      title: 'Message Signing',
-      subtitle: `Check your MultiversX ${this.type} to sign the message`
-    });
-
-    try {
-      const signedMessage = await this._signMessage(message);
-
-      return signedMessage;
-    } catch (error) {
-      this.provider.cancelAction();
-      throw error;
-    } finally {
-      onClose(false);
-      eventBus.unsubscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
-    }
+    return signedMessage;
   };
 }
