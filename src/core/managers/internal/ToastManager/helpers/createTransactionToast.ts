@@ -7,16 +7,12 @@ import {
 import { explorerUrlBuilder } from 'utils/transactions/explorerUrlBuilder';
 import { getExplorerLink } from 'utils/transactions/getExplorerLink';
 import { getToastDataStateByStatus } from './getToastDataStateByStatus';
-import { getToastProceededStatus } from './getToastProceededStatus';
+import { getToastTransactionsStatus } from './getToastTransactionsStatus';
 import { ITransactionToast } from '../types/toast.types';
 
 interface CreateTransactionToastParamsType {
-  toast: {
-    toastId: string;
-  };
-  account: {
-    address: string;
-  };
+  toastId: string;
+  address: string;
   status: TransactionServerStatusesEnum;
   transactions: SignedTransactionType[];
   transactionsDisplayInfo?: TransactionsDisplayInfoType;
@@ -26,8 +22,8 @@ interface CreateTransactionToastParamsType {
 }
 
 export const createTransactionToast = ({
-  toast,
-  account,
+  toastId,
+  address,
   status,
   transactions,
   transactionsDisplayInfo,
@@ -35,18 +31,17 @@ export const createTransactionToast = ({
   startTime,
   endTime
 }: CreateTransactionToastParamsType): ITransactionToast => {
-  const { toastId } = toast;
   const isPending = getIsTransactionPending(status);
 
   const toastDataState = getToastDataStateByStatus({
-    address: account.address,
+    address,
     sender: transactions[0]?.sender || '',
     toastId,
     status,
     transactionsDisplayInfo
   });
 
-  const processedTransactionsStatus = getToastProceededStatus(transactions);
+  const processedTransactionsStatus = getToastTransactionsStatus(transactions);
 
   const transactionProgressState = isPending
     ? {

@@ -1,5 +1,6 @@
+import { IEventBus } from '@multiversx/sdk-dapp-core-ui/dist/types/utils/EventBus';
 import isEqual from 'lodash.isequal';
-import { SdkDappCoreUiTagsEnum } from 'constants/sdkDappCoreUiTags';
+import { UITagsEnum } from 'constants/UITags.enum';
 import { NotificationsFeed } from 'lib/sdkDappCoreUi';
 import { clearCompletedTransactions } from 'store/actions/transactions/transactionsActions';
 import { getStore } from 'store/store';
@@ -14,12 +15,12 @@ import { ITransactionToast } from '../ToastManager/types/toast.types';
 export class NotificationsFeedManager {
   private static instance: NotificationsFeedManager;
   private isCreatingElement = false;
-  private notificationsFeedElement: NotificationsFeed | undefined;
-  private processingTransactions: ITransactionToast[] = [];
-  private transactionsHistory: SignedTransactionType[] = [];
-  private unsubscribe: () => void = () => null;
+  private notificationsFeedElement: NotificationsFeed | null = null;
+  private pendingTransactions: ITransactionToast[] = [];
+  private historicTransactions: SignedTransactionType[] = [];
+  private storeTransactionsUnsubscribe: () => void = () => null;
   private isOpen = false;
-  store = getStore();
+  private store = getStore();
 
   public static getInstance(): NotificationsFeedManager {
     if (!NotificationsFeedManager.instance) {
@@ -32,11 +33,19 @@ export class NotificationsFeedManager {
     return this.isOpen;
   }
 
+  private async getEventBus(): Promise<IEventBus | null> {
+    if (!this.notificationsFeedElement) {
+      return null;
+    }
+
+    return this.notificationsFeedElement.getEventBus();
+  }
+
   public async init() {
     await this.createNotificationsFeedElement();
     this.updateData();
 
-    this.unsubscribe = this.store.subscribe(
+    this.storeTransactionsUnsubscribe = this.store.subscribe(
       (
         { toasts, transactions },
         { toasts: prevToasts, transactions: prevTransactions }
@@ -53,9 +62,7 @@ export class NotificationsFeedManager {
     await this.setupEventListeners();
   }
 
-  private async createNotificationsFeedElement(): Promise<
-    NotificationsFeed | undefined
-  > {
+  private async createNotificationsFeedElement(): Promise<NotificationsFeed | null> {
     if (this.notificationsFeedElement) {
       return this.notificationsFeedElement;
     }
@@ -63,10 +70,15 @@ export class NotificationsFeedManager {
     if (!this.isCreatingElement) {
       this.isCreatingElement = true;
       const element = await createUIElement<NotificationsFeed>({
-        name: SdkDappCoreUiTagsEnum.NOTIFICATIONS_FEED
+        name: UITagsEnum.NOTIFICATIONS_FEED
       });
-      this.notificationsFeedElement = element || undefined;
+
+      this.notificationsFeedElement = element || null;
       this.isCreatingElement = false;
+    }
+
+    if (!this.notificationsFeedElement) {
+      throw new Error('Failed to create notifications feed element');
     }
 
     return this.notificationsFeedElement;
@@ -74,10 +86,15 @@ export class NotificationsFeedManager {
 
   private async setupEventListeners() {
     if (!this.notificationsFeedElement) {
-      throw new Error('Notifications feed element not created');
+      await this.createNotificationsFeedElement();
     }
 
-    const eventBus = await this.notificationsFeedElement.getEventBus();
+    if (!this.notificationsFeedElement) {
+      return;
+    }
+
+    const eventBus = await this.getEventBus();
+
     if (!eventBus) {
       throw new Error(ProviderErrorsEnum.eventBusError);
     }
@@ -93,7 +110,7 @@ export class NotificationsFeedManager {
       NotificationsFeedEventsEnum.CLEAR_NOTIFICATIONS_FEED_HISTORY,
       () => {
         clearCompletedTransactions();
-        this.transactionsHistory = [];
+        this.historicTransactions = [];
         this.updateNotificationsFeed();
       }
     );
@@ -101,37 +118,41 @@ export class NotificationsFeedManager {
 
   private async updateData() {
     const { transactions: sessions, account, toasts } = this.store.getState();
-    const { processingTransactions } = createToastsFromTransactions({
+    const { pendingTransactions } = createToastsFromTransactions({
       toastList: toasts,
       sessions,
       account
     });
 
-    this.processingTransactions = processingTransactions;
-    this.transactionsHistory = createTransactionsHistoryFromSessions(sessions);
+    this.pendingTransactions = pendingTransactions;
+    this.historicTransactions = createTransactionsHistoryFromSessions(sessions);
 
     await this.updateNotificationsFeed();
   }
 
   private async updateNotificationsFeed() {
     if (!this.notificationsFeedElement) {
+      await this.createNotificationsFeedElement();
+    }
+
+    if (!this.notificationsFeedElement) {
       return;
     }
 
-    const eventBus = await this.notificationsFeedElement.getEventBus();
+    const eventBus = await this.getEventBus();
 
     if (!eventBus) {
       throw new Error(ProviderErrorsEnum.eventBusError);
     }
 
     eventBus.publish(
-      NotificationsFeedEventsEnum.PROCESSING_TRANSACTIONS_UPDATE,
-      this.processingTransactions
+      NotificationsFeedEventsEnum.PENDING_TRANSACTIONS_UPDATE,
+      this.pendingTransactions
     );
 
     eventBus.publish(
       NotificationsFeedEventsEnum.TRANSACTIONS_HISTORY_UPDATE,
-      this.transactionsHistory
+      this.historicTransactions
     );
   }
 
@@ -145,10 +166,10 @@ export class NotificationsFeedManager {
     }
 
     if (!this.notificationsFeedElement) {
-      throw new Error('Failed to create notifications feed element');
+      return;
     }
 
-    const eventBus = await this.notificationsFeedElement.getEventBus();
+    const eventBus = await this.getEventBus();
 
     if (!eventBus) {
       throw new Error(ProviderErrorsEnum.eventBusError);
@@ -160,7 +181,7 @@ export class NotificationsFeedManager {
   }
 
   public destroy() {
-    this.unsubscribe();
+    this.storeTransactionsUnsubscribe();
 
     if (this.notificationsFeedElement) {
       const parentElement = this.notificationsFeedElement.parentElement;
@@ -169,7 +190,7 @@ export class NotificationsFeedManager {
         parentElement.removeChild(this.notificationsFeedElement);
       }
 
-      this.notificationsFeedElement = undefined;
+      this.notificationsFeedElement = null;
     }
 
     this.isOpen = false;

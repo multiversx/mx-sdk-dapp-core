@@ -1,5 +1,5 @@
 import isEqual from 'lodash.isequal';
-import { SdkDappCoreUiTagsEnum } from 'constants/sdkDappCoreUiTags';
+import { UITagsEnum } from 'constants/UITags.enum';
 import { NotificationsFeedManager } from 'core/managers/internal/NotificationsFeedManager';
 import { ToastList } from 'lib/sdkDappCoreUi';
 import {
@@ -33,11 +33,11 @@ interface IToastManager {
 export class ToastManager {
   private lifetimeManager: LifetimeManager;
   private isCreatingElement = false;
-  private toastsElement: ToastList | undefined;
+  private toastsElement: ToastList | null = null;
   private transactionToasts: ITransactionToast[] = [];
   private customToasts: CustomToastType[] = [];
   private successfulToastLifetime?: number;
-  private unsubscribe: () => void = () => null;
+  private storeToastsSubscription: () => void = () => null;
   private notificationsFeedManager: NotificationsFeedManager;
 
   store = getStore();
@@ -60,7 +60,7 @@ export class ToastManager {
 
     await this.notificationsFeedManager.init();
 
-    this.unsubscribe = this.store.subscribe(
+    this.storeToastsSubscription = this.store.subscribe(
       (
         { toasts, transactions },
         { toasts: prevToasts, transactions: prevTransactions }
@@ -107,13 +107,13 @@ export class ToastManager {
   private async updateTransactionToastsList(toastList: ToastsSliceType) {
     const { transactions: sessions, account } = this.store.getState();
 
-    const { processingTransactions } = createToastsFromTransactions({
+    const { pendingTransactions } = createToastsFromTransactions({
       toastList,
       sessions,
       account
     });
 
-    this.transactionToasts = processingTransactions;
+    this.transactionToasts = pendingTransactions;
 
     for (const toast of toastList.transactionToasts) {
       const sessionTransactions = sessions[toast.toastId];
@@ -136,7 +136,7 @@ export class ToastManager {
     await this.renderToasts();
   }
 
-  private async createToastListElement(): Promise<ToastList | undefined> {
+  private async createToastListElement(): Promise<ToastList | null> {
     if (this.toastsElement) {
       return this.toastsElement;
     }
@@ -145,7 +145,7 @@ export class ToastManager {
       this.isCreatingElement = true;
 
       this.toastsElement = await createUIElement<ToastList>({
-        name: SdkDappCoreUiTagsEnum.TOAST_LIST
+        name: UITagsEnum.TOAST_LIST
       });
 
       this.isCreatingElement = false;
@@ -226,7 +226,7 @@ export class ToastManager {
   }
 
   public destroy() {
-    this.unsubscribe();
+    this.storeToastsSubscription();
     this.lifetimeManager?.destroy();
     this.notificationsFeedManager?.destroy();
     removeAllCustomToasts();

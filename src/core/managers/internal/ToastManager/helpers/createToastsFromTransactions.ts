@@ -13,7 +13,7 @@ import { createTransactionToast } from './createTransactionToast';
 import { ITransactionToast } from '../types/toast.types';
 
 interface CreateToastsFromTransactionsReturnType {
-  processingTransactions: ITransactionToast[];
+  pendingTransactions: ITransactionToast[];
   completedTransactions: ITransactionToast[];
 }
 
@@ -30,7 +30,7 @@ export const createToastsFromTransactions = ({
   account,
   existingCompletedTransactions = []
 }: CreateToastsFromTransactionsParamsType): CreateToastsFromTransactionsReturnType => {
-  const processingTransactions: ITransactionToast[] = [];
+  const pendingTransactions: ITransactionToast[] = [];
   const completedTransactions: ITransactionToast[] = [
     ...existingCompletedTransactions
   ];
@@ -59,8 +59,8 @@ export const createToastsFromTransactions = ({
     }
 
     const transactionToast = createTransactionToast({
-      toast,
-      account,
+      toastId: toast.toastId,
+      address: account.address,
       status: status as TransactionServerStatusesEnum,
       transactions,
       transactionsDisplayInfo,
@@ -74,12 +74,12 @@ export const createToastsFromTransactions = ({
     }
 
     if (isPending) {
-      processingTransactions.push(transactionToast);
+      pendingTransactions.push(transactionToast);
     }
   }
 
   return {
-    processingTransactions,
+    pendingTransactions,
     completedTransactions
   };
 };

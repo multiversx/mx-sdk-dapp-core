@@ -6,6 +6,7 @@ import {
   GAS_PRICE_MODIFIER,
   MULTI_TRANSFER_EGLD_TOKEN
 } from 'constants/mvx.constants';
+import { UITagsEnum } from 'constants/UITags.enum';
 import { SignTransactionsStateManager } from 'core/managers/internal/SignTransactionsStateManager/SignTransactionsStateManager';
 import {
   ISignTransactionsModalData,
@@ -30,7 +31,6 @@ import { getScCall } from './helpers/getScCall';
 import { getTokenType } from './helpers/getTokenType';
 import { getUsdValue } from './helpers/getUsdValue';
 import { guardTransactions as getGuardedTransactions } from './helpers/guardTransactions/guardTransactions';
-import { SdkDappCoreUiTagsEnum } from 'constants/sdkDappCoreUiTags';
 
 export async function signTransactions({
   transactions = [],
@@ -46,7 +46,7 @@ export async function signTransactions({
 
   const egldLabel = getEgldLabel();
   const signModalElement = await createUIElement<SignTransactionsModal>({
-    name: SdkDappCoreUiTagsEnum.SIGN_TRANSACTIONS_MODAL
+    name: UITagsEnum.SIGN_TRANSACTIONS_MODAL
   });
 
   const { allTransactions, getTxInfoByDataField } =

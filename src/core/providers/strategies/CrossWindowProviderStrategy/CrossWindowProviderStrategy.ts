@@ -1,7 +1,7 @@
 import { Message, Transaction } from '@multiversx/sdk-core/out';
 import { isBrowserWithPopupConfirmation } from 'constants/browser.constants';
 
-import { SdkDappCoreUiTagsEnum } from 'constants/sdkDappCoreUiTags';
+import { UITagsEnum } from 'constants/UITags.enum';
 import { PendingTransactionsStateManager } from 'core/managers/internal/PendingTransactionsStateManager/PendingTransactionsStateManager';
 import { PendingTransactionsEventsEnum } from 'core/managers/internal/PendingTransactionsStateManager/types/pendingTransactions.types';
 import { getAddress } from 'core/methods/account/getAddress';
@@ -90,7 +90,7 @@ export class CrossWindowProviderStrategy {
     }
 
     const modalElement = await createUIElement<PendingTransactionsModal>({
-      name: SdkDappCoreUiTagsEnum.PENDING_TRANSACTIONS_MODAL
+      name: UITagsEnum.PENDING_TRANSACTIONS_MODAL
     });
     const { eventBus, onClose, manager } =
       await this.getModalHandlers(modalElement);
@@ -128,7 +128,7 @@ export class CrossWindowProviderStrategy {
     }
 
     const modalElement = await createUIElement<PendingTransactionsModal>({
-      name: SdkDappCoreUiTagsEnum.PENDING_TRANSACTIONS_MODAL
+      name: UITagsEnum.PENDING_TRANSACTIONS_MODAL
     });
     const { eventBus, onClose, manager } =
       await this.getModalHandlers(modalElement);

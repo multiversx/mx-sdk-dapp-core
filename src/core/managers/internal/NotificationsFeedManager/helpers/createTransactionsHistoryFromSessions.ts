@@ -1,20 +1,15 @@
+import { TransactionsSliceType } from 'store/slices/transactions/transactionsSlice.types';
 import { SignedTransactionType } from 'types/transactions.types';
 
-export interface SessionType {
-  transactions?: SignedTransactionType[];
-}
-
-export type SessionsType = Record<string, SessionType>;
-
 export const createTransactionsHistoryFromSessions = (
-  sessions: SessionsType
+  sessions: TransactionsSliceType
 ): SignedTransactionType[] => {
   const sortedSessionKeys = Object.keys(sessions).sort(
     (a, b) => Number(b) - Number(a)
   );
 
   return sortedSessionKeys.reduce<SignedTransactionType[]>(
-    (allTransactions, sessionKey) => {
+    (allTransactions, sessionKey: string) => {
       const sessionTransactions = sessions[sessionKey]?.transactions || [];
       return [...allTransactions, ...sessionTransactions];
     },

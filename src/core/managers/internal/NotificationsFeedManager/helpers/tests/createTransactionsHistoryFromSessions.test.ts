@@ -42,7 +42,7 @@ describe('createTransactionsHistoryFromSessions', () => {
 
     const sessions = {
       '1': { transactions: [mockTransaction] },
-      '2': {},
+      '2': { transactions: [] },
       '3': { transactions: [] }
     };
 

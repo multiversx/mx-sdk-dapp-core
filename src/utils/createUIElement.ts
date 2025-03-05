@@ -1,6 +1,6 @@
 import { IEventBus } from '@multiversx/sdk-dapp-core-ui/loader';
 import { safeWindow } from 'constants/index';
-import { SdkDappCoreUiTagsEnum } from 'constants/sdkDappCoreUiTags';
+import { UITagsEnum } from 'constants/UITags.enum';
 import { defineCustomElements } from 'lib/sdkDappCoreUi';
 
 export interface CreateEventBusUIElementType extends HTMLElement {
@@ -11,7 +11,7 @@ export const createUIElement = async <T = CreateEventBusUIElementType>({
   name,
   anchor
 }: {
-  name: SdkDappCoreUiTagsEnum;
+  name: UITagsEnum;
   anchor?: HTMLElement;
 }) => {
   await defineCustomElements(safeWindow);

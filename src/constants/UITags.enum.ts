@@ -1,4 +1,4 @@
-export enum SdkDappCoreUiTagsEnum {
+export enum UITagsEnum {
   NOTIFICATIONS_FEED = 'notifications-feed',
   TOAST_LIST = 'toast-list',
   WALLET_CONNECT_MODAL = 'wallet-connect-modal',

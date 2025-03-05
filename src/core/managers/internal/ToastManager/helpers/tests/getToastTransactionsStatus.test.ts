@@ -2,7 +2,7 @@ import { testAddress } from '__mocks__/accountConfig';
 import { isServerTransactionPending } from 'store/actions/transactions/transactionStateByStatus';
 import { TransactionServerStatusesEnum } from 'types/enums.types';
 import { SignedTransactionType } from 'types/transactions.types';
-import { getToastProceededStatus } from '../getToastProceededStatus';
+import { getToastTransactionsStatus } from '../getToastTransactionsStatus';
 
 jest.mock('store/actions/transactions/transactionStateByStatus', () => ({
   isServerTransactionPending: jest.fn()
@@ -43,11 +43,13 @@ describe('getToastProceededStatus', () => {
       (status) => status === TransactionServerStatusesEnum.pending
     );
 
-    expect(getToastProceededStatus([pendingTx])).toBe(
+    expect(getToastTransactionsStatus([pendingTx])).toBe(
       '0 / 1 transactions processed'
     );
 
-    expect(getToastProceededStatus([successTx])).toBe('Transaction processed');
+    expect(getToastTransactionsStatus([successTx])).toBe(
+      'Transaction processed'
+    );
   });
 
   it('should show fraction of completed transactions when handling multiple transactions with mixed states', () => {
@@ -73,7 +75,7 @@ describe('getToastProceededStatus', () => {
       (status) => status === TransactionServerStatusesEnum.pending
     );
 
-    expect(getToastProceededStatus(transactions)).toBe(
+    expect(getToastTransactionsStatus(transactions)).toBe(
       '2 / 3 transactions processed'
     );
   });
@@ -87,11 +89,11 @@ describe('getToastProceededStatus', () => {
 
     (isServerTransactionPending as jest.Mock).mockReturnValue(true);
 
-    expect(getToastProceededStatus(emptyTransactions)).toBe(
+    expect(getToastTransactionsStatus(emptyTransactions)).toBe(
       '0 / 0 transactions processed'
     );
 
-    expect(getToastProceededStatus([undefinedStatusTx])).toBe(
+    expect(getToastTransactionsStatus([undefinedStatusTx])).toBe(
       '0 / 1 transactions processed'
     );
   });

@@ -105,7 +105,7 @@ describe('createToastsFromTransactions', () => {
     });
 
     expect(result).toEqual({
-      processingTransactions: [],
+      pendingTransactions: [],
       completedTransactions: []
     });
   });
@@ -145,8 +145,8 @@ describe('createToastsFromTransactions', () => {
       account: mockAccount
     });
 
-    expect(result.processingTransactions).toHaveLength(1);
-    expect(result.processingTransactions[0].toastId).toBe(TOAST_IDS.PENDING);
+    expect(result.pendingTransactions).toHaveLength(1);
+    expect(result.pendingTransactions[0].toastId).toBe(TOAST_IDS.PENDING);
     expect(result.completedTransactions).toHaveLength(1);
     expect(result.completedTransactions[0].toastId).toBe(TOAST_IDS.SUCCESS);
   });
@@ -204,7 +204,7 @@ describe('createToastsFromTransactions', () => {
       account: mockAccount
     });
 
-    expect(result.processingTransactions).toHaveLength(0);
+    expect(result.pendingTransactions).toHaveLength(0);
     expect(result.completedTransactions).toHaveLength(0);
     expect(createTransactionToast).not.toHaveBeenCalled();
   });

@@ -3,7 +3,7 @@ import { IDAppProviderOptions } from '@multiversx/sdk-dapp-utils/out';
 import { HWProvider } from '@multiversx/sdk-hw-provider';
 import { safeWindow } from 'constants/index';
 
-import { SdkDappCoreUiTagsEnum } from 'constants/sdkDappCoreUiTags';
+import { UITagsEnum } from 'constants/UITags.enum';
 import { LedgerConnectStateManager } from 'core/managers/internal/LedgerConnectStateManager/LedgerConnectStateManager';
 import { PendingTransactionsStateManager } from 'core/managers/internal/PendingTransactionsStateManager/PendingTransactionsStateManager';
 import { PendingTransactionsEventsEnum } from 'core/managers/internal/PendingTransactionsStateManager/types/pendingTransactions.types';
@@ -122,11 +122,11 @@ export class LedgerProviderStrategy {
 
     const element = anchor
       ? await createUIElement<LedgerConnect>({
-          name: SdkDappCoreUiTagsEnum.LEDGER_CONNECT,
+          name: UITagsEnum.LEDGER_CONNECT,
           anchor
         })
       : await createUIElement<LedgerConnectModal>({
-          name: SdkDappCoreUiTagsEnum.LEDGER_CONNECT_MODAL
+          name: UITagsEnum.LEDGER_CONNECT_MODAL
         });
     const eventBus = await element.getEventBus();
 
@@ -186,7 +186,7 @@ export class LedgerProviderStrategy {
       }
 
       const modalElement = await createUIElement<PendingTransactionsModal>({
-        name: SdkDappCoreUiTagsEnum.PENDING_TRANSACTIONS_MODAL
+        name: UITagsEnum.PENDING_TRANSACTIONS_MODAL
       });
 
       const { eventBus, manager, onClose } =

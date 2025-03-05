@@ -4,7 +4,7 @@ import { TransactionServerStatusesEnum } from 'types/enums.types';
 import { SignedTransactionType } from 'types/transactions.types';
 import { createTransactionToast } from '../createTransactionToast';
 import { getToastDataStateByStatus } from '../getToastDataStateByStatus';
-import { getToastProceededStatus } from '../getToastProceededStatus';
+import { getToastTransactionsStatus } from '../getToastTransactionsStatus';
 
 jest.mock('store/actions/transactions/transactionStateByStatus', () => ({
   getIsTransactionPending: jest.fn()
@@ -62,11 +62,11 @@ describe('createTransactionToast', () => {
     (getToastDataStateByStatus as jest.Mock).mockReturnValue({
       state: 'pending'
     });
-    (getToastProceededStatus as jest.Mock).mockReturnValue('Processing');
+    (getToastTransactionsStatus as jest.Mock).mockReturnValue('Processing');
 
     const result = createTransactionToast({
-      toast: { toastId: TOAST_IDS.PENDING },
-      account: { address: testAddress },
+      toastId: TOAST_IDS.PENDING,
+      address: testAddress,
       status: TransactionServerStatusesEnum.pending,
       transactions: [
         { ...baseTransaction, status: TransactionServerStatusesEnum.pending }
@@ -100,11 +100,11 @@ describe('createTransactionToast', () => {
     (getToastDataStateByStatus as jest.Mock).mockReturnValue({
       state: 'success'
     });
-    (getToastProceededStatus as jest.Mock).mockReturnValue('Completed');
+    (getToastTransactionsStatus as jest.Mock).mockReturnValue('Completed');
 
     const result = createTransactionToast({
-      toast: { toastId: TOAST_IDS.SUCCESS },
-      account: { address: testAddress },
+      toastId: TOAST_IDS.SUCCESS,
+      address: testAddress,
       status: TransactionServerStatusesEnum.success,
       transactions: [
         { ...baseTransaction, status: TransactionServerStatusesEnum.success }
@@ -135,7 +135,7 @@ describe('createTransactionToast', () => {
     (getToastDataStateByStatus as jest.Mock).mockReturnValue({
       state: 'success'
     });
-    (getToastProceededStatus as jest.Mock).mockReturnValue('All Completed');
+    (getToastTransactionsStatus as jest.Mock).mockReturnValue('All Completed');
 
     const transactions = [
       {
@@ -151,8 +151,8 @@ describe('createTransactionToast', () => {
     ];
 
     const result = createTransactionToast({
-      toast: { toastId: TOAST_IDS.SUCCESS },
-      account: { address: testAddress },
+      toastId: TOAST_IDS.SUCCESS,
+      address: testAddress,
       status: TransactionServerStatusesEnum.success,
       transactions,
       transactionsDisplayInfo: {
