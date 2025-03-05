@@ -1,8 +1,3 @@
-import axios from 'axios';
-import { TRANSACTIONS_ENDPOINT } from 'apiCalls/endpoints';
-
-import { networkSelector } from 'store/selectors';
-import { getState } from 'store/store';
 import {
   TransactionBatchStatusesEnum,
   TransactionServerStatusesEnum
@@ -12,22 +7,14 @@ import {
   TrackedTransactionResultType,
   SignedTransactionType
 } from 'types/transactions.types';
+import { getServerTransactionsByHashes } from './getServerTransactionsByHashes';
 
 export const getTransactionsByHashes = async (
   pendingTransactions: SignedTransactionType[]
 ): Promise<TrackedTransactionResultType[]> => {
-  const { apiAddress } = networkSelector(getState());
   const hashes = pendingTransactions.map((tx) => tx.hash);
 
-  const { data: responseData } = await axios.get<ServerTransactionType[]>(
-    `${apiAddress}/${TRANSACTIONS_ENDPOINT}`,
-    {
-      params: {
-        hashes: hashes.join(','),
-        withScResults: true
-      }
-    }
-  );
+  const responseData = await getServerTransactionsByHashes(hashes);
 
   return pendingTransactions.map((transaction) => {
     const txOnNetwork = responseData.find(

@@ -43,7 +43,12 @@ export function getInterpretedTransaction({
     })
   };
 
-  const direction = getTransactionTransferType(address, transaction, receiver);
+  const direction = getTransactionTransferType({
+    address,
+    transaction,
+    receiver
+  });
+
   const method: TransactionMethodType = {
     actionDescription: transaction.action?.description,
     name: getTransactionMethod(transaction)

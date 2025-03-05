@@ -1,14 +1,20 @@
 import {
-  ServerTransactionType,
   TransferTypeEnum,
-  TransactionDirectionEnum
+  TransactionDirectionEnum,
+  ServerTransactionType
 } from 'types/serverTransactions.types';
 
-export function getTransactionTransferType(
-  address: string,
-  transaction: ServerTransactionType,
-  receiver: string
-): TransactionDirectionEnum {
+interface GetTransactionTransferTypeParamsType {
+  address: string;
+  transaction: ServerTransactionType;
+  receiver: string;
+}
+
+export function getTransactionTransferType({
+  address,
+  transaction,
+  receiver
+}: GetTransactionTransferTypeParamsType): TransactionDirectionEnum {
   const directionOut = address === transaction.sender;
   const directionIn = address === receiver;
   const directionSelf = directionOut && directionIn;
