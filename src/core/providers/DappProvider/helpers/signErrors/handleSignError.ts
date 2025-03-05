@@ -3,39 +3,46 @@ import {
   CANCEL_TRANSACTION_TOAST_ID,
   ERROR_SIGNING_TOAST_ID
 } from 'constants/transactions.constants';
+import { getLedgerErrorCodes } from 'core/providers/strategies/LedgerProviderStrategy/helpers/getLedgerErrorCodes';
 import { createCustomToast } from 'store/actions';
 import { SigningErrorsEnum, SigningWarningsEnum } from 'types/enums.types';
 
-export function handleSignError(error?: unknown) {
+const states = {
+  error: {
+    title: SigningErrorsEnum.errorSigning.toString(),
+    iconClassName: 'danger',
+    toastId: `${ERROR_SIGNING_TOAST_ID}-${Date.now()}`
+  },
+  warning: {
+    title: SigningWarningsEnum.cancelled.toString(),
+    iconClassName: 'warning',
+    toastId: `${CANCEL_TRANSACTION_TOAST_ID}-${Date.now()}`
+  }
+};
+
+export function handleSignError(
+  error: unknown,
+  type: 'error' | 'warning' = 'error'
+) {
+  const { errorMessage: ledgerErrorMessage } = getLedgerErrorCodes(error);
+
   const originalError = (error as Error)?.message;
   const errorMessage = originalError || SigningErrorsEnum.errorSigning;
-  const errorMessages = new Set<string>(Object.values(SigningErrorsEnum));
-  const warningMessages = new Set(Object.values(SigningWarningsEnum));
 
-  let displayError = SigningErrorsEnum.errorSigning.toString();
-  let icon = 'times';
-  let iconClassName = 'danger';
-  let duration: number | undefined;
-  let toastId = `${CANCEL_TRANSACTION_TOAST_ID}-${Date.now()}`;
+  const state = Object.keys(states).includes(type)
+    ? states[type]
+    : states.error;
 
-  if (errorMessages.has(errorMessage)) {
-    displayError = errorMessage;
-    duration = CANCEL_TRANSACTION_TOAST_DEFAULT_DURATION;
-  }
-  if (warningMessages.has(errorMessage as SigningWarningsEnum)) {
-    displayError = errorMessage;
-    icon = 'warning';
-    iconClassName = 'warning';
-    toastId = ERROR_SIGNING_TOAST_ID;
-  }
+  const { toastId, iconClassName, title } = state;
 
   createCustomToast({
     toastId,
-    duration,
-    icon,
+    duration: CANCEL_TRANSACTION_TOAST_DEFAULT_DURATION,
+    icon: 'times',
     iconClassName,
-    title: displayError,
-    message: displayError != originalError ? originalError : ''
+    ...(ledgerErrorMessage
+      ? { message: ledgerErrorMessage, title }
+      : { message: title })
   });
 
   return errorMessage;

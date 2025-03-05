@@ -4,7 +4,7 @@ import { IProvider } from '../types/providerFactory.types';
 import { login } from './helpers/login/login';
 import { logout } from './helpers/logout/logout';
 import { handleSignError } from './helpers/signErrors/handleSignError';
-import { signMessage } from './helpers/signMessage/signMessage';
+import { signMessageWithProvider } from './helpers/signMessage/signMessageWithProvider';
 import {
   verifyMessage,
   VerifyMessageReturnType
@@ -74,14 +74,14 @@ export class DappProvider {
     }
   ): Promise<Message | null> {
     try {
-      const signedMessage = await signMessage({
+      const signedMessage = await signMessageWithProvider({
         provider: this.provider,
         message,
         options
       });
       return signedMessage;
     } catch (error) {
-      const errorMessage = handleSignError(error);
+      const errorMessage = handleSignError(error, 'warning');
       throw new Error(errorMessage);
     }
   }
