@@ -151,12 +151,12 @@ export class NotificationsFeedManager {
       return;
     }
 
-    this.eventBus?.subscribe(
+    this.eventBus.subscribe(
       NotificationsFeedEventsEnum.CLOSE_NOTIFICATIONS_FEED,
       this.handleCloseNotificationsFeed.bind(this)
     );
 
-    this.eventBus?.subscribe(
+    this.eventBus.subscribe(
       NotificationsFeedEventsEnum.CLEAR_NOTIFICATIONS_FEED_HISTORY,
       this.handleClearNotificationsFeedHistory.bind(this)
     );
