@@ -14,13 +14,14 @@ import { ITransactionToast } from '../ToastManager/types/toast.types';
 
 export class NotificationsFeedManager {
   private static instance: NotificationsFeedManager;
+  private eventBus: IEventBus | null = null;
+  private historicTransactions: SignedTransactionType[] = [];
   private isCreatingElement = false;
+  private isOpen = false;
   private notificationsFeedElement: NotificationsFeed | null = null;
   private pendingTransactions: ITransactionToast[] = [];
-  private historicTransactions: SignedTransactionType[] = [];
-  private storeTransactionsUnsubscribe: () => void = () => null;
-  private isOpen = false;
   private store = getStore();
+  private storeToastsUnsubscribe: () => void = () => null;
 
   public static getInstance(): NotificationsFeedManager {
     if (!NotificationsFeedManager.instance) {
@@ -33,19 +34,11 @@ export class NotificationsFeedManager {
     return this.isOpen;
   }
 
-  private async getEventBus(): Promise<IEventBus | null> {
-    if (!this.notificationsFeedElement) {
-      return null;
-    }
-
-    return this.notificationsFeedElement.getEventBus();
-  }
-
   public async init() {
     await this.createNotificationsFeedElement();
     this.updateData();
 
-    this.storeTransactionsUnsubscribe = this.store.subscribe(
+    this.storeToastsUnsubscribe = this.store.subscribe(
       (
         { toasts, transactions },
         { toasts: prevToasts, transactions: prevTransactions }
@@ -62,6 +55,70 @@ export class NotificationsFeedManager {
     await this.setupEventListeners();
   }
 
+  public async openNotificationsFeed() {
+    if (this.isOpen && this.notificationsFeedElement) {
+      return;
+    }
+
+    if (!this.notificationsFeedElement) {
+      await this.createNotificationsFeedElement();
+    }
+
+    if (!this.notificationsFeedElement || !this.eventBus) {
+      return;
+    }
+
+    await this.updateData();
+    this.isOpen = true;
+    this.eventBus.publish(NotificationsFeedEventsEnum.OPEN_NOTIFICATIONS_FEED);
+  }
+
+  public destroy() {
+    this.storeToastsUnsubscribe();
+
+    if (this.eventBus) {
+      this.eventBus.unsubscribe(
+        NotificationsFeedEventsEnum.CLOSE_NOTIFICATIONS_FEED,
+        this.handleCloseNotificationsFeed.bind(this)
+      );
+
+      this.eventBus.unsubscribe(
+        NotificationsFeedEventsEnum.CLEAR_NOTIFICATIONS_FEED_HISTORY,
+        this.handleClearNotificationsFeedHistory.bind(this)
+      );
+
+      this.eventBus = null;
+    }
+
+    if (this.notificationsFeedElement) {
+      const parentElement = this.notificationsFeedElement.parentElement;
+
+      if (parentElement) {
+        parentElement.removeChild(this.notificationsFeedElement);
+      }
+
+      this.notificationsFeedElement = null;
+    }
+
+    this.isOpen = false;
+  }
+
+  private async getEventBus(): Promise<IEventBus | null> {
+    if (!this.notificationsFeedElement) {
+      return null;
+    }
+
+    if (!this.eventBus) {
+      this.eventBus = await this.notificationsFeedElement.getEventBus();
+    }
+
+    if (!this.eventBus) {
+      throw new Error(ProviderErrorsEnum.eventBusError);
+    }
+
+    return this.eventBus;
+  }
+
   private async createNotificationsFeedElement(): Promise<NotificationsFeed | null> {
     if (this.notificationsFeedElement) {
       return this.notificationsFeedElement;
@@ -74,6 +131,7 @@ export class NotificationsFeedManager {
       });
 
       this.notificationsFeedElement = element || null;
+      await this.getEventBus();
       this.isCreatingElement = false;
     }
 
@@ -89,31 +147,29 @@ export class NotificationsFeedManager {
       await this.createNotificationsFeedElement();
     }
 
-    if (!this.notificationsFeedElement) {
+    if (!this.notificationsFeedElement || !this.eventBus) {
       return;
     }
 
-    const eventBus = await this.getEventBus();
-
-    if (!eventBus) {
-      throw new Error(ProviderErrorsEnum.eventBusError);
-    }
-
-    eventBus.subscribe(
+    this.eventBus?.subscribe(
       NotificationsFeedEventsEnum.CLOSE_NOTIFICATIONS_FEED,
-      () => {
-        this.isOpen = false;
-      }
+      this.handleCloseNotificationsFeed.bind(this)
     );
 
-    eventBus.subscribe(
+    this.eventBus?.subscribe(
       NotificationsFeedEventsEnum.CLEAR_NOTIFICATIONS_FEED_HISTORY,
-      () => {
-        clearCompletedTransactions();
-        this.historicTransactions = [];
-        this.updateNotificationsFeed();
-      }
+      this.handleClearNotificationsFeedHistory.bind(this)
     );
+  }
+
+  private handleCloseNotificationsFeed() {
+    this.isOpen = false;
+  }
+
+  private handleClearNotificationsFeedHistory() {
+    clearCompletedTransactions();
+    this.historicTransactions = [];
+    this.updateNotificationsFeed();
   }
 
   private async updateData() {
@@ -135,64 +191,18 @@ export class NotificationsFeedManager {
       await this.createNotificationsFeedElement();
     }
 
-    if (!this.notificationsFeedElement) {
+    if (!this.notificationsFeedElement || !this.eventBus) {
       return;
     }
 
-    const eventBus = await this.getEventBus();
-
-    if (!eventBus) {
-      throw new Error(ProviderErrorsEnum.eventBusError);
-    }
-
-    eventBus.publish(
+    this.eventBus.publish(
       NotificationsFeedEventsEnum.PENDING_TRANSACTIONS_UPDATE,
       this.pendingTransactions
     );
 
-    eventBus.publish(
+    this.eventBus.publish(
       NotificationsFeedEventsEnum.TRANSACTIONS_HISTORY_UPDATE,
       this.historicTransactions
     );
-  }
-
-  public async openNotificationsFeed() {
-    if (this.isOpen && this.notificationsFeedElement) {
-      return;
-    }
-
-    if (!this.notificationsFeedElement) {
-      await this.createNotificationsFeedElement();
-    }
-
-    if (!this.notificationsFeedElement) {
-      return;
-    }
-
-    const eventBus = await this.getEventBus();
-
-    if (!eventBus) {
-      throw new Error(ProviderErrorsEnum.eventBusError);
-    }
-
-    await this.updateData();
-    this.isOpen = true;
-    eventBus.publish(NotificationsFeedEventsEnum.OPEN_NOTIFICATIONS_FEED);
-  }
-
-  public destroy() {
-    this.storeTransactionsUnsubscribe();
-
-    if (this.notificationsFeedElement) {
-      const parentElement = this.notificationsFeedElement.parentElement;
-
-      if (parentElement) {
-        parentElement.removeChild(this.notificationsFeedElement);
-      }
-
-      this.notificationsFeedElement = null;
-    }
-
-    this.isOpen = false;
   }
 }
