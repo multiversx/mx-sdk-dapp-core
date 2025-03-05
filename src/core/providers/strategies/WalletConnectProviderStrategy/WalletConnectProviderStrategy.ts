@@ -5,6 +5,7 @@ import {
   SessionTypes,
   OptionalOperation
 } from '@multiversx/sdk-wallet-connect-provider/out';
+import { UITagsEnum } from 'constants/UITags.enum';
 import { safeWindow } from 'constants/window.constants';
 
 import { PendingTransactionsEventsEnum } from 'core/managers/internal/PendingTransactionsStateManager/types/pendingTransactions.types';
@@ -164,11 +165,10 @@ export class WalletConnectProviderStrategy {
 
     const modalElement = anchor
       ? await createUIElement<WalletConnectModal>({
-          name: 'wallet-connect',
-          anchor
+          name: UITagsEnum.WALLET_CONNECT_MODAL
         })
       : await createUIElement<WalletConnectModal>({
-          name: 'wallet-connect-modal'
+          name: UITagsEnum.WALLET_CONNECT_MODAL
         });
 
     const eventBus = await modalElement.getEventBus();

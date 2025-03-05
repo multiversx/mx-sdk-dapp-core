@@ -3,6 +3,7 @@ import { IDAppProviderOptions } from '@multiversx/sdk-dapp-utils/out';
 import { HWProvider } from '@multiversx/sdk-hw-provider';
 import { safeWindow } from 'constants/index';
 
+import { UITagsEnum } from 'constants/UITags.enum';
 import { LedgerConnectStateManager } from 'core/managers/internal/LedgerConnectStateManager/LedgerConnectStateManager';
 import { getAddress } from 'core/methods/account/getAddress';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
@@ -122,11 +123,11 @@ export class LedgerProviderStrategy {
 
     const element = anchor
       ? await createUIElement<LedgerConnect>({
-          name: 'ledger-connect',
+          name: UITagsEnum.LEDGER_CONNECT,
           anchor
         })
       : await createUIElement<LedgerConnectModal>({
-          name: 'ledger-connect-modal'
+          name: UITagsEnum.LEDGER_CONNECT_MODAL
         });
     const eventBus = await element.getEventBus();
 

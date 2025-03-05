@@ -83,3 +83,39 @@ export const updateTransactionStatus = ({
     'updateTransactionStatus'
   );
 };
+
+export const clearCompletedTransactions = () => {
+  getStore().setState(
+    ({ transactions: state, toasts: toastsState }) => {
+      const sessionIds = Object.keys(state);
+
+      const completedSessionIds = sessionIds.filter((sessionId) => {
+        const session = state[sessionId];
+        if (!session) {
+          return false;
+        }
+
+        const { status } = session;
+
+        const isPending =
+          status === TransactionServerStatusesEnum.pending ||
+          status === TransactionBatchStatusesEnum.signed ||
+          status === TransactionBatchStatusesEnum.sent;
+
+        return !isPending;
+      });
+
+      completedSessionIds.forEach((sessionId) => {
+        delete state[sessionId];
+      });
+
+      const filteredTransactionToasts = toastsState.transactionToasts.filter(
+        (toast) => !completedSessionIds.includes(toast.toastId)
+      );
+
+      toastsState.transactionToasts = filteredTransactionToasts;
+    },
+    false,
+    'clearCompletedTransactions'
+  );
+};

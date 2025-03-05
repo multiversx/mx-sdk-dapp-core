@@ -2,7 +2,7 @@ import { isServerTransactionPending } from 'store/actions/transactions/transacti
 import { TransactionServerStatusesEnum } from 'types';
 import { SignedTransactionType } from 'types/transactions.types';
 
-export const getToastProceededStatus = (
+export const getToastTransactionsStatus = (
   transactions: SignedTransactionType[]
 ) => {
   const processedTransactions = transactions.filter(

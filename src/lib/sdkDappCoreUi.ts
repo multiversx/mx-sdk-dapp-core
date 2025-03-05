@@ -4,6 +4,7 @@ export type { LedgerConnect } from '@multiversx/sdk-dapp-core-ui/dist/components
 export type { SignTransactionsModal } from '@multiversx/sdk-dapp-core-ui/dist/components/sign-transactions-modal';
 export type { WalletConnectModal } from '@multiversx/sdk-dapp-core-ui/dist/components/wallet-connect-modal';
 export type { PendingTransactionsModal } from '@multiversx/sdk-dapp-core-ui/dist/components/pending-transactions-modal';
+export type { NotificationsFeed } from '@multiversx/sdk-dapp-core-ui/dist/components/notifications-feed';
 export type { ToastList } from '@multiversx/sdk-dapp-core-ui/dist/components/toast-list';
 
 export async function defineCustomElements(
