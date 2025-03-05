@@ -1,6 +1,5 @@
 import type { IDAppProviderBase } from '@multiversx/sdk-dapp-utils';
 
-// @ts-ignore
 export interface IProvider<T extends ProviderTypeEnum = ProviderTypeEnum>
   extends IDAppProviderBase {
   init: () => Promise<boolean>;
@@ -15,9 +14,6 @@ export interface IProvider<T extends ProviderTypeEnum = ProviderTypeEnum>
   setShouldShowConsentPopup?: (shouldShow: boolean) => void;
   getType: () => T[keyof T] | string;
   getAddress(): Promise<string | undefined>;
-  // TODO will be removed as soon as the new login method is implemented in the same way for all providers
-  getTokenLoginSignature(): string | undefined;
-  // getExtraInfoData(): { multisig?: string; impersonate?: string } | undefined;
 }
 
 export interface IProviderConfig {
