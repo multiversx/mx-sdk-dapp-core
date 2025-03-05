@@ -22,12 +22,12 @@ export async function signMessage<T>({
         cancelAction
       });
 
-      const closeModal = async () => {
+      const handleClose = async () => {
         await onClose(false);
         reject({ message: SigningWarningsEnum.cancelled });
       };
 
-      eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, closeModal);
+      eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, handleClose);
 
       manager.updateData({
         isPending: true,
@@ -43,7 +43,7 @@ export async function signMessage<T>({
         await onClose(false);
         reject(err);
       } finally {
-        eventBus.unsubscribe(PendingTransactionsEventsEnum.CLOSE, closeModal);
+        eventBus.unsubscribe(PendingTransactionsEventsEnum.CLOSE, handleClose);
       }
     }
   );
