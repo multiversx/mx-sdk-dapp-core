@@ -1,7 +1,7 @@
 import { isServerTransactionPending } from 'store/actions/transactions/transactionStateByStatus';
 import { TransactionServerStatusesEnum } from 'types';
 import { SignedTransactionType } from 'types/transactions.types';
-import { getToastProceededStatus } from '../helpers/getToastProceededStatus';
+import { getToastTransactionsStatus } from '../helpers/getToastTransactionsStatus';
 
 jest.mock('store/actions/transactions/transactionStateByStatus');
 
@@ -16,7 +16,7 @@ describe('getToastProceededStatus', () => {
     ];
     (isServerTransactionPending as jest.Mock).mockReturnValue(false);
 
-    const result = getToastProceededStatus(transactions);
+    const result = getToastTransactionsStatus(transactions);
 
     expect(result).toBe('Transaction processed');
   });
@@ -27,7 +27,7 @@ describe('getToastProceededStatus', () => {
     ];
     (isServerTransactionPending as jest.Mock).mockReturnValue(true);
 
-    const result = getToastProceededStatus(transactions);
+    const result = getToastTransactionsStatus(transactions);
 
     expect(result).toBe('0 / 1 transactions processed');
   });
@@ -43,7 +43,7 @@ describe('getToastProceededStatus', () => {
       (status) => status === TransactionServerStatusesEnum.pending
     );
 
-    const result = getToastProceededStatus(transactions);
+    const result = getToastTransactionsStatus(transactions);
 
     expect(result).toBe('1 / 2 transactions processed');
   });
@@ -57,7 +57,7 @@ describe('getToastProceededStatus', () => {
     ];
     (isServerTransactionPending as jest.Mock).mockReturnValue(true);
 
-    const result = getToastProceededStatus(transactions);
+    const result = getToastTransactionsStatus(transactions);
 
     expect(result).toBe('0 / 2 transactions processed');
   });
@@ -71,7 +71,7 @@ describe('getToastProceededStatus', () => {
     ];
     (isServerTransactionPending as jest.Mock).mockReturnValue(false);
 
-    const result = getToastProceededStatus(transactions);
+    const result = getToastTransactionsStatus(transactions);
 
     expect(result).toBe('2 / 2 transactions processed');
   });

@@ -1,5 +1,6 @@
 import isEqual from 'lodash.isequal';
-import { getExplorerAddress } from 'core/methods/network/getExplorerAddress';
+import { UITagsEnum } from 'constants/UITags.enum';
+import { NotificationsFeedManager } from 'core/managers/internal/NotificationsFeedManager';
 import { ToastList } from 'lib/sdkDappCoreUi';
 import {
   customToastCloseHandlersDictionary,
@@ -10,7 +11,6 @@ import {
 } from 'store/actions/toasts/toastsActions';
 import {
   getIsTransactionFailed,
-  getIsTransactionPending,
   getIsTransactionSuccessful,
   getIsTransactionTimedOut
 } from 'store/actions/transactions/transactionStateByStatus';
@@ -20,13 +20,9 @@ import {
   ToastsSliceType
 } from 'store/slices/toast/toastSlice.types';
 import { getStore } from 'store/store';
-import { TransactionServerStatusesEnum } from 'types/enums.types';
 import { ProviderErrorsEnum } from 'types/provider.types';
 import { createUIElement } from 'utils/createUIElement';
-import { explorerUrlBuilder } from 'utils/transactions/explorerUrlBuilder';
-import { getExplorerLink } from 'utils/transactions/getExplorerLink';
-import { getToastDataStateByStatus } from './helpers/getToastDataStateByStatus';
-import { getToastProceededStatus } from './helpers/getToastProceededStatus';
+import { createToastsFromTransactions } from './helpers/createToastsFromTransactions';
 import { LifetimeManager } from './helpers/LifetimeManager';
 import { ITransactionToast, ToastEventsEnum } from './types';
 
@@ -36,12 +32,13 @@ interface IToastManager {
 
 export class ToastManager {
   private lifetimeManager: LifetimeManager;
-  private isCreatingElement: boolean = false;
-  private toastsElement: ToastList | undefined;
+  private isCreatingElement = false;
+  private toastsElement: ToastList | null = null;
   private transactionToasts: ITransactionToast[] = [];
   private customToasts: CustomToastType[] = [];
   private successfulToastLifetime?: number;
-  private unsubscribe: () => void = () => null;
+  private storeToastsSubscription: () => void = () => null;
+  private notificationsFeedManager: NotificationsFeedManager;
 
   store = getStore();
 
@@ -52,14 +49,18 @@ export class ToastManager {
     this.lifetimeManager = new LifetimeManager({
       successfulToastLifetime
     });
+
+    this.notificationsFeedManager = NotificationsFeedManager.getInstance();
   }
 
-  public init() {
+  public async init() {
     const { toasts } = this.store.getState();
     this.updateTransactionToastsList(toasts);
     this.updateCustomToastList(toasts);
 
-    this.unsubscribe = this.store.subscribe(
+    await this.notificationsFeedManager.init();
+
+    this.storeToastsSubscription = this.store.subscribe(
       (
         { toasts, transactions },
         { toasts: prevToasts, transactions: prevTransactions }
@@ -92,14 +93,12 @@ export class ToastManager {
           };
       this.customToasts.push(newToast);
 
-      if (!toast.duration) {
-        continue;
+      if (toast.duration) {
+        this.lifetimeManager.startWithCustomDuration(
+          toast.toastId,
+          toast.duration
+        );
       }
-
-      this.lifetimeManager.startWithCustomDuration(
-        toast.toastId,
-        toast.duration
-      );
     }
 
     this.renderCustomToasts();
@@ -107,8 +106,14 @@ export class ToastManager {
 
   private async updateTransactionToastsList(toastList: ToastsSliceType) {
     const { transactions: sessions, account } = this.store.getState();
-    this.transactionToasts = [];
-    const explorerAddress = getExplorerAddress();
+
+    const { pendingTransactions } = createToastsFromTransactions({
+      toastList,
+      sessions,
+      account
+    });
+
+    this.transactionToasts = pendingTransactions;
 
     for (const toast of toastList.transactionToasts) {
       const sessionTransactions = sessions[toast.toastId];
@@ -116,10 +121,8 @@ export class ToastManager {
         continue;
       }
 
-      const { startTime, toastId, endTime } = toast;
-      const { status, transactions, transactionsDisplayInfo } =
-        sessionTransactions;
-      const isPending = getIsTransactionPending(status);
+      const { toastId } = toast;
+      const { status } = sessionTransactions;
       const isTimedOut = getIsTransactionTimedOut(status);
       const isFailed = getIsTransactionFailed(status);
       const isSuccessful = getIsTransactionSuccessful(status);
@@ -128,34 +131,6 @@ export class ToastManager {
       if (isCompleted && this.successfulToastLifetime) {
         this.lifetimeManager.start(toastId);
       }
-
-      const transactionToast: ITransactionToast = {
-        toastDataState: getToastDataStateByStatus({
-          address: account.address,
-          sender: transactions[0]?.sender,
-          toastId: toast.toastId,
-          status,
-          transactionsDisplayInfo
-        }),
-        processedTransactionsStatus: getToastProceededStatus(transactions),
-        transactionProgressState: isPending
-          ? {
-              endTime,
-              startTime
-            }
-          : null,
-        toastId,
-        transactions: transactions.map(({ hash, status }) => ({
-          hash,
-          status: status ?? TransactionServerStatusesEnum.pending,
-          link: getExplorerLink({
-            explorerAddress,
-            to: explorerUrlBuilder.transactionDetails(hash)
-          })
-        }))
-      };
-
-      this.transactionToasts.push(transactionToast);
     }
 
     await this.renderToasts();
@@ -168,23 +143,35 @@ export class ToastManager {
 
     if (!this.isCreatingElement) {
       this.isCreatingElement = true;
+
       this.toastsElement = await createUIElement<ToastList>({
-        name: 'toast-list'
+        name: UITagsEnum.TOAST_LIST
       });
+
       this.isCreatingElement = false;
-      return this.toastsElement;
     }
 
-    return null;
+    return this.toastsElement;
+  }
+
+  private handleTransactionToastClose(toastId: string) {
+    this.lifetimeManager.stop(toastId);
+    removeTransactionToast(toastId);
   }
 
   private async renderToasts() {
+    if (this.notificationsFeedManager.isNotificationsFeedOpen()) {
+      return;
+    }
+
     const toastsElement = await this.createToastListElement();
+
     if (!toastsElement) {
       return;
     }
 
     const eventBus = await toastsElement.getEventBus();
+
     if (!eventBus) {
       throw new Error(ProviderErrorsEnum.eventBusError);
     }
@@ -194,13 +181,27 @@ export class ToastManager {
       this.transactionToasts
     );
 
-    eventBus.subscribe(ToastEventsEnum.CLOSE_TOAST, (toastId: string) => {
-      this.lifetimeManager.stop(toastId);
-      removeTransactionToast(toastId);
+    eventBus.subscribe(
+      ToastEventsEnum.CLOSE_TOAST,
+      this.handleTransactionToastClose.bind(this)
+    );
+
+    eventBus.subscribe(ToastEventsEnum.VIEW_ALL, () => {
+      this.transactionToasts = [];
+      eventBus.publish(
+        ToastEventsEnum.TRANSACTION_TOAST_DATA_UPDATE,
+        this.transactionToasts
+      );
+
+      this.notificationsFeedManager.openNotificationsFeed();
     });
   }
 
   private async renderCustomToasts() {
+    if (this.notificationsFeedManager.isNotificationsFeedOpen()) {
+      return;
+    }
+
     const toastsElement = await this.createToastListElement();
     if (!toastsElement) {
       return;
@@ -225,8 +226,9 @@ export class ToastManager {
   }
 
   public destroy() {
-    this.unsubscribe();
+    this.storeToastsSubscription();
     this.lifetimeManager?.destroy();
+    this.notificationsFeedManager?.destroy();
     removeAllCustomToasts();
   }
 }
