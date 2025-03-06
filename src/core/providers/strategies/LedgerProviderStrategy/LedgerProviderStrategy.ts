@@ -7,10 +7,7 @@ import { UITagsEnum } from 'constants/UITags.enum';
 import { LedgerConnectStateManager } from 'core/managers/internal/LedgerConnectStateManager/LedgerConnectStateManager';
 import { getAddress } from 'core/methods/account/getAddress';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
-import {
-  IProvider,
-  providerLabels
-} from 'core/providers/types/providerFactory.types';
+import { IProvider } from 'core/providers/types/providerFactory.types';
 import {
   defineCustomElements,
   LedgerConnect,
@@ -21,13 +18,13 @@ import { createUIElement } from 'utils/createUIElement';
 import { getLedgerProvider } from './helpers';
 import { authenticateLedgerAccount } from './helpers/authenticateLedgerAccount';
 import { initializeLedgerProvider } from './helpers/initializeLedgerProvider';
+import { signLedgerMessage } from './helpers/signLedgerMessage';
 import {
   LedgerConnectStateManagerType,
   LedgerConfigType,
   LedgerEventBusType,
   LedgerLoginType
 } from './types/ledgerProvider.types';
-import { signMessage } from '../helpers/signMessage/signMessage';
 import { signTransactions } from '../helpers/signTransactions/signTransactions';
 
 export class LedgerProviderStrategy {
@@ -185,10 +182,9 @@ export class LedgerProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    const signedMessage = await signMessage({
+    const signedMessage = await signLedgerMessage({
       message,
-      handleSignMessage: this._signMessage.bind(this.provider),
-      providerType: providerLabels.ledger
+      handleSignMessage: this._signMessage.bind(this.provider)
     });
 
     return signedMessage;
