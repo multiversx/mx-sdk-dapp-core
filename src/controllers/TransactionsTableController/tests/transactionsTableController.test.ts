@@ -13,7 +13,7 @@ import {
 } from 'types/serverTransactions.types';
 import { NftEnumType } from 'types/tokens.types';
 import { timeAgo } from 'utils/operations/timeRemaining';
-import { getShardText } from 'utils/transactions/getShardText';
+import { getShardText } from 'utils/transactions/getInterpretedTransaction/helpers/getShardText';
 import { TransactionsTableController } from '../TransactionsTableController';
 
 jest.mock('apiCalls/tokens/getPersistedTokenDetails', () => ({

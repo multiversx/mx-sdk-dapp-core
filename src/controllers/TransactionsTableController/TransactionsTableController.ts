@@ -5,9 +5,9 @@ import {
 } from 'types/serverTransactions.types';
 import { NftEnumType } from 'types/tokens.types';
 import { getInterpretedTransaction } from 'utils/transactions/getInterpretedTransaction';
-import { getLockedAccountName } from 'utils/transactions/getLockedAccountName';
-import { getShardText } from 'utils/transactions/getShardText';
-import { getTransactionValue } from 'utils/transactions/getTransactionValue/getTransactionValue';
+import { getTransactionValue } from 'utils/transactions/getInterpretedTransaction/getTransactionValue/getTransactionValue';
+import { getShardText } from 'utils/transactions/getInterpretedTransaction/helpers/getShardText';
+import { getLockedAccountName } from 'utils/transactions/getInterpretedTransaction/helpers/getLockedAccountName';
 import { isContract } from 'utils/validation/isContract';
 import {
   TransactionsTableRowType,

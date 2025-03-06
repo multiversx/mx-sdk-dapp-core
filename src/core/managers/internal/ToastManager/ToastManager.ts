@@ -1,8 +1,6 @@
 import isEqual from 'lodash.isequal';
 import { UITagsEnum } from 'constants/UITags.enum';
 import { NotificationsFeedManager } from 'core/managers/internal/NotificationsFeedManager';
-import { UITagsEnum } from 'constants/UITags.enum';
-import { NotificationsFeedManager } from 'core/managers/internal/NotificationsFeedManager';
 import { ToastList } from 'lib/sdkDappCoreUi';
 import {
   customToastCloseHandlersDictionary,
@@ -25,7 +23,6 @@ import { getStore } from 'store/store';
 import { ProviderErrorsEnum } from 'types/provider.types';
 import { createUIElement } from 'utils/createUIElement';
 import { createToastsFromTransactions } from './helpers/createToastsFromTransactions';
-import { createToastsFromTransactions } from './helpers/createToastsFromTransactions';
 import { LifetimeManager } from './helpers/LifetimeManager';
 import { ITransactionToast, ToastEventsEnum } from './types';
 
@@ -37,13 +34,9 @@ export class ToastManager {
   private lifetimeManager: LifetimeManager;
   private isCreatingElement = false;
   private toastsElement: ToastList | null = null;
-  private isCreatingElement = false;
-  private toastsElement: ToastList | null = null;
   private transactionToasts: ITransactionToast[] = [];
   private customToasts: CustomToastType[] = [];
   private successfulToastLifetime?: number;
-  private storeToastsSubscription: () => void = () => null;
-  private notificationsFeedManager: NotificationsFeedManager;
   private storeToastsSubscription: () => void = () => null;
   private notificationsFeedManager: NotificationsFeedManager;
 
@@ -58,19 +51,13 @@ export class ToastManager {
     });
 
     this.notificationsFeedManager = NotificationsFeedManager.getInstance();
-
-    this.notificationsFeedManager = NotificationsFeedManager.getInstance();
   }
 
-  public async init() {
   public async init() {
     const { toasts } = this.store.getState();
     this.updateTransactionToastsList(toasts);
     this.updateCustomToastList(toasts);
 
-    await this.notificationsFeedManager.init();
-
-    this.storeToastsSubscription = this.store.subscribe(
     await this.notificationsFeedManager.init();
 
     this.storeToastsSubscription = this.store.subscribe(
@@ -112,12 +99,6 @@ export class ToastManager {
           toast.duration
         );
       }
-      if (toast.duration) {
-        this.lifetimeManager.startWithCustomDuration(
-          toast.toastId,
-          toast.duration
-        );
-      }
     }
 
     this.renderCustomToasts();
@@ -134,22 +115,12 @@ export class ToastManager {
 
     this.transactionToasts = pendingTransactions;
 
-    const { pendingTransactions } = createToastsFromTransactions({
-      toastList,
-      sessions,
-      account
-    });
-
-    this.transactionToasts = pendingTransactions;
-
     for (const toast of toastList.transactionToasts) {
       const sessionTransactions = sessions[toast.toastId];
       if (!sessionTransactions) {
         continue;
       }
 
-      const { toastId } = toast;
-      const { status } = sessionTransactions;
       const { toastId } = toast;
       const { status } = sessionTransactions;
       const isTimedOut = getIsTransactionTimedOut(status);
@@ -173,26 +144,16 @@ export class ToastManager {
     if (!this.isCreatingElement) {
       this.isCreatingElement = true;
 
-
       this.toastsElement = await createUIElement<ToastList>({
         name: UITagsEnum.TOAST_LIST
-        name: UITagsEnum.TOAST_LIST
       });
-
 
       this.isCreatingElement = false;
     }
 
     return this.toastsElement;
   }
-    }
 
-    return this.toastsElement;
-  }
-
-  private handleTransactionToastClose(toastId: string) {
-    this.lifetimeManager.stop(toastId);
-    removeTransactionToast(toastId);
   private handleTransactionToastClose(toastId: string) {
     this.lifetimeManager.stop(toastId);
     removeTransactionToast(toastId);
@@ -203,19 +164,13 @@ export class ToastManager {
       return;
     }
 
-    if (this.notificationsFeedManager.isNotificationsFeedOpen()) {
-      return;
-    }
-
     const toastsElement = await this.createToastListElement();
-
 
     if (!toastsElement) {
       return;
     }
 
     const eventBus = await toastsElement.getEventBus();
-
 
     if (!eventBus) {
       throw new Error(ProviderErrorsEnum.eventBusError);
@@ -247,10 +202,6 @@ export class ToastManager {
       return;
     }
 
-    if (this.notificationsFeedManager.isNotificationsFeedOpen()) {
-      return;
-    }
-
     const toastsElement = await this.createToastListElement();
     if (!toastsElement) {
       return;
@@ -276,9 +227,7 @@ export class ToastManager {
 
   public destroy() {
     this.storeToastsSubscription();
-    this.storeToastsSubscription();
     this.lifetimeManager?.destroy();
-    this.notificationsFeedManager?.destroy();
     this.notificationsFeedManager?.destroy();
     removeAllCustomToasts();
   }

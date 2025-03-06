@@ -1,21 +1,21 @@
 import { IEventBus } from '@multiversx/sdk-dapp-core-ui/dist/types/utils/EventBus';
 import isEqual from 'lodash.isequal';
 import { UITagsEnum } from 'constants/UITags.enum';
+import { TransactionsHistoryController } from 'controllers/TransactionsHistoryController';
 import { NotificationsFeed } from 'lib/sdkDappCoreUi';
 import { clearCompletedTransactions } from 'store/actions/transactions/transactionsActions';
 import { getStore } from 'store/store';
 import { ProviderErrorsEnum } from 'types/provider.types';
+import type { TransactionListItemType } from 'types/transaction-list-item.types';
 import { createUIElement } from 'utils/createUIElement';
-import { getHistoricalTransactions } from './helpers/getHistoricalTransactions';
 import { NotificationsFeedEventsEnum } from './types';
-import type { TransactionListItem } from './types/transaction.types';
 import { createToastsFromTransactions } from '../ToastManager/helpers/createToastsFromTransactions';
 import { ITransactionToast } from '../ToastManager/types/toast.types';
 
 export class NotificationsFeedManager {
   private static instance: NotificationsFeedManager;
   private eventBus: IEventBus | null = null;
-  private historicTransactions: TransactionListItem[] = [];
+  private historicTransactions: TransactionListItemType[] = [];
   private isCreatingElement = false;
   private isOpen = false;
   private notificationsFeedElement: NotificationsFeed | null = null;
@@ -191,12 +191,14 @@ export class NotificationsFeedManager {
     });
 
     this.pendingTransactions = pendingTransactions;
-    this.historicTransactions = await getHistoricalTransactions({
-      sessions,
-      address: account.address,
-      explorerAddress: network.network.explorerAddress,
-      egldLabel: network.network.egldLabel
-    });
+
+    this.historicTransactions =
+      await TransactionsHistoryController.getTransactionsHistory({
+        sessions,
+        address: account.address,
+        explorerAddress: network.network.explorerAddress,
+        egldLabel: network.network.egldLabel
+      });
 
     await this.updateNotificationsFeed();
   }
