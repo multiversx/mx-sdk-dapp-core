@@ -182,10 +182,10 @@ export class LedgerProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    const signedMessage = await signLedgerMessage(
+    const signedMessage = await signLedgerMessage({
       message,
-      this._signMessage.bind(this.provider)
-    );
+      handleSignMessage: this._signMessage.bind(this.provider)
+    });
 
     return signedMessage;
   };
