@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js';
-import type { ITransactionAsset } from 'types/transaction-list-item.types';
+import { ITransactionAsset } from './getTransactionAssets';
 
 interface IGetTransactionAmountParams {
   transactionAssets: ITransactionAsset[];
