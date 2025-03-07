@@ -14,8 +14,8 @@ jest.mock('../getToastDataStateByStatus', () => ({
   getToastDataStateByStatus: jest.fn()
 }));
 
-jest.mock('../getToastProceededStatus', () => ({
-  getToastProceededStatus: jest.fn()
+jest.mock('../getToastTransactionsStatus', () => ({
+  getToastTransactionsStatus: jest.fn()
 }));
 
 jest.mock('utils/transactions/explorerUrlBuilder', () => ({

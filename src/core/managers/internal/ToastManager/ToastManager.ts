@@ -186,7 +186,7 @@ export class ToastManager {
       this.handleTransactionToastClose.bind(this)
     );
 
-    eventBus.subscribe(ToastEventsEnum.VIEW_ALL, () => {
+    eventBus.subscribe(ToastEventsEnum.OPEN_NOTIFICATIONS_FEED, () => {
       this.transactionToasts = [];
       eventBus.publish(
         ToastEventsEnum.TRANSACTION_TOAST_DATA_UPDATE,

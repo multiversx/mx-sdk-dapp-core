@@ -1,6 +1,6 @@
 import { InterpretedTransactionType } from 'types/serverTransactions.types';
 import { getEgldValueData } from './getEgldValueData';
-import { getVisibleOperations } from '../../getVisibleOperations';
+import { getVisibleOperations } from './getVisibleOperations';
 
 let warningLogged = false;
 

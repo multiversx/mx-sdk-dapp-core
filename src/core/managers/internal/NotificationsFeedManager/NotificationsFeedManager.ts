@@ -1,13 +1,15 @@
-import { IEventBus } from '@multiversx/sdk-dapp-core-ui/dist/types/utils/EventBus';
 import isEqual from 'lodash.isequal';
 import { UITagsEnum } from 'constants/UITags.enum';
-import { NotificationsFeed } from 'lib/sdkDappCoreUi';
+import { TransactionsHistoryController } from 'controllers/TransactionsHistoryController';
+import {
+  NotificationsFeed,
+  IEventBus,
+  ITransactionListItem
+} from 'lib/sdkDappCoreUi';
 import { clearCompletedTransactions } from 'store/actions/transactions/transactionsActions';
 import { getStore } from 'store/store';
 import { ProviderErrorsEnum } from 'types/provider.types';
-import { SignedTransactionType } from 'types/transactions.types';
 import { createUIElement } from 'utils/createUIElement';
-import { createTransactionsHistoryFromSessions } from './helpers/createTransactionsHistoryFromSessions';
 import { NotificationsFeedEventsEnum } from './types';
 import { createToastsFromTransactions } from '../ToastManager/helpers/createToastsFromTransactions';
 import { ITransactionToast } from '../ToastManager/types/toast.types';
@@ -15,7 +17,7 @@ import { ITransactionToast } from '../ToastManager/types/toast.types';
 export class NotificationsFeedManager {
   private static instance: NotificationsFeedManager;
   private eventBus: IEventBus | null = null;
-  private historicTransactions: SignedTransactionType[] = [];
+  private historicTransactions: ITransactionListItem[] = [];
   private isCreatingElement = false;
   private isOpen = false;
   private notificationsFeedElement: NotificationsFeed | null = null;
@@ -36,10 +38,10 @@ export class NotificationsFeedManager {
 
   public async init() {
     await this.createNotificationsFeedElement();
-    this.updateData();
+    await this.updateData();
 
     this.storeToastsUnsubscribe = this.store.subscribe(
-      (
+      async (
         { toasts, transactions },
         { toasts: prevToasts, transactions: prevTransactions }
       ) => {
@@ -47,7 +49,7 @@ export class NotificationsFeedManager {
           !isEqual(prevToasts.transactionToasts, toasts.transactionToasts) ||
           !isEqual(prevTransactions, transactions)
         ) {
-          this.updateData();
+          await this.updateData();
         }
       }
     );
@@ -105,6 +107,10 @@ export class NotificationsFeedManager {
 
   private async getEventBus(): Promise<IEventBus | null> {
     if (!this.notificationsFeedElement) {
+      await this.createNotificationsFeedElement();
+    }
+
+    if (!this.notificationsFeedElement) {
       return null;
     }
 
@@ -147,7 +153,7 @@ export class NotificationsFeedManager {
       await this.createNotificationsFeedElement();
     }
 
-    if (!this.notificationsFeedElement || !this.eventBus) {
+    if (!this.eventBus) {
       return;
     }
 
@@ -173,7 +179,13 @@ export class NotificationsFeedManager {
   }
 
   private async updateData() {
-    const { transactions: sessions, account, toasts } = this.store.getState();
+    const {
+      transactions: sessions,
+      account,
+      toasts,
+      network
+    } = this.store.getState();
+
     const { pendingTransactions } = createToastsFromTransactions({
       toastList: toasts,
       sessions,
@@ -181,7 +193,14 @@ export class NotificationsFeedManager {
     });
 
     this.pendingTransactions = pendingTransactions;
-    this.historicTransactions = createTransactionsHistoryFromSessions(sessions);
+
+    this.historicTransactions =
+      await TransactionsHistoryController.getTransactionsHistory({
+        sessions,
+        address: account.address,
+        explorerAddress: network.network.explorerAddress,
+        egldLabel: network.network.egldLabel
+      });
 
     await this.updateNotificationsFeed();
   }
@@ -191,7 +210,7 @@ export class NotificationsFeedManager {
       await this.createNotificationsFeedElement();
     }
 
-    if (!this.notificationsFeedElement || !this.eventBus) {
+    if (!this.eventBus) {
       return;
     }
 

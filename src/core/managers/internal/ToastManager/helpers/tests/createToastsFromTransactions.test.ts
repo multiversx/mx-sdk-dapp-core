@@ -21,8 +21,8 @@ jest.mock('store/actions/transactions/transactionStateByStatus', () => ({
 }));
 
 jest.mock('../createTransactionToast', () => ({
-  createTransactionToast: jest.fn().mockImplementation(({ toast }) => ({
-    toastId: toast.toastId
+  createTransactionToast: jest.fn().mockImplementation(({ toastId }) => ({
+    toastId
   }))
 }));
 

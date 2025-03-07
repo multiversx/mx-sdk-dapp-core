@@ -5,18 +5,18 @@ import {
   TransactionMethodType
 } from 'types/serverTransactions.types';
 import { TokenArgumentType } from 'types/serverTransactions.types';
-import { explorerUrlBuilder } from './explorerUrlBuilder';
-import { getExplorerLink } from './getExplorerLink';
-import { getHumanReadableTimeFormat } from './getHumanReadableTimeFormat';
-import { getTokenFromData } from './getTokenFromData';
-import { getTransactionIconInfo } from './getTransactionIconInfo';
-import { getTransactionMethod } from './getTransactionMethod';
-import { getTransactionReceiver } from './getTransactionReceiver';
-import { getTransactionReceiverAssets } from './getTransactionReceiverAssets';
-import { getTransactionTokens } from './getTransactionTokens';
-import { getTransactionTransferType } from './getTransactionTransferType';
-import { timeAgo } from '../operations/timeRemaining';
-import { isContract } from '../validation';
+import { timeAgo } from 'utils/operations/timeRemaining';
+import { isContract } from 'utils/validation';
+import { explorerUrlBuilder } from '../explorerUrlBuilder';
+import { getExplorerLink } from '../getExplorerLink';
+import { getHumanReadableTimeFormat } from '../getHumanReadableTimeFormat';
+import { getTokenFromData } from './helpers/getTokenFromData';
+import { getTransactionIconInfo } from './helpers/getTransactionIconInfo';
+import { getTransactionMethod } from './helpers/getTransactionMethod';
+import { getTransactionReceiver } from './helpers/getTransactionReceiver';
+import { getTransactionReceiverAssets } from './helpers/getTransactionReceiverAssets';
+import { getTransactionTokens } from './helpers/getTransactionTokens';
+import { getTransactionTransferType } from './helpers/getTransactionTransferType';
 
 export interface GetInterpretedTransactionType {
   address: string;
@@ -43,7 +43,12 @@ export function getInterpretedTransaction({
     })
   };
 
-  const direction = getTransactionTransferType(address, transaction, receiver);
+  const direction = getTransactionTransferType({
+    address,
+    transaction,
+    receiver
+  });
+
   const method: TransactionMethodType = {
     actionDescription: transaction.action?.description,
     name: getTransactionMethod(transaction)

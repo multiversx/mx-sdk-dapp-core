@@ -8,8 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 - [Added ledger error handling](https://github.com/multiversx/mx-sdk-dapp-core/pull/115)
+- [Added notifications feed historical transactions mapping](https://github.com/multiversx/mx-sdk-dapp-core/pull/114)
 - [Added sign message helper](https://github.com/multiversx/mx-sdk-dapp-core/pull/113)
 - [Added notifications feed manager](https://github.com/multiversx/mx-sdk-dapp-core/pull/112)
+- [Fixed minor TODOs](https://github.com/multiversx/mx-sdk-dapp-core/pull/110)
 - [Fixed getWindowParentOrigin.test](https://github.com/multiversx/mx-sdk-dapp-core/pull/111)
 - [Fixed minor TODOs](https://github.com/multiversx/mx-sdk-dapp-core/pull/110)
 - [Updated managers to use internal folder](https://github.com/multiversx/mx-sdk-dapp-core/pull/108)

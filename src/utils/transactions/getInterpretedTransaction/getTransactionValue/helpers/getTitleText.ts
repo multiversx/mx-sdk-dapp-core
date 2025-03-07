@@ -1,7 +1,7 @@
 import { DECIMALS, formatAmount } from 'lib/sdkDappUtils';
 import { TokenArgumentType } from 'types/serverTransactions.types';
 import { getIdentifierType } from 'utils/validation/getIdentifierType';
-import { getTransactionActionNftText } from '../../getTransactionActionNftText';
+import { getTransactionActionNftText } from './getTransactionActionNftText';
 import {
   EgldValueDataType,
   NFTValueDataType,

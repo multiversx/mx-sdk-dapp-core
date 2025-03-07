@@ -1,7 +1,7 @@
 import { formatAmount } from 'lib/sdkDappUtils';
 import { TokenArgumentType } from 'types/serverTransactions.types';
 import { NftEnumType } from 'types/tokens.types';
-import { explorerUrlBuilder } from './explorerUrlBuilder';
+import { explorerUrlBuilder } from '../../../explorerUrlBuilder';
 
 export interface TransactionActionNftType {
   token: TokenArgumentType;

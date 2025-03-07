@@ -1,7 +1,7 @@
 import { getPersistedTokenDetails } from 'apiCalls/tokens/getPersistedTokenDetails';
-import { addressIsValid } from '../validation';
+import { addressIsValid } from '../../../validation';
 
-interface GetLockedAccountNameParamsType {
+interface IGetLockedAccountNameParams {
   receiver: string;
   sender: string;
   tokenId?: string;
@@ -11,7 +11,7 @@ export const getLockedAccountName = async ({
   receiver,
   sender,
   tokenId
-}: GetLockedAccountNameParamsType) => {
+}: IGetLockedAccountNameParams) => {
   let senderLockedAccount = null,
     receiverLockedAccount = null;
 

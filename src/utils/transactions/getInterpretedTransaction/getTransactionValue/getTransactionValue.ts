@@ -16,14 +16,14 @@ import {
   getValueFromDataField,
   getValueFromOperations
 } from './helpers';
+import { getTransactionActionNftText } from './helpers/getTransactionActionNftText';
+import { getTransactionTokens } from './helpers/getTransactionTokens';
 import {
   EgldValueDataType,
   NFTValueDataType,
   TokenValueDataType
 } from './types';
-import { explorerUrlBuilder } from '../explorerUrlBuilder';
-import { getTransactionActionNftText } from '../getTransactionActionNftText';
-import { getTransactionTokens } from '../getTransactionTokens';
+import { explorerUrlBuilder } from '../../explorerUrlBuilder';
 
 export interface GetTransactionValueReturnType {
   egldValueData?: EgldValueDataType;
