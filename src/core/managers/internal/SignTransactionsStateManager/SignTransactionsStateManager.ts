@@ -2,6 +2,7 @@ import { IEventBus } from 'types/manager.types';
 import { NftEnumType } from 'types/tokens.types';
 import {
   FungibleTransactionType,
+  ISignTransactionsModalCommonData,
   ISignTransactionsModalData,
   SignEventsEnum,
   TokenType
@@ -54,7 +55,7 @@ export class SignTransactionsStateManager<
   }
 
   public updateCommonData(
-    newCommonData: Partial<ISignTransactionsModalData['commonData']>
+    newCommonData: Partial<ISignTransactionsModalCommonData>
   ): void {
     this.data.commonData = {
       ...this.data.commonData,

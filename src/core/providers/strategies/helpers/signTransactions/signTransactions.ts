@@ -9,7 +9,7 @@ import {
 import { UITagsEnum } from 'constants/UITags.enum';
 import { SignTransactionsStateManager } from 'core/managers/internal/SignTransactionsStateManager/SignTransactionsStateManager';
 import {
-  ISignTransactionsModalData,
+  ISignTransactionsModalCommonData,
   SignEventsEnum
 } from 'core/managers/internal/SignTransactionsStateManager/types';
 import { getAddress } from 'core/methods/account/getAddress';
@@ -168,9 +168,11 @@ export async function signTransactions({
         });
       }
 
-      const commonData: ISignTransactionsModalData['commonData'] = {
+      const commonData: ISignTransactionsModalCommonData = {
         receiver: plainTransaction.receiver.toString(),
         data: currentTransaction.transaction.getData().toString(),
+        gasPrice: plainTransaction.gasPrice.toString(),
+        gasLimit: plainTransaction.gasLimit.toString(),
         egldLabel,
         tokenType: getTokenType(type),
         feeLimit: feeLimitFormatted,

@@ -1,4 +1,5 @@
-import { EsdtEnumType, NftEnumType } from 'types/tokens.types';
+// types here need to be synced with the types in sdk-dapp-core-ui sign-transactions-modal.types.ts
+import type { EsdtEnumType, NftEnumType } from 'types/tokens.types';
 
 export interface ITransactionData {
   receiver?: string;
@@ -12,23 +13,30 @@ export type FungibleTransactionType = {
   imageURL: string;
 };
 
-export type TokenType = NftEnumType | EsdtEnumType;
+export type TokenType = EsdtEnumType | NftEnumType;
+
+export interface ISignTransactionsModalCommonData {
+  receiver?: string;
+  data?: string;
+  gasPrice?: string;
+  gasLimit?: string;
+  transactionsCount: number;
+  tokenType?: TokenType;
+  egldLabel: string;
+  feeLimit?: string;
+  feeInFiatLimit?: string | null;
+  currentIndex: number;
+  /**
+   * Tracks the index of the next unsigned transaction to be processed.
+   */
+  nextUnsignedTxIndex?: number;
+  highlight?: string | null;
+  scCall?: string | null;
+}
 
 export interface ISignTransactionsModalData {
   shouldClose?: true;
-  commonData: {
-    receiver?: string;
-    data?: string;
-    transactionsCount: number;
-    tokenType?: TokenType;
-    egldLabel: string;
-    feeLimit?: string;
-    feeInFiatLimit?: string | null;
-    currentIndex: number;
-    nextUnsignedTxIndex?: number;
-    highlight?: string | null;
-    scCall?: string | null;
-  };
+  commonData: ISignTransactionsModalCommonData;
   tokenTransaction: {
     identifier?: string;
     amount: string;
