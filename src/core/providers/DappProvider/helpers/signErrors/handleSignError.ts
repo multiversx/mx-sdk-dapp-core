@@ -3,7 +3,6 @@ import {
   CANCEL_TRANSACTION_TOAST_ID,
   ERROR_SIGNING_TOAST_ID
 } from 'constants/transactions.constants';
-import { getLedgerErrorCodes } from 'core/providers/strategies/LedgerProviderStrategy/helpers/getLedgerErrorCodes';
 import { createCustomToast } from 'store/actions';
 import { SigningErrorsEnum, SigningWarningsEnum } from 'types/enums.types';
 
@@ -24,8 +23,6 @@ export function handleSignError(
   error: unknown,
   type: 'error' | 'warning' = 'error'
 ) {
-  const { errorMessage: ledgerErrorMessage } = getLedgerErrorCodes(error);
-
   const originalError = (error as Error)?.message;
   const errorMessage = originalError || SigningErrorsEnum.errorSigning;
 
@@ -40,9 +37,8 @@ export function handleSignError(
     duration: CANCEL_TRANSACTION_TOAST_DEFAULT_DURATION,
     icon: 'times',
     iconClassName,
-    ...(ledgerErrorMessage
-      ? { message: ledgerErrorMessage, title }
-      : { message: title })
+    message: errorMessage,
+    title
   });
 
   return errorMessage;
