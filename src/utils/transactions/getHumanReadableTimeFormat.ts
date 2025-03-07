@@ -1,4 +1,4 @@
-export interface IGetHumanReadableTimeFormat {
+export interface GetHumanReadableTimeFormatType {
   value: number;
   noSeconds?: boolean;
   utc?: boolean;
@@ -13,7 +13,7 @@ export function getHumanReadableTimeFormat({
   noSeconds,
   utc,
   meridiem = true
-}: IGetHumanReadableTimeFormat) {
+}: GetHumanReadableTimeFormatType) {
   const utcDate = new Date(value * 1000);
   const [, AmPm] = utcDate
     .toLocaleString('en-US', { hour: 'numeric', hour12: meridiem })
