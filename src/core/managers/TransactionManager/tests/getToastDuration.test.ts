@@ -4,12 +4,12 @@ import {
 } from 'constants/transactions.constants';
 import { accountSelector } from 'store/selectors';
 import { TransactionServerStatusesEnum } from 'types';
-import { SignedTransactionType } from 'types/transactions.types';
+import { ISignedTransaction } from 'types/transactions.types';
 import { getAreTransactionsCrossShards } from '../helpers/getAreTransactionsCorssShards';
 import { getToastDuration } from '../helpers/getToastDuration';
 import { isBatchTransaction } from '../helpers/isBatchTransaction';
 
-const mockTransaction: SignedTransactionType = {
+const mockTransaction: ISignedTransaction = {
   hash: 'mockHash',
   status: TransactionServerStatusesEnum.pending,
   nonce: 1,

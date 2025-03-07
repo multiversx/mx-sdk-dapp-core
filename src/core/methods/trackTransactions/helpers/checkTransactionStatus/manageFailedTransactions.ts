@@ -7,7 +7,7 @@ import {
   TransactionServerStatusesEnum
 } from 'types/enums.types';
 import { ResultType } from 'types/serverTransactions.types';
-import { SignedTransactionType } from 'types/transactions.types';
+import { ISignedTransaction } from 'types/transactions.types';
 
 export function manageFailedTransactions({
   results,
@@ -25,7 +25,7 @@ export function manageFailedTransactions({
   updateTransactionStatus({
     sessionId,
     transaction: {
-      ...(resultWithError as unknown as SignedTransactionType),
+      ...(resultWithError as unknown as ISignedTransaction),
       hash,
       status: TransactionServerStatusesEnum.fail,
       inTransit: false

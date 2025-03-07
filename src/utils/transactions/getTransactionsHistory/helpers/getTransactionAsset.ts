@@ -12,19 +12,19 @@ import {
 import { isContract } from 'utils/validation/isContract';
 import { getIsTransactionInvalidOrFailed } from './getIsTransactionInvalidOrFailed';
 import { getTransactionAvatar } from './getTransactionAvatar';
-import { ProcessedTransactionAssetType } from './processTransactionAssets';
+import { IProcessedTransactionAsset } from './processTransactionAssets';
 
 enum NftTypeEnum {
   NonFungibleESDT = 'NonFungibleESDT',
   SemiFungibleESDT = 'SemiFungibleESDT'
 }
 
-interface GetTransactionAssetParams {
+interface IGetTransactionAssetParams {
   receiver: string;
   sender: string;
   receiverAssets?: AssetType;
   senderAssets?: AssetType;
-  transactionAssets: ProcessedTransactionAssetType[];
+  transactionAssets: IProcessedTransactionAsset[];
   showDefaultState?: boolean;
   status: TransactionServerStatusesEnum;
 }
@@ -37,7 +37,7 @@ export const getTransactionAsset = ({
   transactionAssets,
   showDefaultState = false,
   status
-}: GetTransactionAssetParams): TransactionListItemAssetType | null => {
+}: IGetTransactionAssetParams): TransactionListItemAssetType | null => {
   const userIsReceiver = receiver === sender;
   const isContractInteraction = userIsReceiver
     ? isContract(sender)

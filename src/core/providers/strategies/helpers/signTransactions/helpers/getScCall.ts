@@ -1,7 +1,7 @@
-import { TransactionDataTokenType } from 'types/transactions.types';
+import { ITransactionDataToken } from 'types/transactions.types';
 import { decodePart } from 'utils/decoders/decodePart';
 
-export const getScCall = (txInfoToken?: TransactionDataTokenType) => {
+export const getScCall = (txInfoToken?: ITransactionDataToken) => {
   if (!txInfoToken?.multiTxData) {
     return null;
   }

@@ -4,7 +4,7 @@ import {
   ServerTransactionType
 } from 'types/serverTransactions.types';
 
-interface GetTransactionTransferTypeParamsType {
+interface IGetTransactionTransferTypeParams {
   address: string;
   transaction: ServerTransactionType;
   receiver: string;
@@ -14,7 +14,7 @@ export function getTransactionTransferType({
   address,
   transaction,
   receiver
-}: GetTransactionTransferTypeParamsType): TransactionDirectionEnum {
+}: IGetTransactionTransferTypeParams): TransactionDirectionEnum {
   const directionOut = address === transaction.sender;
   const directionIn = address === receiver;
   const directionSelf = directionOut && directionIn;

@@ -1,9 +1,9 @@
-import { GetHistoricalTransactionsParamsType } from 'types/transaction-list-item.types';
+import { IGetHistoricalTransactionsParams } from 'types/transaction-list-item.types';
 import { getTransactionsHistory } from 'utils/transactions';
 
 // Note: Will replace TransactionsTableController in the future
 export const TransactionsHistoryController = {
-  async getTransactionsHistory(params: GetHistoricalTransactionsParamsType) {
+  async getTransactionsHistory(params: IGetHistoricalTransactionsParams) {
     const transactions = await getTransactionsHistory(params);
     return transactions;
   }

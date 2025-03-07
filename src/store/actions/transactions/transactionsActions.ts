@@ -5,8 +5,8 @@ import {
   TransactionServerStatusesEnum
 } from 'types/enums.types';
 import {
-  TransactionsDisplayInfoType,
-  SignedTransactionType
+  ITransactionsDisplayInfo,
+  ISignedTransaction
 } from 'types/transactions.types';
 
 export const createTransactionsSession = ({
@@ -14,8 +14,8 @@ export const createTransactionsSession = ({
   transactionsDisplayInfo,
   status
 }: {
-  transactions: SignedTransactionType[];
-  transactionsDisplayInfo?: TransactionsDisplayInfoType;
+  transactions: ISignedTransaction[];
+  transactionsDisplayInfo?: ITransactionsDisplayInfo;
   status: TransactionBatchStatusesEnum | TransactionServerStatusesEnum;
 }) => {
   const sessionId = Date.now().toString();
@@ -57,7 +57,7 @@ export const updateTransactionStatus = ({
   transaction: updatedTransaction
 }: {
   sessionId: string;
-  transaction: SignedTransactionType;
+  transaction: ISignedTransaction;
 }) => {
   getStore().setState(
     ({ transactions: state }) => {

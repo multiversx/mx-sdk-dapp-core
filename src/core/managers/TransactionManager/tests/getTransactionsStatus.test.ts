@@ -7,13 +7,13 @@ import {
   TransactionBatchStatusesEnum,
   TransactionServerStatusesEnum
 } from 'types';
-import { SignedTransactionType } from 'types/transactions.types';
+import { ISignedTransaction } from 'types/transactions.types';
 import { getTransactionsSessionStatus } from '../helpers/getTransactionsStatus';
 
 jest.mock('store/actions/transactions/transactionStateByStatus');
 
 describe('getTransactionsSessionStatus', () => {
-  const mockTransactions: SignedTransactionType[] = [
+  const mockTransactions: ISignedTransaction[] = [
     {
       status: TransactionServerStatusesEnum.success,
       hash: '',

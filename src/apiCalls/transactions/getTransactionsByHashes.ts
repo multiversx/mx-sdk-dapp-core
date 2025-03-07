@@ -5,12 +5,12 @@ import {
 import { ServerTransactionType } from 'types/serverTransactions.types';
 import {
   TrackedTransactionResultType,
-  SignedTransactionType
+  ISignedTransaction
 } from 'types/transactions.types';
 import { getServerTransactionsByHashes } from './getServerTransactionsByHashes';
 
 export const getTransactionsByHashes = async (
-  pendingTransactions: SignedTransactionType[]
+  pendingTransactions: ISignedTransaction[]
 ): Promise<TrackedTransactionResultType[]> => {
   const hashes = pendingTransactions.map((tx) => tx.hash);
 

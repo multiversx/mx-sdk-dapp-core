@@ -2,7 +2,7 @@ import { getAccountFromApi } from 'apiCalls/account';
 import { getScamAddressData } from 'apiCalls/utils/getScamAddressData';
 import { SigningErrorsEnum } from 'types/enums.types';
 
-import { MultiSignTransactionType } from 'types/transactions.types';
+import { IMultiSignTransaction } from 'types/transactions.types';
 import { checkIsValidSender } from './checkIsValidSender';
 import { getMultiEsdtTransferData } from './getMultiEsdtTransferData/getMultiEsdtTransferData';
 import { isTokenTransfer } from './isTokenTransfer';
@@ -27,9 +27,7 @@ export function getExtractTransactionsInfo({
   sender,
   address
 }: ExtractTransactionsInfoType) {
-  const extractTransactionsInfo = async (
-    currentTx: MultiSignTransactionType
-  ) => {
+  const extractTransactionsInfo = async (currentTx: IMultiSignTransaction) => {
     if (currentTx == null) {
       return;
     }

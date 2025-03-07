@@ -1,9 +1,9 @@
 import { isServerTransactionPending } from 'store/actions/transactions/transactionStateByStatus';
 import { TransactionServerStatusesEnum } from 'types';
-import { SignedTransactionType } from 'types/transactions.types';
+import { ISignedTransaction } from 'types/transactions.types';
 
 export const getToastTransactionsStatus = (
-  transactions: SignedTransactionType[]
+  transactions: ISignedTransaction[]
 ) => {
   const processedTransactions = transactions.filter(
     (tx) =>

@@ -1,7 +1,7 @@
 import { testAddress } from '__mocks__/accountConfig';
 import { isServerTransactionPending } from 'store/actions/transactions/transactionStateByStatus';
 import { TransactionServerStatusesEnum } from 'types/enums.types';
-import { SignedTransactionType } from 'types/transactions.types';
+import { ISignedTransaction } from 'types/transactions.types';
 import { getToastTransactionsStatus } from '../getToastTransactionsStatus';
 
 jest.mock('store/actions/transactions/transactionStateByStatus', () => ({
@@ -9,7 +9,7 @@ jest.mock('store/actions/transactions/transactionStateByStatus', () => ({
 }));
 
 describe('getToastProceededStatus', () => {
-  const baseTransaction: Omit<SignedTransactionType, 'status' | 'hash'> = {
+  const baseTransaction: Omit<ISignedTransaction, 'status' | 'hash'> = {
     nonce: 1,
     value: '1000000000000000000',
     receiver: testAddress,
@@ -27,13 +27,13 @@ describe('getToastProceededStatus', () => {
   });
 
   it('should return correct message for single pending or completed transaction', () => {
-    const pendingTx: SignedTransactionType = {
+    const pendingTx: ISignedTransaction = {
       ...baseTransaction,
       hash: 'tx1',
       status: TransactionServerStatusesEnum.pending
     };
 
-    const successTx: SignedTransactionType = {
+    const successTx: ISignedTransaction = {
       ...baseTransaction,
       hash: 'tx2',
       status: TransactionServerStatusesEnum.success
@@ -53,7 +53,7 @@ describe('getToastProceededStatus', () => {
   });
 
   it('should show fraction of completed transactions when handling multiple transactions with mixed states', () => {
-    const transactions: SignedTransactionType[] = [
+    const transactions: ISignedTransaction[] = [
       {
         ...baseTransaction,
         hash: 'tx1',
@@ -81,8 +81,8 @@ describe('getToastProceededStatus', () => {
   });
 
   it('should handle empty array and transactions with undefined status', () => {
-    const emptyTransactions: SignedTransactionType[] = [];
-    const undefinedStatusTx: SignedTransactionType = {
+    const emptyTransactions: ISignedTransaction[] = [];
+    const undefinedStatusTx: ISignedTransaction = {
       ...baseTransaction,
       hash: 'tx1'
     };

@@ -1,8 +1,8 @@
 import { getIsTransactionPending } from 'store/actions/transactions/transactionStateByStatus';
 import { TransactionServerStatusesEnum } from 'types/enums.types';
 import {
-  SignedTransactionType,
-  TransactionsDisplayInfoType
+  ISignedTransaction,
+  ITransactionsDisplayInfo
 } from 'types/transactions.types';
 import { explorerUrlBuilder } from 'utils/transactions/explorerUrlBuilder';
 import { getExplorerLink } from 'utils/transactions/getExplorerLink';
@@ -14,8 +14,8 @@ interface CreateTransactionToastParamsType {
   toastId: string;
   address: string;
   status: TransactionServerStatusesEnum;
-  transactions: SignedTransactionType[];
-  transactionsDisplayInfo?: TransactionsDisplayInfoType;
+  transactions: ISignedTransaction[];
+  transactionsDisplayInfo?: ITransactionsDisplayInfo;
   explorerAddress: string;
   startTime: number;
   endTime: number;

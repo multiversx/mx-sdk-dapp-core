@@ -1,7 +1,7 @@
 import { testAddress } from '__mocks__/accountConfig';
 import { getIsTransactionPending } from 'store/actions/transactions/transactionStateByStatus';
 import { TransactionServerStatusesEnum } from 'types/enums.types';
-import { SignedTransactionType } from 'types/transactions.types';
+import { ISignedTransaction } from 'types/transactions.types';
 import { createTransactionToast } from '../createTransactionToast';
 import { getToastDataStateByStatus } from '../getToastDataStateByStatus';
 import { getToastTransactionsStatus } from '../getToastTransactionsStatus';
@@ -38,7 +38,7 @@ describe('createTransactionToast', () => {
 
   const EXPLORER_ADDRESS = 'https://explorer.example.com';
 
-  const baseTransaction: SignedTransactionType = {
+  const baseTransaction: ISignedTransaction = {
     hash: 'tx-hash',
     sender: testAddress,
     receiver: testAddress,

@@ -37,22 +37,15 @@ export interface TransactionListItemType {
   amount?: string;
 }
 
-export interface BaseTransactionParamsType {
+export interface IBaseTransactionParams {
   address: string;
   explorerAddress: string;
   egldLabel: string;
 }
 
-export interface GetHistoricalTransactionsParamsType
-  extends BaseTransactionParamsType {
+export interface IGetHistoricalTransactionsParams
+  extends IBaseTransactionParams {
   sessions: TransactionsSliceType;
-}
-
-export interface MapTransactionToListItemParamsType
-  extends BaseTransactionParamsType {
-  transaction: ServerTransactionType;
-  isPending?: boolean;
-  profileImages?: Record<string, string>;
 }
 
 export interface TransactionAssetType {

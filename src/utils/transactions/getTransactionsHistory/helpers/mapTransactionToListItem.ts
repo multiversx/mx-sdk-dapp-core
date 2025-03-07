@@ -1,20 +1,25 @@
 import { TransactionServerStatusesEnum } from 'types/enums.types';
-import type {
-  MapTransactionToListItemParamsType,
-  TransactionListItemType
-} from 'types/transaction-list-item.types';
+import { ServerTransactionType } from 'types/serverTransactions.types';
+import type { TransactionListItemType } from 'types/transaction-list-item.types';
+import { IBaseTransactionParams } from 'types/transaction-list-item.types';
 import { getReceiverData } from 'utils/transactions/getTransactionsHistory/helpers/getReceiverData';
 import { getTransactionAmount } from './getTransactionAmount';
 import { getTransactionAsset } from './getTransactionAsset';
 import { processTransactionAction } from './processTransactionAction';
 import { processTransactionAssets } from './processTransactionAssets';
 
+interface IMapTransactionToListItemParamsType extends IBaseTransactionParams {
+  transaction: ServerTransactionType;
+  isPending?: boolean;
+  profileImages?: Record<string, string>;
+}
+
 export const mapTransactionToListItem = ({
   transaction,
   address,
   egldLabel,
   isPending = false
-}: MapTransactionToListItemParamsType): TransactionListItemType => {
+}: IMapTransactionToListItemParamsType): TransactionListItemType => {
   const { receiver, receiverAssets } = getReceiverData(transaction);
   const isIncomingTransaction = address === receiver;
 
