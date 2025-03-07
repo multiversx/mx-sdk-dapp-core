@@ -4,10 +4,10 @@ import {
   getIsTransactionSuccessful
 } from 'store/actions/transactions/transactionStateByStatus';
 import { TransactionBatchStatusesEnum } from 'types';
-import { ISignedTransaction } from 'types/transactions.types';
+import { SignedTransactionType } from 'types/transactions.types';
 
 export function getTransactionsSessionStatus(
-  transactions: ISignedTransaction[]
+  transactions: SignedTransactionType[]
 ): TransactionBatchStatusesEnum | null {
   if (!transactions || transactions.length === 0) {
     return TransactionBatchStatusesEnum.invalid;

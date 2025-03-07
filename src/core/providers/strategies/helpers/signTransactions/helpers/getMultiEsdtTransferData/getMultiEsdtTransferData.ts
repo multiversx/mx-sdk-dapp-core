@@ -1,12 +1,12 @@
 import { Transaction } from '@multiversx/sdk-core';
 import {
-  IMultiSignTransaction,
-  ITransactionDataToken,
+  MultiSignTransactionType,
+  TransactionDataTokenType,
   TransactionsDataTokensType
 } from 'types/transactions.types';
 import { parseMultiEsdtTransferDataForMultipleTransactions } from './helpers/parseMultiEsdtTransferDataForMultipleTransactions';
 
-const defaultTransactionInfo: ITransactionDataToken = {
+const defaultTransactionInfo: TransactionDataTokenType = {
   tokenId: '',
   amount: '',
   type: '',
@@ -23,8 +23,8 @@ export function getMultiEsdtTransferData(transactions?: Transaction[]): {
   getTxInfoByDataField: (
     data: string,
     multiTransactionData?: string
-  ) => ITransactionDataToken;
-  allTransactions: IMultiSignTransaction[];
+  ) => TransactionDataTokenType;
+  allTransactions: MultiSignTransactionType[];
 } {
   const { allTransactions, parsedTransactionsByDataField } =
     parseMultiEsdtTransferDataForMultipleTransactions({ transactions });
@@ -32,7 +32,7 @@ export function getMultiEsdtTransferData(transactions?: Transaction[]): {
   function getTxInfoByDataField(
     data: string,
     multiTransactionData?: string
-  ): ITransactionDataToken {
+  ): TransactionDataTokenType {
     if (parsedTransactionsByDataField == null) {
       return defaultTransactionInfo;
     }

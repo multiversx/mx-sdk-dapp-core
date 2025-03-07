@@ -2,7 +2,7 @@ import {
   TransactionBatchStatusesEnum,
   TransactionServerStatusesEnum
 } from 'types';
-import { ISignedTransaction } from 'types/transactions.types';
+import { SignedTransactionType } from 'types/transactions.types';
 import { getAddressFromDataField } from 'utils';
 import { getAreTransactionsCrossShards } from '../helpers/getAreTransactionsCorssShards';
 import { isCrossShardTransaction } from '../helpers/isCrossShardTransaction';
@@ -32,7 +32,7 @@ describe('getAreTransactionsOnSameShard', () => {
   });
 
   it('should return true if all transactions are on the same shard', () => {
-    const transactions: ISignedTransaction[] = [
+    const transactions: SignedTransactionType[] = [
       {
         receiver:
           'erd1qqqqqqqqqqqqqpgq6d2ss380cvjhese43930hgzdx8quadm0zeusy9lclj',
@@ -67,7 +67,7 @@ describe('getAreTransactionsOnSameShard', () => {
   });
 
   it('should return false if any transaction is not on the same shard', () => {
-    const transactions: ISignedTransaction[] = [
+    const transactions: SignedTransactionType[] = [
       {
         receiver:
           'erd1qqqqqqqqqqqqqpgq6d2ss380cvjhese43930hgzdx8quadm0zeusy9lclj',
@@ -109,7 +109,7 @@ describe('getAreTransactionsOnSameShard', () => {
   });
 
   it('should skip transactions with null receiverAddress', () => {
-    const transactions: ISignedTransaction[] = [
+    const transactions: SignedTransactionType[] = [
       {
         receiver:
           'erd1qqqqqqqqqqqqqpgq6d2ss380cvjhese43930hgzdx8quadm0zeusy9lclj',

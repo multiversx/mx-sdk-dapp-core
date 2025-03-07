@@ -4,7 +4,7 @@ import {
   TransactionBatchStatusesEnum,
   TransactionServerStatusesEnum
 } from 'types/enums.types';
-import { ISignedTransaction } from 'types/transactions.types';
+import { SignedTransactionType } from 'types/transactions.types';
 
 export const transactionsSliceSelector = ({ transactions }: StoreType) =>
   transactions;
@@ -28,8 +28,8 @@ export const pendingTransactionsSessionsSelector = ({
 
 export const pendingTransactionsSelector = ({
   transactions: state
-}: StoreType): ISignedTransaction[] => {
-  const pendingTransactions: ISignedTransaction[] = [];
+}: StoreType): SignedTransactionType[] => {
+  const pendingTransactions: SignedTransactionType[] = [];
 
   Object.values(state).forEach(({ transactions }) => {
     transactions.forEach((transaction) => {
@@ -51,7 +51,7 @@ export const pendingTransactionsSelector = ({
 export const successfulTransactionsSelector = ({
   transactions: state
 }: StoreType) => {
-  const successfulTransactions: ISignedTransaction[] = [];
+  const successfulTransactions: SignedTransactionType[] = [];
 
   Object.values(state).forEach(({ transactions }) => {
     transactions.forEach((transaction) => {
@@ -67,7 +67,7 @@ export const successfulTransactionsSelector = ({
 export const failedTransactionsSelector = ({
   transactions: state
 }: StoreType) => {
-  const successfulTransactions: ISignedTransaction[] = [];
+  const successfulTransactions: SignedTransactionType[] = [];
 
   Object.values(state).forEach(({ transactions }) => {
     transactions.forEach((transaction) => {
@@ -91,7 +91,7 @@ export const failedTransactionsSelector = ({
 export const timedOutTransactionsSelector = ({
   transactions: state
 }: StoreType) => {
-  const successfulTransactions: ISignedTransaction[] = [];
+  const successfulTransactions: SignedTransactionType[] = [];
 
   Object.values(state).forEach(({ transactions }) => {
     transactions.forEach((transaction) => {

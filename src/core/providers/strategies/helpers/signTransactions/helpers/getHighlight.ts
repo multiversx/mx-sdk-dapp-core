@@ -1,6 +1,6 @@
-import { ITransactionDataToken } from 'types/transactions.types';
+import { TransactionDataTokenType } from 'types/transactions.types';
 
-export const getHighlight = (txInfoToken?: ITransactionDataToken) => {
+export const getHighlight = (txInfoToken?: TransactionDataTokenType) => {
   if (!txInfoToken?.multiTxData) {
     return null;
   }

@@ -1,4 +1,4 @@
-import { ISignedTransaction } from 'types/transactions.types';
+import { SignedTransactionType } from 'types/transactions.types';
 
 export type ToastsSliceType = {
   customToasts: CustomToastType[];
@@ -50,5 +50,5 @@ export interface ITransactionToast {
   startTime: number;
   endTime: number;
   toastId: string;
-  transaction?: ISignedTransaction;
+  transaction?: SignedTransactionType;
 }

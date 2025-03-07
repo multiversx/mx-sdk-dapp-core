@@ -1,11 +1,11 @@
 import { getIsTransactionPending } from 'store/actions/transactions/transactionStateByStatus';
-import { ISignedTransaction } from 'types/transactions.types';
+import { SignedTransactionType } from 'types/transactions.types';
 
 export function getPendingTransactions(
-  transactions: ISignedTransaction[]
-): ISignedTransaction[] {
+  transactions: SignedTransactionType[]
+): SignedTransactionType[] {
   const pendingTransactions = transactions.reduce(
-    (acc: ISignedTransaction[], transaction) => {
+    (acc: SignedTransactionType[], transaction) => {
       if (
         transaction.hash != null &&
         getIsTransactionPending(transaction.status)

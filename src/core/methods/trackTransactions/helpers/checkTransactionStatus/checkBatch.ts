@@ -10,7 +10,7 @@ import {
 } from 'types/enums.types';
 import {
   TrackedTransactionResultType,
-  ISignedTransaction
+  SignedTransactionType
 } from 'types/transactions.types';
 
 import { getPendingTransactions } from './getPendingTransactions';
@@ -18,7 +18,7 @@ import { manageFailedTransactions } from './manageFailedTransactions';
 
 export interface TransactionStatusTrackerPropsType {
   sessionId: string;
-  transactionBatch: ISignedTransaction[];
+  transactionBatch: SignedTransactionType[];
   isSequential?: boolean;
 }
 

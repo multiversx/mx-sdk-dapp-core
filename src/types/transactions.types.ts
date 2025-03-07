@@ -6,19 +6,19 @@ import {
 } from 'types/enums.types';
 import { ResultType } from './serverTransactions.types';
 
-export interface ISignedTransaction extends IPlainTransactionObject {
+export interface SignedTransactionType extends IPlainTransactionObject {
   hash: string;
   status?: TransactionServerStatusesEnum | TransactionBatchStatusesEnum;
   inTransit?: boolean;
 }
 
-export interface IMultiSignTransaction {
+export interface MultiSignTransactionType {
   multiTxData?: string;
   transactionIndex: number;
   transaction: Transaction;
 }
 
-interface IMultiEsdtType {
+interface MultiEsdtType {
   type:
     | TransactionTypesEnum.esdtTransaction
     | TransactionTypesEnum.nftTransaction;
@@ -29,7 +29,7 @@ interface IMultiEsdtType {
   data: string;
 }
 
-interface IMultiEsdtScCallType {
+interface MultiEsdtScCallType {
   type: TransactionTypesEnum.scCall;
   receiver: string;
   token?: string;
@@ -38,9 +38,9 @@ interface IMultiEsdtScCallType {
   data: string;
 }
 
-export type MultiEsdtTransactionType = IMultiEsdtType | IMultiEsdtScCallType;
+export type MultiEsdtTransactionType = MultiEsdtType | MultiEsdtScCallType;
 
-export interface ITransactionDataToken {
+export interface TransactionDataTokenType {
   tokenId: string;
   amount: string;
   receiver: string;
@@ -50,10 +50,10 @@ export interface ITransactionDataToken {
 }
 
 export type TransactionsDataTokensType =
-  | Record<string, ITransactionDataToken>
+  | Record<string, TransactionDataTokenType>
   | undefined;
 
-export type TrackedTransactionResultType = ISignedTransaction & {
+export type TrackedTransactionResultType = SignedTransactionType & {
   invalidTransaction: boolean;
   results: ResultType[];
   previousStatus: string;
@@ -70,7 +70,7 @@ export enum TransactionDirectionEnum {
 /**
  * Allows editing the title toast information
  */
-export interface ITransactionsDisplayInfo {
+export interface TransactionsDisplayInfoType {
   /**
    * Optional error message to be displayed in notification title in notification title if the transaction fails.
    */
@@ -113,11 +113,11 @@ export interface ITransactionsDisplayInfo {
 }
 
 export type SessionTransactionType = {
-  transactions: ISignedTransaction[];
+  transactions: SignedTransactionType[];
   status?: TransactionBatchStatusesEnum | TransactionServerStatusesEnum;
   errorMessage?: string;
   /**
    * Optional custom information to be displayed in the toast notification.
    */
-  transactionsDisplayInfo?: ITransactionsDisplayInfo;
+  transactionsDisplayInfo?: TransactionsDisplayInfoType;
 };

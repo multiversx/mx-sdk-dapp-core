@@ -6,8 +6,8 @@ import {
 import { AccountSliceType } from 'store/slices/account/account.types';
 import { TransactionServerStatusesEnum } from 'types/enums.types';
 import {
-  ISignedTransaction,
-  ITransactionsDisplayInfo
+  SignedTransactionType,
+  TransactionsDisplayInfoType
 } from 'types/transactions.types';
 import { ITransactionToast } from '../../types/toast.types';
 import { createToastsFromTransactions } from '../createToastsFromTransactions';
@@ -44,7 +44,7 @@ describe('createToastsFromTransactions', () => {
     websocketBatchEvent: null
   };
 
-  const mockTransaction: ISignedTransaction = {
+  const mockTransaction: SignedTransactionType = {
     nonce: 0,
     value: '0',
     receiver: testAddress,
@@ -59,7 +59,7 @@ describe('createToastsFromTransactions', () => {
     hash: 'tx-1'
   };
 
-  const mockDisplayInfo: ITransactionsDisplayInfo = {
+  const mockDisplayInfo: TransactionsDisplayInfoType = {
     processingMessage: 'Processing',
     successMessage: 'Success',
     errorMessage: 'Error',

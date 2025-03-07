@@ -1,9 +1,9 @@
-import { ISignedTransaction } from 'types/transactions.types';
+import { SignedTransactionType } from 'types/transactions.types';
 import { getAddressFromDataField } from 'utils';
 import { isCrossShardTransaction } from './isCrossShardTransaction';
 
 export const getAreTransactionsCrossShards = (
-  transactions?: ISignedTransaction[],
+  transactions?: SignedTransactionType[],
   accountShard = 1
 ): boolean => {
   if (!transactions?.length) {
@@ -11,7 +11,7 @@ export const getAreTransactionsCrossShards = (
   }
 
   return transactions.reduce(
-    (prevTxIsSameShard: boolean, { receiver, data }: ISignedTransaction) => {
+    (prevTxIsSameShard: boolean, { receiver, data }: SignedTransactionType) => {
       const receiverAddress = getAddressFromDataField({
         receiver,
         data: data ?? ''

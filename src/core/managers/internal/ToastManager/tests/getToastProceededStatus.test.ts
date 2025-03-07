@@ -1,6 +1,6 @@
 import { isServerTransactionPending } from 'store/actions/transactions/transactionStateByStatus';
 import { TransactionServerStatusesEnum } from 'types';
-import { ISignedTransaction } from 'types/transactions.types';
+import { SignedTransactionType } from 'types/transactions.types';
 import { getToastTransactionsStatus } from '../helpers/getToastTransactionsStatus';
 
 jest.mock('store/actions/transactions/transactionStateByStatus');
@@ -11,8 +11,8 @@ describe('getToastProceededStatus', () => {
   });
 
   it('should return "Transaction processed" for a single processed transaction', () => {
-    const transactions: ISignedTransaction[] = [
-      { status: TransactionServerStatusesEnum.success } as ISignedTransaction
+    const transactions: SignedTransactionType[] = [
+      { status: TransactionServerStatusesEnum.success } as SignedTransactionType
     ];
     (isServerTransactionPending as jest.Mock).mockReturnValue(false);
 
@@ -22,8 +22,8 @@ describe('getToastProceededStatus', () => {
   });
 
   it('should return "0 / 1 transactions processed" for a single pending transaction', () => {
-    const transactions: ISignedTransaction[] = [
-      { status: TransactionServerStatusesEnum.pending } as ISignedTransaction
+    const transactions: SignedTransactionType[] = [
+      { status: TransactionServerStatusesEnum.pending } as SignedTransactionType
     ];
     (isServerTransactionPending as jest.Mock).mockReturnValue(true);
 
@@ -33,11 +33,11 @@ describe('getToastProceededStatus', () => {
   });
 
   it('should return "1 / 2 transactions processed" for multiple transactions with one processed', () => {
-    const transactions: ISignedTransaction[] = [
+    const transactions: SignedTransactionType[] = [
       {
         status: TransactionServerStatusesEnum.success
-      } as ISignedTransaction,
-      { status: TransactionServerStatusesEnum.pending } as ISignedTransaction
+      } as SignedTransactionType,
+      { status: TransactionServerStatusesEnum.pending } as SignedTransactionType
     ];
     (isServerTransactionPending as jest.Mock).mockImplementation(
       (status) => status === TransactionServerStatusesEnum.pending
@@ -49,11 +49,11 @@ describe('getToastProceededStatus', () => {
   });
 
   it('should return "0 / 2 transactions processed" for multiple pending transactions', () => {
-    const transactions: ISignedTransaction[] = [
+    const transactions: SignedTransactionType[] = [
       {
         status: TransactionServerStatusesEnum.pending
-      } as ISignedTransaction,
-      { status: TransactionServerStatusesEnum.pending } as ISignedTransaction
+      } as SignedTransactionType,
+      { status: TransactionServerStatusesEnum.pending } as SignedTransactionType
     ];
     (isServerTransactionPending as jest.Mock).mockReturnValue(true);
 
@@ -63,11 +63,11 @@ describe('getToastProceededStatus', () => {
   });
 
   it('should return "2 / 2 transactions processed" for multiple processed transactions', () => {
-    const transactions: ISignedTransaction[] = [
+    const transactions: SignedTransactionType[] = [
       {
         status: TransactionServerStatusesEnum.success
-      } as ISignedTransaction,
-      { status: TransactionServerStatusesEnum.success } as ISignedTransaction
+      } as SignedTransactionType,
+      { status: TransactionServerStatusesEnum.success } as SignedTransactionType
     ];
     (isServerTransactionPending as jest.Mock).mockReturnValue(false);
 

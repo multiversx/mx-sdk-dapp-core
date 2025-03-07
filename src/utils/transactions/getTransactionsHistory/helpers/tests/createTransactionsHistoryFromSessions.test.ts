@@ -1,4 +1,4 @@
-import { ISignedTransaction } from 'types/transactions.types';
+import { SignedTransactionType } from 'types/transactions.types';
 import { createTransactionsHistoryFromSessions } from '../createTransactionsHistoryFromSessions';
 
 describe('createTransactionsHistoryFromSessions', () => {
@@ -8,17 +8,17 @@ describe('createTransactionsHistoryFromSessions', () => {
   });
 
   it('should sort sessions by key in descending order and merge transactions', () => {
-    const mockTransaction1: ISignedTransaction = {
+    const mockTransaction1: SignedTransactionType = {
       hash: 'hash1'
-    } as ISignedTransaction;
+    } as SignedTransactionType;
 
-    const mockTransaction2: ISignedTransaction = {
+    const mockTransaction2: SignedTransactionType = {
       hash: 'hash2'
-    } as ISignedTransaction;
+    } as SignedTransactionType;
 
-    const mockTransaction3: ISignedTransaction = {
+    const mockTransaction3: SignedTransactionType = {
       hash: 'hash3'
-    } as ISignedTransaction;
+    } as SignedTransactionType;
 
     const sessions = {
       '1': { transactions: [mockTransaction1] },
@@ -36,9 +36,9 @@ describe('createTransactionsHistoryFromSessions', () => {
   });
 
   it('should handle sessions without transactions', () => {
-    const mockTransaction: ISignedTransaction = {
+    const mockTransaction: SignedTransactionType = {
       hash: 'hash1'
-    } as ISignedTransaction;
+    } as SignedTransactionType;
 
     const sessions = {
       '1': { transactions: [mockTransaction] },

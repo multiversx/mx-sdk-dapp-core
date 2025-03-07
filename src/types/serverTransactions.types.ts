@@ -5,7 +5,7 @@ import {
   TransactionServerStatusesEnum
 } from './enums.types';
 import { EsdtEnumType, NftEnumType } from './tokens.types';
-import { ISignedTransaction } from './transactions.types';
+import { SignedTransactionType } from './transactions.types';
 
 export interface ScResultType {
   callType: string;
@@ -349,13 +349,13 @@ export enum BatchTransactionStatus {
 
 export interface BatchTransactionsRequestType {
   id: string;
-  transactions: ISignedTransaction[][];
+  transactions: SignedTransactionType[][];
 }
 
 export interface BatchTransactionsResponseType {
   id: string;
   status: BatchTransactionStatus;
-  transactions: ISignedTransaction[][];
+  transactions: SignedTransactionType[][];
   error?: string;
   message?: string;
   statusCode?: string;

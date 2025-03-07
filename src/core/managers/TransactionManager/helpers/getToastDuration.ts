@@ -4,12 +4,12 @@ import {
 } from 'constants/transactions.constants';
 import { accountSelector } from 'store/selectors';
 import { getState } from 'store/store';
-import { ISignedTransaction } from 'types/transactions.types';
+import { SignedTransactionType } from 'types/transactions.types';
 import { getAreTransactionsCrossShards } from './getAreTransactionsCorssShards';
 import { isBatchTransaction } from './isBatchTransaction';
 
 export const getToastDuration = (
-  transactions: ISignedTransaction[] | ISignedTransaction[][]
+  transactions: SignedTransactionType[] | SignedTransactionType[][]
 ) => {
   let totalDuration = 0;
   const accountShard = accountSelector(getState())?.shard;

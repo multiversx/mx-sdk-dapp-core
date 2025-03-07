@@ -1,7 +1,7 @@
 import type { Transaction } from '@multiversx/sdk-core';
 
 import {
-  IMultiSignTransaction,
+  MultiSignTransactionType,
   TransactionsDataTokensType
 } from 'types/transactions.types';
 import { getTokenFromData } from './getTokenFromData';
@@ -12,7 +12,7 @@ export function parseMultiEsdtTransferDataForMultipleTransactions({
 }: {
   transactions?: Transaction[];
 }) {
-  const allTransactions: IMultiSignTransaction[] = [];
+  const allTransactions: MultiSignTransactionType[] = [];
   const parsedTransactionsByDataField: TransactionsDataTokensType = {};
 
   if (!transactions || transactions.length === 0) {
@@ -28,7 +28,7 @@ export function parseMultiEsdtTransferDataForMultipleTransactions({
 
     if (multiTxs.length > 0) {
       multiTxs.forEach((trx, idx) => {
-        const newTx: IMultiSignTransaction = {
+        const newTx: MultiSignTransactionType = {
           transaction,
           multiTxData: trx.data,
           transactionIndex: idx

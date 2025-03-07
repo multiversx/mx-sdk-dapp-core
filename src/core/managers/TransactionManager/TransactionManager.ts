@@ -12,8 +12,8 @@ import {
 } from 'types/enums.types';
 import { BatchTransactionsResponseType } from 'types/serverTransactions.types';
 import {
-  ITransactionsDisplayInfo,
-  ISignedTransaction
+  TransactionsDisplayInfoType,
+  SignedTransactionType
 } from 'types/transactions.types';
 import { isGuardianTx } from 'utils/transactions/isGuardianTx';
 import { getToastDuration } from './helpers/getToastDuration';
@@ -34,7 +34,7 @@ export class TransactionManager {
 
   public send = async (
     signedTransactions: Transaction[] | Transaction[][]
-  ): Promise<ISignedTransaction[] | ISignedTransaction[][]> => {
+  ): Promise<SignedTransactionType[] | SignedTransactionType[][]> => {
     if (signedTransactions.length === 0) {
       throw new Error('No transactions to send');
     }
@@ -68,10 +68,10 @@ export class TransactionManager {
   };
 
   public track = async (
-    sentTransactions: ISignedTransaction[] | ISignedTransaction[][],
+    sentTransactions: SignedTransactionType[] | SignedTransactionType[][],
     options: {
       disableToasts?: boolean;
-      transactionsDisplayInfo?: ITransactionsDisplayInfo;
+      transactionsDisplayInfo?: TransactionsDisplayInfoType;
     } = { disableToasts: false }
   ): Promise<string> => {
     const flatTransactions = this.sequentialToFlatArray(sentTransactions).map(
@@ -100,7 +100,7 @@ export class TransactionManager {
 
   private sendSignedTransactions = async (
     signedTransactions: Transaction[]
-  ): Promise<ISignedTransaction[]> => {
+  ): Promise<SignedTransactionType[]> => {
     const { apiAddress, apiTimeout } = networkSelector(getState());
 
     const promises = signedTransactions.map((transaction) =>
@@ -159,19 +159,19 @@ export class TransactionManager {
     return `${sessionId}${BATCH_TRANSACTIONS_ID_SEPARATOR}${address}`;
   };
   private sequentialToFlatArray = (
-    transactions: ISignedTransaction[] | ISignedTransaction[][] = []
+    transactions: SignedTransactionType[] | SignedTransactionType[][] = []
   ) =>
     this.getIsSequential(transactions)
       ? transactions.flat()
-      : (transactions as ISignedTransaction[]);
+      : (transactions as SignedTransactionType[]);
 
   private getIsSequential = (
-    transactions?: ISignedTransaction[] | ISignedTransaction[][]
+    transactions?: SignedTransactionType[] | SignedTransactionType[][]
   ) => transactions?.every((transaction) => Array.isArray(transaction));
 
   private parseSignedTransaction = (
     signedTransaction: Transaction
-  ): ISignedTransaction => {
+  ): SignedTransactionType => {
     const parsedTransaction = {
       ...signedTransaction.toPlainObject(),
       hash: signedTransaction.getHash().hex(),
