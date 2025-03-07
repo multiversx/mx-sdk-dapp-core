@@ -6,14 +6,14 @@ import {
 } from 'store/selectors/transactionsSelector';
 import { getState } from 'store/store';
 
-export interface IGetActiveTransactionsStatusReturn {
+export interface GetActiveTransactionsStatusReturnType {
   timedOut: boolean;
   fail: boolean;
   success: boolean;
   pending: boolean;
 }
 
-export function getActiveTransactionsStatus(): IGetActiveTransactionsStatusReturn {
+export function getActiveTransactionsStatus(): GetActiveTransactionsStatusReturnType {
   const state = getState();
   const timedOutTransactions = timedOutTransactionsSelector(state);
   const failedTransactions = failedTransactionsSelector(state);

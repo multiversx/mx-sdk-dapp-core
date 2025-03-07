@@ -1,3 +1,4 @@
+import { ITransactionListItemAsset } from 'lib/sdkDappCoreUi';
 import { AssetType } from 'types/account.types';
 import { TransactionServerStatusesEnum } from 'types/enums.types';
 import { TransactionIconTypeEnum } from 'types/transaction-list-item.types';
@@ -21,12 +22,6 @@ interface IGetTransactionAssetParams {
   status: TransactionServerStatusesEnum;
 }
 
-interface TransactionAssetReturn {
-  icon?: string;
-  imageUrl?: string;
-  text?: string;
-}
-
 export const getTransactionAsset = ({
   receiver,
   sender,
@@ -35,7 +30,7 @@ export const getTransactionAsset = ({
   transactionAssets,
   showDefaultState = false,
   status
-}: IGetTransactionAssetParams): TransactionAssetReturn | null => {
+}: IGetTransactionAssetParams): ITransactionListItemAsset | null => {
   const userIsReceiver = receiver === sender;
   const isContractInteraction = userIsReceiver
     ? isContract(sender)

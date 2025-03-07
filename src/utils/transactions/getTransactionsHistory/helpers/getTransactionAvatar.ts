@@ -1,10 +1,10 @@
 interface IGetTransactionAvatarParams {
-  senderAssets?: AssetType;
-  receiverAssets?: AssetType;
+  senderAssets?: IAsset;
+  receiverAssets?: IAsset;
   userIsReceiver: boolean;
 }
 
-interface AssetType {
+interface IAsset {
   svgUrl?: string;
   iconSvg?: string;
   iconPng?: string;

@@ -20,15 +20,6 @@ export interface IGetHistoricalTransactionsParams
   sessions: TransactionsSliceType;
 }
 
-export interface TransactionAssetType {
-  assetPrefix: string;
-  assetTicker: string;
-  assetAmount: string;
-  assetImage?: string;
-  assetPrice?: string;
-  type: string;
-}
-
 export enum TransactionActionMethodTypeEnum {
   transfer = 'Transfer',
   delegate = 'Delegate',
