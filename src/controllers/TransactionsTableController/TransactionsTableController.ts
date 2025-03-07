@@ -6,8 +6,8 @@ import {
 import { NftEnumType } from 'types/tokens.types';
 import { getInterpretedTransaction } from 'utils/transactions/getInterpretedTransaction';
 import { getTransactionValue } from 'utils/transactions/getInterpretedTransaction/getTransactionValue/getTransactionValue';
-import { getShardText } from 'utils/transactions/getInterpretedTransaction/helpers/getShardText';
 import { getLockedAccountName } from 'utils/transactions/getInterpretedTransaction/helpers/getLockedAccountName';
+import { getShardText } from 'utils/transactions/getInterpretedTransaction/helpers/getShardText';
 import { isContract } from 'utils/validation/isContract';
 import {
   TransactionsTableRowType,

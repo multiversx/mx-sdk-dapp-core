@@ -30,16 +30,15 @@ export const getTransactionActionDirectionLabel = ({
     processedTransferType
   );
 
-  if (isSelfTransaction && isSelfSentTransactionTransfer) {
+  if (
+    (isSelfTransaction && isSelfSentTransactionTransfer) ||
+    isReceiverTransaction
+  ) {
     return 'Received';
   }
 
   if (isSelfTransaction && !isSelfSentTransactionTransfer) {
     return 'Self Sent';
-  }
-
-  if (isReceiverTransaction) {
-    return 'Received';
   }
 
   if (isSenderTransaction) {

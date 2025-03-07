@@ -1,4 +1,8 @@
-import { faClose, faCoins } from '@fortawesome/free-solid-svg-icons';
+import {
+  faClose,
+  faCoins,
+  faHourglass
+} from '@fortawesome/free-solid-svg-icons';
 import { AssetType } from 'types/account.types';
 import { TransactionServerStatusesEnum } from 'types/enums.types';
 import {
@@ -56,10 +60,14 @@ export const getTransactionAsset = ({
     ) ?? false;
 
   const isTransactionFailedOrInvalid = getIsTransactionInvalidOrFailed(status);
+  const isTransactionPending = status === TransactionServerStatusesEnum.pending;
 
-  if (isTransactionFailedOrInvalid && !showDefaultState) {
+  const showDefaultTransactionIcon =
+    isTransactionPending || isTransactionFailedOrInvalid;
+
+  if (showDefaultTransactionIcon && !showDefaultState) {
     return {
-      icon: faClose
+      icon: isTransactionPending ? faHourglass : faClose
     };
   }
 

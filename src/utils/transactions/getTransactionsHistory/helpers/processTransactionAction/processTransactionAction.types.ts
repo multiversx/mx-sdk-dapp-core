@@ -1,6 +1,6 @@
 import type { ServerTransactionType } from 'types/serverTransactions.types';
 
-export enum ProcessedTransactionActionCategoryTypeEnum {
+export enum TransactionActionCategoryTypeEnum {
   mex = 'mex',
   stake = 'stake'
 }

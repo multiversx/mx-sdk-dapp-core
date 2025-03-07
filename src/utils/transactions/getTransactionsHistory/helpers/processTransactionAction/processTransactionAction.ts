@@ -7,7 +7,7 @@ import {
 } from 'types/transaction-list-item.types';
 import {
   ProcessTransactionActionParamsType,
-  ProcessedTransactionActionCategoryTypeEnum
+  TransactionActionCategoryTypeEnum
 } from './processTransactionAction.types';
 import { getTransactionActionDirectionLabel } from '../getTransactionActionDirectionLabel';
 import { getTransactionActionTransferLabel } from '../getTransactionActionTransferLabel';
@@ -44,7 +44,7 @@ export const processTransactionAction = ({
 
   const transactionActionCategory =
     transactionAction && transactionAction.category
-      ? (transactionAction.category as ProcessedTransactionActionCategoryTypeEnum)
+      ? (transactionAction.category as TransactionActionCategoryTypeEnum)
       : null;
 
   const isTransfer =
@@ -74,8 +74,8 @@ export const processTransactionAction = ({
   });
 
   const transactionActionDescriptionCategories = [
-    ProcessedTransactionActionCategoryTypeEnum.mex,
-    ProcessedTransactionActionCategoryTypeEnum.stake
+    TransactionActionCategoryTypeEnum.mex,
+    TransactionActionCategoryTypeEnum.stake
   ];
 
   const showTransactionActionDescription =
