@@ -1,23 +1,30 @@
 import startCase from 'lodash/startCase';
 import uniq from 'lodash/uniq';
 
-import {
-  TransactionListItemActionType,
-  TransactionActionMethodTypeEnum
-} from 'types/transaction-list-item.types';
-import {
-  ProcessTransactionActionParamsType,
-  TransactionActionCategoryTypeEnum
-} from './processTransactionAction.types';
-import { getTransactionActionDirectionLabel } from '../getTransactionActionDirectionLabel';
-import { getTransactionActionTransferLabel } from '../getTransactionActionTransferLabel';
+import { ITransactionListItemAction } from 'lib/sdkDappCoreUi';
+import type { ServerTransactionType } from 'types/serverTransactions.types';
+import { TransactionActionMethodTypeEnum } from 'types/transaction-list-item.types';
+import { getTransactionActionDirectionLabel } from './getTransactionActionDirectionLabel';
+import { getTransactionActionTransferLabel } from './getTransactionActionTransferLabel';
 
-export const processTransactionAction = ({
+export enum TransactionActionCategoryTypeEnum {
+  mex = 'mex',
+  stake = 'stake'
+}
+
+export interface IGetTransactionActionParams {
+  currentUserAddress: string;
+  transaction: ServerTransactionType;
+  egldLabel?: string;
+  isPending?: boolean;
+}
+
+export const getTransactionAction = ({
   currentUserAddress,
   transaction,
   egldLabel,
   isPending = false
-}: ProcessTransactionActionParamsType): TransactionListItemActionType => {
+}: IGetTransactionActionParams): ITransactionListItemAction => {
   if (isPending) {
     return {
       name: 'Pending...'

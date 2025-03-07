@@ -4,13 +4,13 @@ import { ServerTransactionType } from 'types/serverTransactions.types';
 import { getAssetAmount } from './getAssetAmount';
 import { getAssetPrice } from './getAssetPrice';
 
-interface IProcessTransactionAssetsParams {
+interface IGetTransactionAssetsParams {
   transaction: ServerTransactionType;
   userIsReceiver: boolean;
   egldLabel?: string;
 }
 
-export interface IProcessedTransactionAsset {
+export interface ITransactionAsset {
   assetPrefix: string;
   assetTicker: string;
   assetAmount: string;
@@ -19,11 +19,11 @@ export interface IProcessedTransactionAsset {
   type: string;
 }
 
-export const processTransactionAssets = ({
+export const getTransactionAssets = ({
   transaction,
   userIsReceiver,
   egldLabel
-}: IProcessTransactionAssetsParams): IProcessedTransactionAsset[] => {
+}: IGetTransactionAssetsParams): ITransactionAsset[] => {
   const transactionAction = transaction.action;
   const transactionArguments = transactionAction && transactionAction.arguments;
 
@@ -36,7 +36,7 @@ export const processTransactionAssets = ({
   const processedEgldLabel = egldLabel ?? 'EGLD';
   const assetPrefix = userIsReceiver ? '+' : '-';
 
-  const egldTransferAsset: IProcessedTransactionAsset = {
+  const egldTransferAsset: ITransactionAsset = {
     assetPrefix,
     type: processedEgldLabel,
     assetTicker: processedEgldLabel,
@@ -47,7 +47,7 @@ export const processTransactionAssets = ({
   };
 
   const transfersAssets = transactionTransfers.map(
-    (transactionTransfer): IProcessedTransactionAsset => ({
+    (transactionTransfer): ITransactionAsset => ({
       assetPrefix,
       type: transactionTransfer.type,
       assetTicker: transactionTransfer.ticker,

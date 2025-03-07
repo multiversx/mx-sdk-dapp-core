@@ -18,7 +18,7 @@ import { getTransactionReceiverAssets } from './helpers/getTransactionReceiverAs
 import { getTransactionTokens } from './helpers/getTransactionTokens';
 import { getTransactionTransferType } from './helpers/getTransactionTransferType';
 
-export interface GetInterpretedTransactionType {
+export interface IGetInterpretedTransaction {
   address: string;
   explorerAddress: string;
   transaction: ServerTransactionType;
@@ -28,7 +28,7 @@ export function getInterpretedTransaction({
   transaction,
   address,
   explorerAddress
-}: GetInterpretedTransactionType): InterpretedTransactionType {
+}: IGetInterpretedTransaction): InterpretedTransactionType {
   const tokenIdentifier =
     transaction.tokenIdentifier ?? getTokenFromData(transaction.data).tokenId;
 

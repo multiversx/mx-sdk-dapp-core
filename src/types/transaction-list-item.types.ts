@@ -1,6 +1,4 @@
-import type { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import type { TransactionsSliceType } from 'store/slices/transactions/transactionsSlice.types';
-import type { ServerTransactionType } from 'types/serverTransactions.types';
 
 export enum TransactionIconTypeEnum {
   FAILED = 'failed',
@@ -11,32 +9,6 @@ export enum TransactionIconTypeEnum {
   CONTRACT = 'contract',
   SYMBOL = 'symbol'
 }
-
-export interface TransactionListItemAssetType {
-  imageUrl?: string;
-  text?: string;
-  icon?: string | IconDefinition;
-}
-
-export interface TransactionListItemActionType {
-  name: string;
-  description?: string;
-}
-
-export interface TransactionListItemDetailsType {
-  // The address and asset of the sender or receiver of the transaction depending on the direction
-  initiator: string;
-  initiatorAsset?: string;
-  directionLabel: string;
-}
-
-export interface TransactionListItemType {
-  asset: TransactionListItemAssetType | null;
-  details: TransactionListItemDetailsType;
-  action: TransactionListItemActionType;
-  amount?: string;
-}
-
 export interface IBaseTransactionParams {
   address: string;
   explorerAddress: string;

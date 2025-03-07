@@ -4,7 +4,7 @@ import { ZERO } from 'lib/sdkDappUtils';
 import { NftEnumType } from 'types/tokens.types';
 import { pluralize } from 'utils/operations/pluralize';
 
-interface GetTransactionActionTransferLabelType {
+interface IGetTransactionActionTransferLabel {
   allTransferTypes: string[];
   transferType?: string;
   transactionTransfers: Record<string, string>[];
@@ -14,7 +14,7 @@ export const getTransactionActionTransferLabel = ({
   transactionTransfers,
   allTransferTypes,
   transferType
-}: GetTransactionActionTransferLabelType) => {
+}: IGetTransactionActionTransferLabel) => {
   const [firstTransfer] = transactionTransfers;
 
   const allTransferTickers = transactionTransfers.map(

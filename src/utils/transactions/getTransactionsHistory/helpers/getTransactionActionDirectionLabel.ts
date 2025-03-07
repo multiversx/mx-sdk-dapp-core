@@ -2,7 +2,7 @@ import { ServerTransactionType } from 'types/serverTransactions.types';
 import { NftEnumType } from 'types/tokens.types';
 import { getReceiverData } from './getReceiverData';
 
-interface GetTransactionActionDirectionLabelType {
+interface IGetTransactionActionDirectionLabel {
   transaction: ServerTransactionType;
   currentUserAddress: string;
   transferType?: string;
@@ -12,7 +12,7 @@ export const getTransactionActionDirectionLabel = ({
   transaction,
   transferType,
   currentUserAddress
-}: GetTransactionActionDirectionLabelType) => {
+}: IGetTransactionActionDirectionLabel) => {
   const { receiver } = getReceiverData(transaction);
 
   const isSelfTransaction = receiver === transaction.sender;
