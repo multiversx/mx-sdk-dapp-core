@@ -34,6 +34,8 @@ type SignTransactionsParamsType = {
   guardTransactions?: typeof getGuardedTransactions;
 };
 
+const DEFAULT_GAS_PRICE_MULTIPLIER = 1;
+
 export async function signTransactions({
   transactions = [],
   handleSign,
@@ -69,7 +71,7 @@ export async function signTransactions({
     const gasPriceMap: typeof manager.gasPriceMap = allTransactions.map(
       (transaction) => ({
         initialGasPrice: transaction.transaction.getGasPrice().valueOf(),
-        gasPriceMultiplier: 1
+        gasPriceMultiplier: DEFAULT_GAS_PRICE_MULTIPLIER
       })
     );
 
@@ -161,7 +163,7 @@ export async function signTransactions({
         data: currentTransaction.transaction.getData().toString(),
         gasPrice: plainTransaction.gasPrice.toString(),
         gasLimit: plainTransaction.gasLimit.toString(),
-        gasPriceMultiplier: 1,
+        gasPriceMultiplier: DEFAULT_GAS_PRICE_MULTIPLIER,
         egldLabel,
         tokenType: getTokenType(type),
         feeLimit: feeLimitFormatted,
@@ -186,7 +188,7 @@ export async function signTransactions({
       };
 
       const onSetGasPriceMultiplier = (
-        gasPriceMultiplier: ISignTransactionsModalCommonData['gasPriceMultiplier'] = 1
+        gasPriceMultiplier: ISignTransactionsModalCommonData['gasPriceMultiplier'] = DEFAULT_GAS_PRICE_MULTIPLIER
       ) => {
         const newGasPriceMap = [...manager.gasPriceMap];
         newGasPriceMap[currentTransactionIndex] = {
@@ -267,7 +269,7 @@ export async function signTransactions({
         const currentEditedTransaction = currentTransaction.transaction;
 
         const newGasPrice = new BigNumber(initialGasPrice)
-          .times(gasPriceMultiplier ?? 1)
+          .times(gasPriceMultiplier ?? DEFAULT_GAS_PRICE_MULTIPLIER)
           .toNumber();
 
         const transactionToSign = Transaction.fromPlainObject({
