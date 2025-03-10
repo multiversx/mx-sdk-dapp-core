@@ -2,6 +2,6 @@ export { mapTransactionToListItem } from './mapTransactionToListItem';
 export { createTransactionsHistoryFromSessions } from './createTransactionsHistoryFromSessions';
 export { getReceiverData } from './getReceiverData';
 export { getTransactionAmount } from './getTransactionAmount';
-export { processTransactionAction } from './processTransactionAction';
-export { processTransactionAssets } from './processTransactionAssets';
+export { getTransactionAction as processTransactionAction } from './getTransactionAction';
+export { getTransactionAssets as processTransactionAssets } from './getTransactionAssets';
 export { getTransactionAsset } from './getTransactionAsset';

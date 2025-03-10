@@ -1,12 +1,14 @@
-import { IEventBus } from '@multiversx/sdk-dapp-core-ui/dist/types/utils/EventBus';
 import isEqual from 'lodash.isequal';
 import { UITagsEnum } from 'constants/UITags.enum';
 import { TransactionsHistoryController } from 'controllers/TransactionsHistoryController';
-import { NotificationsFeed } from 'lib/sdkDappCoreUi';
+import {
+  NotificationsFeed,
+  IEventBus,
+  ITransactionListItem
+} from 'lib/sdkDappCoreUi';
 import { clearCompletedTransactions } from 'store/actions/transactions/transactionsActions';
 import { getStore } from 'store/store';
 import { ProviderErrorsEnum } from 'types/provider.types';
-import type { TransactionListItemType } from 'types/transaction-list-item.types';
 import { createUIElement } from 'utils/createUIElement';
 import { NotificationsFeedEventsEnum } from './types';
 import { createToastsFromTransactions } from '../ToastManager/helpers/createToastsFromTransactions';
@@ -15,7 +17,7 @@ import { ITransactionToast } from '../ToastManager/types/toast.types';
 export class NotificationsFeedManager {
   private static instance: NotificationsFeedManager;
   private eventBus: IEventBus | null = null;
-  private historicTransactions: TransactionListItemType[] = [];
+  private historicTransactions: ITransactionListItem[] = [];
   private isCreatingElement = false;
   private isOpen = false;
   private notificationsFeedElement: NotificationsFeed | null = null;

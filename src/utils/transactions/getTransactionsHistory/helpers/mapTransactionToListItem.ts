@@ -1,37 +1,42 @@
+import { ITransactionListItem } from 'lib/sdkDappCoreUi';
 import { TransactionServerStatusesEnum } from 'types/enums.types';
-import type {
-  MapTransactionToListItemParamsType,
-  TransactionListItemType
-} from 'types/transaction-list-item.types';
+import { ServerTransactionType } from 'types/serverTransactions.types';
+import { IBaseTransactionParams } from 'types/transaction-list-item.types';
 import { getReceiverData } from 'utils/transactions/getTransactionsHistory/helpers/getReceiverData';
+import { getTransactionAction } from './getTransactionAction';
 import { getTransactionAmount } from './getTransactionAmount';
 import { getTransactionAsset } from './getTransactionAsset';
-import { processTransactionAction } from './processTransactionAction';
-import { processTransactionAssets } from './processTransactionAssets';
+import { getTransactionAssets } from './getTransactionAssets';
+
+interface IMapTransactionToListItemParamsType extends IBaseTransactionParams {
+  transaction: ServerTransactionType;
+  isPending?: boolean;
+  profileImages?: Record<string, string>;
+}
 
 export const mapTransactionToListItem = ({
   transaction,
   address,
   egldLabel,
   isPending = false
-}: MapTransactionToListItemParamsType): TransactionListItemType => {
+}: IMapTransactionToListItemParamsType): ITransactionListItem => {
   const { receiver, receiverAssets } = getReceiverData(transaction);
   const isIncomingTransaction = address === receiver;
 
-  const action = processTransactionAction({
+  const action = getTransactionAction({
     transaction,
     currentUserAddress: address,
     egldLabel,
     isPending
   });
 
-  const transactionAssets = processTransactionAssets({
+  const transactionAssets = getTransactionAssets({
     userIsReceiver: receiver === address,
     transaction,
     egldLabel
   });
 
-  const transactionListItem: TransactionListItemType = {
+  const transactionListItem: ITransactionListItem = {
     asset: getTransactionAsset({
       ...transaction,
       transactionAssets,

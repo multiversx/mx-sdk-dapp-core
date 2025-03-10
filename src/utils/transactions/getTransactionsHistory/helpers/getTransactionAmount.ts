@@ -1,15 +1,15 @@
 import BigNumber from 'bignumber.js';
-import type { TransactionAssetType } from 'types/transaction-list-item.types';
+import { ITransactionAsset } from './getTransactionAssets';
 
-interface GetTransactionAmountParams {
-  transactionAssets: TransactionAssetType[];
+interface IGetTransactionAmountParams {
+  transactionAssets: ITransactionAsset[];
   isIncomingTransaction: boolean;
 }
 
 export const getTransactionAmount = ({
   transactionAssets,
   isIncomingTransaction
-}: GetTransactionAmountParams): string => {
+}: IGetTransactionAmountParams): string => {
   if (transactionAssets.length > 1) {
     const firstAssetTicker = transactionAssets[0]?.assetTicker;
     const hasMultipleDifferentAssets = transactionAssets.some(

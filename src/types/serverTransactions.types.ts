@@ -7,8 +7,6 @@ import {
 import { EsdtEnumType, NftEnumType } from './tokens.types';
 import { SignedTransactionType } from './transactions.types';
 
-//#region server trasactions
-
 export interface ScResultType {
   callType: string;
   gasLimit: number;

@@ -1,30 +1,23 @@
-import {
-  faClose,
-  faCoins,
-  faHourglass
-} from '@fortawesome/free-solid-svg-icons';
+import { ITransactionListItemAsset } from 'lib/sdkDappCoreUi';
 import { AssetType } from 'types/account.types';
 import { TransactionServerStatusesEnum } from 'types/enums.types';
-import {
-  TransactionIconTypeEnum,
-  TransactionListItemAssetType
-} from 'types/transaction-list-item.types';
+import { TransactionIconTypeEnum } from 'types/transaction-list-item.types';
 import { isContract } from 'utils/validation/isContract';
 import { getIsTransactionInvalidOrFailed } from './getIsTransactionInvalidOrFailed';
+import { ITransactionAsset } from './getTransactionAssets';
 import { getTransactionAvatar } from './getTransactionAvatar';
-import { ProcessedTransactionAssetType } from './processTransactionAssets';
 
 enum NftTypeEnum {
   NonFungibleESDT = 'NonFungibleESDT',
   SemiFungibleESDT = 'SemiFungibleESDT'
 }
 
-interface GetTransactionAssetParams {
+interface IGetTransactionAssetParams {
   receiver: string;
   sender: string;
   receiverAssets?: AssetType;
   senderAssets?: AssetType;
-  transactionAssets: ProcessedTransactionAssetType[];
+  transactionAssets: ITransactionAsset[];
   showDefaultState?: boolean;
   status: TransactionServerStatusesEnum;
 }
@@ -37,7 +30,7 @@ export const getTransactionAsset = ({
   transactionAssets,
   showDefaultState = false,
   status
-}: GetTransactionAssetParams): TransactionListItemAssetType | null => {
+}: IGetTransactionAssetParams): ITransactionListItemAsset | null => {
   const userIsReceiver = receiver === sender;
   const isContractInteraction = userIsReceiver
     ? isContract(sender)
@@ -67,13 +60,13 @@ export const getTransactionAsset = ({
 
   if (showDefaultTransactionIcon && !showDefaultState) {
     return {
-      icon: isTransactionPending ? faHourglass : faClose
+      icon: isTransactionPending ? 'faHourglass' : 'faTimes'
     };
   }
 
   if (isMultipleAssets && !areMultipleAssetsSameType) {
     return {
-      icon: faCoins
+      icon: 'faCoins'
     };
   }
 

@@ -1,9 +1,7 @@
 import isEmpty from 'lodash/isEmpty';
 import { getServerTransactionsByHashes } from 'apiCalls/transactions/getServerTransactionsByHashes';
-import type {
-  GetHistoricalTransactionsParamsType,
-  TransactionListItemType
-} from 'types/transaction-list-item.types';
+import { ITransactionListItem } from 'lib/sdkDappCoreUi';
+import type { IGetHistoricalTransactionsParams } from 'types/transaction-list-item.types';
 import {
   createTransactionsHistoryFromSessions,
   mapTransactionToListItem
@@ -14,7 +12,7 @@ export const getTransactionsHistory = async ({
   address,
   explorerAddress,
   egldLabel
-}: GetHistoricalTransactionsParamsType): Promise<TransactionListItemType[]> => {
+}: IGetHistoricalTransactionsParams): Promise<ITransactionListItem[]> => {
   if (isEmpty(sessions)) {
     return [];
   }

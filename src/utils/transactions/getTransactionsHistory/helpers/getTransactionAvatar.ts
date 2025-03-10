@@ -1,10 +1,10 @@
-interface GetTransactionAvatarParams {
-  senderAssets?: AssetType;
-  receiverAssets?: AssetType;
+interface IGetTransactionAvatarParams {
+  senderAssets?: IAsset;
+  receiverAssets?: IAsset;
   userIsReceiver: boolean;
 }
 
-interface AssetType {
+interface IAsset {
   svgUrl?: string;
   iconSvg?: string;
   iconPng?: string;
@@ -14,7 +14,7 @@ export const getTransactionAvatar = ({
   senderAssets,
   receiverAssets,
   userIsReceiver
-}: GetTransactionAvatarParams): string | null => {
+}: IGetTransactionAvatarParams): string | null => {
   if (userIsReceiver) {
     return (
       senderAssets?.svgUrl ??

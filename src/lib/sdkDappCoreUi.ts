@@ -6,6 +6,13 @@ export type { WalletConnectModal } from '@multiversx/sdk-dapp-core-ui/dist/compo
 export type { PendingTransactionsModal } from '@multiversx/sdk-dapp-core-ui/dist/components/pending-transactions-modal';
 export type { NotificationsFeed } from '@multiversx/sdk-dapp-core-ui/dist/components/notifications-feed';
 export type { ToastList } from '@multiversx/sdk-dapp-core-ui/dist/components/toast-list';
+export type { IEventBus } from '@multiversx/sdk-dapp-core-ui/dist/types/utils/EventBus';
+export type {
+  ITransactionListItem,
+  ITransactionListItemAsset,
+  ITransactionListItemAction,
+  ITransactionListItemDetails
+} from '@multiversx/sdk-dapp-core-ui/dist/types/components/visual/transaction-list-item/transaction-list-item.types.d.ts';
 
 export async function defineCustomElements(
   win?: Window,
