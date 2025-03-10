@@ -185,7 +185,9 @@ export async function signTransactions({
         manager.updateData(data);
       };
 
-      const onSetGasPriceMultiplier = (gasPriceMultiplier: 1 | 2 | 3) => {
+      const onSetGasPriceMultiplier = (
+        gasPriceMultiplier: ISignTransactionsModalCommonData['gasPriceMultiplier'] = 1
+      ) => {
         const newGasPriceMap = [...manager.gasPriceMap];
         newGasPriceMap[currentTransactionIndex] = {
           ...newGasPriceMap[currentTransactionIndex],
