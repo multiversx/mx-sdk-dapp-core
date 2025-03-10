@@ -1,11 +1,8 @@
 import { Transaction } from '@multiversx/sdk-core/out';
+import BigNumber from 'bignumber.js';
 import { getEconomics } from 'apiCalls/economics/getEconomics';
 import { getPersistedTokenDetails } from 'apiCalls/tokens/getPersistedTokenDetails';
-import {
-  GAS_PER_DATA_BYTE,
-  GAS_PRICE_MODIFIER,
-  MULTI_TRANSFER_EGLD_TOKEN
-} from 'constants/mvx.constants';
+import { MULTI_TRANSFER_EGLD_TOKEN } from 'constants/mvx.constants';
 import { UITagsEnum } from 'constants/UITags.enum';
 import { SignTransactionsStateManager } from 'core/managers/internal/SignTransactionsStateManager/SignTransactionsStateManager';
 import {
@@ -22,9 +19,8 @@ import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
 import { NftEnumType } from 'types/tokens.types';
 import { createUIElement } from 'utils/createUIElement';
-import { calculateFeeInFiat } from './helpers/calculateFeeInFiat';
-import { calculateFeeLimit } from './helpers/calculateFeeLimit';
 import { getExtractTransactionsInfo } from './helpers/getExtractTransactionsInfo';
+import { getFeeData } from './helpers/getFeeData';
 import { getHighlight } from './helpers/getHighlight';
 import { getMultiEsdtTransferData } from './helpers/getMultiEsdtTransferData/getMultiEsdtTransferData';
 import { getScCall } from './helpers/getScCall';
@@ -70,33 +66,20 @@ export async function signTransactions({
     let currentTransactionIndex = 0;
     const economics = await getEconomics();
 
+    const gasPriceMap: typeof manager.gasPriceMap = allTransactions.map(
+      (transaction) => ({
+        initialGasPrice: transaction.transaction.getGasPrice().valueOf(),
+        gasPriceMultiplier: 1
+      })
+    );
+
+    manager.updateGasPriceMap(gasPriceMap);
+
     const signNextTransaction = async () => {
       const currentTransaction = allTransactions[currentTransactionIndex];
       const sender = currentTransaction?.transaction?.getSender().toString();
       const transaction = currentTransaction?.transaction;
       const price = economics?.price;
-
-      const feeLimit = calculateFeeLimit({
-        gasPerDataByte: String(GAS_PER_DATA_BYTE),
-        gasPriceModifier: String(GAS_PRICE_MODIFIER),
-        gasLimit: transaction.getGasLimit().valueOf().toString(),
-        gasPrice: transaction.getGasPrice().valueOf().toString(),
-        data: transaction.getData().toString(),
-        chainId: transaction.getChainID().valueOf()
-      });
-
-      const feeLimitFormatted = formatAmount({
-        input: feeLimit,
-        showLastNonZeroDecimal: true
-      });
-
-      const feeInFiatLimit = price
-        ? calculateFeeInFiat({
-            feeLimit,
-            egldPriceInUsd: price,
-            hideEqualSign: true
-          })
-        : null;
 
       const extractTransactionsInfo = getExtractTransactionsInfo({
         getTxInfoByDataField,
@@ -168,17 +151,23 @@ export async function signTransactions({
         });
       }
 
+      const { feeLimitFormatted, feeInFiatLimit } = getFeeData({
+        transaction,
+        price
+      });
+
       const commonData: ISignTransactionsModalCommonData = {
         receiver: plainTransaction.receiver.toString(),
         data: currentTransaction.transaction.getData().toString(),
         gasPrice: plainTransaction.gasPrice.toString(),
         gasLimit: plainTransaction.gasLimit.toString(),
+        gasPriceMultiplier: 1,
         egldLabel,
         tokenType: getTokenType(type),
         feeLimit: feeLimitFormatted,
         feeInFiatLimit,
         transactionsCount: allTransactions.length,
-        currentIndex: currentTransactionIndex,
+        currentTransactionIndex: currentTransactionIndex,
         highlight: getHighlight(txInfo?.transactionTokenInfo),
         scCall: getScCall(txInfo?.transactionTokenInfo)
       };
@@ -186,14 +175,49 @@ export async function signTransactions({
       manager.updateCommonData(commonData);
       manager.updateConfirmedTransactions();
 
-      const onPreviousTransaction = async () => {
+      const onPreviousTransaction = () => {
         const data = manager.confirmedScreens[manager.currentScreenIndex - 1];
         manager.updateData(data);
       };
 
-      const onNextTransaction = async () => {
+      const onNextTransaction = () => {
         const data = manager.confirmedScreens[manager.currentScreenIndex + 1];
         manager.updateData(data);
+      };
+
+      const onSetGasPriceMultiplier = (gasPriceMultiplier: 1 | 2 | 3) => {
+        const newGasPriceMap = [...manager.gasPriceMap];
+        newGasPriceMap[currentTransactionIndex] = {
+          ...newGasPriceMap[currentTransactionIndex],
+          gasPriceMultiplier
+        };
+        const initialGasPrice =
+          manager.gasPriceMap[currentTransactionIndex].initialGasPrice;
+
+        const newGasPrice = new BigNumber(initialGasPrice)
+          .times(gasPriceMultiplier)
+          .toNumber();
+
+        const newTransaction = Transaction.fromPlainObject({
+          ...transaction.toPlainObject(),
+          gasPrice: newGasPrice
+        });
+
+        const feeData = getFeeData({
+          transaction: newTransaction,
+          price
+        });
+
+        manager.updateCommonData({
+          feeLimit: feeData.feeLimitFormatted,
+          feeInFiatLimit: feeData.feeInFiatLimit,
+          gasPrice: newGasPrice.toString(),
+          gasPriceMultiplier
+        });
+
+        manager.updateGasPriceMap(newGasPriceMap);
+
+        manager.updateConfirmedTransactions();
       };
 
       const onCancel = async () => {
@@ -222,6 +246,10 @@ export async function signTransactions({
             SignEventsEnum.NEXT_TRANSACTION,
             onNextTransaction
           );
+          eventBus.unsubscribe(
+            SignEventsEnum.SET_GAS_PRICE_MULTIPLIER,
+            onSetGasPriceMultiplier
+          );
         };
 
         if (shouldContinueWithoutSigning) {
@@ -231,10 +259,22 @@ export async function signTransactions({
           return signNextTransaction();
         }
 
+        const { initialGasPrice, gasPriceMultiplier } =
+          manager.gasPriceMap[currentTransactionIndex];
+
+        const currentEditedTransaction = currentTransaction.transaction;
+
+        const newGasPrice = new BigNumber(initialGasPrice)
+          .times(gasPriceMultiplier ?? 1)
+          .toNumber();
+
+        const transactionToSign = Transaction.fromPlainObject({
+          ...currentEditedTransaction.toPlainObject(),
+          gasPrice: newGasPrice
+        });
+
         try {
-          const signedTransaction = await handleSign([
-            currentTransaction.transaction
-          ]);
+          const signedTransaction = await handleSign([transactionToSign]);
 
           if (signedTransaction) {
             signedTransactions.push(signedTransaction[0]);
@@ -268,6 +308,10 @@ export async function signTransactions({
         onPreviousTransaction
       );
       eventBus.subscribe(SignEventsEnum.NEXT_TRANSACTION, onNextTransaction);
+      eventBus.subscribe(
+        SignEventsEnum.SET_GAS_PRICE_MULTIPLIER,
+        onSetGasPriceMultiplier
+      );
     };
 
     signNextTransaction();

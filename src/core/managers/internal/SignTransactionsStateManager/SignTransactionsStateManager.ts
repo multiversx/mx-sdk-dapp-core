@@ -27,18 +27,23 @@ export class SignTransactionsStateManager<
     commonData: {
       transactionsCount: 0,
       egldLabel: '',
-      currentIndex: 0
+      currentTransactionIndex: 0
     },
     tokenTransaction: null,
     nftTransaction: null,
     sftTransaction: null
   };
 
+  private _gasPriceMap: Array<{
+    initialGasPrice: number;
+    gasPriceMultiplier: ISignTransactionsModalCommonData['gasPriceMultiplier'];
+  }> = [];
+
   private data: ISignTransactionsModalData = { ...this.initialData };
   /**
    * An array storing the confirmed screens.
    */
-  private _confirmedScreens: ISignTransactionsModalData[] = [];
+  private _confirmedScreens: Record<number, ISignTransactionsModalData> = {};
   /**
    * Tracks the index of the next unsigned transaction to be processed.
    */
@@ -52,6 +57,14 @@ export class SignTransactionsStateManager<
   public updateData(newData: ISignTransactionsModalData) {
     this.data = { ...newData };
     this.notifyDataUpdate();
+  }
+
+  public updateGasPriceMap(gasPriceMap: typeof this._gasPriceMap) {
+    this._gasPriceMap = gasPriceMap;
+    const currentIndex = this.data.commonData.currentTransactionIndex;
+    const { gasPriceMultiplier } = gasPriceMap[currentIndex];
+
+    this.updateCommonData({ gasPriceMultiplier });
   }
 
   public updateCommonData(
@@ -115,26 +128,21 @@ export class SignTransactionsStateManager<
   }
 
   public get currentScreenIndex() {
-    return this.data.commonData.currentIndex;
+    return this.data.commonData.currentTransactionIndex;
   }
 
   public updateConfirmedTransactions() {
-    const currentScreenData = { ...this.data };
-
-    const exists = this._confirmedScreens.some(
-      (screenData) =>
-        JSON.stringify(screenData) === JSON.stringify(currentScreenData)
-    );
-
-    if (exists) {
-      return;
-    }
-
-    this._confirmedScreens.push(currentScreenData);
+    this._confirmedScreens[this.data.commonData.currentTransactionIndex] = {
+      ...this.data
+    };
   }
 
   public get confirmedScreens() {
     return this._confirmedScreens;
+  }
+
+  public get gasPriceMap() {
+    return this._gasPriceMap;
   }
 
   public setNextUnsignedTxIndex(index: number) {

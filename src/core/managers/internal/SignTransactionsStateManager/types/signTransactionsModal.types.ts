@@ -19,13 +19,14 @@ export interface ISignTransactionsModalCommonData {
   receiver?: string;
   data?: string;
   gasPrice?: string;
+  gasPriceMultiplier?: 1 | 2 | 3;
   gasLimit?: string;
   transactionsCount: number;
   tokenType?: TokenType;
   egldLabel: string;
   feeLimit?: string;
   feeInFiatLimit?: string | null;
-  currentIndex: number;
+  currentTransactionIndex: number;
   /**
    * Tracks the index of the next unsigned transaction to be processed.
    */
@@ -33,7 +34,6 @@ export interface ISignTransactionsModalCommonData {
   highlight?: string | null;
   scCall?: string | null;
 }
-
 export interface ISignTransactionsModalData {
   shouldClose?: true;
   commonData: ISignTransactionsModalCommonData;
@@ -51,5 +51,6 @@ export enum SignEventsEnum {
   'NEXT_TRANSACTION' = 'NEXT_TRANSACTION',
   'PREV_TRANSACTION' = 'PREV_TRANSACTION',
   'CLOSE' = 'CLOSE',
-  'DATA_UPDATE' = 'DATA_UPDATE'
+  'DATA_UPDATE' = 'DATA_UPDATE',
+  'SET_GAS_PRICE_MULTIPLIER' = 'SET_GAS_PRICE_MULTIPLIER'
 }
