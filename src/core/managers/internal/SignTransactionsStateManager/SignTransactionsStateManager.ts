@@ -40,14 +40,6 @@ export class SignTransactionsStateManager<
   }> = [];
 
   private data: ISignTransactionsModalData = { ...this.initialData };
-  /**
-   * An array storing the confirmed screens.
-   */
-  private _confirmedScreens: Record<number, ISignTransactionsModalData> = {};
-  /**
-   * Tracks the index of the next unsigned transaction to be processed.
-   */
-  private nextUnsignedTxIndex: number = 0;
 
   constructor(eventBus: T) {
     this.eventBus = eventBus;
@@ -79,7 +71,6 @@ export class SignTransactionsStateManager<
 
   private resetData(): void {
     this.data = { ...this.initialData };
-    this._confirmedScreens = [];
   }
 
   public closeAndReset(): void {
@@ -90,8 +81,6 @@ export class SignTransactionsStateManager<
 
   private notifyDataUpdate(): void {
     const data = { ...this.data };
-    data.commonData.nextUnsignedTxIndex = this.nextUnsignedTxIndex;
-
     this.eventBus.publish(SignEventsEnum.DATA_UPDATE, data);
   }
 
@@ -131,21 +120,7 @@ export class SignTransactionsStateManager<
     return this.data.commonData.currentTransactionIndex;
   }
 
-  public updateConfirmedTransactions() {
-    this._confirmedScreens[this.data.commonData.currentTransactionIndex] = {
-      ...this.data
-    };
-  }
-
-  public get confirmedScreens() {
-    return this._confirmedScreens;
-  }
-
   public get gasPriceMap() {
     return this._gasPriceMap;
-  }
-
-  public setNextUnsignedTxIndex(index: number) {
-    this.nextUnsignedTxIndex = index;
   }
 }

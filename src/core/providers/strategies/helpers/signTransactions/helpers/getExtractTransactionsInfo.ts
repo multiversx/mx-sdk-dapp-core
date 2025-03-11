@@ -77,7 +77,8 @@ export function getExtractTransactionsInfo({
       transactionTokenInfo,
       isTokenTransaction,
       dataField,
-      transactionIndex
+      transactionIndex,
+      needsSigning: currentTx.needsSigning
     };
   };
   return extractTransactionsInfo;

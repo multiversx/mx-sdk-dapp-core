@@ -52,6 +52,8 @@ export async function signTransactions({
   const { allTransactions, getTxInfoByDataField } =
     getMultiEsdtTransferData(transactions);
 
+  let signedIndexes: number[] = [];
+
   const eventBus = await signModalElement.getEventBus();
 
   if (!eventBus) {
@@ -65,20 +67,19 @@ export async function signTransactions({
 
   return new Promise<Transaction[]>(async (resolve, reject) => {
     const signedTransactions: Transaction[] = [];
-    let currentTransactionIndex = 0;
     const economics = await getEconomics();
 
-    const gasPriceMap: typeof manager.gasPriceMap = allTransactions.map(
-      (transaction) => ({
-        initialGasPrice: transaction.transaction.getGasPrice().valueOf(),
+    const gasPriceMap: typeof manager.gasPriceMap = allTransactions
+      .filter((tx) => tx.transaction != null)
+      .map(({ transaction }) => ({
+        initialGasPrice: transaction ? transaction?.getGasPrice().valueOf() : 0,
         gasPriceMultiplier: DEFAULT_GAS_PRICE_MULTIPLIER
-      })
-    );
+      }));
 
     manager.updateGasPriceMap(gasPriceMap);
 
-    const signNextTransaction = async () => {
-      const currentTransaction = allTransactions[currentTransactionIndex];
+    const showNextScreen = async (currentScreenIndex: number) => {
+      const currentTransaction = allTransactions[currentScreenIndex];
       const sender = currentTransaction?.transaction?.getSender().toString();
       const transaction = currentTransaction?.transaction;
       const price = economics?.price;
@@ -169,34 +170,30 @@ export async function signTransactions({
         feeLimit: feeLimitFormatted,
         feeInFiatLimit,
         transactionsCount: allTransactions.length,
-        currentTransactionIndex: currentTransactionIndex,
+        currentTransactionIndex: currentScreenIndex,
         highlight: getHighlight(txInfo?.transactionTokenInfo),
-        scCall: getScCall(txInfo?.transactionTokenInfo)
+        scCall: getScCall(txInfo?.transactionTokenInfo),
+        needsSigning:
+          txInfo?.needsSigning && !signedIndexes.includes(currentScreenIndex)
       };
 
       manager.updateCommonData(commonData);
-      manager.updateConfirmedTransactions();
 
-      const onPreviousTransaction = () => {
-        const data = manager.confirmedScreens[manager.currentScreenIndex - 1];
-        manager.updateData(data);
-      };
-
-      const onNextTransaction = () => {
-        const data = manager.confirmedScreens[manager.currentScreenIndex + 1];
-        manager.updateData(data);
+      const onBack = () => {
+        console.log('onBack -->', currentScreenIndex - 1);
+        showNextScreen(currentScreenIndex - 1);
       };
 
       const onSetGasPriceMultiplier = (
         gasPriceMultiplier: ISignTransactionsModalCommonData['gasPriceMultiplier'] = DEFAULT_GAS_PRICE_MULTIPLIER
       ) => {
         const newGasPriceMap = [...manager.gasPriceMap];
-        newGasPriceMap[currentTransactionIndex] = {
-          ...newGasPriceMap[currentTransactionIndex],
+        newGasPriceMap[currentScreenIndex] = {
+          ...newGasPriceMap[currentScreenIndex],
           gasPriceMultiplier
         };
         const initialGasPrice =
-          manager.gasPriceMap[currentTransactionIndex].initialGasPrice;
+          manager.gasPriceMap[currentScreenIndex].initialGasPrice;
 
         const newGasPrice = new BigNumber(initialGasPrice)
           .times(gasPriceMultiplier)
@@ -221,7 +218,7 @@ export async function signTransactions({
 
         manager.updateGasPriceMap(newGasPriceMap);
 
-        manager.updateConfirmedTransactions();
+        manager.updateCommonData({ gasPriceMultiplier });
       };
 
       const onCancel = async () => {
@@ -231,40 +228,26 @@ export async function signTransactions({
       };
 
       const onSign = async () => {
-        const shouldContinueWithoutSigning = Boolean(
-          txInfo?.transactionTokenInfo?.type &&
-            txInfo?.transactionTokenInfo?.multiTxData &&
-            !txInfo?.dataField.endsWith(
-              txInfo?.transactionTokenInfo?.multiTxData
-            )
-        );
-
         const removeEvents = () => {
-          eventBus.unsubscribe(SignEventsEnum.SIGN_TRANSACTION, onSign);
+          eventBus.unsubscribe(SignEventsEnum.CONFIRM, onSign);
           eventBus.unsubscribe(SignEventsEnum.CLOSE, onCancel);
-          eventBus.unsubscribe(
-            SignEventsEnum.PREV_TRANSACTION,
-            onPreviousTransaction
-          );
-          eventBus.unsubscribe(
-            SignEventsEnum.NEXT_TRANSACTION,
-            onNextTransaction
-          );
+          eventBus.unsubscribe(SignEventsEnum.BACK, onBack);
+
           eventBus.unsubscribe(
             SignEventsEnum.SET_GAS_PRICE_MULTIPLIER,
             onSetGasPriceMultiplier
           );
         };
 
+        const shouldContinueWithoutSigning = !txInfo?.needsSigning;
+
         if (shouldContinueWithoutSigning) {
-          currentTransactionIndex++;
           removeEvents();
-          manager.setNextUnsignedTxIndex(currentTransactionIndex);
-          return signNextTransaction();
+          return showNextScreen(currentScreenIndex + 1);
         }
 
         const { initialGasPrice, gasPriceMultiplier } =
-          manager.gasPriceMap[currentTransactionIndex];
+          manager.gasPriceMap[currentScreenIndex];
 
         const currentEditedTransaction = currentTransaction.transaction;
 
@@ -281,12 +264,15 @@ export async function signTransactions({
           const signedTransaction = await handleSign([transactionToSign]);
 
           if (signedTransaction) {
+            signedIndexes.push(currentScreenIndex);
             signedTransactions.push(signedTransaction[0]);
           }
 
           removeEvents();
 
-          const areAllSigned = signedTransactions.length == transactions.length;
+          const areAllSigned =
+            currentScreenIndex === allTransactions.length &&
+            signedTransactions.length == transactions.length;
 
           if (areAllSigned) {
             const optionallyGuardedTransactions =
@@ -296,28 +282,22 @@ export async function signTransactions({
             return resolve(optionallyGuardedTransactions);
           }
 
-          currentTransactionIndex++;
-          manager.setNextUnsignedTxIndex(currentTransactionIndex);
-          signNextTransaction();
+          showNextScreen(currentScreenIndex + 1);
         } catch (error) {
           reject('Error signing transactions: ' + error);
           signModalElement.remove();
         }
       };
 
-      eventBus.subscribe(SignEventsEnum.SIGN_TRANSACTION, onSign);
+      eventBus.subscribe(SignEventsEnum.CONFIRM, onSign);
       eventBus.subscribe(SignEventsEnum.CLOSE, onCancel);
-      eventBus.subscribe(
-        SignEventsEnum.PREV_TRANSACTION,
-        onPreviousTransaction
-      );
-      eventBus.subscribe(SignEventsEnum.NEXT_TRANSACTION, onNextTransaction);
+      eventBus.subscribe(SignEventsEnum.BACK, onBack);
       eventBus.subscribe(
         SignEventsEnum.SET_GAS_PRICE_MULTIPLIER,
         onSetGasPriceMultiplier
       );
     };
 
-    signNextTransaction();
+    showNextScreen(0);
   });
 }
