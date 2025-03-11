@@ -65,18 +65,40 @@ export async function signTransactions({
     throw new Error('Unable to establish connection with sign screens');
   }
 
+  const getGasPrice = (currentNonce: number) => {
+    const currentValues = manager.gasPriceMap[currentNonce];
+
+    if (!currentValues) {
+      throw new Error('Gas price not found for nonce: ' + currentNonce);
+    }
+
+    const { initialGasPrice, gasPriceMultiplier } = currentValues;
+
+    const newGasPrice = new BigNumber(initialGasPrice)
+      .times(gasPriceMultiplier ?? DEFAULT_GAS_PRICE_MULTIPLIER)
+      .toNumber();
+
+    return newGasPrice;
+  };
+
   return new Promise<Transaction[]>(async (resolve, reject) => {
     const signedTransactions: Transaction[] = [];
     const economics = await getEconomics();
 
-    const gasPriceMap: typeof manager.gasPriceMap = allTransactions
+    allTransactions
       .filter((tx) => tx.transaction != null)
-      .map(({ transaction }) => ({
-        initialGasPrice: transaction ? transaction?.getGasPrice().valueOf() : 0,
-        gasPriceMultiplier: DEFAULT_GAS_PRICE_MULTIPLIER
-      }));
+      .forEach(({ transaction }) => {
+        const initialGasPrice = transaction
+          ? transaction?.getGasPrice().valueOf()
+          : 0;
+        const gasPriceMultiplier = DEFAULT_GAS_PRICE_MULTIPLIER;
 
-    manager.updateGasPriceMap(gasPriceMap);
+        manager.updateGasPriceMap({
+          nonce: transaction?.getNonce().valueOf(),
+          gasPriceMultiplier,
+          initialGasPrice
+        });
+      });
 
     const showNextScreen = async (currentScreenIndex: number) => {
       const currentTransaction = allTransactions[currentScreenIndex];
@@ -159,12 +181,16 @@ export async function signTransactions({
         price
       });
 
+      const currentNonce = currentTransaction.transaction?.getNonce().valueOf();
+
       const commonData: ISignTransactionsModalCommonData = {
         receiver: plainTransaction.receiver.toString(),
         data: currentTransaction.transaction.getData().toString(),
-        gasPrice: plainTransaction.gasPrice.toString(),
+        gasPrice: getGasPrice(currentNonce).toString(),
         gasLimit: plainTransaction.gasLimit.toString(),
-        gasPriceMultiplier: DEFAULT_GAS_PRICE_MULTIPLIER,
+        gasPriceMultiplier:
+          manager.gasPriceMap[currentNonce].gasPriceMultiplier ??
+          DEFAULT_GAS_PRICE_MULTIPLIER,
         egldLabel,
         tokenType: getTokenType(type),
         feeLimit: feeLimitFormatted,
@@ -174,30 +200,25 @@ export async function signTransactions({
         highlight: getHighlight(txInfo?.transactionTokenInfo),
         scCall: getScCall(txInfo?.transactionTokenInfo),
         needsSigning:
-          txInfo?.needsSigning && !signedIndexes.includes(currentScreenIndex)
+          txInfo?.needsSigning && !signedIndexes.includes(currentScreenIndex),
+        isEditable: txInfo?.needsSigning
       };
 
       manager.updateCommonData(commonData);
 
       const onBack = () => {
-        console.log('onBack -->', currentScreenIndex - 1);
         showNextScreen(currentScreenIndex - 1);
       };
 
       const onSetGasPriceMultiplier = (
         gasPriceMultiplier: ISignTransactionsModalCommonData['gasPriceMultiplier'] = DEFAULT_GAS_PRICE_MULTIPLIER
       ) => {
-        const newGasPriceMap = [...manager.gasPriceMap];
-        newGasPriceMap[currentScreenIndex] = {
-          ...newGasPriceMap[currentScreenIndex],
+        manager.updateGasPriceMap({
+          nonce: currentNonce,
           gasPriceMultiplier
-        };
-        const initialGasPrice =
-          manager.gasPriceMap[currentScreenIndex].initialGasPrice;
+        });
 
-        const newGasPrice = new BigNumber(initialGasPrice)
-          .times(gasPriceMultiplier)
-          .toNumber();
+        const newGasPrice = getGasPrice(currentNonce);
 
         const newTransaction = Transaction.fromPlainObject({
           ...transaction.toPlainObject(),
@@ -215,8 +236,6 @@ export async function signTransactions({
           gasPrice: newGasPrice.toString(),
           gasPriceMultiplier
         });
-
-        manager.updateGasPriceMap(newGasPriceMap);
 
         manager.updateCommonData({ gasPriceMultiplier });
       };
@@ -246,10 +265,17 @@ export async function signTransactions({
           return showNextScreen(currentScreenIndex + 1);
         }
 
-        const { initialGasPrice, gasPriceMultiplier } =
-          manager.gasPriceMap[currentScreenIndex];
-
+        // TODO: why no tx here?
         const currentEditedTransaction = currentTransaction.transaction;
+
+        const txNonce = currentEditedTransaction.getNonce().valueOf();
+
+        if (!currentNonce) {
+          throw new Error('Current nonce not found');
+        }
+
+        const { initialGasPrice, gasPriceMultiplier } =
+          manager.gasPriceMap[txNonce];
 
         const newGasPrice = new BigNumber(initialGasPrice)
           .times(gasPriceMultiplier ?? DEFAULT_GAS_PRICE_MULTIPLIER)

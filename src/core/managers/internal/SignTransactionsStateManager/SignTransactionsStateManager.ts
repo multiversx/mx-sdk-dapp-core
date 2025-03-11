@@ -34,10 +34,13 @@ export class SignTransactionsStateManager<
     sftTransaction: null
   };
 
-  private _gasPriceMap: Array<{
-    initialGasPrice: number;
-    gasPriceMultiplier: ISignTransactionsModalCommonData['gasPriceMultiplier'];
-  }> = [];
+  private _gasPriceMap: Record<
+    number, // nonce
+    {
+      initialGasPrice: number;
+      gasPriceMultiplier: ISignTransactionsModalCommonData['gasPriceMultiplier'];
+    }
+  > = {};
 
   private data: ISignTransactionsModalData = { ...this.initialData };
 
@@ -51,11 +54,22 @@ export class SignTransactionsStateManager<
     this.notifyDataUpdate();
   }
 
-  public updateGasPriceMap(gasPriceMap: typeof this._gasPriceMap) {
-    this._gasPriceMap = gasPriceMap;
-    const currentIndex = this.data.commonData.currentTransactionIndex;
-    const { gasPriceMultiplier } = gasPriceMap[currentIndex];
-
+  public updateGasPriceMap({
+    nonce,
+    gasPriceMultiplier,
+    initialGasPrice
+  }: {
+    nonce: number;
+    initialGasPrice?: number;
+    gasPriceMultiplier: ISignTransactionsModalCommonData['gasPriceMultiplier'];
+  }) {
+    this._gasPriceMap[nonce] = {
+      ...this._gasPriceMap[nonce],
+      gasPriceMultiplier
+    };
+    if (initialGasPrice) {
+      this._gasPriceMap[nonce].initialGasPrice = initialGasPrice;
+    }
     this.updateCommonData({ gasPriceMultiplier });
   }
 
