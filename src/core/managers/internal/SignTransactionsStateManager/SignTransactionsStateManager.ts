@@ -2,6 +2,7 @@ import { IEventBus } from 'types/manager.types';
 import { NftEnumType } from 'types/tokens.types';
 import {
   FungibleTransactionType,
+  ISignTransactionsModalCommonData,
   ISignTransactionsModalData,
   SignEventsEnum,
   TokenType
@@ -33,15 +34,15 @@ export class SignTransactionsStateManager<
     sftTransaction: null
   };
 
+  private _gasPriceMap: Record<
+    number, // nonce
+    {
+      initialGasPrice: number;
+      gasPriceMultiplier: ISignTransactionsModalCommonData['gasPriceMultiplier'];
+    }
+  > = {};
+
   private data: ISignTransactionsModalData = { ...this.initialData };
-  /**
-   * An array storing the confirmed screens.
-   */
-  private _confirmedScreens: ISignTransactionsModalData[] = [];
-  /**
-   * Tracks the index of the next unsigned transaction to be processed.
-   */
-  private nextUnsignedTxIndex: number = 0;
 
   constructor(eventBus: T) {
     this.eventBus = eventBus;
@@ -53,8 +54,27 @@ export class SignTransactionsStateManager<
     this.notifyDataUpdate();
   }
 
+  public updateGasPriceMap({
+    nonce,
+    gasPriceMultiplier,
+    initialGasPrice
+  }: {
+    nonce: number;
+    initialGasPrice?: number;
+    gasPriceMultiplier: ISignTransactionsModalCommonData['gasPriceMultiplier'];
+  }) {
+    this._gasPriceMap[nonce] = {
+      ...this._gasPriceMap[nonce],
+      gasPriceMultiplier
+    };
+    if (initialGasPrice) {
+      this._gasPriceMap[nonce].initialGasPrice = initialGasPrice;
+    }
+    this.updateCommonData({ gasPriceMultiplier });
+  }
+
   public updateCommonData(
-    newCommonData: Partial<ISignTransactionsModalData['commonData']>
+    newCommonData: Partial<ISignTransactionsModalCommonData>
   ): void {
     this.data.commonData = {
       ...this.data.commonData,
@@ -65,7 +85,6 @@ export class SignTransactionsStateManager<
 
   private resetData(): void {
     this.data = { ...this.initialData };
-    this._confirmedScreens = [];
   }
 
   public closeAndReset(): void {
@@ -76,8 +95,6 @@ export class SignTransactionsStateManager<
 
   private notifyDataUpdate(): void {
     const data = { ...this.data };
-    data.commonData.nextUnsignedTxIndex = this.nextUnsignedTxIndex;
-
     this.eventBus.publish(SignEventsEnum.DATA_UPDATE, data);
   }
 
@@ -117,26 +134,7 @@ export class SignTransactionsStateManager<
     return this.data.commonData.currentIndex;
   }
 
-  public updateConfirmedTransactions() {
-    const currentScreenData = { ...this.data };
-
-    const exists = this._confirmedScreens.some(
-      (screenData) =>
-        JSON.stringify(screenData) === JSON.stringify(currentScreenData)
-    );
-
-    if (exists) {
-      return;
-    }
-
-    this._confirmedScreens.push(currentScreenData);
-  }
-
-  public get confirmedScreens() {
-    return this._confirmedScreens;
-  }
-
-  public setNextUnsignedTxIndex(index: number) {
-    this.nextUnsignedTxIndex = index;
+  public get gasPriceMap() {
+    return this._gasPriceMap;
   }
 }

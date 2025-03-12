@@ -16,6 +16,7 @@ export interface MultiSignTransactionType {
   multiTxData?: string;
   transactionIndex: number;
   transaction: Transaction;
+  needsSigning: boolean;
 }
 
 interface MultiEsdtType {
