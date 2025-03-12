@@ -27,7 +27,7 @@ export class SignTransactionsStateManager<
     commonData: {
       transactionsCount: 0,
       egldLabel: '',
-      currentTransactionIndex: 0
+      currentIndex: 0
     },
     tokenTransaction: null,
     nftTransaction: null,
@@ -131,7 +131,7 @@ export class SignTransactionsStateManager<
   }
 
   public get currentScreenIndex() {
-    return this.data.commonData.currentTransactionIndex;
+    return this.data.commonData.currentIndex;
   }
 
   public get gasPriceMap() {

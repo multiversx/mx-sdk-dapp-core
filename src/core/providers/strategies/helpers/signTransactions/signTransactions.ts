@@ -196,7 +196,7 @@ export async function signTransactions({
         feeLimit: feeLimitFormatted,
         feeInFiatLimit,
         transactionsCount: allTransactions.length,
-        currentTransactionIndex: currentScreenIndex,
+        currentIndex: currentScreenIndex,
         highlight: getHighlight(txInfo?.transactionTokenInfo),
         scCall: getScCall(txInfo?.transactionTokenInfo),
         needsSigning:
