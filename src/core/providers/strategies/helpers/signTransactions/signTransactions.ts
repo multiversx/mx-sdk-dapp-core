@@ -207,6 +207,7 @@ export async function signTransactions({
       manager.updateCommonData(commonData);
 
       const onBack = () => {
+        removeEvents();
         showNextScreen(currentScreenIndex - 1);
       };
 
@@ -246,26 +247,25 @@ export async function signTransactions({
         signModalElement.remove();
       };
 
-      const onSign = async () => {
-        const removeEvents = () => {
-          eventBus.unsubscribe(SignEventsEnum.CONFIRM, onSign);
-          eventBus.unsubscribe(SignEventsEnum.CLOSE, onCancel);
-          eventBus.unsubscribe(SignEventsEnum.BACK, onBack);
+      function removeEvents() {
+        eventBus.unsubscribe(SignEventsEnum.CONFIRM, onSign);
+        eventBus.unsubscribe(SignEventsEnum.CLOSE, onCancel);
+        eventBus.unsubscribe(SignEventsEnum.BACK, onBack);
+        eventBus.unsubscribe(
+          SignEventsEnum.SET_GAS_PRICE_MULTIPLIER,
+          onSetGasPriceMultiplier
+        );
+      }
 
-          eventBus.unsubscribe(
-            SignEventsEnum.SET_GAS_PRICE_MULTIPLIER,
-            onSetGasPriceMultiplier
-          );
-        };
-
+      async function onSign() {
         const shouldContinueWithoutSigning = !txInfo?.needsSigning;
 
+        removeEvents();
+
         if (shouldContinueWithoutSigning) {
-          removeEvents();
           return showNextScreen(currentScreenIndex + 1);
         }
 
-        // TODO: why no tx here?
         const currentEditedTransaction = currentTransaction.transaction;
 
         const txNonce = currentEditedTransaction.getNonce().valueOf();
@@ -294,8 +294,6 @@ export async function signTransactions({
             signedTransactions.push(signedTransaction[0]);
           }
 
-          removeEvents();
-
           const areAllSigned =
             currentScreenIndex === allTransactions.length &&
             signedTransactions.length == transactions.length;
@@ -313,7 +311,7 @@ export async function signTransactions({
           reject('Error signing transactions: ' + error);
           signModalElement.remove();
         }
-      };
+      }
 
       eventBus.subscribe(SignEventsEnum.CONFIRM, onSign);
       eventBus.subscribe(SignEventsEnum.CLOSE, onCancel);
