@@ -1,6 +1,6 @@
-import { CurrentNetworkType } from 'types/network.types';
+import { NetworkType } from 'types/network.types';
 
-export const emptyNetwork: CurrentNetworkType = {
+export const emptyNetwork: NetworkType = {
   id: 'not-configured',
   chainId: '',
   name: 'NOT CONFIGURED',
@@ -8,13 +8,9 @@ export const emptyNetwork: CurrentNetworkType = {
   decimals: '18',
   digits: '4',
   gasPerDataByte: '1500',
-  walletConnectDeepLink: '',
-  walletConnectBridgeAddress: '',
-  walletConnectV2RelayAddress: '',
-  walletConnectV2ProjectId: '',
-  walletConnectV2Options: {},
   walletAddress: '',
   apiAddress: '',
   explorerAddress: '',
-  apiTimeout: '4000'
+  apiTimeout: '4000',
+  roundDuration: 60000
 };

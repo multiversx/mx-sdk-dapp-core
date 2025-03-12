@@ -57,7 +57,7 @@ export const decodeNativeAuthToken = (
     }
 
     return result;
-  } catch (err) {
+  } catch (_err) {
     return null;
   }
 };

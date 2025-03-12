@@ -1,11 +1,13 @@
-import { SignableMessage, Transaction } from '@multiversx/sdk-core';
-import { EngineTypes } from 'utils/walletconnect/__sdkWalletconnectProvider';
+import { Message, Transaction } from '@multiversx/sdk-core';
+import {
+  IDAppProviderAccount,
+  IDAppProviderOptions
+} from '@multiversx/sdk-dapp-utils/out';
 import {
   IProvider,
   ProviderTypeEnum
 } from 'core/providers/types/providerFactory.types';
-
-export const DAPP_INIT_ROUTE = '/dapp/init';
+import { EngineTypes } from 'utils/walletconnect/__sdkWalletconnectProvider';
 
 const notInitializedError = (caller: string) => {
   return `Unable to perform ${caller}, Provider not initialized`;
@@ -28,12 +30,21 @@ export class EmptyProvider implements IProvider {
     throw new Error(notInitializedError(`logout with options: ${options}`));
   }
 
+  getAccount(): IDAppProviderAccount | null {
+    throw new Error(notInitializedError('unable to get account'));
+  }
+  setAccount(account: IDAppProviderAccount): void {
+    throw new Error(
+      notInitializedError(`unable to set account with: ${account}`)
+    );
+  }
+
   isInitialized(): boolean {
     return false;
   }
 
-  isConnected(): Promise<boolean> {
-    return Promise.resolve(false);
+  isConnected(): boolean {
+    return false;
   }
 
   sendTransaction?<
@@ -53,25 +64,25 @@ export class EmptyProvider implements IProvider {
   ): Promise<TResponse> {
     throw new Error(
       notInitializedError(
-        `signTransaction with transactions: ${transaction} options: ${options}`
+        `signTransaction with transactions: ${JSON.stringify(transaction)} options: ${options}`
       )
     );
   }
 
   signTransactions<T>(transactions: T[]): Promise<T[]> {
     throw new Error(
-      notInitializedError(`signTransactions with transactions: ${transactions}`)
+      notInitializedError(
+        `signTransactions with transactions: ${JSON.stringify(transactions)}`
+      )
     );
   }
 
-  signMessage<T extends SignableMessage, TOptions = { callbackUrl?: string }>(
-    message: T,
-    options: TOptions
-  ): Promise<T> {
+  signMessage(
+    message: Message,
+    options?: IDAppProviderOptions
+  ): Promise<Message | null> {
     throw new Error(
-      notInitializedError(
-        `signTransactions with ${message} and options ${options}`
-      )
+      notInitializedError(`signMessage with ${message} and options ${options}`)
     );
   }
 
@@ -99,10 +110,6 @@ export class EmptyProvider implements IProvider {
 
   async getAddress(): Promise<string | undefined> {
     throw new Error(notInitializedError('getAddress'));
-  }
-
-  getTokenLoginSignature(): string | undefined {
-    throw new Error(notInitializedError(`getSignature`));
   }
 
   getType(): ProviderTypeEnum {

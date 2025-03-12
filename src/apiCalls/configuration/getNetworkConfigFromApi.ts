@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { ApiNetworkConfigType } from 'types/network.types';
 import { NETWORK_CONFIG_ENDPOINT } from '../endpoints';
-import { getCleanApiAddress } from '../utils/getCleanApiAddress';
 
 const urlIsValid = (url: string) => {
   try {
@@ -11,9 +10,7 @@ const urlIsValid = (url: string) => {
   }
 };
 
-export async function getNetworkConfigFromApi() {
-  const apiAddress = getCleanApiAddress();
-
+export async function getNetworkConfigFromApi(apiAddress: string) {
   if (!urlIsValid(apiAddress)) {
     return null;
   }
@@ -24,10 +21,11 @@ export async function getNetworkConfigFromApi() {
     const { data } = await axios.get<{
       data: { config: ApiNetworkConfigType };
     }>(configUrl);
+
     if (data != null) {
       return data?.data?.config;
     }
-  } catch (err) {
+  } catch (_err) {
     console.error('error fetching configuration for ', configUrl);
   }
   return null;

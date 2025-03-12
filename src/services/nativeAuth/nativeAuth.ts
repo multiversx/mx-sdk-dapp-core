@@ -43,17 +43,19 @@ export const nativeAuth = (config?: NativeAuthConfigType) => {
 
     const getBlockHash = (): Promise<string> =>
       nativeAuthClient.getCurrentBlockHash();
-    const response =
-      initProps?.latestBlockInfo ??
-      (await getLatestBlockHash(
+
+    let latestBlockInfo = initProps?.latestBlockInfo;
+
+    if (!latestBlockInfo) {
+      latestBlockInfo = await getLatestBlockHash({
         apiAddress,
         blockHashShard,
         getBlockHash,
-        initProps?.noCache
-      ));
-    console.log(response);
+        noCache: initProps?.noCache
+      });
+    }
 
-    const { hash, timestamp } = response;
+    const { hash, timestamp } = latestBlockInfo;
     const encodedExtraInfo = nativeAuthClient.encodeValue(
       JSON.stringify({
         ...(initProps?.extraInfo ?? extraInfoFromConfig),

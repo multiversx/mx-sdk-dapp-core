@@ -1,2 +1,2 @@
-export { getAccountProvider } from './accountProvider';
-export * from './helpers/getLedgerConfiguration';
+export { getAccountProvider } from './helpers/accountProvider';
+export * from './strategies';

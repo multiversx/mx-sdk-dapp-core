@@ -1,4 +1,4 @@
-export interface BaseNetworkType {
+export interface NetworkType {
   id: string;
   chainId: string;
   name: string;
@@ -6,45 +6,24 @@ export interface BaseNetworkType {
   decimals: string;
   digits: string;
   gasPerDataByte: string;
-  walletConnectDeepLink: string;
   walletAddress: string;
   apiAddress: string;
   explorerAddress: string;
   apiTimeout: string;
-  walletConnectV2ProjectId?: string;
-  walletConnectV2Options?: Record<string, any>;
   xAliasAddress?: string;
+  roundDuration: number;
+  iframeWalletAddress?: string;
+  websocketUrl?: string;
 }
 
-export interface CurrentNetworkType extends BaseNetworkType {
-  walletConnectBridgeAddress: string;
-  walletConnectV2RelayAddress: string;
-  customWalletAddress?: string;
-}
-
-export interface NetworkType extends BaseNetworkType {
-  walletConnectBridgeAddresses: string[];
-  walletConnectV2RelayAddresses: string[];
-}
-
-export interface CustomNetworkType {
-  id?: string;
-  chainId?: string;
-  name?: string;
-  egldLabel?: string;
-  decimals?: string;
-  digits?: string;
-  gasPerDataByte?: string;
-  walletConnectDeepLink?: string;
-  walletConnectBridgeAddresses?: string[];
-  walletAddress?: string;
-  apiAddress?: string;
-  explorerAddress?: string;
+export type CustomNetworkType = {
+  [P in keyof NetworkType]?: NetworkType[P];
+} & {
+  /**
+   * If set to `true`, network configuration in init app will prevent a call to `dapp/config`.
+   */
   skipFetchFromServer?: boolean;
-  apiTimeout?: string;
-  walletConnectV2ProjectId?: string;
-  walletConnectV2Options?: any;
-}
+};
 
 export interface ApiNetworkConfigType {
   erd_chain_id: string;
