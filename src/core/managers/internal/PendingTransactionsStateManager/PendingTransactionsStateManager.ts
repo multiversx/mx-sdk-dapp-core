@@ -1,23 +1,21 @@
+import { IPendingTransactionsPanelData } from 'lib/sdkDappCoreUi';
 import { IEventBus } from 'types/manager.types';
-import {
-  IPendingTransactionsModalData,
-  PendingTransactionsEventsEnum
-} from './types';
+import { PendingTransactionsEventsEnum } from './types/pendingTransactions.types';
 
 export class PendingTransactionsStateManager<
   T extends
-    IEventBus<IPendingTransactionsModalData> = IEventBus<IPendingTransactionsModalData>
+    IEventBus<IPendingTransactionsPanelData> = IEventBus<IPendingTransactionsPanelData>
 > {
   private eventBus: T;
 
-  private initialData: IPendingTransactionsModalData = {
+  private initialData: IPendingTransactionsPanelData = {
     isPending: false,
     title: '',
     subtitle: '',
     shouldClose: false
   };
 
-  private data: IPendingTransactionsModalData = { ...this.initialData };
+  private data: IPendingTransactionsPanelData = { ...this.initialData };
 
   constructor(eventBus: T) {
     this.eventBus = eventBus;
@@ -33,7 +31,7 @@ export class PendingTransactionsStateManager<
     this.data = { ...this.initialData };
   }
 
-  public updateData(newData: IPendingTransactionsModalData): void {
+  public updateData(newData: IPendingTransactionsPanelData): void {
     this.data = { ...this.data, ...newData };
     this.notifyDataUpdate();
   }

@@ -16,7 +16,11 @@ import {
   IProvider,
   providerLabels
 } from 'core/providers/types/providerFactory.types';
-import { defineCustomElements, WalletConnectModal } from 'lib/sdkDappCoreUi';
+import {
+  defineCustomElements,
+  WalletConnectModal,
+  WalletConnect
+} from 'lib/sdkDappCoreUi';
 import { logoutAction } from 'store/actions';
 import {
   chainIdSelector,
@@ -164,8 +168,9 @@ export class WalletConnectProviderStrategy {
     }
 
     const modalElement = anchor
-      ? await createUIElement<WalletConnectModal>({
-          name: UITagsEnum.WALLET_CONNECT_MODAL
+      ? await createUIElement<WalletConnect>({
+          name: UITagsEnum.WALLET_CONNECT,
+          anchor
         })
       : await createUIElement<WalletConnectModal>({
           name: UITagsEnum.WALLET_CONNECT_MODAL
