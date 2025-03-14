@@ -85,30 +85,6 @@ export async function signTransactions({
       const price = economics?.price;
       const currentNonce = currentTransaction.transaction?.getNonce().valueOf();
 
-      console.log(
-        'getCommonData',
-        JSON.stringify(
-          {
-            allTransactions: allTransactions.map((tx) => {
-              return {
-                ...tx,
-                transaction: tx.transaction.toPlainObject()
-              };
-            }),
-            currentScreenIndex,
-            egldLabel,
-            network,
-            gasPriceData: manager.gasPriceMap[currentNonce],
-            price,
-            address,
-            signedIndexes,
-            parsedTransactionsByDataField
-          },
-          null,
-          2
-        )
-      );
-
       const { commonData, tokenTransaction, fungibleTransaction } =
         await getCommonData({
           allTransactions,
