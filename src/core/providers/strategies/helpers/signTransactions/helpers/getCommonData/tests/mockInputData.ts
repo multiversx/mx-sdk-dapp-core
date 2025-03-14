@@ -1,4 +1,4 @@
-import { TransactionTypesEnum } from 'types/enums.types';
+import { testAddress } from '__mocks__';
 
 export const mockInputData = {
   allTransactions: [
@@ -8,8 +8,7 @@ export const mockInputData = {
         value: '1000000000000000000',
         receiver:
           'erd1qqqqqqqqqqqqqpgqpv09kfzry5y4sj05udcngesat07umyj70n4sa2c0rp',
-        sender:
-          'erd1c26jzneqwlfcddqre05jh53lnmyj5n8925k0r7gcqkaphr23nnpss0j540',
+        sender: testAddress,
         gasPrice: 1000000000,
         gasLimit: 4200000,
         data: 'd3JhcEVnbGQ=',
@@ -24,10 +23,8 @@ export const mockInputData = {
       transaction: {
         nonce: 599,
         value: '0',
-        receiver:
-          'erd1c26jzneqwlfcddqre05jh53lnmyj5n8925k0r7gcqkaphr23nnpss0j540',
-        sender:
-          'erd1c26jzneqwlfcddqre05jh53lnmyj5n8925k0r7gcqkaphr23nnpss0j540',
+        receiver: testAddress,
+        sender: testAddress,
         gasPrice: 1000000000,
         gasLimit: 10000000,
         data: 'TXVsdGlFU0RUTkZUVHJhbnNmZXJAMDAwMDAwMDAwMDAwMDAwMDA1MDAxMzllZDdhZTRhYTAzNzkyZTZiY2IzMzIzOTRhNDBmZTc0NmVlZmE0N2NlYkAwMkA1NzQ1NDc0YzQ0MmQ2MTMyMzg2MzM1MzlAQDBkZTBiNmIzYTc2NDAwMDBANGQ0NTU4MmQ2MTM2MzUzOTY0MzBAQGUxNzc3MDRiYzQzZjliZWUzMTA2QDYxNjQ2NDRjNjk3MTc1Njk2NDY5NzQ3OUAwZGJkMmZjMTM3YTMwMDAwQGRmMzYzZTg4NzJlZDBkOTIzNWE3',
@@ -42,10 +39,8 @@ export const mockInputData = {
       transaction: {
         nonce: 599,
         value: '0',
-        receiver:
-          'erd1c26jzneqwlfcddqre05jh53lnmyj5n8925k0r7gcqkaphr23nnpss0j540',
-        sender:
-          'erd1c26jzneqwlfcddqre05jh53lnmyj5n8925k0r7gcqkaphr23nnpss0j540',
+        receiver: testAddress,
+        sender: testAddress,
         gasPrice: 1000000000,
         gasLimit: 10000000,
         data: 'TXVsdGlFU0RUTkZUVHJhbnNmZXJAMDAwMDAwMDAwMDAwMDAwMDA1MDAxMzllZDdhZTRhYTAzNzkyZTZiY2IzMzIzOTRhNDBmZTc0NmVlZmE0N2NlYkAwMkA1NzQ1NDc0YzQ0MmQ2MTMyMzg2MzM1MzlAQDBkZTBiNmIzYTc2NDAwMDBANGQ0NTU4MmQ2MTM2MzUzOTY0MzBAQGUxNzc3MDRiYzQzZjliZWUzMTA2QDYxNjQ2NDRjNjk3MTc1Njk2NDY5NzQ3OUAwZGJkMmZjMTM3YTMwMDAwQGRmMzYzZTg4NzJlZDBkOTIzNWE3',
@@ -60,10 +55,8 @@ export const mockInputData = {
       transaction: {
         nonce: 599,
         value: '0',
-        receiver:
-          'erd1c26jzneqwlfcddqre05jh53lnmyj5n8925k0r7gcqkaphr23nnpss0j540',
-        sender:
-          'erd1c26jzneqwlfcddqre05jh53lnmyj5n8925k0r7gcqkaphr23nnpss0j540',
+        receiver: testAddress,
+        sender: testAddress,
         gasPrice: 1000000000,
         gasLimit: 10000000,
         data: 'TXVsdGlFU0RUTkZUVHJhbnNmZXJAMDAwMDAwMDAwMDAwMDAwMDA1MDAxMzllZDdhZTRhYTAzNzkyZTZiY2IzMzIzOTRhNDBmZTc0NmVlZmE0N2NlYkAwMkA1NzQ1NDc0YzQ0MmQ2MTMyMzg2MzM1MzlAQDBkZTBiNmIzYTc2NDAwMDBANGQ0NTU4MmQ2MTM2MzUzOTY0MzBAQGUxNzc3MDRiYzQzZjliZWUzMTA2QDYxNjQ2NDRjNjk3MTc1Njk2NDY5NzQ3OUAwZGJkMmZjMTM3YTMwMDAwQGRmMzYzZTg4NzJlZDBkOTIzNWE3',
@@ -99,13 +92,13 @@ export const mockInputData = {
     initialGasPrice: 1000000000
   },
   price: 17.82,
-  address: 'erd1c26jzneqwlfcddqre05jh53lnmyj5n8925k0r7gcqkaphr23nnpss0j540',
+  address: testAddress,
   signedIndexes: [],
   parsedTransactionsByDataField: {
     '5745474c442d613238633539@@0de0b6b3a7640000': {
       tokenId: 'WEGLD-a28c59',
       amount: '1000000000000000000',
-      type: TransactionTypesEnum.esdtTransaction,
+      type: 'esdtTransaction',
       nonce: '',
       multiTxData: '5745474c442d613238633539@@0de0b6b3a7640000',
       receiver:
@@ -114,7 +107,7 @@ export const mockInputData = {
     '4d45582d613635396430@@e177704bc43f9bee3106': {
       tokenId: 'MEX-a659d0',
       amount: '1064735712967374589014278',
-      type: TransactionTypesEnum.esdtTransaction,
+      type: 'esdtTransaction',
       nonce: '',
       multiTxData: '4d45582d613635396430@@e177704bc43f9bee3106',
       receiver:
@@ -123,7 +116,7 @@ export const mockInputData = {
     '6164644c6971756964697479@0dbd2fc137a30000@df363e8872ed0d9235a7': {
       tokenId: '',
       amount: '',
-      type: TransactionTypesEnum.scCall,
+      type: 'esdtTransaction',
       nonce: '',
       multiTxData:
         '6164644c6971756964697479@0dbd2fc137a30000@df363e8872ed0d9235a7',

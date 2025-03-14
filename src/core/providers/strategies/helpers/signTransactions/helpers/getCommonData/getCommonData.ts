@@ -66,6 +66,7 @@ export async function getCommonData({
   const extractTransactionsInfo = getExtractTransactionsInfo({
     egldLabel,
     sender,
+    apiAddress: network.apiAddress,
     address,
     parsedTransactionsByDataField
   });

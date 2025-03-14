@@ -18,12 +18,14 @@ let verifiedAddresses: VerifiedAddressesType = {};
 type ExtractTransactionsInfoType = {
   sender: string;
   address: string;
+  apiAddress: string;
   egldLabel: string;
   parsedTransactionsByDataField: Record<string, TransactionDataTokenType>;
 };
 
 export function getExtractTransactionsInfo({
   egldLabel,
+  apiAddress,
   sender,
   address,
   parsedTransactionsByDataField
@@ -36,7 +38,12 @@ export function getExtractTransactionsInfo({
     }
 
     const senderAccount =
-      !sender || sender === address ? null : await getAccountFromApi(sender);
+      !sender || sender === address
+        ? null
+        : await getAccountFromApi({
+            address: sender,
+            baseURL: apiAddress
+          });
 
     const { transaction, multiTxData, transactionIndex } = currentTx;
     const dataField = transaction.getData().toString();

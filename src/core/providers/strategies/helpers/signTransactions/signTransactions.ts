@@ -75,7 +75,7 @@ export async function signTransactions({
 
   return new Promise<Transaction[]>(async (resolve, reject) => {
     const signedTransactions: Transaction[] = [];
-    const economics = await getEconomics();
+    const economics = await getEconomics({ baseURL: network.apiAddress });
 
     manager.initializeGasPriceMap(allTransactions.map((tx) => tx.transaction));
 

@@ -5,7 +5,7 @@ import { getCommonData, GetCommonDataPropsType } from '../getCommonData';
 import { mockInputData } from './mockInputData';
 
 describe('getCommonData', () => {
-  it('should return the common data', () => {
+  it('should return the common data', async () => {
     const allTransactions: MultiSignTransactionType[] =
       mockInputData.allTransactions.map((tx) => ({
         ...tx,
@@ -24,7 +24,7 @@ describe('getCommonData', () => {
       parsedTransactionsByDataField
     };
 
-    const commonData = getCommonData(mockData);
+    const commonData = await getCommonData(mockData);
     expect(commonData).toBe(1);
   });
 });
