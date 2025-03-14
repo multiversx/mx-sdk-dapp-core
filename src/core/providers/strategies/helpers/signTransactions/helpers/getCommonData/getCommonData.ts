@@ -12,26 +12,16 @@ import {
   MultiSignTransactionType,
   TransactionDataTokenType
 } from 'types/transactions.types';
-import { getExtractTransactionsInfo } from './getExtractTransactionsInfo';
-import { getFeeData } from './getFeeData';
-import { getHighlight } from './getHighlight';
-import { getScCall } from './getScCall';
-import { getTokenType } from './getTokenType';
-import { getUsdValue } from './getUsdValue';
+import { getFeeData } from '../getFeeData';
+import { getUsdValue } from '../getUsdValue';
+import { getExtractTransactionsInfo } from './helpers/getExtractTransactionsInfo';
+import { getHighlight } from './helpers/getHighlight';
+import { getScCall } from './helpers/getScCall';
+import { getTokenType } from './helpers/getTokenType';
 
 const DEFAULT_GAS_PRICE_MULTIPLIER = 1;
 
-export async function getCommonData({
-  allTransactions,
-  currentScreenIndex,
-  egldLabel,
-  network,
-  gasPriceData,
-  price,
-  address,
-  signedIndexes = [],
-  parsedTransactionsByDataField
-}: {
+export type GetCommonDataPropsType = {
   allTransactions: MultiSignTransactionType[];
   currentScreenIndex: number;
   price?: number;
@@ -44,7 +34,19 @@ export async function getCommonData({
     initialGasPrice: number;
     gasPriceMultiplier: ISignTransactionsModalCommonData['gasPriceMultiplier'];
   };
-}) {
+};
+
+export async function getCommonData({
+  allTransactions,
+  currentScreenIndex,
+  egldLabel,
+  network,
+  gasPriceData,
+  price,
+  address,
+  signedIndexes = [],
+  parsedTransactionsByDataField
+}: GetCommonDataPropsType) {
   const currentTransaction = allTransactions[currentScreenIndex];
   const sender = currentTransaction?.transaction?.getSender().toString();
   const transaction = currentTransaction?.transaction;

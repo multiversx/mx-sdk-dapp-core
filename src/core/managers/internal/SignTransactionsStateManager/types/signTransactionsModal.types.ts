@@ -19,7 +19,7 @@ export interface ISignTransactionsModalCommonData {
   receiver?: string;
   data?: string;
   gasPrice?: string;
-  gasPriceMultiplier?: 1 | 2 | 3;
+  gasPriceMultiplier?: number;
   gasLimit?: string;
   transactionsCount: number;
   tokenType?: TokenType;

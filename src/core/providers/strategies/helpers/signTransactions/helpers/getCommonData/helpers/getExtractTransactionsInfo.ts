@@ -7,8 +7,8 @@ import {
   TransactionDataTokenType
 } from 'types/transactions.types';
 import { checkIsValidSender } from './checkIsValidSender';
-import { getTxInfoByDataField } from './getMultiEsdtTransferData/getTxInfoByDataField';
-import { isTokenTransfer } from './isTokenTransfer';
+import { getTxInfoByDataField } from './getTxInfoByDataField';
+import { isTokenTransfer } from '../../isTokenTransfer';
 
 interface VerifiedAddressesType {
   [address: string]: { type: string; info: string };
