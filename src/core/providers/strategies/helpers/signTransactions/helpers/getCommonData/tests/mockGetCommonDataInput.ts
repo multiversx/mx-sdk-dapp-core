@@ -1,6 +1,6 @@
 import { testAddress } from '__mocks__';
 
-export const mockInputData = {
+export const mockGetCommonDataInput = {
   allTransactions: [
     {
       transaction: {

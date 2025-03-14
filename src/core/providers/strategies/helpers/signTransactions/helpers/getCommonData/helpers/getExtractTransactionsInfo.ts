@@ -1,5 +1,5 @@
 import { getAccountFromApi } from 'apiCalls/account';
-import { getScamAddressData } from 'apiCalls/utils/getScamAddressData';
+import { getScamAddressData } from 'apiCalls/account/getScamAddressData';
 import { SigningErrorsEnum } from 'types/enums.types';
 
 import {
@@ -69,7 +69,10 @@ export function getExtractTransactionsInfo({
     const verified = receiver in verifiedAddresses;
 
     if (receiver && notSender && !verified) {
-      const data = await getScamAddressData(receiver);
+      const data = await getScamAddressData({
+        addressToVerify: receiver,
+        baseURL: apiAddress
+      });
       verifiedAddresses = {
         ...verifiedAddresses,
         ...(data?.scamInfo ? { [receiver]: data.scamInfo } : {})
