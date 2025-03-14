@@ -1,8 +1,6 @@
 import { Transaction } from '@multiversx/sdk-core/out';
 import BigNumber from 'bignumber.js';
 import { getEconomics } from 'apiCalls/economics/getEconomics';
-import { getPersistedTokenDetails } from 'apiCalls/tokens/getPersistedTokenDetails';
-import { MULTI_TRANSFER_EGLD_TOKEN } from 'constants/mvx.constants';
 import { UITagsEnum } from 'constants/UITags.enum';
 import { SignTransactionsStateManager } from 'core/managers/internal/SignTransactionsStateManager/SignTransactionsStateManager';
 import {
@@ -14,18 +12,12 @@ import { getEgldLabel } from 'core/methods/network/getEgldLabel';
 import { cancelCrossWindowAction } from 'core/providers/helpers/cancelCrossWindowAction';
 import { IProvider } from 'core/providers/types/providerFactory.types';
 import { SignTransactionsModal } from 'lib/sdkDappCoreUi';
-import { formatAmount } from 'lib/sdkDappUtils';
 import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
-import { NftEnumType } from 'types/tokens.types';
 import { createUIElement } from 'utils/createUIElement';
-import { getExtractTransactionsInfo } from './helpers/getExtractTransactionsInfo';
+import { getCommonData } from './helpers/getCommonData';
 import { getFeeData } from './helpers/getFeeData';
-import { getHighlight } from './helpers/getHighlight';
 import { getMultiEsdtTransferData } from './helpers/getMultiEsdtTransferData/getMultiEsdtTransferData';
-import { getScCall } from './helpers/getScCall';
-import { getTokenType } from './helpers/getTokenType';
-import { getUsdValue } from './helpers/getUsdValue';
 import { guardTransactions as getGuardedTransactions } from './helpers/guardTransactions/guardTransactions';
 
 type SignTransactionsParamsType = {
@@ -49,7 +41,7 @@ export async function signTransactions({
     name: UITagsEnum.SIGN_TRANSACTIONS_MODAL
   });
 
-  const { allTransactions, getTxInfoByDataField } =
+  const { allTransactions, parsedTransactionsByDataField } =
     getMultiEsdtTransferData(transactions);
 
   let signedIndexes: number[] = [];
@@ -85,124 +77,37 @@ export async function signTransactions({
     const signedTransactions: Transaction[] = [];
     const economics = await getEconomics();
 
-    allTransactions
-      .filter((tx) => tx.transaction != null)
-      .forEach(({ transaction }) => {
-        const initialGasPrice = transaction
-          ? transaction?.getGasPrice().valueOf()
-          : 0;
-        const gasPriceMultiplier = DEFAULT_GAS_PRICE_MULTIPLIER;
-
-        manager.updateGasPriceMap({
-          nonce: transaction?.getNonce().valueOf(),
-          gasPriceMultiplier,
-          initialGasPrice
-        });
-      });
+    manager.initializeGasPriceMap(allTransactions.map((tx) => tx.transaction));
 
     const showNextScreen = async (currentScreenIndex: number) => {
       const currentTransaction = allTransactions[currentScreenIndex];
-      const sender = currentTransaction?.transaction?.getSender().toString();
       const transaction = currentTransaction?.transaction;
       const price = economics?.price;
-
-      const extractTransactionsInfo = getExtractTransactionsInfo({
-        getTxInfoByDataField,
-        egldLabel,
-        sender,
-        address
-      });
-
-      const plainTransaction = currentTransaction.transaction.toPlainObject();
-
-      const txInfo = await extractTransactionsInfo(currentTransaction);
-
-      const isEgld = !txInfo?.transactionTokenInfo?.tokenId;
-      const {
-        tokenId,
-        nonce,
-        amount = ''
-      } = txInfo?.transactionTokenInfo ?? {};
-
-      const isNftOrSft = tokenId && nonce && nonce.length > 0;
-      const tokenIdForTokenDetails = isNftOrSft
-        ? `${tokenId}-${nonce}`
-        : tokenId;
-
-      const tokenDetails = await getPersistedTokenDetails({
-        tokenId: tokenIdForTokenDetails
-      });
-
-      const { esdtPrice, tokenDecimals, type, identifier, tokenImageUrl } =
-        tokenDetails;
-
-      const isNft =
-        type === NftEnumType.SemiFungibleESDT ||
-        type === NftEnumType.NonFungibleESDT;
-
-      if (isNft) {
-        manager.updateNonFungibleTransaction(type, {
-          identifier,
-          amount,
-          imageURL: tokenImageUrl
-        });
-      } else {
-        const getFormattedAmount = ({ addCommas }: { addCommas: boolean }) =>
-          formatAmount({
-            input: isEgld
-              ? currentTransaction.transaction.getValue().toString()
-              : amount,
-            decimals: isEgld ? Number(network.decimals) : tokenDecimals,
-            digits: Number(network.digits),
-            showLastNonZeroDecimal: false,
-            addCommas
-          });
-
-        const formattedAmount = getFormattedAmount({ addCommas: true });
-        const rawAmount = getFormattedAmount({ addCommas: false });
-        const tokenPrice = Number(isEgld ? price : esdtPrice);
-        const usdValue = getUsdValue({
-          amount: rawAmount,
-          usd: tokenPrice,
-          addEqualSign: true
-        });
-
-        const esdtIdentifier =
-          identifier === MULTI_TRANSFER_EGLD_TOKEN ? egldLabel : identifier;
-        manager.updateTokenTransaction({
-          identifier: esdtIdentifier ?? egldLabel,
-          amount: formattedAmount,
-          usdValue
-        });
-      }
-
-      const { feeLimitFormatted, feeInFiatLimit } = getFeeData({
-        transaction,
-        price
-      });
-
       const currentNonce = currentTransaction.transaction?.getNonce().valueOf();
 
-      const commonData: ISignTransactionsModalCommonData = {
-        receiver: plainTransaction.receiver.toString(),
-        data: currentTransaction.transaction.getData().toString(),
-        gasPrice: getGasPrice(currentNonce).toString(),
-        gasLimit: plainTransaction.gasLimit.toString(),
-        gasPriceMultiplier:
-          manager.gasPriceMap[currentNonce].gasPriceMultiplier ??
-          DEFAULT_GAS_PRICE_MULTIPLIER,
-        egldLabel,
-        tokenType: getTokenType(type),
-        feeLimit: feeLimitFormatted,
-        feeInFiatLimit,
-        transactionsCount: allTransactions.length,
-        currentIndex: currentScreenIndex,
-        highlight: getHighlight(txInfo?.transactionTokenInfo),
-        scCall: getScCall(txInfo?.transactionTokenInfo),
-        needsSigning:
-          txInfo?.needsSigning && !signedIndexes.includes(currentScreenIndex),
-        isEditable: txInfo?.needsSigning
-      };
+      const { commonData, tokenTransaction, fungibleTransaction } =
+        await getCommonData({
+          allTransactions,
+          currentScreenIndex,
+          egldLabel,
+          network,
+          gasPriceData: manager.gasPriceMap[currentNonce],
+          price,
+          address,
+          signedIndexes,
+          parsedTransactionsByDataField
+        });
+
+      if (tokenTransaction) {
+        manager.updateTokenTransaction(tokenTransaction);
+      }
+
+      if (fungibleTransaction) {
+        manager.updateNonFungibleTransaction(
+          fungibleTransaction.type,
+          fungibleTransaction
+        );
+      }
 
       manager.updateCommonData(commonData);
 
@@ -258,7 +163,7 @@ export async function signTransactions({
       }
 
       async function onSign() {
-        const shouldContinueWithoutSigning = !txInfo?.needsSigning;
+        const shouldContinueWithoutSigning = !commonData.needsSigning;
 
         removeEvents();
 

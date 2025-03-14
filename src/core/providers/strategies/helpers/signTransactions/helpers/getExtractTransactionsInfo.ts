@@ -2,9 +2,12 @@ import { getAccountFromApi } from 'apiCalls/account';
 import { getScamAddressData } from 'apiCalls/utils/getScamAddressData';
 import { SigningErrorsEnum } from 'types/enums.types';
 
-import { MultiSignTransactionType } from 'types/transactions.types';
+import {
+  MultiSignTransactionType,
+  TransactionDataTokenType
+} from 'types/transactions.types';
 import { checkIsValidSender } from './checkIsValidSender';
-import { getMultiEsdtTransferData } from './getMultiEsdtTransferData/getMultiEsdtTransferData';
+import { getTxInfoByDataField } from './getMultiEsdtTransferData/getTxInfoByDataField';
 import { isTokenTransfer } from './isTokenTransfer';
 
 interface VerifiedAddressesType {
@@ -13,19 +16,17 @@ interface VerifiedAddressesType {
 let verifiedAddresses: VerifiedAddressesType = {};
 
 type ExtractTransactionsInfoType = {
-  getTxInfoByDataField: ReturnType<
-    typeof getMultiEsdtTransferData
-  >['getTxInfoByDataField'];
   sender: string;
   address: string;
   egldLabel: string;
+  parsedTransactionsByDataField: Record<string, TransactionDataTokenType>;
 };
 
 export function getExtractTransactionsInfo({
-  getTxInfoByDataField,
   egldLabel,
   sender,
-  address
+  address,
+  parsedTransactionsByDataField
 }: ExtractTransactionsInfoType) {
   const extractTransactionsInfo = async (
     currentTx: MultiSignTransactionType
@@ -39,10 +40,11 @@ export function getExtractTransactionsInfo({
 
     const { transaction, multiTxData, transactionIndex } = currentTx;
     const dataField = transaction.getData().toString();
-    const transactionTokenInfo = getTxInfoByDataField(
-      transaction.getData().toString(),
-      multiTxData
-    );
+    const transactionTokenInfo = getTxInfoByDataField({
+      data: transaction.getData().toString(),
+      multiTransactionData: multiTxData,
+      parsedTransactionsByDataField
+    });
 
     const { tokenId } = transactionTokenInfo;
     const receiver = transaction.getReceiver().toString();
