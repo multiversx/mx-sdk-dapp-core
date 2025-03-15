@@ -11,7 +11,7 @@ import { IProvider } from 'core/providers/types/providerFactory.types';
 import {
   defineCustomElements,
   LedgerConnect,
-  LedgerConnectModal
+  LedgerConnectPanel
 } from 'lib/sdkDappCoreUi';
 import { ProviderErrorsEnum } from 'types/provider.types';
 import { createUIElement } from 'utils/createUIElement';
@@ -123,8 +123,8 @@ export class LedgerProviderStrategy {
           name: UITagsEnum.LEDGER_CONNECT,
           anchor
         })
-      : await createUIElement<LedgerConnectModal>({
-          name: UITagsEnum.LEDGER_CONNECT_MODAL
+      : await createUIElement<LedgerConnectPanel>({
+          name: UITagsEnum.LEDGER_CONNECT_PANEL
         });
     const eventBus = await element.getEventBus();
 

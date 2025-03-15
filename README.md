@@ -322,6 +322,7 @@ The `TransactionManager` is a class that handles sending and tracking transactio
 #### Transactions Lifecycle
 
 The transaction lifecycle consists of the following steps:
+
 1. **Creating** a `Transaction` object using the `@multiversx/sdk-core provider`
 2. **Signing** the transaction with the initialized provider and receiving a `SignedTransactionType` object
 3. **Sending** the signed transaction using TransactionManager's `send()` function. Signed transactions can be sent in 2 ways:
@@ -333,16 +334,16 @@ The transaction lifecycle consists of the following steps:
 | 2 | `send([[tx1, tx2], [tx3]])` | `POST` to `/batch` | First batch of two transactions is executed, and the second batch of one transaction waits for the finished results, and is then executed
 
 4. **Tracking** transactions is made by using `transactionManager.track()`. Since the `send()` function returns the same arguments it has received, the same array payload can be passed into the `track()` method. Under the hood, status updates are received via a WebSocket or polling mechanism.
-Once a transaction array is tracked, it gets associated with a `sessionId`, returned by the `track()` method and stored in the `transactions` slice. Depending on the array's type (plain/batch), the session's status varies from initial (`pending`/`invalid`/`sent`) to final (`successful`/`failed`/`timedOut`). 
+   Once a transaction array is tracked, it gets associated with a `sessionId`, returned by the `track()` method and stored in the `transactions` slice. Depending on the array's type (plain/batch), the session's status varies from initial (`pending`/`invalid`/`sent`) to final (`successful`/`failed`/`timedOut`).
 
-5. **User feedback** is provided through toast notifications, which are triggered to inform about transactions' progress. Additional tracking details can be optionally displayed in the toast UI. 
+5. **User feedback** is provided through toast notifications, which are triggered to inform about transactions' progress. Additional tracking details can be optionally displayed in the toast UI.
 
 6. **Error Handling & Recovery** is done through a custom toast that prompts the user to take appropriate action.
 
 #### Methods
 
 1. Sending Transactions
- 
+
 In this way, all transactions are sent simultaneously. There is no limit to the number of transactions contained in the array.
 
 ```ts
@@ -351,15 +352,15 @@ const parallelTransactions: SigendTransactionType[] = [tx1, tx2, tx3, tx4];
 const sentTransactions = await transactionManager.send(parallelTransactions);
 ```
 
-2. Sending Batch Transactions 
+2. Sending Batch Transactions
 
 In this sequential case, each batch waits for the previous one to complete.
 
 ```ts
 const transactionManager = TransactionManager.getInstance();
 const batchTransactions: SignedTransactionType[][] = [
- [tx1, tx2],
- [tx3, tx4]
+  [tx1, tx2],
+  [tx3, tx4]
 ];
 const sentTransactions = await transactionManager.send(batchTransactions);
 ```
@@ -369,11 +370,11 @@ const sentTransactions = await transactionManager.send(batchTransactions);
 The basic option is to use the built-in tracking, which displays toast notifications with default messages.
 
 ```ts
-const sessionId = await transactionManager.track(sentTransactions, 
+const sessionId = await transactionManager.track(
+  sentTransactions
   // { disableToasts: true } optionally disable toast notifications
 );
 ```
-
 
 If you want to provide more human-friendly messages to your users, you can enable tracking with custom toast messages:
 
@@ -384,7 +385,7 @@ const sessionId = await transactionManager.track(sentTransactions, {
     successMessage: 'Stake successfully added',
     processingMessage: 'Staking in progress'
   }
-}); 
+});
 ```
 
 **Tracking transactions without being logged in**
@@ -400,7 +401,7 @@ import { trackTransactions } from '@multiversx/sdk-dapp-core/out/core/methods/tr
 
 initApp(config).then(async () => {
   await trackTransactions(); // enable here since by default tracking will be enabled only after login
-  render(() => <App />, root!); 
+  render(() => <App />, root!);
 });
 ```
 
@@ -420,6 +421,7 @@ await tManager.track([plainTransaction]);
 ```
 
 #### Advanced Usage
+
 If you need to check the status of the signed transactions, you can query the store direclty using the `sessionId` returned by the `track()` method.
 
 ```ts
@@ -428,7 +430,7 @@ import { transactionsSliceSelector } from '@multiversx/sdk-dapp-core/out/store/s
 
 const state = transactionsSliceSelector(getStore());
 Object.entries(state).forEach(([sessionKey, data]) => {
-  if(sessionKey === sessionId) {
+  if (sessionKey === sessionId) {
     console.log(data.status);
   }
 });
@@ -451,7 +453,7 @@ flowchart LR
 
 ```typescript
 const modalElement = await createUIElement<LedgerConnectModal>(
-  'ledger-connect-modal'
+  'ledger-connect-panel'
 );
 const eventBus = await modalElement.getEventBus();
 eventBus.publish('TRANSACTION_TOAST_DATA_UPDATE', someData);

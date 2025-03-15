@@ -1,8 +1,8 @@
 import type { CustomElementsDefineOptions } from '@multiversx/sdk-dapp-core-ui/loader';
-export type { LedgerConnectModal } from '@multiversx/sdk-dapp-core-ui/dist/components/ledger-connect-modal';
+export type { LedgerConnectPanel } from '@multiversx/sdk-dapp-core-ui/dist/components/ledger-connect-panel';
 export type { LedgerConnect } from '@multiversx/sdk-dapp-core-ui/dist/components/ledger-connect';
-export type { SignTransactionsModal } from '@multiversx/sdk-dapp-core-ui/dist/components/sign-transactions-modal';
-export type { WalletConnectModal } from '@multiversx/sdk-dapp-core-ui/dist/components/wallet-connect-modal';
+export type { SignTransactionsPanel } from '@multiversx/sdk-dapp-core-ui/dist/components/sign-transactions-panel';
+export type { WalletConnectPanel } from '@multiversx/sdk-dapp-core-ui/dist/components/wallet-connect-panel';
 export type { WalletConnect } from '@multiversx/sdk-dapp-core-ui/dist/components/wallet-connect';
 export type { PendingTransactionsPanel } from '@multiversx/sdk-dapp-core-ui/dist/components/pending-transactions-panel';
 export { type IPendingTransactionsPanelData } from '@multiversx/sdk-dapp-core-ui/dist/types/components/functional/pending-transactions-panel/pending-transactions-panel.types.d';

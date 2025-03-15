@@ -18,7 +18,7 @@ import {
 } from 'core/providers/types/providerFactory.types';
 import {
   defineCustomElements,
-  WalletConnectModal,
+  WalletConnectPanel,
   WalletConnect
 } from 'lib/sdkDappCoreUi';
 import { logoutAction } from 'store/actions';
@@ -172,8 +172,8 @@ export class WalletConnectProviderStrategy {
           name: UITagsEnum.WALLET_CONNECT,
           anchor
         })
-      : await createUIElement<WalletConnectModal>({
-          name: UITagsEnum.WALLET_CONNECT_MODAL
+      : await createUIElement<WalletConnectPanel>({
+          name: UITagsEnum.WALLET_CONNECT_PANEL
         });
 
     const eventBus = await modalElement.getEventBus();

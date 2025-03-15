@@ -16,7 +16,7 @@ import { getAddress } from 'core/methods/account/getAddress';
 import { getEgldLabel } from 'core/methods/network/getEgldLabel';
 import { cancelCrossWindowAction } from 'core/providers/helpers/cancelCrossWindowAction';
 import { IProvider } from 'core/providers/types/providerFactory.types';
-import { SignTransactionsModal } from 'lib/sdkDappCoreUi';
+import { SignTransactionsPanel } from 'lib/sdkDappCoreUi';
 import { formatAmount } from 'lib/sdkDappUtils';
 import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
@@ -47,8 +47,8 @@ export async function signTransactions({
   const network = networkSelector(getState());
 
   const egldLabel = getEgldLabel();
-  const signModalElement = await createUIElement<SignTransactionsModal>({
-    name: UITagsEnum.SIGN_TRANSACTIONS_MODAL
+  const signModalElement = await createUIElement<SignTransactionsPanel>({
+    name: UITagsEnum.SIGN_TRANSACTIONS_PANEL
   });
 
   const { allTransactions, getTxInfoByDataField } =
