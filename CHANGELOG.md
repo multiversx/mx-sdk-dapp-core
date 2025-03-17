@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- [Updated address validation](https://github.com/multiversx/mx-sdk-dapp-core/pull/120)
 - [Added gasPrice editing](https://github.com/multiversx/mx-sdk-dapp-core/pull/116)
 
 ## [[0.0.0-alpha.15](https://github.com/multiversx/mx-sdk-dapp-core/pull/118)] - 2025-03-12
