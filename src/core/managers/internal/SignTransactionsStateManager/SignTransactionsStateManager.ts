@@ -1,4 +1,5 @@
 import { Transaction } from '@multiversx/sdk-core/out';
+import { EMPTY_PPU } from 'constants/placeholders.constants';
 import { IEventBus } from 'types/manager.types';
 
 import { NftEnumType } from 'types/tokens.types';
@@ -11,8 +12,6 @@ import {
 } from './types/signTransactionsModal.types';
 
 const notInitializedError = () => new Error('Event bus not initialized');
-
-const DEFAULT_GAS_PRICE_MULTIPLIER = 1;
 
 export class SignTransactionsStateManager<
   T extends
@@ -31,18 +30,19 @@ export class SignTransactionsStateManager<
     commonData: {
       transactionsCount: 0,
       egldLabel: '',
-      currentIndex: 0
+      currentIndex: 0,
+      ppuOptions: []
     },
     tokenTransaction: null,
     nftTransaction: null,
     sftTransaction: null
   };
 
-  private _gasPriceMap: Record<
+  private _ppuMap: Record<
     number, // nonce
     {
       initialGasPrice: number;
-      gasPriceMultiplier: ISignTransactionsModalCommonData['gasPriceMultiplier'];
+      ppu: ISignTransactionsModalCommonData['ppu'];
     }
   > = {};
 
@@ -65,10 +65,10 @@ export class SignTransactionsStateManager<
         const initialGasPrice = transaction
           ? transaction.getGasPrice().valueOf()
           : 0;
-        const gasPriceMultiplier = DEFAULT_GAS_PRICE_MULTIPLIER;
+        const ppu = EMPTY_PPU;
         this.updateGasPriceMap({
           nonce: transaction?.getNonce().valueOf(),
-          gasPriceMultiplier,
+          ppu: ppu,
           initialGasPrice
         });
       });
@@ -76,21 +76,21 @@ export class SignTransactionsStateManager<
 
   public updateGasPriceMap({
     nonce,
-    gasPriceMultiplier,
+    ppu,
     initialGasPrice
   }: {
     nonce: number;
     initialGasPrice?: number;
-    gasPriceMultiplier: ISignTransactionsModalCommonData['gasPriceMultiplier'];
+    ppu: ISignTransactionsModalCommonData['ppu'];
   }) {
-    this._gasPriceMap[nonce] = {
-      ...this._gasPriceMap[nonce],
-      gasPriceMultiplier
+    this._ppuMap[nonce] = {
+      ...this._ppuMap[nonce],
+      ppu
     };
     if (initialGasPrice) {
-      this._gasPriceMap[nonce].initialGasPrice = initialGasPrice;
+      this._ppuMap[nonce].initialGasPrice = initialGasPrice;
     }
-    this.updateCommonData({ gasPriceMultiplier });
+    this.updateCommonData({ ppu });
   }
 
   public updateCommonData(
@@ -154,7 +154,7 @@ export class SignTransactionsStateManager<
     return this.data.commonData.currentIndex;
   }
 
-  public get gasPriceMap() {
-    return this._gasPriceMap;
+  public get ppuMap() {
+    return this._ppuMap;
   }
 }

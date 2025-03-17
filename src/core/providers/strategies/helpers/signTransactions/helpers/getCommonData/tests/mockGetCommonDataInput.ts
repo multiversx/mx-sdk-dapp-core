@@ -88,7 +88,7 @@ export const mockGetCommonDataInput = {
     xAliasAddress: 'https://devnet.xalias.com'
   },
   gasPriceData: {
-    gasPriceMultiplier: 1,
+    ppu: 0,
     initialGasPrice: 1000000000
   },
   price: 17.82,
