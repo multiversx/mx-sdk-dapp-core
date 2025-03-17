@@ -1,7 +1,7 @@
 import { Message } from '@multiversx/sdk-core/out';
 import { PendingTransactionsEventsEnum } from 'core/managers/internal/PendingTransactionsStateManager/types/pendingTransactions.types';
 import { SigningWarningsEnum } from 'types/enums.types';
-import { getModalHandlers } from '../getModalHandlers';
+import { getPendingTransactionsHandlers } from '../getPendingTransactionsHandlers';
 
 type SignMessageWithModalPropsType<T> = {
   message: Message;
@@ -18,16 +18,20 @@ export async function signMessage<T>({
 }: SignMessageWithModalPropsType<T>): Promise<Message> {
   const signedMsg = await new Promise<Awaited<Message>>(
     async (resolve, reject) => {
-      const { eventBus, manager, onClose } = await getModalHandlers({
-        cancelAction
-      });
+      const { eventBus, manager, onClose } =
+        await getPendingTransactionsHandlers({
+          cancelAction
+        });
 
       const handleClose = async () => {
         await onClose(false);
         reject({ message: SigningWarningsEnum.cancelled });
       };
 
-      eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, handleClose);
+      eventBus.subscribe(
+        PendingTransactionsEventsEnum.CLOSE_PENDING_TRANSACTIONS,
+        handleClose
+      );
 
       manager.updateData({
         isPending: true,
@@ -43,7 +47,10 @@ export async function signMessage<T>({
         await onClose(false);
         reject(err);
       } finally {
-        eventBus.unsubscribe(PendingTransactionsEventsEnum.CLOSE, handleClose);
+        eventBus.unsubscribe(
+          PendingTransactionsEventsEnum.CLOSE_PENDING_TRANSACTIONS,
+          handleClose
+        );
       }
     }
   );

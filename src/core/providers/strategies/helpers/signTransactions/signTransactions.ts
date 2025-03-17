@@ -6,22 +6,19 @@ import {
   GAS_PRICE_MODIFIER,
   MULTI_TRANSFER_EGLD_TOKEN
 } from 'constants/mvx.constants';
-import { UITagsEnum } from 'constants/UITags.enum';
-import { SignTransactionsStateManager } from 'core/managers/internal/SignTransactionsStateManager/SignTransactionsStateManager';
 import {
-  ISignTransactionsModalData,
-  SignEventsEnum
+  SignEventsEnum,
+  ISignTransactionsPanelData
 } from 'core/managers/internal/SignTransactionsStateManager/types';
 import { getAddress } from 'core/methods/account/getAddress';
 import { getEgldLabel } from 'core/methods/network/getEgldLabel';
 import { cancelCrossWindowAction } from 'core/providers/helpers/cancelCrossWindowAction';
+import { getSignTransactionsHandlers } from 'core/providers/strategies/helpers';
 import { IProvider } from 'core/providers/types/providerFactory.types';
-import { SignTransactionsPanel } from 'lib/sdkDappCoreUi';
 import { formatAmount } from 'lib/sdkDappUtils';
 import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
 import { NftEnumType } from 'types/tokens.types';
-import { createUIElement } from 'utils/createUIElement';
 import { calculateFeeInFiat } from './helpers/calculateFeeInFiat';
 import { calculateFeeLimit } from './helpers/calculateFeeLimit';
 import { getExtractTransactionsInfo } from './helpers/getExtractTransactionsInfo';
@@ -47,20 +44,14 @@ export async function signTransactions({
   const network = networkSelector(getState());
 
   const egldLabel = getEgldLabel();
-  const signModalElement = await createUIElement<SignTransactionsPanel>({
-    name: UITagsEnum.SIGN_TRANSACTIONS_PANEL
-  });
 
   const { allTransactions, getTxInfoByDataField } =
     getMultiEsdtTransferData(transactions);
 
-  const eventBus = await signModalElement.getEventBus();
+  const { eventBus, manager } = await getSignTransactionsHandlers({
+    cancelAction: cancelCrossWindowAction
+  });
 
-  if (!eventBus) {
-    throw new Error('Event bus not provided for Ledger provider');
-  }
-
-  const manager = new SignTransactionsStateManager(eventBus);
   if (!manager) {
     throw new Error('Unable to establish connection with sign screens');
   }
@@ -168,7 +159,7 @@ export async function signTransactions({
         });
       }
 
-      const commonData: ISignTransactionsModalData['commonData'] = {
+      const commonData: ISignTransactionsPanelData['commonData'] = {
         receiver: plainTransaction.receiver.toString(),
         data: currentTransaction.transaction.getData().toString(),
         egldLabel,
@@ -197,7 +188,7 @@ export async function signTransactions({
       const onCancel = async () => {
         reject(new Error('Transaction signing cancelled by user'));
         await cancelCrossWindowAction();
-        signModalElement.remove();
+        manager.closeAndReset();
       };
 
       const onSign = async () => {
@@ -211,7 +202,10 @@ export async function signTransactions({
 
         const removeEvents = () => {
           eventBus.unsubscribe(SignEventsEnum.SIGN_TRANSACTION, onSign);
-          eventBus.unsubscribe(SignEventsEnum.CLOSE, onCancel);
+          eventBus.unsubscribe(
+            SignEventsEnum.CLOSE_SIGN_TRANSACTIONS_PANEL,
+            onCancel
+          );
           eventBus.unsubscribe(
             SignEventsEnum.PREV_TRANSACTION,
             onPreviousTransaction
@@ -245,7 +239,7 @@ export async function signTransactions({
           if (areAllSigned) {
             const optionallyGuardedTransactions =
               await guardTransactions(signedTransactions);
-            signModalElement.remove();
+            manager.closeAndReset();
 
             return resolve(optionallyGuardedTransactions);
           }
@@ -254,13 +248,17 @@ export async function signTransactions({
           manager.setNextUnsignedTxIndex(currentTransactionIndex);
           signNextTransaction();
         } catch (error) {
-          reject('Error signing transactions: ' + error);
-          signModalElement.remove();
+          removeEvents();
+          manager.closeAndReset();
+          reject(error);
         }
       };
 
       eventBus.subscribe(SignEventsEnum.SIGN_TRANSACTION, onSign);
-      eventBus.subscribe(SignEventsEnum.CLOSE, onCancel);
+      eventBus.subscribe(
+        SignEventsEnum.CLOSE_SIGN_TRANSACTIONS_PANEL,
+        onCancel
+      );
       eventBus.subscribe(
         SignEventsEnum.PREV_TRANSACTION,
         onPreviousTransaction

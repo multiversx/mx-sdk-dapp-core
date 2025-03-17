@@ -11,8 +11,8 @@ import { getStore } from 'store/store';
 import { ProviderErrorsEnum } from 'types/provider.types';
 import { createUIElement } from 'utils/createUIElement';
 import { NotificationsFeedEventsEnum } from './types';
-import { createToastsFromTransactions } from '../ToastManager/helpers/createToastsFromTransactions';
-import { ITransactionToast } from '../ToastManager/types/toast.types';
+import { createToastsFromTransactions } from '../internal/ToastManager/helpers/createToastsFromTransactions';
+import { ITransactionToast } from '../internal/ToastManager/types/toast.types';
 
 export class NotificationsFeedManager {
   private static instance: NotificationsFeedManager;

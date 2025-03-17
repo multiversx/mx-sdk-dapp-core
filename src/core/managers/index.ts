@@ -1,2 +1,2 @@
 export * from './TransactionManager';
-export * from './internal/NotificationsFeedManager';
+export * from './NotificationsFeedManager';

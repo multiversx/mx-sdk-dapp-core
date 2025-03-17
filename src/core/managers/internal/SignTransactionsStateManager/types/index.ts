@@ -1,1 +1,1 @@
-export * from './signTransactionsModal.types';
+export * from './signTransactionsPanel.types';

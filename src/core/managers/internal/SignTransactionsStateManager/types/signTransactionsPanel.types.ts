@@ -14,7 +14,7 @@ export type FungibleTransactionType = {
 
 export type TokenType = NftEnumType | EsdtEnumType;
 
-export interface ISignTransactionsModalData {
+export interface ISignTransactionsPanelData {
   shouldClose?: true;
   commonData: {
     receiver?: string;
@@ -39,9 +39,10 @@ export interface ISignTransactionsModalData {
 }
 
 export enum SignEventsEnum {
-  'SIGN_TRANSACTION' = 'SIGN_TRANSACTION',
-  'NEXT_TRANSACTION' = 'NEXT_TRANSACTION',
-  'PREV_TRANSACTION' = 'PREV_TRANSACTION',
-  'CLOSE' = 'CLOSE',
-  'DATA_UPDATE' = 'DATA_UPDATE'
+  SIGN_TRANSACTION = 'SIGN_TRANSACTION',
+  NEXT_TRANSACTION = 'NEXT_TRANSACTION',
+  PREV_TRANSACTION = 'PREV_TRANSACTION',
+  DATA_UPDATE = 'DATA_UPDATE',
+  OPEN_SIGN_TRANSACTIONS_PANEL = 'OPEN_SIGN_TRANSACTIONS_PANEL',
+  CLOSE_SIGN_TRANSACTIONS_PANEL = 'CLOSE_SIGN_TRANSACTIONS_PANEL'
 }

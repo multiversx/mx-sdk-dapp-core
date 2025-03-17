@@ -1,28 +1,26 @@
+import { UITagsEnum } from 'constants/UITags.enum';
+import { SignTransactionsPanel } from 'lib/sdkDappCoreUi';
 import { IEventBus } from 'types/manager.types';
+import { ProviderErrorsEnum } from 'types/provider.types';
 import { NftEnumType } from 'types/tokens.types';
+import { createUIElement } from 'utils/createUIElement';
 import {
   FungibleTransactionType,
-  ISignTransactionsModalData,
+  ISignTransactionsPanelData,
   SignEventsEnum,
   TokenType
-} from './types/signTransactionsModal.types';
+} from './types/signTransactionsPanel.types';
 
-const notInitializedError = () => new Error('Event bus not initialized');
-
-export class SignTransactionsStateManager<
-  T extends
-    IEventBus<ISignTransactionsModalData> = IEventBus<ISignTransactionsModalData>
-> {
+export class SignTransactionsStateManager {
+  private static instance: SignTransactionsStateManager;
+  private eventBus: IEventBus<ISignTransactionsPanelData> | null = null;
+  private signTransactionsElement: SignTransactionsPanel | null = null;
+  private isCreatingElement = false;
+  private isOpen = false;
   public readonly addressesPerPage = 10;
 
-  private eventBus: T = {
-    publish: notInitializedError,
-    subscribe: notInitializedError,
-    unsubscribe: notInitializedError
-  } as unknown as T;
-
   // whole data to be sent on update events
-  private initialData: ISignTransactionsModalData = {
+  private initialData: ISignTransactionsPanelData = {
     commonData: {
       transactionsCount: 0,
       egldLabel: '',
@@ -33,28 +31,68 @@ export class SignTransactionsStateManager<
     sftTransaction: null
   };
 
-  private data: ISignTransactionsModalData = { ...this.initialData };
+  private data: ISignTransactionsPanelData = { ...this.initialData };
   /**
    * An array storing the confirmed screens.
    */
-  private _confirmedScreens: ISignTransactionsModalData[] = [];
+  private _confirmedScreens: ISignTransactionsPanelData[] = [];
   /**
    * Tracks the index of the next unsigned transaction to be processed.
    */
   private nextUnsignedTxIndex: number = 0;
 
-  constructor(eventBus: T) {
-    this.eventBus = eventBus;
+  public static getInstance(): SignTransactionsStateManager {
+    if (!SignTransactionsStateManager.instance) {
+      SignTransactionsStateManager.instance =
+        new SignTransactionsStateManager();
+    }
+    return SignTransactionsStateManager.instance;
+  }
+
+  private constructor() {}
+
+  public async init() {
+    await this.createSignTransactionsElement();
+    await this.getEventBus();
+    await this.setupEventListeners();
     this.resetData();
   }
 
-  public updateData(newData: ISignTransactionsModalData) {
+  public async openSignTransactions(data: ISignTransactionsPanelData) {
+    if (this.isOpen && this.signTransactionsElement) {
+      return;
+    }
+
+    if (!this.signTransactionsElement) {
+      await this.createSignTransactionsElement();
+    }
+
+    if (!this.signTransactionsElement || !this.eventBus) {
+      return;
+    }
+
+    this.data = { ...this.initialData, ...data };
+    this.isOpen = true;
+
+    this.publishEvent(SignEventsEnum.OPEN_SIGN_TRANSACTIONS_PANEL);
+    this.notifyDataUpdate();
+  }
+
+  private publishEvent(event: string, data?: ISignTransactionsPanelData) {
+    if (!this.eventBus) {
+      return;
+    }
+
+    this.eventBus.publish(event, data || this.data);
+  }
+
+  public updateData(newData: ISignTransactionsPanelData) {
     this.data = { ...newData };
     this.notifyDataUpdate();
   }
 
   public updateCommonData(
-    newCommonData: Partial<ISignTransactionsModalData['commonData']>
+    newCommonData: Partial<ISignTransactionsPanelData['commonData']>
   ): void {
     this.data.commonData = {
       ...this.data.commonData,
@@ -69,20 +107,31 @@ export class SignTransactionsStateManager<
   }
 
   public closeAndReset(): void {
+    if (!this.eventBus || !this.isOpen) {
+      return;
+    }
+
     this.data.shouldClose = true;
     this.notifyDataUpdate();
     this.resetData();
+    this.isOpen = false;
+
+    this.publishEvent(SignEventsEnum.CLOSE_SIGN_TRANSACTIONS_PANEL);
   }
 
   private notifyDataUpdate(): void {
+    if (!this.eventBus) {
+      return;
+    }
+
     const data = { ...this.data };
     data.commonData.nextUnsignedTxIndex = this.nextUnsignedTxIndex;
 
-    this.eventBus.publish(SignEventsEnum.DATA_UPDATE, data);
+    this.publishEvent(SignEventsEnum.DATA_UPDATE, data);
   }
 
   public updateTokenTransaction(
-    tokenData: ISignTransactionsModalData['tokenTransaction']
+    tokenData: ISignTransactionsPanelData['tokenTransaction']
   ): void {
     this.data.tokenTransaction = tokenData;
     this.data.sftTransaction = null;
@@ -138,5 +187,91 @@ export class SignTransactionsStateManager<
 
   public setNextUnsignedTxIndex(index: number) {
     this.nextUnsignedTxIndex = index;
+  }
+
+  public async getEventBus(): Promise<IEventBus<ISignTransactionsPanelData> | null> {
+    if (!this.signTransactionsElement) {
+      await this.createSignTransactionsElement();
+    }
+
+    if (!this.signTransactionsElement) {
+      return null;
+    }
+
+    if (!this.eventBus) {
+      this.eventBus = await this.signTransactionsElement.getEventBus();
+    }
+
+    if (!this.eventBus) {
+      throw new Error(ProviderErrorsEnum.eventBusError);
+    }
+
+    return this.eventBus;
+  }
+
+  private async createSignTransactionsElement(): Promise<SignTransactionsPanel | null> {
+    if (this.signTransactionsElement) {
+      return this.signTransactionsElement;
+    }
+
+    if (!this.isCreatingElement) {
+      this.isCreatingElement = true;
+      const element = await createUIElement<SignTransactionsPanel>({
+        name: UITagsEnum.SIGN_TRANSACTIONS_PANEL
+      });
+
+      this.signTransactionsElement = element || null;
+      await this.getEventBus();
+      this.isCreatingElement = false;
+    }
+
+    if (!this.signTransactionsElement) {
+      throw new Error('Failed to create sign transactions element');
+    }
+
+    return this.signTransactionsElement;
+  }
+
+  private async setupEventListeners() {
+    if (!this.signTransactionsElement) {
+      await this.createSignTransactionsElement();
+    }
+
+    if (!this.eventBus) {
+      return;
+    }
+
+    this.eventBus.subscribe(
+      SignEventsEnum.CLOSE_SIGN_TRANSACTIONS_PANEL,
+      this.handleCloseSignTransactions.bind(this)
+    );
+  }
+
+  private handleCloseSignTransactions() {
+    this.isOpen = false;
+    this.resetData();
+  }
+
+  public destroy() {
+    if (this.eventBus) {
+      this.eventBus.unsubscribe(
+        SignEventsEnum.CLOSE_SIGN_TRANSACTIONS_PANEL,
+        this.handleCloseSignTransactions.bind(this)
+      );
+
+      this.eventBus = null;
+    }
+
+    if (this.signTransactionsElement) {
+      const parentElement = this.signTransactionsElement.parentElement;
+
+      if (parentElement) {
+        parentElement.removeChild(this.signTransactionsElement);
+      }
+
+      this.signTransactionsElement = null;
+    }
+
+    this.isOpen = false;
   }
 }

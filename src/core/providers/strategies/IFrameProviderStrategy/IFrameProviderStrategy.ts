@@ -13,7 +13,7 @@ import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
 import { ProviderErrorsEnum } from 'types/provider.types';
 import { IFrameProviderType } from './types';
-import { getModalHandlers } from '../helpers/getModalHandlers';
+import { getPendingTransactionsHandlers } from '../helpers/getPendingTransactionsHandlers';
 import { signMessage } from '../helpers/signMessage/signMessage';
 
 export class IFrameProviderStrategy {
@@ -85,11 +85,16 @@ export class IFrameProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    const { eventBus, manager, onClose } = await getModalHandlers({
-      cancelAction: this.provider.cancelAction.bind(this.provider)
-    });
+    const { eventBus, manager, onClose } = await getPendingTransactionsHandlers(
+      {
+        cancelAction: this.provider.cancelAction.bind(this.provider)
+      }
+    );
 
-    eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
+    eventBus.subscribe(
+      PendingTransactionsEventsEnum.CLOSE_PENDING_TRANSACTIONS,
+      onClose
+    );
 
     manager.updateData({
       isPending: true,
@@ -106,7 +111,10 @@ export class IFrameProviderStrategy {
       throw error;
     } finally {
       onClose(false);
-      eventBus.unsubscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
+      eventBus.unsubscribe(
+        PendingTransactionsEventsEnum.CLOSE_PENDING_TRANSACTIONS,
+        onClose
+      );
     }
   };
 

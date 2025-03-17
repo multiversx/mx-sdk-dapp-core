@@ -11,7 +11,7 @@ import { crossWindowConfigSelector } from 'store/selectors';
 import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
 import { ProviderErrorsEnum } from 'types/provider.types';
-import { getModalHandlers } from '../helpers/getModalHandlers';
+import { getPendingTransactionsHandlers } from '../helpers/getPendingTransactionsHandlers';
 import { signMessage } from '../helpers/signMessage/signMessage';
 import { guardTransactions } from '../helpers/signTransactions/helpers/guardTransactions/guardTransactions';
 
@@ -89,13 +89,18 @@ export class CrossWindowProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    const { eventBus, onClose, manager } = await getModalHandlers({
-      cancelAction: this.provider.cancelAction.bind(this.provider)
-    });
+    const { eventBus, onClose, manager } = await getPendingTransactionsHandlers(
+      {
+        cancelAction: this.provider.cancelAction.bind(this.provider)
+      }
+    );
 
-    eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
+    eventBus.subscribe(
+      PendingTransactionsEventsEnum.CLOSE_PENDING_TRANSACTIONS,
+      onClose
+    );
 
-    manager.updateData({
+    manager.openPendingTransactions({
       isPending: true,
       title: 'Confirm on MultiversX Web Wallet',
       subtitle: 'Check your MultiversX Web Wallet to sign the transaction'
@@ -116,7 +121,10 @@ export class CrossWindowProviderStrategy {
       throw error;
     } finally {
       onClose(false);
-      eventBus.unsubscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
+      eventBus.unsubscribe(
+        PendingTransactionsEventsEnum.CLOSE_PENDING_TRANSACTIONS,
+        onClose
+      );
     }
   };
 
