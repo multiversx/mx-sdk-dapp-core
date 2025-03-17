@@ -142,13 +142,15 @@ export async function getCommonData({
     gasStationMetadata: network.gasStationMetadata
   });
 
+  const gasPrice = getRecommendedGasPrice({
+    transaction: plainTransaction,
+    gasPriceData
+  }).toString();
+
   const commonData: ISignTransactionsModalCommonData = {
     receiver: plainTransaction.receiver.toString(),
     data: currentTransaction.transaction.getData().toString(),
-    gasPrice: getRecommendedGasPrice({
-      transaction: plainTransaction,
-      gasPriceData
-    }).toString(),
+    gasPrice,
     gasLimit: plainTransaction.gasLimit.toString(),
     ppu: gasPriceData.ppu,
     ppuOptions,

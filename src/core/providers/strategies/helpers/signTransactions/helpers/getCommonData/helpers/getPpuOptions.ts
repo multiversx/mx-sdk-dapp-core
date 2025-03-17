@@ -61,7 +61,7 @@ export const getPpuOptions = ({
           ? [
               {
                 label: 'Fast',
-                value: fastGasPrice
+                value: fastPpu
               }
             ]
           : []),
@@ -69,7 +69,7 @@ export const getPpuOptions = ({
           ? [
               {
                 label: 'Faster',
-                value: fasterGasPrice
+                value: fasterPpu
               }
             ]
           : [])
