@@ -68,7 +68,7 @@ export class SignTransactionsStateManager<
         const ppu = EMPTY_PPU;
         this.updateGasPriceMap({
           nonce: transaction?.getNonce().valueOf(),
-          ppu: ppu,
+          ppu,
           initialGasPrice
         });
       });

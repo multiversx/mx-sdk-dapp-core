@@ -19,11 +19,11 @@ export const getPpuOptions = ({
 }: GetGasPriceDetailsParamsType) => {
   const fastPpu = gasStationMetadata
     ? gasStationMetadata[Number(shard)]?.fast
-    : 0;
+    : EMPTY_PPU;
 
   const fasterPpu = gasStationMetadata
     ? gasStationMetadata[Number(shard)]?.faster
-    : 0;
+    : EMPTY_PPU;
 
   const fastGasPrice = getRecommendedGasPrice({
     transaction,

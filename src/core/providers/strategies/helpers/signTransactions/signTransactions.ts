@@ -1,6 +1,6 @@
 import { Transaction } from '@multiversx/sdk-core/out';
-import BigNumber from 'bignumber.js';
 import { getEconomics } from 'apiCalls/economics/getEconomics';
+import { EMPTY_PPU } from 'constants/placeholders.constants';
 import { UITagsEnum } from 'constants/UITags.enum';
 import { SignTransactionsStateManager } from 'core/managers/internal/SignTransactionsStateManager/SignTransactionsStateManager';
 import {
@@ -26,8 +26,6 @@ type SignTransactionsParamsType = {
   handleSign: IProvider['signTransactions'];
   guardTransactions?: typeof getGuardedTransactions;
 };
-
-const EMPTY_PPU = 0;
 
 export async function signTransactions({
   transactions = [],
@@ -167,12 +165,15 @@ export async function signTransactions({
           throw new Error('Current nonce not found');
         }
 
-        const { initialGasPrice, ppu: gasPriceMultiplier } =
-          manager.ppuMap[txNonce];
+        const { initialGasPrice, ppu } = manager.ppuMap[txNonce];
 
-        const newGasPrice = new BigNumber(initialGasPrice)
-          .times(gasPriceMultiplier ?? EMPTY_PPU)
-          .toNumber();
+        const newGasPrice = getRecommendedGasPrice({
+          transaction: currentEditedTransaction.toPlainObject(),
+          gasPriceData: {
+            initialGasPrice,
+            ppu
+          }
+        });
 
         const transactionToSign = Transaction.fromPlainObject({
           ...currentEditedTransaction.toPlainObject(),
