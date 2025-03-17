@@ -165,14 +165,9 @@ export async function signTransactions({
           throw new Error('Current nonce not found');
         }
 
-        const { initialGasPrice, ppu } = manager.ppuMap[txNonce];
-
         const newGasPrice = getRecommendedGasPrice({
           transaction: currentEditedTransaction.toPlainObject(),
-          gasPriceData: {
-            initialGasPrice,
-            ppu
-          }
+          gasPriceData: manager.ppuMap[txNonce]
         });
 
         const transactionToSign = Transaction.fromPlainObject({
