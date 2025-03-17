@@ -5,6 +5,7 @@ import { setAccount } from 'store/actions/account';
 import { setLoginToken } from 'store/actions/loginInfo/loginInfoActions';
 import { AccountType } from 'types/account.types';
 import { getAccountFromToken } from './getAccountFromToken';
+import { getNetworkConfig } from 'core/methods/network/getNetworkConfig';
 
 interface IExtractAccountFromTokenProps {
   loginToken: string;
@@ -22,9 +23,12 @@ export async function extractAccountFromToken({
   address,
   provider
 }: IExtractAccountFromTokenProps) {
+  const { apiAddress } = getNetworkConfig();
+
   const accountDetails = await getAccountFromToken({
     originalLoginToken: loginToken,
     extraInfoData,
+    apiAddress,
     address
   });
 

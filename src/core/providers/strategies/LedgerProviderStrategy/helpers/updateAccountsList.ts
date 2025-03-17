@@ -4,6 +4,7 @@ import { ProviderErrorsEnum } from 'types';
 import { fetchAccount } from 'utils/account/fetchAccount';
 import { ILedgerAccount } from '../types';
 import { LedgerConnectStateManagerType } from '../types/ledgerProvider.types';
+import { getNetworkConfig } from 'core/methods/network/getNetworkConfig';
 
 type AccountsListType = {
   manager: LedgerConnectStateManagerType | null;
@@ -28,6 +29,8 @@ export const updateAccountsList = async ({
   if (!manager || !provider) {
     throw new Error(ProviderErrorsEnum.notInitialized);
   }
+
+  const network = getNetworkConfig();
 
   const startIndex = manager.getAccountScreenData()?.startIndex || 0;
   const allAccounts = manager.getAllAccounts();
@@ -84,7 +87,7 @@ export const updateAccountsList = async ({
     });
 
     const balancePromises = accountsArray.map((address) =>
-      fetchAccount(address)
+      fetchAccount({ address, baseURL: network.apiAddress })
     );
 
     const balances = await Promise.all(balancePromises);

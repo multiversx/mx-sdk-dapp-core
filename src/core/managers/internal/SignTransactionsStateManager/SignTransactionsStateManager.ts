@@ -1,4 +1,6 @@
+import { Transaction } from '@multiversx/sdk-core/out';
 import { IEventBus } from 'types/manager.types';
+
 import { NftEnumType } from 'types/tokens.types';
 import {
   FungibleTransactionType,
@@ -9,6 +11,8 @@ import {
 } from './types/signTransactionsModal.types';
 
 const notInitializedError = () => new Error('Event bus not initialized');
+
+const DEFAULT_GAS_PRICE_MULTIPLIER = 1;
 
 export class SignTransactionsStateManager<
   T extends
@@ -52,6 +56,22 @@ export class SignTransactionsStateManager<
   public updateData(newData: ISignTransactionsModalData) {
     this.data = { ...newData };
     this.notifyDataUpdate();
+  }
+
+  public initializeGasPriceMap(transactions: Transaction[]) {
+    transactions
+      .filter((tx) => tx != null)
+      .forEach((transaction) => {
+        const initialGasPrice = transaction
+          ? transaction.getGasPrice().valueOf()
+          : 0;
+        const gasPriceMultiplier = DEFAULT_GAS_PRICE_MULTIPLIER;
+        this.updateGasPriceMap({
+          nonce: transaction?.getNonce().valueOf(),
+          gasPriceMultiplier,
+          initialGasPrice
+        });
+      });
   }
 
   public updateGasPriceMap({
