@@ -5,11 +5,11 @@ import { NotificationsFeed, ITransactionListItem } from 'lib/sdkDappCoreUi';
 import { clearCompletedTransactions } from 'store/actions/transactions/transactionsActions';
 import { getStore } from 'store/store';
 import { NotificationsFeedEventsEnum } from './types';
-import { BaseUIManager } from '../base/BaseUIManager';
 import { createToastsFromTransactions } from '../internal/ToastManager/helpers/createToastsFromTransactions';
 import { ITransactionToast } from '../internal/ToastManager/types/toast.types';
+import { SidePanelBaseManager } from '../SidePanelBaseManager/SidePanelBaseManager';
 
-export class NotificationsFeedManager extends BaseUIManager<
+export class NotificationsFeedManager extends SidePanelBaseManager<
   NotificationsFeed,
   {
     shouldClose?: boolean;
@@ -33,7 +33,7 @@ export class NotificationsFeedManager extends BaseUIManager<
     return NotificationsFeedManager.instance;
   }
 
-  private constructor() {
+  constructor() {
     super();
   }
 

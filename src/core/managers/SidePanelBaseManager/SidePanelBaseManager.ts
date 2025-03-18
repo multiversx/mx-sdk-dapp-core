@@ -2,26 +2,24 @@ import { UITagsEnum } from 'constants/UITags.enum';
 import { IEventBus } from 'lib/sdkDappCoreUi';
 import { ProviderErrorsEnum } from 'types/provider.types';
 import { createUIElement } from 'utils/createUIElement';
-export abstract class BaseUIManager<TElement, TData, TEventEnum> {
+
+interface IUIElement {
+  getEventBus: () => Promise<IEventBus | null>;
+}
+
+export abstract class SidePanelBaseManager<TElement, TData, TEventEnum> {
   protected eventBus: IEventBus | null = null;
   protected uiElement: TElement | null = null;
   protected isCreatingElement = false;
   protected isOpen = false;
   protected anchor?: HTMLElement;
 
-  // Data management
   protected abstract initialData: TData;
   protected data: TData;
 
-  protected constructor() {
+  constructor() {
     this.data = this.getInitialData();
   }
-
-  protected getInitialData(): TData {
-    return this.initialData;
-  }
-
-  protected abstract getUIElementName(): UITagsEnum;
 
   public async init(anchor?: HTMLElement) {
     this.anchor = anchor;
@@ -32,15 +30,28 @@ export abstract class BaseUIManager<TElement, TData, TEventEnum> {
 
   public async openUI(data: Partial<TData> = {}) {
     if (this.isOpen && this.uiElement) {
+      // UI element is already open
       return;
     }
 
     if (!this.uiElement) {
+      // Try to create the UI element again
       await this.createUIElement();
     }
 
-    if (!this.uiElement || !this.eventBus) {
-      return;
+    if (!this.uiElement) {
+      // The UI element failed to be created
+      throw new Error(`Failed to create ${this.getUIElementName()} element`);
+    }
+
+    if (!this.eventBus) {
+      // Try to get the event bus from the UI element again
+      await this.getEventBus();
+    }
+
+    if (!this.eventBus) {
+      // The event bus failed to be retrieved
+      throw new Error(ProviderErrorsEnum.eventBusError);
     }
 
     this.data = { ...this.getInitialData(), ...data };
@@ -48,18 +59,6 @@ export abstract class BaseUIManager<TElement, TData, TEventEnum> {
 
     this.publishEvent(this.getOpenEventName());
     this.notifyDataUpdate();
-  }
-
-  protected publishEvent(event: TEventEnum, data?: TData) {
-    if (!this.eventBus) {
-      return;
-    }
-
-    this.eventBus.publish(event as unknown as string, data || this.data);
-  }
-
-  protected resetData(): void {
-    this.data = this.getInitialData();
   }
 
   public closeAndReset(): void {
@@ -80,28 +79,25 @@ export abstract class BaseUIManager<TElement, TData, TEventEnum> {
     this.notifyDataUpdate();
   }
 
-  protected notifyDataUpdate(): void {
-    if (!this.eventBus) {
-      return;
-    }
-
-    this.publishEvent(this.getDataUpdateEventName(), this.data);
-  }
-
   public async getEventBus(): Promise<IEventBus | null> {
     if (!this.uiElement) {
       await this.createUIElement();
     }
 
     if (!this.uiElement) {
-      return null;
+      // The UI element failed to be created
+      throw new Error(`Failed to create ${this.getUIElementName()} element`);
     }
 
     if (!this.eventBus) {
-      this.eventBus = await (this.uiElement as any).getEventBus();
+      // Try to get the event bus from the UI element again
+      this.eventBus = await (
+        this.uiElement as unknown as IUIElement
+      ).getEventBus();
     }
 
     if (!this.eventBus) {
+      // The event bus failed to be retrieved
       throw new Error(ProviderErrorsEnum.eventBusError);
     }
 
@@ -136,16 +132,6 @@ export abstract class BaseUIManager<TElement, TData, TEventEnum> {
     return this.uiElement;
   }
 
-  protected abstract getOpenEventName(): TEventEnum;
-  protected abstract getCloseEventName(): TEventEnum;
-  protected abstract getDataUpdateEventName(): TEventEnum;
-  protected abstract setupEventListeners(): Promise<void>;
-
-  protected handleCloseUI(): void {
-    this.isOpen = false;
-    this.resetData();
-  }
-
   public destroy() {
     if (this.eventBus) {
       this.eventBus.unsubscribe(
@@ -169,4 +155,39 @@ export abstract class BaseUIManager<TElement, TData, TEventEnum> {
 
     this.isOpen = false;
   }
+
+  protected getInitialData(): TData {
+    return this.initialData;
+  }
+
+  protected publishEvent(event: TEventEnum, data?: TData) {
+    if (!this.eventBus) {
+      return;
+    }
+
+    this.eventBus.publish(event as unknown as string, data || this.data);
+  }
+
+  protected resetData(): void {
+    this.data = this.getInitialData();
+  }
+
+  protected notifyDataUpdate(): void {
+    if (!this.eventBus) {
+      return;
+    }
+
+    this.publishEvent(this.getDataUpdateEventName(), this.data);
+  }
+
+  protected handleCloseUI(): void {
+    this.isOpen = false;
+    this.resetData();
+  }
+
+  protected abstract getUIElementName(): UITagsEnum;
+  protected abstract getOpenEventName(): TEventEnum;
+  protected abstract getCloseEventName(): TEventEnum;
+  protected abstract getDataUpdateEventName(): TEventEnum;
+  protected abstract setupEventListeners(): Promise<void>;
 }

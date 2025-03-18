@@ -4,9 +4,9 @@ import {
   IWalletConnectModalData
 } from 'core/providers/strategies/WalletConnectProviderStrategy/types';
 import { WalletConnectPanel } from 'lib/sdkDappCoreUi';
-import { BaseUIManager } from '../../base/BaseUIManager';
+import { SidePanelBaseManager } from '../../SidePanelBaseManager/SidePanelBaseManager';
 
-export class WalletConnectStateManager extends BaseUIManager<
+export class WalletConnectStateManager extends SidePanelBaseManager<
   WalletConnectPanel,
   IWalletConnectModalData,
   WalletConnectEventsEnum
@@ -25,7 +25,7 @@ export class WalletConnectStateManager extends BaseUIManager<
     return WalletConnectStateManager.instance;
   }
 
-  private constructor() {
+  constructor() {
     super();
   }
 

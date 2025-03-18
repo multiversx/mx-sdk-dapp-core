@@ -9,14 +9,22 @@ import {
   LedgerConnectPanel
 } from 'lib/sdkDappCoreUi';
 import { LedgerConnectEventsEnum } from './types';
-import { BaseUIManager } from '../../base/BaseUIManager';
+import { SidePanelBaseManager } from '../../SidePanelBaseManager/SidePanelBaseManager';
 
-export class LedgerConnectStateManager extends BaseUIManager<
+export class LedgerConnectStateManager extends SidePanelBaseManager<
   LedgerConnectPanel,
   ILedgerConnectPanelData,
   LedgerConnectEventsEnum
 > {
   private static instance: LedgerConnectStateManager;
+
+  public static getInstance(): LedgerConnectStateManager {
+    if (!LedgerConnectStateManager.instance) {
+      LedgerConnectStateManager.instance = new LedgerConnectStateManager();
+    }
+    return LedgerConnectStateManager.instance;
+  }
+
   public readonly addressesPerPage = 10;
 
   private allAccounts: ILedgerAccount[] = [];
@@ -34,6 +42,7 @@ export class LedgerConnectStateManager extends BaseUIManager<
     addressesPerPage: this.addressesPerPage,
     isLoading: true
   };
+
   private accountScreenData: IAccountScreenData = {
     ...this.initialAccountScreenData
   };
@@ -42,26 +51,20 @@ export class LedgerConnectStateManager extends BaseUIManager<
   private initialConfirmScreenData: IConfirmScreenData = {
     selectedAddress: ''
   };
+
   private confirmScreenData: IConfirmScreenData = {
     ...this.initialConfirmScreenData
   };
 
-  // whole data to be sent on update events
   protected initialData: ILedgerConnectPanelData = {
     connectScreenData: this.initialConnectScreenData,
-    accountScreenData: null,
-    confirmScreenData: null
+    accountScreenData: this.initialAccountScreenData,
+    confirmScreenData: this.initialConfirmScreenData
   };
 
-  public static getInstance(): LedgerConnectStateManager {
-    if (!LedgerConnectStateManager.instance) {
-      LedgerConnectStateManager.instance = new LedgerConnectStateManager();
-    }
-    return LedgerConnectStateManager.instance;
-  }
-
-  private constructor() {
+  constructor() {
     super();
+    this.data = this.getInitialData();
   }
 
   public async openLedgerConnect(
@@ -79,18 +82,12 @@ export class LedgerConnectStateManager extends BaseUIManager<
     this.accountScreenData.startIndex = startIndex;
   }
 
-  protected resetData(): void {
-    this.accountScreenData = { ...this.initialAccountScreenData };
-    this.confirmScreenData = { ...this.initialConfirmScreenData };
-    this.connectScreenData = { ...this.initialConnectScreenData };
-    super.resetData();
-  }
-
   public updateConnectScreen(members: Partial<IConnectScreenData>): void {
     this.connectScreenData = {
       ...this.connectScreenData,
       ...members
     };
+
     this.data.confirmScreenData = null;
     this.data.accountScreenData = null;
     this.data.connectScreenData = this.connectScreenData;
@@ -129,35 +126,6 @@ export class LedgerConnectStateManager extends BaseUIManager<
     return this.allAccounts;
   }
 
-  protected getUIElementName(): UITagsEnum {
-    return this.anchor
-      ? UITagsEnum.LEDGER_CONNECT
-      : UITagsEnum.LEDGER_CONNECT_PANEL;
-  }
-
-  protected getOpenEventName(): LedgerConnectEventsEnum {
-    return LedgerConnectEventsEnum.OPEN_LEDGER_CONNECT_PANEL;
-  }
-
-  protected getCloseEventName(): LedgerConnectEventsEnum {
-    return LedgerConnectEventsEnum.CLOSE_LEDGER_CONNECT_PANEL;
-  }
-
-  protected getDataUpdateEventName(): LedgerConnectEventsEnum {
-    return LedgerConnectEventsEnum.DATA_UPDATE;
-  }
-
-  protected async setupEventListeners() {
-    if (!this.eventBus) {
-      return;
-    }
-
-    this.eventBus.subscribe(
-      LedgerConnectEventsEnum.CLOSE_LEDGER_CONNECT_PANEL,
-      this.handleCloseUI.bind(this)
-    );
-  }
-
   public subscribeToProviderInit(
     onRetry: () => void,
     onCancel: () => void
@@ -185,6 +153,42 @@ export class LedgerConnectStateManager extends BaseUIManager<
     this.eventBus.unsubscribe(
       LedgerConnectEventsEnum.CLOSE_LEDGER_CONNECT_PANEL,
       onCancel
+    );
+  }
+
+  protected resetData(): void {
+    this.accountScreenData = { ...this.initialAccountScreenData };
+    this.confirmScreenData = { ...this.initialConfirmScreenData };
+    this.connectScreenData = { ...this.initialConnectScreenData };
+    super.resetData();
+  }
+
+  protected getUIElementName(): UITagsEnum {
+    return this.anchor
+      ? UITagsEnum.LEDGER_CONNECT
+      : UITagsEnum.LEDGER_CONNECT_PANEL;
+  }
+
+  protected getOpenEventName(): LedgerConnectEventsEnum {
+    return LedgerConnectEventsEnum.OPEN_LEDGER_CONNECT_PANEL;
+  }
+
+  protected getCloseEventName(): LedgerConnectEventsEnum {
+    return LedgerConnectEventsEnum.CLOSE_LEDGER_CONNECT_PANEL;
+  }
+
+  protected getDataUpdateEventName(): LedgerConnectEventsEnum {
+    return LedgerConnectEventsEnum.DATA_UPDATE;
+  }
+
+  protected async setupEventListeners() {
+    if (!this.eventBus) {
+      return;
+    }
+
+    this.eventBus.subscribe(
+      LedgerConnectEventsEnum.CLOSE_LEDGER_CONNECT_PANEL,
+      this.handleCloseUI.bind(this)
     );
   }
 }

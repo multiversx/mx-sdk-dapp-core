@@ -23,7 +23,7 @@ import { isBatchTransaction } from './helpers/isBatchTransaction';
 export class TransactionManager {
   private static instance: TransactionManager | null = null;
 
-  private constructor() {}
+  constructor() {}
 
   public static getInstance(): TransactionManager {
     if (!TransactionManager.instance) {

@@ -4,9 +4,9 @@ import {
   PendingTransactionsPanel
 } from 'lib/sdkDappCoreUi';
 import { PendingTransactionsEventsEnum } from './types/pendingTransactions.types';
-import { BaseUIManager } from '../../base/BaseUIManager';
+import { SidePanelBaseManager } from '../../SidePanelBaseManager/SidePanelBaseManager';
 
-export class PendingTransactionsStateManager extends BaseUIManager<
+export class PendingTransactionsStateManager extends SidePanelBaseManager<
   PendingTransactionsPanel,
   IPendingTransactionsPanelData,
   PendingTransactionsEventsEnum
@@ -29,7 +29,7 @@ export class PendingTransactionsStateManager extends BaseUIManager<
     return PendingTransactionsStateManager.instance;
   }
 
-  private constructor() {
+  constructor() {
     super();
   }
 

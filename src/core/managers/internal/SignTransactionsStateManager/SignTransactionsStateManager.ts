@@ -10,9 +10,9 @@ import {
   TokenType,
   ISignTransactionsPanelCommonData
 } from './types/signTransactionsPanel.types';
-import { BaseUIManager } from '../../base/BaseUIManager';
+import { SidePanelBaseManager } from '../../SidePanelBaseManager/SidePanelBaseManager';
 
-export class SignTransactionsStateManager extends BaseUIManager<
+export class SignTransactionsStateManager extends SidePanelBaseManager<
   SignTransactionsPanel,
   ISignTransactionsPanelData,
   SignEventsEnum
@@ -50,7 +50,7 @@ export class SignTransactionsStateManager extends BaseUIManager<
     return SignTransactionsStateManager.instance;
   }
 
-  private constructor() {
+  constructor() {
     super();
   }
 
