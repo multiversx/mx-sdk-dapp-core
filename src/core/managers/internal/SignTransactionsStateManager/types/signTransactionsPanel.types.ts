@@ -56,7 +56,6 @@ export interface ISignTransactionsPanelData {
 export enum SignEventsEnum {
   CONFIRM = 'CONFIRM', // can be sign or next
   BACK = 'BACK',
-  CLOSE = 'CLOSE',
   DATA_UPDATE = 'DATA_UPDATE',
   SET_PPU = 'SET_PPU',
   OPEN_SIGN_TRANSACTIONS_PANEL = 'OPEN_SIGN_TRANSACTIONS_PANEL',

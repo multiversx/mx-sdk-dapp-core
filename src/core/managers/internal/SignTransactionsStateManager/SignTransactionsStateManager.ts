@@ -1,7 +1,7 @@
-import { UITagsEnum } from 'constants/UITags.enum';
-import { SignTransactionsPanel } from 'lib/sdkDappCoreUi';
-import { Transaction } from 'lib/sdkCore';
 import { EMPTY_PPU } from 'constants/placeholders.constants';
+import { UITagsEnum } from 'constants/UITags.enum';
+import { Transaction } from 'lib/sdkCore';
+import { SignTransactionsPanel } from 'lib/sdkDappCoreUi';
 import { IEventBus } from 'types/manager.types';
 import { ProviderErrorsEnum } from 'types/provider.types';
 
