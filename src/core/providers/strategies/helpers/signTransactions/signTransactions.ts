@@ -6,6 +6,7 @@ import {
   GAS_PRICE_MODIFIER,
   MULTI_TRANSFER_EGLD_TOKEN
 } from 'constants/mvx.constants';
+import { SignTransactionsStateManager } from 'core/managers/internal/SignTransactionsStateManager/SignTransactionsStateManager';
 import {
   SignEventsEnum,
   ISignTransactionsPanelData
@@ -13,11 +14,11 @@ import {
 import { getAddress } from 'core/methods/account/getAddress';
 import { getEgldLabel } from 'core/methods/network/getEgldLabel';
 import { cancelCrossWindowAction } from 'core/providers/helpers/cancelCrossWindowAction';
-import { getSignTransactionsHandlers } from 'core/providers/strategies/helpers';
 import { IProvider } from 'core/providers/types/providerFactory.types';
 import { formatAmount } from 'lib/sdkDappUtils';
 import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
+import { ProviderErrorsEnum } from 'types/provider.types';
 import { NftEnumType } from 'types/tokens.types';
 import { calculateFeeInFiat } from './helpers/calculateFeeInFiat';
 import { calculateFeeLimit } from './helpers/calculateFeeLimit';
@@ -48,9 +49,12 @@ export async function signTransactions({
   const { allTransactions, getTxInfoByDataField } =
     getMultiEsdtTransferData(transactions);
 
-  const { eventBus, manager } = await getSignTransactionsHandlers({
-    cancelAction: cancelCrossWindowAction
-  });
+  const manager = SignTransactionsStateManager.getInstance();
+  const eventBus = await manager.getEventBus();
+
+  if (!eventBus) {
+    throw new Error(ProviderErrorsEnum.eventBusError);
+  }
 
   if (!manager) {
     throw new Error('Unable to establish connection with sign screens');

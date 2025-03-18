@@ -94,9 +94,6 @@ export async function initApp({
     SignTransactionsStateManager.getInstance();
   await signTransactionsStateManager.init();
 
-  // const walletConnectManager = WalletConnectStateManager.getInstance();
-  // await walletConnectManager.init();
-
   const usedProviders = [
     ...((safeWindow as any)?.multiversx?.providers || []),
     ...(customProviders || [])

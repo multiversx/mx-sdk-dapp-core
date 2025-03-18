@@ -1,26 +1,27 @@
+import { UITagsEnum } from 'constants/UITags.enum';
+
 import {
   IAccountScreenData,
   IConfirmScreenData,
   IConnectScreenData,
   ILedgerAccount,
-  ILedgerConnectModalData,
-  LedgerConnectEventsEnum
-} from 'core/providers/strategies/LedgerProviderStrategy/types';
-import { IEventBus } from 'types/manager.types';
+  ILedgerConnectPanelData,
+  LedgerConnectEventsEnum,
+  LedgerConnectPanel,
+  IEventBus,
+  LedgerConnect
+} from 'lib/sdkDappCoreUi';
+import { ProviderErrorsEnum } from 'types/provider.types';
+import { createUIElement } from 'utils/createUIElement';
 
-const notInitializedError = () => new Error('Event bus not initialized');
+export class LedgerConnectStateManager {
+  private static instance: LedgerConnectStateManager;
+  private eventBus: IEventBus | null = null;
+  private ledgerConnectElement: LedgerConnectPanel | null = null;
+  private isCreatingElement = false;
+  private isOpen = false;
 
-export class LedgerConnectStateManager<
-  T extends
-    IEventBus<ILedgerConnectModalData> = IEventBus<ILedgerConnectModalData>
-> {
   public readonly addressesPerPage = 10;
-
-  private eventBus: T = {
-    publish: notInitializedError,
-    subscribe: notInitializedError,
-    unsubscribe: notInitializedError
-  } as unknown as T;
 
   private allAccounts: ILedgerAccount[] = [];
 
@@ -50,17 +51,48 @@ export class LedgerConnectStateManager<
   };
 
   // whole data to be sent on update events
-  private initialData: ILedgerConnectModalData = {
+  private initialData: ILedgerConnectPanelData = {
     connectScreenData: this.initialConnectScreenData,
     accountScreenData: null,
     confirmScreenData: null
   };
 
-  private data: ILedgerConnectModalData = { ...this.initialData };
+  private data: ILedgerConnectPanelData = { ...this.initialData };
 
-  constructor(eventBus: T) {
-    this.eventBus = eventBus;
-    this.resetData();
+  public static getInstance(): LedgerConnectStateManager {
+    if (!LedgerConnectStateManager.instance) {
+      LedgerConnectStateManager.instance = new LedgerConnectStateManager();
+    }
+    return LedgerConnectStateManager.instance;
+  }
+
+  private constructor() {}
+
+  public async init() {
+    await this.createLedgerConnectElement();
+    await this.getEventBus();
+    await this.setupEventListeners();
+  }
+
+  public async openLedgerConnect(data: ILedgerConnectPanelData) {
+    if (this.isOpen && this.ledgerConnectElement) {
+      return;
+    }
+
+    if (!this.ledgerConnectElement) {
+      await this.createLedgerConnectElement();
+    }
+
+    if (!this.ledgerConnectElement || !this.eventBus) {
+      return;
+    }
+
+    this.data = { ...this.initialData, ...data };
+    this.isOpen = true;
+
+    this.eventBus.publish(LedgerConnectEventsEnum.OPEN_LEDGER_CONNECT_PANEL);
+
+    this.notifyDataUpdate();
   }
 
   public updateAllAccounts(accounts: ILedgerAccount[]): void {
@@ -80,9 +112,14 @@ export class LedgerConnectStateManager<
   }
 
   public closeAndReset(): void {
+    if (!this.eventBus || !this.isOpen) {
+      return;
+    }
+
     this.data.shouldClose = true;
     this.notifyDataUpdate();
     this.resetData();
+    this.isOpen = false;
   }
 
   public updateConnectScreen(members: Partial<IConnectScreenData>): void {
@@ -92,6 +129,7 @@ export class LedgerConnectStateManager<
     };
     this.data.confirmScreenData = null;
     this.data.accountScreenData = null;
+    this.data.connectScreenData = this.connectScreenData;
     this.notifyDataUpdate();
   }
 
@@ -116,6 +154,10 @@ export class LedgerConnectStateManager<
   }
 
   private notifyDataUpdate(): void {
+    if (!this.eventBus) {
+      return;
+    }
+
     this.eventBus.publish(LedgerConnectEventsEnum.DATA_UPDATE, this.data);
   }
 
@@ -129,5 +171,104 @@ export class LedgerConnectStateManager<
 
   public getAllAccounts(): ILedgerAccount[] {
     return this.allAccounts;
+  }
+
+  public async getEventBus(): Promise<IEventBus | null> {
+    if (!this.ledgerConnectElement) {
+      await this.createLedgerConnectElement();
+    }
+
+    if (!this.ledgerConnectElement) {
+      return null;
+    }
+
+    if (!this.eventBus) {
+      this.eventBus = await this.ledgerConnectElement.getEventBus();
+    }
+
+    if (!this.eventBus) {
+      throw new Error(ProviderErrorsEnum.eventBusError);
+    }
+
+    return this.eventBus;
+  }
+
+  private async createLedgerConnectElement(): Promise<LedgerConnectPanel | null> {
+    if (this.ledgerConnectElement) {
+      return this.ledgerConnectElement;
+    }
+
+    if (!this.isCreatingElement) {
+      this.isCreatingElement = true;
+      const element = await createUIElement<LedgerConnectPanel>({
+        name: UITagsEnum.LEDGER_CONNECT_PANEL
+      });
+
+      this.ledgerConnectElement = element || null;
+      await this.getEventBus();
+      this.isCreatingElement = false;
+    }
+
+    if (!this.ledgerConnectElement) {
+      throw new Error('Failed to create ledger connect element');
+    }
+
+    return this.ledgerConnectElement;
+  }
+
+  public async createUIElement(
+    anchor?: HTMLElement
+  ): Promise<LedgerConnect | null> {
+    if (anchor) {
+      return await createUIElement<LedgerConnect>({
+        name: UITagsEnum.LEDGER_CONNECT,
+        anchor
+      });
+    }
+
+    return null;
+  }
+
+  private async setupEventListeners() {
+    if (!this.ledgerConnectElement) {
+      await this.createLedgerConnectElement();
+    }
+
+    if (!this.eventBus) {
+      return;
+    }
+
+    this.eventBus.subscribe(
+      LedgerConnectEventsEnum.CLOSE_LEDGER_CONNECT_PANEL,
+      this.handleCloseLedgerConnect.bind(this)
+    );
+  }
+
+  private handleCloseLedgerConnect() {
+    this.isOpen = false;
+    this.resetData();
+  }
+
+  public destroy() {
+    if (this.eventBus) {
+      this.eventBus.unsubscribe(
+        LedgerConnectEventsEnum.CLOSE_LEDGER_CONNECT_PANEL,
+        this.handleCloseLedgerConnect.bind(this)
+      );
+
+      this.eventBus = null;
+    }
+
+    if (this.ledgerConnectElement) {
+      const parentElement = this.ledgerConnectElement.parentElement;
+
+      if (parentElement) {
+        parentElement.removeChild(this.ledgerConnectElement);
+      }
+
+      this.ledgerConnectElement = null;
+    }
+
+    this.isOpen = false;
   }
 }

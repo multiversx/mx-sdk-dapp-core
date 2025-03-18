@@ -12,10 +12,7 @@ import { PendingTransactionsEventsEnum } from 'core/managers/internal/PendingTra
 import { WalletConnectStateManager } from 'core/managers/internal/WalletConnectStateManager/WalletConnectStateManager';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import { getAccountProvider } from 'core/providers/helpers/accountProvider';
-import {
-  getModalHandlers,
-  getWalletConnectHandlers
-} from 'core/providers/strategies/helpers';
+import { getPendingTransactionsHandlers } from 'core/providers/strategies/helpers';
 import {
   IProvider,
   providerLabels
@@ -111,30 +108,9 @@ export class WalletConnectProviderStrategy {
           wcURI: uri
         });
       }
-
-      this.eventBus.subscribe(
-        WalletConnectEventsEnum.CLOSE_WALLET_CONNECT_PANEL,
-        this.onClose
-      );
     }
 
     return this.buildProvider();
-  };
-
-  private onClose = () => {
-    const walletConnectManager = WalletConnectStateManager.getInstance();
-    walletConnectManager.closeAndReset();
-  };
-
-  private unsubscribeEvents = () => {
-    if (!this.eventBus) {
-      throw new Error(ProviderErrorsEnum.eventBusError);
-    }
-
-    this.eventBus.unsubscribe(
-      WalletConnectEventsEnum.CLOSE_WALLET_CONNECT_PANEL,
-      this.onClose
-    );
   };
 
   private buildProvider = () => {
@@ -181,7 +157,13 @@ export class WalletConnectProviderStrategy {
       return;
     }
 
-    const { eventBus } = await getWalletConnectHandlers();
+    const walletConnectManager = WalletConnectStateManager.getInstance();
+    await walletConnectManager.init();
+    const eventBus = await walletConnectManager.getEventBus();
+
+    if (!eventBus) {
+      throw new Error(ProviderErrorsEnum.eventBusError);
+    }
 
     this.eventBus = eventBus;
   };
@@ -291,7 +273,6 @@ export class WalletConnectProviderStrategy {
         const { address = '', signature = '' } = providerInfo ?? {};
 
         walletConnectManager.closeAndReset();
-        this.unsubscribeEvents?.();
         return { address, signature };
       } catch {
         return await reconnect();
@@ -312,7 +293,6 @@ export class WalletConnectProviderStrategy {
 
       const walletConnectManager = WalletConnectStateManager.getInstance();
       walletConnectManager.closeAndReset();
-      this.unsubscribeEvents?.();
       return { address, signature };
     } catch (error) {
       console.error(WalletConnectV2Error.userRejected, error);
@@ -325,9 +305,11 @@ export class WalletConnectProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    const { eventBus, manager, onClose } = await getModalHandlers({
-      cancelAction: this.cancelAction.bind(this)
-    });
+    const { eventBus, manager, onClose } = await getPendingTransactionsHandlers(
+      {
+        cancelAction: this.cancelAction.bind(this)
+      }
+    );
 
     eventBus.subscribe(
       PendingTransactionsEventsEnum.CLOSE_PENDING_TRANSACTIONS,

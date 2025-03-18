@@ -1,15 +1,12 @@
+import { LedgerConnectStateManager } from 'core/managers/internal/LedgerConnectStateManager/LedgerConnectStateManager';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
-import { LedgerConnectEventsEnum } from '../types';
+import { LedgerConnectEventsEnum, IEventBus } from 'lib/sdkDappCoreUi';
 import { getLedgerErrorCodes } from './getLedgerErrorCodes';
 import { getLedgerProvider } from './getLedgerProvider';
-import {
-  LedgerEventBusType,
-  LedgerConnectStateManagerType
-} from '../types/ledgerProvider.types';
 
 type InitializeLedgerProviderType = {
-  eventBus?: LedgerEventBusType;
-  manager?: LedgerConnectStateManagerType | null;
+  eventBus: IEventBus | null;
+  manager: LedgerConnectStateManager | null;
   resolve: (value: Awaited<ReturnType<typeof getLedgerProvider>>) => void;
   reject: (reason?: string) => void;
 };
@@ -27,6 +24,7 @@ export const initializeLedgerProvider = async ({
   // Calls itself to handle retry logic if the user needs to reconnect to the Ledger provider.
   const onRetry = () =>
     initializeLedgerProvider({ eventBus, manager, resolve, reject });
+
   const onCancel = () => reject('Device unavailable');
 
   try {
@@ -37,7 +35,10 @@ export const initializeLedgerProvider = async ({
     const data = await getLedgerProvider();
 
     eventBus?.unsubscribe(LedgerConnectEventsEnum.CONNECT_DEVICE, onRetry);
-    eventBus?.unsubscribe(LedgerConnectEventsEnum.CLOSE, onCancel);
+    eventBus?.unsubscribe(
+      LedgerConnectEventsEnum.CLOSE_LEDGER_CONNECT_PANEL,
+      onCancel
+    );
 
     resolve(data);
   } catch (err) {
@@ -51,6 +52,9 @@ export const initializeLedgerProvider = async ({
     });
 
     eventBus?.subscribe(LedgerConnectEventsEnum.CONNECT_DEVICE, onRetry);
-    eventBus?.subscribe(LedgerConnectEventsEnum.CLOSE, onCancel);
+    eventBus?.subscribe(
+      LedgerConnectEventsEnum.CLOSE_LEDGER_CONNECT_PANEL,
+      onCancel
+    );
   }
 };

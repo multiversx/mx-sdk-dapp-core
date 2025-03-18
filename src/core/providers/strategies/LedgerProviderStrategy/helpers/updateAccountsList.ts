@@ -1,12 +1,12 @@
 import { HWProvider } from '@multiversx/sdk-hw-provider/out';
 import BigNumber from 'bignumber.js';
+import { LedgerConnectStateManager } from 'core/managers/internal/LedgerConnectStateManager/LedgerConnectStateManager';
+import { ILedgerAccount } from 'lib/sdkDappCoreUi';
 import { ProviderErrorsEnum } from 'types';
 import { fetchAccount } from 'utils/account/fetchAccount';
-import { ILedgerAccount } from '../types';
-import { LedgerConnectStateManagerType } from '../types/ledgerProvider.types';
 
 type AccountsListType = {
-  manager: LedgerConnectStateManagerType | null;
+  manager: LedgerConnectStateManager | null;
   provider: HWProvider | null;
 };
 
