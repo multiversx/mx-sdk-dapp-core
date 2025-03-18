@@ -101,11 +101,11 @@ export class SignTransactionsStateManager {
       .filter((tx) => tx != null)
       .forEach((transaction) => {
         const initialGasPrice = transaction
-          ? transaction.getGasPrice().valueOf()
+          ? transaction.toPlainObject().gasPrice
           : 0;
         const ppu = EMPTY_PPU;
         this.updateGasPriceMap({
-          nonce: transaction?.getNonce().valueOf(),
+          nonce: transaction?.toPlainObject().nonce,
           ppu,
           initialGasPrice
         });

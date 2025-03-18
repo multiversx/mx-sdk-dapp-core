@@ -1,18 +1,11 @@
-import {
-  Transaction,
-  TransactionPayload,
-  TransactionVersion,
-  Address,
-  TokenPayment
-} from '@multiversx/sdk-core';
 import BigNumber from 'bignumber.js';
 import {
   EXTRA_GAS_LIMIT_GUARDED_TX,
   GAS_LIMIT,
   GAS_PRICE
 } from 'constants/index';
-import { ZERO } from 'lib/sdkDappUtils';
-import { stringIsFloat, stringIsInteger } from 'lib/sdkDappUtils';
+import { Transaction, Address, TransactionComputer } from 'lib/sdkCore';
+import { stringIsFloat, stringIsInteger, ZERO } from 'lib/sdkDappUtils';
 import { isGuardianTx } from 'utils/transactions/isGuardianTx';
 
 export interface CalculateFeeLimitType {
@@ -50,23 +43,24 @@ export function calculateFeeLimit({
 
   const validGasPrice = stringIsFloat(gasPrice) ? gasPrice : defaultGasPrice;
   const transaction = new Transaction({
-    nonce: 0,
-    value: TokenPayment.egldFromAmount('0'),
+    nonce: BigInt(0),
+    value: BigInt(0),
     receiver: new Address(placeholderData.to),
     sender: new Address(placeholderData.to),
-    gasPrice: parseInt(validGasPrice),
-    gasLimit: usedGasLimit,
-    data: new TransactionPayload(data.trim()),
+    gasPrice: BigInt(validGasPrice),
+    gasLimit: BigInt(usedGasLimit),
+    data: Buffer.from(data.trim()),
     chainID: chainId,
-    version: new TransactionVersion(1)
+    version: 1
   });
 
   try {
-    const bNfee = transaction.computeFee({
-      GasPerDataByte: parseInt(gasPerDataByte),
-      MinGasLimit: parseInt(minGasLimit),
-      GasPriceModifier: parseFloat(gasPriceModifier),
-      ChainID: chainId
+    const transactionComputer = new TransactionComputer();
+    const bNfee = transactionComputer.computeTransactionFee(transaction, {
+      gasPerDataByte: BigInt(gasPerDataByte),
+      minGasLimit: BigInt(minGasLimit),
+      gasPriceModifier: parseFloat(gasPriceModifier),
+      chainID: chainId
     });
     return bNfee.toString(10);
   } catch (err) {
