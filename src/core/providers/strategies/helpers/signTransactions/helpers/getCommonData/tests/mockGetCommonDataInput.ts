@@ -93,6 +93,7 @@ export const mockGetCommonDataInput = {
   },
   price: 17.82,
   address: testAddress,
+  shard: 0,
   signedIndexes: [],
   parsedTransactionsByDataField: {
     '5745474c442d613238633539@@0de0b6b3a7640000': {

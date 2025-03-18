@@ -8,15 +8,15 @@ const secondTx: IPlainTransactionObject = {
   receiver: testAddress,
   sender: testAddress,
   gasPrice: 1_000_000_000,
-  gasLimit: 50_000_000,
+  gasLimit: 500_000_000,
   data: 'TXVsdGlFU0RUTkZUVHJhbnNmZXJAMDAwMDAwMDAwMDAwMDAwMDA1MDAxMzllZDdhZTRhYTAzNzkyZTZiY2IzMzIzOTRhNDBmZTc0NmVlZmE0N2NlYkAwMkA1NzQ1NDc0YzQ0MmQ2MTMyMzg2MzM1MzlAQDBkZTBiNmIzYTc2NDAwMDBANGQ0NTU4MmQ2MTM2MzUzOTY0MzBAQGUxNzc3MDRiYzQzZjliZWUzMTA2QDYxNjQ2NDRjNjk3MTc1Njk2NDY5NzQ3OUAwZGJkMmZjMTM3YTMwMDAwQGRmMzYzZTg4NzJlZDBkOTIzNWE3',
   chainID: 'D',
   version: 1
 };
 
-describe('getGasPriceDetails', () => {
-  it('should return the correct gas price details', () => {
-    const gasPriceDetails = getPpuOptions({
+describe('getPpuOptions', () => {
+  it('should return the correct gas price options', () => {
+    const ppuOptions = getPpuOptions({
       shard: 1,
       gasStationMetadata: [
         {
@@ -36,12 +36,10 @@ describe('getGasPriceDetails', () => {
       initialGasPrice: 1_000_000_000
     });
 
-    expect(gasPriceDetails).toEqual({
-      fastGasPrice: 1_000_000_000,
-      fasterGasPrice: 1_069_824_559,
-      isFastGasPrice: false,
-      isFasterGasPrice: true,
-      areRadiosEditable: true
-    });
+    expect(ppuOptions).toEqual([
+      { label: 'Standard', value: 0 },
+      { label: 'Fast', value: 11760000 },
+      { label: 'Faster', value: 19287760 }
+    ]);
   });
 });
