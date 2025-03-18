@@ -3,6 +3,7 @@ import { getModifiedLoginToken } from './getModifiedLoginToken';
 
 interface GetAccountFromTokenType {
   address: string;
+  apiAddress: string;
   originalLoginToken?: string;
   extraInfoData: {
     multisig?: string;
@@ -13,6 +14,7 @@ interface GetAccountFromTokenType {
 export async function getAccountFromToken({
   originalLoginToken,
   extraInfoData,
+  apiAddress,
   address
 }: GetAccountFromTokenType) {
   const modifiedLoginToken = await getModifiedLoginToken({
@@ -25,7 +27,10 @@ export async function getAccountFromToken({
 
   const accountAddress = modifiedLoginToken != null ? tokenAddress : address;
 
-  const account = await fetchAccount(accountAddress);
+  const account = await fetchAccount({
+    address: accountAddress,
+    baseURL: apiAddress
+  });
 
   return {
     account,

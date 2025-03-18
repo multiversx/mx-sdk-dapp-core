@@ -14,6 +14,11 @@ export interface NetworkType {
   roundDuration: number;
   iframeWalletAddress?: string;
   websocketUrl?: string;
+  gasStationMetadata?: {
+    fast: number;
+    faster: number;
+    excellentJustLikeMoveBalance?: number;
+  }[];
 }
 
 export type CustomNetworkType = {

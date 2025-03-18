@@ -1,7 +1,11 @@
+import { Transaction } from '@multiversx/sdk-core/out';
+import { EMPTY_PPU } from 'constants/placeholders.constants';
 import { IEventBus } from 'types/manager.types';
+
 import { NftEnumType } from 'types/tokens.types';
 import {
   FungibleTransactionType,
+  ISignTransactionsModalCommonData,
   ISignTransactionsModalData,
   SignEventsEnum,
   TokenType
@@ -26,22 +30,23 @@ export class SignTransactionsStateManager<
     commonData: {
       transactionsCount: 0,
       egldLabel: '',
-      currentIndex: 0
+      currentIndex: 0,
+      ppuOptions: []
     },
     tokenTransaction: null,
     nftTransaction: null,
     sftTransaction: null
   };
 
+  private _ppuMap: Record<
+    number, // nonce
+    {
+      initialGasPrice: number;
+      ppu: ISignTransactionsModalCommonData['ppu'];
+    }
+  > = {};
+
   private data: ISignTransactionsModalData = { ...this.initialData };
-  /**
-   * An array storing the confirmed screens.
-   */
-  private _confirmedScreens: ISignTransactionsModalData[] = [];
-  /**
-   * Tracks the index of the next unsigned transaction to be processed.
-   */
-  private nextUnsignedTxIndex: number = 0;
 
   constructor(eventBus: T) {
     this.eventBus = eventBus;
@@ -53,8 +58,43 @@ export class SignTransactionsStateManager<
     this.notifyDataUpdate();
   }
 
+  public initializeGasPriceMap(transactions: Transaction[]) {
+    transactions
+      .filter((tx) => tx != null)
+      .forEach((transaction) => {
+        const initialGasPrice = transaction
+          ? transaction.getGasPrice().valueOf()
+          : 0;
+        const ppu = EMPTY_PPU;
+        this.updateGasPriceMap({
+          nonce: transaction?.getNonce().valueOf(),
+          ppu,
+          initialGasPrice
+        });
+      });
+  }
+
+  public updateGasPriceMap({
+    nonce,
+    ppu,
+    initialGasPrice
+  }: {
+    nonce: number;
+    initialGasPrice?: number;
+    ppu: ISignTransactionsModalCommonData['ppu'];
+  }) {
+    this._ppuMap[nonce] = {
+      ...this._ppuMap[nonce],
+      ppu
+    };
+    if (initialGasPrice) {
+      this._ppuMap[nonce].initialGasPrice = initialGasPrice;
+    }
+    this.updateCommonData({ ppu });
+  }
+
   public updateCommonData(
-    newCommonData: Partial<ISignTransactionsModalData['commonData']>
+    newCommonData: Partial<ISignTransactionsModalCommonData>
   ): void {
     this.data.commonData = {
       ...this.data.commonData,
@@ -65,7 +105,6 @@ export class SignTransactionsStateManager<
 
   private resetData(): void {
     this.data = { ...this.initialData };
-    this._confirmedScreens = [];
   }
 
   public closeAndReset(): void {
@@ -76,8 +115,6 @@ export class SignTransactionsStateManager<
 
   private notifyDataUpdate(): void {
     const data = { ...this.data };
-    data.commonData.nextUnsignedTxIndex = this.nextUnsignedTxIndex;
-
     this.eventBus.publish(SignEventsEnum.DATA_UPDATE, data);
   }
 
@@ -117,26 +154,7 @@ export class SignTransactionsStateManager<
     return this.data.commonData.currentIndex;
   }
 
-  public updateConfirmedTransactions() {
-    const currentScreenData = { ...this.data };
-
-    const exists = this._confirmedScreens.some(
-      (screenData) =>
-        JSON.stringify(screenData) === JSON.stringify(currentScreenData)
-    );
-
-    if (exists) {
-      return;
-    }
-
-    this._confirmedScreens.push(currentScreenData);
-  }
-
-  public get confirmedScreens() {
-    return this._confirmedScreens;
-  }
-
-  public setNextUnsignedTxIndex(index: number) {
-    this.nextUnsignedTxIndex = index;
+  public get ppuMap() {
+    return this._ppuMap;
   }
 }
