@@ -1,13 +1,13 @@
 import { Transaction } from '@multiversx/sdk-core/out';
-import BigNumber from 'bignumber.js';
 import { getEconomics } from 'apiCalls/economics/getEconomics';
+import { EMPTY_PPU } from 'constants/placeholders.constants';
 import { UITagsEnum } from 'constants/UITags.enum';
 import { SignTransactionsStateManager } from 'core/managers/internal/SignTransactionsStateManager/SignTransactionsStateManager';
 import {
   ISignTransactionsModalCommonData,
   SignEventsEnum
 } from 'core/managers/internal/SignTransactionsStateManager/types';
-import { getAddress } from 'core/methods/account/getAddress';
+import { getAccountInfo } from 'core/methods/account/getAccountInfo';
 import { getEgldLabel } from 'core/methods/network/getEgldLabel';
 import { cancelCrossWindowAction } from 'core/providers/helpers/cancelCrossWindowAction';
 import { IProvider } from 'core/providers/types/providerFactory.types';
@@ -16,6 +16,7 @@ import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
 import { createUIElement } from 'utils/createUIElement';
 import { getCommonData } from './helpers/getCommonData/getCommonData';
+import { getRecommendedGasPrice } from './helpers/getCommonData/helpers/getRecommendedGasPrice';
 import { getFeeData } from './helpers/getFeeData';
 import { getMultiEsdtTransferData } from './helpers/getMultiEsdtTransferData/getMultiEsdtTransferData';
 import { guardTransactions as getGuardedTransactions } from './helpers/guardTransactions/guardTransactions';
@@ -26,14 +27,14 @@ type SignTransactionsParamsType = {
   guardTransactions?: typeof getGuardedTransactions;
 };
 
-const DEFAULT_GAS_PRICE_MULTIPLIER = 1;
-
 export async function signTransactions({
   transactions = [],
   handleSign,
   guardTransactions = getGuardedTransactions
 }: SignTransactionsParamsType): Promise<Transaction[]> {
-  const address = getAddress();
+  const {
+    account: { address, shard }
+  } = getAccountInfo();
   const network = networkSelector(getState());
 
   const egldLabel = getEgldLabel();
@@ -57,22 +58,6 @@ export async function signTransactions({
     throw new Error('Unable to establish connection with sign screens');
   }
 
-  const getGasPrice = (currentNonce: number) => {
-    const currentValues = manager.gasPriceMap[currentNonce];
-
-    if (!currentValues) {
-      throw new Error('Gas price not found for nonce: ' + currentNonce);
-    }
-
-    const { initialGasPrice, gasPriceMultiplier } = currentValues;
-
-    const newGasPrice = new BigNumber(initialGasPrice)
-      .times(gasPriceMultiplier ?? DEFAULT_GAS_PRICE_MULTIPLIER)
-      .toNumber();
-
-    return newGasPrice;
-  };
-
   return new Promise<Transaction[]>(async (resolve, reject) => {
     const signedTransactions: Transaction[] = [];
     const economics = await getEconomics({ baseURL: network.apiAddress });
@@ -91,9 +76,10 @@ export async function signTransactions({
           currentScreenIndex,
           egldLabel,
           network,
-          gasPriceData: manager.gasPriceMap[currentNonce],
+          gasPriceData: manager.ppuMap[currentNonce],
           price,
           address,
+          shard,
           signedIndexes,
           parsedTransactionsByDataField
         });
@@ -116,18 +102,23 @@ export async function signTransactions({
         showNextScreen(currentScreenIndex - 1);
       };
 
-      const onSetGasPriceMultiplier = (
-        gasPriceMultiplier: ISignTransactionsModalCommonData['gasPriceMultiplier'] = DEFAULT_GAS_PRICE_MULTIPLIER
+      const onSetPpu = (
+        ppu: ISignTransactionsModalCommonData['ppu'] = EMPTY_PPU
       ) => {
         manager.updateGasPriceMap({
           nonce: currentNonce,
-          gasPriceMultiplier
+          ppu
         });
 
-        const newGasPrice = getGasPrice(currentNonce);
+        const plainTransaction = transaction.toPlainObject();
+
+        const newGasPrice = getRecommendedGasPrice({
+          transaction: plainTransaction,
+          gasPriceData: manager.ppuMap[currentNonce]
+        });
 
         const newTransaction = Transaction.fromPlainObject({
-          ...transaction.toPlainObject(),
+          ...plainTransaction,
           gasPrice: newGasPrice
         });
 
@@ -140,10 +131,8 @@ export async function signTransactions({
           feeLimit: feeData.feeLimitFormatted,
           feeInFiatLimit: feeData.feeInFiatLimit,
           gasPrice: newGasPrice.toString(),
-          gasPriceMultiplier
+          ppu
         });
-
-        manager.updateCommonData({ gasPriceMultiplier });
       };
 
       const onCancel = async () => {
@@ -156,10 +145,7 @@ export async function signTransactions({
         eventBus.unsubscribe(SignEventsEnum.CONFIRM, onSign);
         eventBus.unsubscribe(SignEventsEnum.CLOSE, onCancel);
         eventBus.unsubscribe(SignEventsEnum.BACK, onBack);
-        eventBus.unsubscribe(
-          SignEventsEnum.SET_GAS_PRICE_MULTIPLIER,
-          onSetGasPriceMultiplier
-        );
+        eventBus.unsubscribe(SignEventsEnum.SET_PPU, onSetPpu);
       }
 
       async function onSign() {
@@ -179,12 +165,10 @@ export async function signTransactions({
           throw new Error('Current nonce not found');
         }
 
-        const { initialGasPrice, gasPriceMultiplier } =
-          manager.gasPriceMap[txNonce];
-
-        const newGasPrice = new BigNumber(initialGasPrice)
-          .times(gasPriceMultiplier ?? DEFAULT_GAS_PRICE_MULTIPLIER)
-          .toNumber();
+        const newGasPrice = getRecommendedGasPrice({
+          transaction: currentEditedTransaction.toPlainObject(),
+          gasPriceData: manager.ppuMap[txNonce]
+        });
 
         const transactionToSign = Transaction.fromPlainObject({
           ...currentEditedTransaction.toPlainObject(),
@@ -199,11 +183,13 @@ export async function signTransactions({
             signedTransactions.push(signedTransaction[0]);
           }
 
-          const areAllSigned =
-            currentScreenIndex === allTransactions.length &&
-            signedTransactions.length == transactions.length;
+          const isLastScreen =
+            currentScreenIndex === allTransactions.length - 1;
 
-          if (areAllSigned) {
+          const areAllTransactionsSigned =
+            signedTransactions.length === transactions.length;
+
+          if (isLastScreen && areAllTransactionsSigned) {
             const optionallyGuardedTransactions =
               await guardTransactions(signedTransactions);
             signModalElement.remove();
@@ -221,10 +207,7 @@ export async function signTransactions({
       eventBus.subscribe(SignEventsEnum.CONFIRM, onSign);
       eventBus.subscribe(SignEventsEnum.CLOSE, onCancel);
       eventBus.subscribe(SignEventsEnum.BACK, onBack);
-      eventBus.subscribe(
-        SignEventsEnum.SET_GAS_PRICE_MULTIPLIER,
-        onSetGasPriceMultiplier
-      );
+      eventBus.subscribe(SignEventsEnum.SET_PPU, onSetPpu);
     };
 
     showNextScreen(0);

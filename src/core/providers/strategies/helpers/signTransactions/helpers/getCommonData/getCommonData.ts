@@ -1,4 +1,3 @@
-import BigNumber from 'bignumber.js';
 import { getPersistedTokenDetails } from 'apiCalls/tokens/getPersistedTokenDetails';
 import { MULTI_TRANSFER_EGLD_TOKEN } from 'constants/mvx.constants';
 import {
@@ -16,10 +15,10 @@ import { getFeeData } from '../getFeeData';
 import { getUsdValue } from '../getUsdValue';
 import { getExtractTransactionsInfo } from './helpers/getExtractTransactionsInfo';
 import { getHighlight } from './helpers/getHighlight';
+import { getPpuOptions } from './helpers/getPpuOptions';
+import { getRecommendedGasPrice } from './helpers/getRecommendedGasPrice';
 import { getScCall } from './helpers/getScCall';
 import { getTokenType } from './helpers/getTokenType';
-
-const DEFAULT_GAS_PRICE_MULTIPLIER = 1;
 
 export type GetCommonDataPropsType = {
   allTransactions: MultiSignTransactionType[];
@@ -29,10 +28,11 @@ export type GetCommonDataPropsType = {
   signedIndexes: number[];
   egldLabel: string;
   address: string;
+  shard?: number;
   parsedTransactionsByDataField: Record<string, TransactionDataTokenType>;
   gasPriceData: {
     initialGasPrice: number;
-    gasPriceMultiplier: ISignTransactionsModalCommonData['gasPriceMultiplier'];
+    ppu: ISignTransactionsModalCommonData['ppu'];
   };
 };
 
@@ -44,6 +44,7 @@ export async function getCommonData({
   gasPriceData,
   price,
   address,
+  shard,
   signedIndexes = [],
   parsedTransactionsByDataField
 }: GetCommonDataPropsType) {
@@ -84,20 +85,6 @@ export async function getCommonData({
   const tokenDetails = await getPersistedTokenDetails({
     tokenId: tokenIdForTokenDetails
   });
-
-  const getGasPrice = (currentNonce: number) => {
-    if (!gasPriceData) {
-      throw new Error('Gas price not found for nonce: ' + currentNonce);
-    }
-
-    const { initialGasPrice, gasPriceMultiplier } = gasPriceData;
-
-    const newGasPrice = new BigNumber(initialGasPrice)
-      .times(gasPriceMultiplier ?? DEFAULT_GAS_PRICE_MULTIPLIER)
-      .toNumber();
-
-    return newGasPrice;
-  };
 
   const { esdtPrice, tokenDecimals, type, identifier, tokenImageUrl } =
     tokenDetails;
@@ -148,15 +135,25 @@ export async function getCommonData({
     price
   });
 
-  const currentNonce = currentTransaction.transaction?.getNonce().valueOf();
+  const ppuOptions = getPpuOptions({
+    shard,
+    initialGasPrice: gasPriceData.initialGasPrice,
+    transaction: plainTransaction,
+    gasStationMetadata: network.gasStationMetadata
+  });
+
+  const gasPrice = getRecommendedGasPrice({
+    transaction: plainTransaction,
+    gasPriceData
+  }).toString();
 
   const commonData: ISignTransactionsModalCommonData = {
     receiver: plainTransaction.receiver.toString(),
     data: currentTransaction.transaction.getData().toString(),
-    gasPrice: getGasPrice(currentNonce).toString(),
+    gasPrice,
     gasLimit: plainTransaction.gasLimit.toString(),
-    gasPriceMultiplier:
-      gasPriceData.gasPriceMultiplier ?? DEFAULT_GAS_PRICE_MULTIPLIER,
+    ppu: gasPriceData.ppu,
+    ppuOptions,
     egldLabel,
     tokenType: getTokenType(type),
     feeLimit: feeLimitFormatted,
