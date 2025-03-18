@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 - [Migrate modals to side panel](https://github.com/multiversx/mx-sdk-dapp-core/pull/122)
+
+## [[0.0.0-alpha.16](https://github.com/multiversx/mx-sdk-dapp-core/pull/124)] - 2025-03-18
+
+- [Fixed sdk-core version](https://github.com/multiversx/mx-sdk-dapp-core/pull/123)
 - [Added gasStationMetadata](https://github.com/multiversx/mx-sdk-dapp-core/pull/121)
 - [Updated address validation](https://github.com/multiversx/mx-sdk-dapp-core/pull/120)
 - [Added gasPrice editing](https://github.com/multiversx/mx-sdk-dapp-core/pull/116)
