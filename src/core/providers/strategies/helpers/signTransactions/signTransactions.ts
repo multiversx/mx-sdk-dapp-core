@@ -183,9 +183,13 @@ export async function signTransactions({
             signedTransactions.push(signedTransaction[0]);
           }
 
-          const areAllSigned =
-            currentScreenIndex === allTransactions.length &&
-            signedTransactions.length == transactions.length;
+          const isLastScreen =
+            currentScreenIndex === allTransactions.length - 1;
+
+          const areAllTransactionsSigned =
+            signedTransactions.length === transactions.length;
+
+          const areAllSigned = isLastScreen && areAllTransactionsSigned;
 
           if (areAllSigned) {
             const optionallyGuardedTransactions =
