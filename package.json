@@ -1,6 +1,6 @@
 {
   "name": "@multiversx/sdk-dapp-core",
-  "version": "0.0.0-alpha.15",
+  "version": "0.0.0-alpha.16",
   "main": "out/index.js",
   "module": "out/index.js",
   "types": "out/index.d.ts",
@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "@lifeomic/axios-fetch": "3.0.1",
-    "@multiversx/sdk-core": ">= 13.17.1",
+    "@multiversx/sdk-core": ">= 13.17.1 < 14.0.0",
     "@multiversx/sdk-dapp-utils": ">= 1.0.6",
     "@multiversx/sdk-extension-provider": "4.0.0",
     "@multiversx/sdk-hw-provider": "7.1.0-beta.0",
@@ -54,7 +54,7 @@
     "zustand": "4.4.7"
   },
   "peerDependencies": {
-    "@multiversx/sdk-core": ">= 13.17.1",
+    "@multiversx/sdk-core": ">= 13.17.1 < 14.0.0",
     "@multiversx/sdk-dapp-utils": ">= 1.0.6",
     "axios": ">=1.6.5",
     "bignumber.js": "9.x"
