@@ -189,9 +189,7 @@ export async function signTransactions({
           const areAllTransactionsSigned =
             signedTransactions.length === transactions.length;
 
-          const areAllSigned = isLastScreen && areAllTransactionsSigned;
-
-          if (areAllSigned) {
+          if (isLastScreen && areAllTransactionsSigned) {
             const optionallyGuardedTransactions =
               await guardTransactions(signedTransactions);
             signModalElement.remove();
