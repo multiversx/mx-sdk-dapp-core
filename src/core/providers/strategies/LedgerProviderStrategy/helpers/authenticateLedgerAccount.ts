@@ -1,7 +1,8 @@
 import { HWProvider } from '@multiversx/sdk-hw-provider/out';
 import { LedgerConnectStateManager } from 'core/managers/internal/LedgerConnectStateManager/LedgerConnectStateManager';
+import { LedgerConnectEventsEnum } from 'core/managers/internal/LedgerConnectStateManager/types';
 import { ProviderTypeEnum } from 'core/providers/types/providerFactory.types';
-import { IEventBus, LedgerConnectEventsEnum } from 'lib/sdkDappCoreUi';
+import { IEventBus } from 'lib/sdkDappCoreUi';
 import { setLedgerAccount } from 'store/actions';
 import { setLedgerLogin } from 'store/actions/loginInfo/loginInfoActions';
 import { ProviderErrorsEnum } from 'types';

@@ -3,7 +3,11 @@ import {
   WalletConnectEventsEnum,
   IWalletConnectModalData
 } from 'core/providers/strategies/WalletConnectProviderStrategy/types';
-import { WalletConnectPanel, IEventBus } from 'lib/sdkDappCoreUi';
+import {
+  WalletConnectPanel,
+  IEventBus,
+  WalletConnect
+} from 'lib/sdkDappCoreUi';
 import { ProviderErrorsEnum } from 'types/provider.types';
 import { createUIElement } from 'utils/createUIElement';
 
@@ -13,7 +17,7 @@ export class WalletConnectStateManager {
   private walletConnectElement: WalletConnectPanel | null = null;
   private isCreatingElement = false;
   private isOpen = false;
-
+  private anchor?: HTMLElement;
   private initialData: IWalletConnectModalData = {
     wcURI: '',
     shouldClose: false
@@ -30,8 +34,9 @@ export class WalletConnectStateManager {
 
   private constructor() {}
 
-  public async init() {
-    await this.createWalletConnectElement();
+  public async init(anchor?: HTMLElement) {
+    this.anchor = anchor;
+    await this.createWalletConnectElement(anchor);
     await this.getEventBus();
     await this.setupEventListeners();
   }
@@ -119,16 +124,23 @@ export class WalletConnectStateManager {
     return this.eventBus;
   }
 
-  private async createWalletConnectElement(): Promise<WalletConnectPanel | null> {
+  public async createWalletConnectElement(
+    anchor: HTMLElement | undefined = this.anchor
+  ): Promise<WalletConnectPanel | null> {
     if (this.walletConnectElement) {
       return this.walletConnectElement;
     }
 
     if (!this.isCreatingElement) {
       this.isCreatingElement = true;
-      const element = await createUIElement<WalletConnectPanel>({
-        name: UITagsEnum.WALLET_CONNECT_PANEL
-      });
+      const element = anchor
+        ? await createUIElement<WalletConnectPanel>({
+            name: UITagsEnum.WALLET_CONNECT,
+            anchor
+          })
+        : await createUIElement<WalletConnect>({
+            name: UITagsEnum.WALLET_CONNECT_PANEL
+          });
 
       this.walletConnectElement = element || null;
       await this.getEventBus();

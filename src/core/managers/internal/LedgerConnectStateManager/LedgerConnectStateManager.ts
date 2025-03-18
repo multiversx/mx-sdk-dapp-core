@@ -6,13 +6,13 @@ import {
   IConnectScreenData,
   ILedgerAccount,
   ILedgerConnectPanelData,
-  LedgerConnectEventsEnum,
   LedgerConnectPanel,
   IEventBus,
   LedgerConnect
 } from 'lib/sdkDappCoreUi';
 import { ProviderErrorsEnum } from 'types/provider.types';
 import { createUIElement } from 'utils/createUIElement';
+import { LedgerConnectEventsEnum } from './types';
 
 export class LedgerConnectStateManager {
   private static instance: LedgerConnectStateManager;
@@ -20,7 +20,7 @@ export class LedgerConnectStateManager {
   private ledgerConnectElement: LedgerConnectPanel | null = null;
   private isCreatingElement = false;
   private isOpen = false;
-
+  private anchor?: HTMLElement;
   public readonly addressesPerPage = 10;
 
   private allAccounts: ILedgerAccount[] = [];
@@ -68,13 +68,16 @@ export class LedgerConnectStateManager {
 
   private constructor() {}
 
-  public async init() {
-    await this.createLedgerConnectElement();
+  public async init(anchor?: HTMLElement) {
+    this.anchor = anchor;
+    await this.createLedgerConnectElement(anchor);
     await this.getEventBus();
     await this.setupEventListeners();
   }
 
-  public async openLedgerConnect(data: ILedgerConnectPanelData) {
+  public async openLedgerConnect(
+    data: ILedgerConnectPanelData = this.initialData
+  ) {
     if (this.isOpen && this.ledgerConnectElement) {
       return;
     }
@@ -90,9 +93,16 @@ export class LedgerConnectStateManager {
     this.data = { ...this.initialData, ...data };
     this.isOpen = true;
 
-    this.eventBus.publish(LedgerConnectEventsEnum.OPEN_LEDGER_CONNECT_PANEL);
-
+    this.publishEvent(LedgerConnectEventsEnum.OPEN_LEDGER_CONNECT_PANEL);
     this.notifyDataUpdate();
+  }
+
+  private publishEvent(event: string, data?: ILedgerConnectPanelData) {
+    if (!this.eventBus) {
+      return;
+    }
+
+    this.eventBus.publish(event, data || this.data);
   }
 
   public updateAllAccounts(accounts: ILedgerAccount[]): void {
@@ -120,6 +130,8 @@ export class LedgerConnectStateManager {
     this.notifyDataUpdate();
     this.resetData();
     this.isOpen = false;
+
+    this.publishEvent(LedgerConnectEventsEnum.CLOSE_LEDGER_CONNECT_PANEL);
   }
 
   public updateConnectScreen(members: Partial<IConnectScreenData>): void {
@@ -158,7 +170,7 @@ export class LedgerConnectStateManager {
       return;
     }
 
-    this.eventBus.publish(LedgerConnectEventsEnum.DATA_UPDATE, this.data);
+    this.publishEvent(LedgerConnectEventsEnum.DATA_UPDATE, this.data);
   }
 
   public getAccountScreenData(): IAccountScreenData | null {
@@ -193,16 +205,23 @@ export class LedgerConnectStateManager {
     return this.eventBus;
   }
 
-  private async createLedgerConnectElement(): Promise<LedgerConnectPanel | null> {
+  public async createLedgerConnectElement(
+    anchor: HTMLElement | undefined = this.anchor
+  ): Promise<LedgerConnectPanel | null> {
     if (this.ledgerConnectElement) {
       return this.ledgerConnectElement;
     }
 
     if (!this.isCreatingElement) {
       this.isCreatingElement = true;
-      const element = await createUIElement<LedgerConnectPanel>({
-        name: UITagsEnum.LEDGER_CONNECT_PANEL
-      });
+      const element = anchor
+        ? await createUIElement<LedgerConnect>({
+            name: UITagsEnum.LEDGER_CONNECT,
+            anchor
+          })
+        : await createUIElement<LedgerConnectPanel>({
+            name: UITagsEnum.LEDGER_CONNECT_PANEL
+          });
 
       this.ledgerConnectElement = element || null;
       await this.getEventBus();
@@ -214,19 +233,6 @@ export class LedgerConnectStateManager {
     }
 
     return this.ledgerConnectElement;
-  }
-
-  public async createUIElement(
-    anchor?: HTMLElement
-  ): Promise<LedgerConnect | null> {
-    if (anchor) {
-      return await createUIElement<LedgerConnect>({
-        name: UITagsEnum.LEDGER_CONNECT,
-        anchor
-      });
-    }
-
-    return null;
   }
 
   private async setupEventListeners() {
@@ -247,6 +253,36 @@ export class LedgerConnectStateManager {
   private handleCloseLedgerConnect() {
     this.isOpen = false;
     this.resetData();
+  }
+
+  public subscribeToProviderInit(
+    onRetry: () => void,
+    onCancel: () => void
+  ): void {
+    if (!this.eventBus) {
+      return;
+    }
+
+    this.eventBus.subscribe(LedgerConnectEventsEnum.CONNECT_DEVICE, onRetry);
+    this.eventBus.subscribe(
+      LedgerConnectEventsEnum.CLOSE_LEDGER_CONNECT_PANEL,
+      onCancel
+    );
+  }
+
+  public unsubscribeFromProviderInit(
+    onRetry: () => void,
+    onCancel: () => void
+  ): void {
+    if (!this.eventBus) {
+      return;
+    }
+
+    this.eventBus.unsubscribe(LedgerConnectEventsEnum.CONNECT_DEVICE, onRetry);
+    this.eventBus.unsubscribe(
+      LedgerConnectEventsEnum.CLOSE_LEDGER_CONNECT_PANEL,
+      onCancel
+    );
   }
 
   public destroy() {

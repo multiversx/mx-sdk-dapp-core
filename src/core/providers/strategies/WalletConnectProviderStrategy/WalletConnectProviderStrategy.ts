@@ -5,7 +5,6 @@ import {
   SessionTypes,
   OptionalOperation
 } from '@multiversx/sdk-wallet-connect-provider/out';
-import { UITagsEnum } from 'constants/UITags.enum';
 import { safeWindow } from 'constants/window.constants';
 
 import { PendingTransactionsEventsEnum } from 'core/managers/internal/PendingTransactionsStateManager/types/pendingTransactions.types';
@@ -17,11 +16,7 @@ import {
   IProvider,
   providerLabels
 } from 'core/providers/types/providerFactory.types';
-import {
-  defineCustomElements,
-  IEventBus,
-  WalletConnect
-} from 'lib/sdkDappCoreUi';
+import { defineCustomElements, IEventBus } from 'lib/sdkDappCoreUi';
 import { logoutAction } from 'store/actions';
 import {
   chainIdSelector,
@@ -30,7 +25,6 @@ import {
 } from 'store/selectors';
 import { getState } from 'store/store';
 import { ProviderErrorsEnum } from 'types/provider.types';
-import { createUIElement } from 'utils/createUIElement';
 import {
   WalletConnectOptionalMethodsEnum,
   WalletConnectV2Provider
@@ -92,7 +86,7 @@ export class WalletConnectProviderStrategy {
       this.methods = dappMethods;
     }
 
-    if (this.eventBus && this.provider) {
+    if (this.provider) {
       const { uri = '', approval } = await this.provider.connect({
         methods: this.methods
       });
@@ -102,7 +96,7 @@ export class WalletConnectProviderStrategy {
       if (!options.anchor) {
         const walletConnectManager = WalletConnectStateManager.getInstance();
         walletConnectManager.updateWcURI(uri);
-        walletConnectManager.openWalletConnect({ wcURI: uri });
+        await walletConnectManager.openWalletConnect({ wcURI: uri });
       } else if (this.eventBus) {
         this.eventBus.publish(WalletConnectEventsEnum.DATA_UPDATE, {
           wcURI: uri
@@ -147,18 +141,8 @@ export class WalletConnectProviderStrategy {
       return;
     }
 
-    if (anchor) {
-      const modalElement = await createUIElement<WalletConnect>({
-        name: UITagsEnum.WALLET_CONNECT,
-        anchor: anchor
-      });
-
-      this.eventBus = await modalElement.getEventBus();
-      return;
-    }
-
     const walletConnectManager = WalletConnectStateManager.getInstance();
-    await walletConnectManager.init();
+    await walletConnectManager.init(anchor);
     const eventBus = await walletConnectManager.getEventBus();
 
     if (!eventBus) {

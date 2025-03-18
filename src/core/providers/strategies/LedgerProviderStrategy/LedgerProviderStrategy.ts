@@ -7,11 +7,7 @@ import { LedgerConnectStateManager } from 'core/managers/internal/LedgerConnectS
 import { getAddress } from 'core/methods/account/getAddress';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import { IProvider } from 'core/providers/types/providerFactory.types';
-import {
-  defineCustomElements,
-  IEventBus,
-  LedgerConnectEventsEnum
-} from 'lib/sdkDappCoreUi';
+import { defineCustomElements, IEventBus } from 'lib/sdkDappCoreUi';
 import { ProviderErrorsEnum } from 'types/provider.types';
 import { getLedgerProvider } from './helpers';
 import { authenticateLedgerAccount } from './helpers/authenticateLedgerAccount';
@@ -47,29 +43,29 @@ export class LedgerProviderStrategy {
     this.initialize();
     await defineCustomElements(safeWindow);
     await this.createEventBus(options?.anchor);
+    const ledgerConnectManager = LedgerConnectStateManager.getInstance();
 
-    if (!this.provider && this.eventBus) {
-      const ledgerConnectManager = LedgerConnectStateManager.getInstance();
-
-      const { ledgerProvider, ledgerConfig } = await new Promise<
-        Awaited<ReturnType<typeof getLedgerProvider>>
-      >((resolve, reject) =>
-        initializeLedgerProvider({
-          eventBus: this.eventBus,
-          manager: ledgerConnectManager,
-          resolve,
-          reject
-        })
-      );
-
-      this.config = ledgerConfig;
-      this.provider = ledgerProvider;
-      this._login = ledgerProvider.login.bind(ledgerProvider);
-      this._signTransactions =
-        ledgerProvider.signTransactions.bind(ledgerProvider);
-
-      this._signMessage = ledgerProvider.signMessage.bind(ledgerProvider);
+    if (!options?.anchor) {
+      await ledgerConnectManager.openLedgerConnect();
     }
+
+    const { ledgerProvider, ledgerConfig } = await new Promise<
+      Awaited<ReturnType<typeof getLedgerProvider>>
+    >((resolve, reject) =>
+      initializeLedgerProvider({
+        manager: ledgerConnectManager,
+        resolve,
+        reject
+      })
+    );
+
+    this.config = ledgerConfig;
+    this.provider = ledgerProvider;
+    this._login = ledgerProvider.login.bind(ledgerProvider);
+    this._signTransactions =
+      ledgerProvider.signTransactions.bind(ledgerProvider);
+
+    this._signMessage = ledgerProvider.signMessage.bind(ledgerProvider);
 
     return this.buildProvider();
   };
@@ -85,7 +81,6 @@ export class LedgerProviderStrategy {
     provider.login = this.login;
     provider.signMessage = this.signMessage;
 
-    await provider.init();
     return provider;
   };
 
@@ -110,26 +105,15 @@ export class LedgerProviderStrategy {
       return;
     }
 
-    if (anchor) {
-      const ledgerConnectManager = LedgerConnectStateManager.getInstance();
-      const element = await ledgerConnectManager.createUIElement(anchor);
+    const ledgerConnectManager = LedgerConnectStateManager.getInstance();
+    await ledgerConnectManager.init(anchor);
+    const eventBus = await ledgerConnectManager.getEventBus();
 
-      if (element) {
-        this.eventBus = await element.getEventBus();
-      }
-    } else {
-      const ledgerConnectManager = LedgerConnectStateManager.getInstance();
-      await ledgerConnectManager.init();
-      const eventBus = await ledgerConnectManager.getEventBus();
-
-      if (eventBus) {
-        this.eventBus = eventBus;
-      }
-    }
-
-    if (!this.eventBus) {
+    if (!eventBus) {
       throw new Error(ProviderErrorsEnum.eventBusError);
     }
+
+    this.eventBus = eventBus;
 
     return this.eventBus;
   };
@@ -161,6 +145,7 @@ export class LedgerProviderStrategy {
     }
 
     const ledgerConnectManager = LedgerConnectStateManager.getInstance();
+    await ledgerConnectManager.init();
 
     const { address, signature } = await authenticateLedgerAccount({
       options,

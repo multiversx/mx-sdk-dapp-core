@@ -7,11 +7,11 @@ export type {
   IConnectScreenData,
   ILedgerAccount,
   ILedgerConnectPanelData
-} from '@multiversx/sdk-dapp-core-ui/dist/types/components/functional/ledger-connect-components/ledger-connect.types';
-export { LedgerConnectEventsEnum } from '@multiversx/sdk-dapp-core-ui/dist/types/components/functional/ledger-connect-components/ledger-connect.types';
+} from '@multiversx/sdk-dapp-core-ui/dist/types/components/functional/ledger-connect-components/ledger-connect.types.d';
 export type { SignTransactionsPanel } from '@multiversx/sdk-dapp-core-ui/dist/components/sign-transactions-panel';
 export type { WalletConnectPanel } from '@multiversx/sdk-dapp-core-ui/dist/components/wallet-connect-panel';
 export type { WalletConnect } from '@multiversx/sdk-dapp-core-ui/dist/components/wallet-connect';
+export type { IWalletConnectPanelData } from '@multiversx/sdk-dapp-core-ui/dist/types/components/functional/wallet-connect-components/wallet-connect-panel.types.d';
 export type { PendingTransactionsPanel } from '@multiversx/sdk-dapp-core-ui/dist/components/pending-transactions-panel';
 export { type IPendingTransactionsPanelData } from '@multiversx/sdk-dapp-core-ui/dist/types/components/functional/pending-transactions-panel/pending-transactions-panel.types.d';
 export type { NotificationsFeed } from '@multiversx/sdk-dapp-core-ui/dist/components/notifications-feed';
