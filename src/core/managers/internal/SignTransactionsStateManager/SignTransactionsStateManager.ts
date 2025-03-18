@@ -1,14 +1,18 @@
 import { UITagsEnum } from 'constants/UITags.enum';
 import { SignTransactionsPanel } from 'lib/sdkDappCoreUi';
+import { Transaction } from 'lib/sdkCore';
+import { EMPTY_PPU } from 'constants/placeholders.constants';
 import { IEventBus } from 'types/manager.types';
 import { ProviderErrorsEnum } from 'types/provider.types';
+
 import { NftEnumType } from 'types/tokens.types';
 import { createUIElement } from 'utils/createUIElement';
 import {
   FungibleTransactionType,
   ISignTransactionsPanelData,
   SignEventsEnum,
-  TokenType
+  TokenType,
+  ISignTransactionsPanelCommonData
 } from './types/signTransactionsPanel.types';
 
 export class SignTransactionsStateManager {
@@ -24,22 +28,23 @@ export class SignTransactionsStateManager {
     commonData: {
       transactionsCount: 0,
       egldLabel: '',
-      currentIndex: 0
+      currentIndex: 0,
+      ppuOptions: []
     },
     tokenTransaction: null,
     nftTransaction: null,
     sftTransaction: null
   };
 
+  private _ppuMap: Record<
+    number, // nonce
+    {
+      initialGasPrice: number;
+      ppu: ISignTransactionsPanelCommonData['ppu'];
+    }
+  > = {};
+
   private data: ISignTransactionsPanelData = { ...this.initialData };
-  /**
-   * An array storing the confirmed screens.
-   */
-  private _confirmedScreens: ISignTransactionsPanelData[] = [];
-  /**
-   * Tracks the index of the next unsigned transaction to be processed.
-   */
-  private nextUnsignedTxIndex: number = 0;
 
   public static getInstance(): SignTransactionsStateManager {
     if (!SignTransactionsStateManager.instance) {
@@ -91,8 +96,43 @@ export class SignTransactionsStateManager {
     this.notifyDataUpdate();
   }
 
+  public initializeGasPriceMap(transactions: Transaction[]) {
+    transactions
+      .filter((tx) => tx != null)
+      .forEach((transaction) => {
+        const initialGasPrice = transaction
+          ? transaction.getGasPrice().valueOf()
+          : 0;
+        const ppu = EMPTY_PPU;
+        this.updateGasPriceMap({
+          nonce: transaction?.getNonce().valueOf(),
+          ppu,
+          initialGasPrice
+        });
+      });
+  }
+
+  public updateGasPriceMap({
+    nonce,
+    ppu,
+    initialGasPrice
+  }: {
+    nonce: number;
+    initialGasPrice?: number;
+    ppu: ISignTransactionsPanelCommonData['ppu'];
+  }) {
+    this._ppuMap[nonce] = {
+      ...this._ppuMap[nonce],
+      ppu
+    };
+    if (initialGasPrice) {
+      this._ppuMap[nonce].initialGasPrice = initialGasPrice;
+    }
+    this.updateCommonData({ ppu });
+  }
+
   public updateCommonData(
-    newCommonData: Partial<ISignTransactionsPanelData['commonData']>
+    newCommonData: Partial<ISignTransactionsPanelCommonData>
   ): void {
     this.data.commonData = {
       ...this.data.commonData,
@@ -103,7 +143,6 @@ export class SignTransactionsStateManager {
 
   private resetData(): void {
     this.data = { ...this.initialData };
-    this._confirmedScreens = [];
   }
 
   public closeAndReset(): void {
@@ -125,9 +164,8 @@ export class SignTransactionsStateManager {
     }
 
     const data = { ...this.data };
-    data.commonData.nextUnsignedTxIndex = this.nextUnsignedTxIndex;
-
     this.publishEvent(SignEventsEnum.DATA_UPDATE, data);
+    this.eventBus.publish(SignEventsEnum.DATA_UPDATE, data);
   }
 
   public updateTokenTransaction(
@@ -166,27 +204,8 @@ export class SignTransactionsStateManager {
     return this.data.commonData.currentIndex;
   }
 
-  public updateConfirmedTransactions() {
-    const currentScreenData = { ...this.data };
-
-    const exists = this._confirmedScreens.some(
-      (screenData) =>
-        JSON.stringify(screenData) === JSON.stringify(currentScreenData)
-    );
-
-    if (exists) {
-      return;
-    }
-
-    this._confirmedScreens.push(currentScreenData);
-  }
-
-  public get confirmedScreens() {
-    return this._confirmedScreens;
-  }
-
-  public setNextUnsignedTxIndex(index: number) {
-    this.nextUnsignedTxIndex = index;
+  public get ppuMap() {
+    return this._ppuMap;
   }
 
   public async getEventBus(): Promise<IEventBus<ISignTransactionsPanelData> | null> {

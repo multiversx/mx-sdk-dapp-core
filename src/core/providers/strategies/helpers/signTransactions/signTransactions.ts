@@ -1,33 +1,22 @@
 import { Transaction } from '@multiversx/sdk-core/out';
 import { getEconomics } from 'apiCalls/economics/getEconomics';
-import { getPersistedTokenDetails } from 'apiCalls/tokens/getPersistedTokenDetails';
-import {
-  GAS_PER_DATA_BYTE,
-  GAS_PRICE_MODIFIER,
-  MULTI_TRANSFER_EGLD_TOKEN
-} from 'constants/mvx.constants';
+import { EMPTY_PPU } from 'constants/placeholders.constants';
 import { SignTransactionsStateManager } from 'core/managers/internal/SignTransactionsStateManager/SignTransactionsStateManager';
 import {
-  SignEventsEnum,
-  ISignTransactionsPanelData
+  ISignTransactionsPanelCommonData,
+  SignEventsEnum
 } from 'core/managers/internal/SignTransactionsStateManager/types';
-import { getAddress } from 'core/methods/account/getAddress';
+import { getAccountInfo } from 'core/methods/account/getAccountInfo';
 import { getEgldLabel } from 'core/methods/network/getEgldLabel';
 import { cancelCrossWindowAction } from 'core/providers/helpers/cancelCrossWindowAction';
 import { IProvider } from 'core/providers/types/providerFactory.types';
-import { formatAmount } from 'lib/sdkDappUtils';
 import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
 import { ProviderErrorsEnum } from 'types/provider.types';
-import { NftEnumType } from 'types/tokens.types';
-import { calculateFeeInFiat } from './helpers/calculateFeeInFiat';
-import { calculateFeeLimit } from './helpers/calculateFeeLimit';
-import { getExtractTransactionsInfo } from './helpers/getExtractTransactionsInfo';
-import { getHighlight } from './helpers/getHighlight';
+import { getCommonData } from './helpers/getCommonData/getCommonData';
+import { getRecommendedGasPrice } from './helpers/getCommonData/helpers/getRecommendedGasPrice';
+import { getFeeData } from './helpers/getFeeData';
 import { getMultiEsdtTransferData } from './helpers/getMultiEsdtTransferData/getMultiEsdtTransferData';
-import { getScCall } from './helpers/getScCall';
-import { getTokenType } from './helpers/getTokenType';
-import { getUsdValue } from './helpers/getUsdValue';
 import { guardTransactions as getGuardedTransactions } from './helpers/guardTransactions/guardTransactions';
 
 type SignTransactionsParamsType = {
@@ -41,13 +30,17 @@ export async function signTransactions({
   handleSign,
   guardTransactions = getGuardedTransactions
 }: SignTransactionsParamsType): Promise<Transaction[]> {
-  const address = getAddress();
+  const {
+    account: { address, shard }
+  } = getAccountInfo();
   const network = networkSelector(getState());
 
   const egldLabel = getEgldLabel();
 
-  const { allTransactions, getTxInfoByDataField } =
+  const { allTransactions, parsedTransactionsByDataField } =
     getMultiEsdtTransferData(transactions);
+
+  let signedIndexes: number[] = [];
 
   const manager = SignTransactionsStateManager.getInstance();
   const eventBus = await manager.getEventBus();
@@ -62,131 +55,79 @@ export async function signTransactions({
 
   return new Promise<Transaction[]>(async (resolve, reject) => {
     const signedTransactions: Transaction[] = [];
-    let currentTransactionIndex = 0;
-    const economics = await getEconomics();
+    const economics = await getEconomics({ baseURL: network.apiAddress });
 
-    const signNextTransaction = async () => {
-      const currentTransaction = allTransactions[currentTransactionIndex];
-      const sender = currentTransaction?.transaction?.getSender().toString();
+    manager.initializeGasPriceMap(allTransactions.map((tx) => tx.transaction));
+
+    const showNextScreen = async (currentScreenIndex: number) => {
+      const currentTransaction = allTransactions[currentScreenIndex];
       const transaction = currentTransaction?.transaction;
       const price = economics?.price;
+      const currentNonce = currentTransaction.transaction?.getNonce().valueOf();
 
-      const feeLimit = calculateFeeLimit({
-        gasPerDataByte: String(GAS_PER_DATA_BYTE),
-        gasPriceModifier: String(GAS_PRICE_MODIFIER),
-        gasLimit: transaction.getGasLimit().valueOf().toString(),
-        gasPrice: transaction.getGasPrice().valueOf().toString(),
-        data: transaction.getData().toString(),
-        chainId: transaction.getChainID().valueOf()
-      });
-
-      const feeLimitFormatted = formatAmount({
-        input: feeLimit,
-        showLastNonZeroDecimal: true
-      });
-
-      const feeInFiatLimit = price
-        ? calculateFeeInFiat({
-            feeLimit,
-            egldPriceInUsd: price,
-            hideEqualSign: true
-          })
-        : null;
-
-      const extractTransactionsInfo = getExtractTransactionsInfo({
-        getTxInfoByDataField,
-        egldLabel,
-        sender,
-        address
-      });
-
-      const plainTransaction = currentTransaction.transaction.toPlainObject();
-
-      const txInfo = await extractTransactionsInfo(currentTransaction);
-
-      const isEgld = !txInfo?.transactionTokenInfo?.tokenId;
-      const {
-        tokenId,
-        nonce,
-        amount = ''
-      } = txInfo?.transactionTokenInfo ?? {};
-
-      const isNftOrSft = tokenId && nonce && nonce.length > 0;
-      const tokenIdForTokenDetails = isNftOrSft
-        ? `${tokenId}-${nonce}`
-        : tokenId;
-
-      const tokenDetails = await getPersistedTokenDetails({
-        tokenId: tokenIdForTokenDetails
-      });
-
-      const { esdtPrice, tokenDecimals, type, identifier, tokenImageUrl } =
-        tokenDetails;
-
-      const isNft =
-        type === NftEnumType.SemiFungibleESDT ||
-        type === NftEnumType.NonFungibleESDT;
-
-      if (isNft) {
-        manager.updateNonFungibleTransaction(type, {
-          identifier,
-          amount,
-          imageURL: tokenImageUrl
-        });
-      } else {
-        const getFormattedAmount = ({ addCommas }: { addCommas: boolean }) =>
-          formatAmount({
-            input: isEgld
-              ? currentTransaction.transaction.getValue().toString()
-              : amount,
-            decimals: isEgld ? Number(network.decimals) : tokenDecimals,
-            digits: Number(network.digits),
-            showLastNonZeroDecimal: false,
-            addCommas
-          });
-
-        const formattedAmount = getFormattedAmount({ addCommas: true });
-        const rawAmount = getFormattedAmount({ addCommas: false });
-        const tokenPrice = Number(isEgld ? price : esdtPrice);
-        const usdValue = getUsdValue({
-          amount: rawAmount,
-          usd: tokenPrice,
-          addEqualSign: true
+      const { commonData, tokenTransaction, fungibleTransaction } =
+        await getCommonData({
+          allTransactions,
+          currentScreenIndex,
+          egldLabel,
+          network,
+          gasPriceData: manager.ppuMap[currentNonce],
+          price,
+          address,
+          shard,
+          signedIndexes,
+          parsedTransactionsByDataField
         });
 
-        const esdtIdentifier =
-          identifier === MULTI_TRANSFER_EGLD_TOKEN ? egldLabel : identifier;
-        manager.updateTokenTransaction({
-          identifier: esdtIdentifier ?? egldLabel,
-          amount: formattedAmount,
-          usdValue
-        });
+      if (tokenTransaction) {
+        manager.updateTokenTransaction(tokenTransaction);
       }
 
-      const commonData: ISignTransactionsPanelData['commonData'] = {
-        receiver: plainTransaction.receiver.toString(),
-        data: currentTransaction.transaction.getData().toString(),
-        egldLabel,
-        tokenType: getTokenType(type),
-        feeLimit: feeLimitFormatted,
-        feeInFiatLimit,
-        transactionsCount: allTransactions.length,
-        currentIndex: currentTransactionIndex,
-        highlight: getHighlight(txInfo?.transactionTokenInfo),
-        scCall: getScCall(txInfo?.transactionTokenInfo)
-      };
+      if (fungibleTransaction) {
+        manager.updateNonFungibleTransaction(
+          fungibleTransaction.type,
+          fungibleTransaction
+        );
+      }
 
       manager.updateCommonData(commonData);
-      manager.updateConfirmedTransactions();
 
-      const onPreviousTransaction = async () => {
-        const data = manager.confirmedScreens[manager.currentScreenIndex - 1];
-        manager.updateData(data);
+      const onBack = () => {
+        removeEvents();
+        showNextScreen(currentScreenIndex - 1);
       };
 
-      const onNextTransaction = async () => {
-        const data = manager.confirmedScreens[manager.currentScreenIndex + 1];
-        manager.updateData(data);
+      const onSetPpu = (
+        ppu: ISignTransactionsPanelCommonData['ppu'] = EMPTY_PPU
+      ) => {
+        manager.updateGasPriceMap({
+          nonce: currentNonce,
+          ppu
+        });
+
+        const plainTransaction = transaction.toPlainObject();
+
+        const newGasPrice = getRecommendedGasPrice({
+          transaction: plainTransaction,
+          gasPriceData: manager.ppuMap[currentNonce]
+        });
+
+        const newTransaction = Transaction.fromPlainObject({
+          ...plainTransaction,
+          gasPrice: newGasPrice
+        });
+
+        const feeData = getFeeData({
+          transaction: newTransaction,
+          price
+        });
+
+        manager.updateCommonData({
+          feeLimit: feeData.feeLimitFormatted,
+          feeInFiatLimit: feeData.feeInFiatLimit,
+          gasPrice: newGasPrice.toString(),
+          ppu
+        });
       };
 
       const onCancel = async () => {
@@ -195,52 +136,62 @@ export async function signTransactions({
         manager.closeAndReset();
       };
 
-      const onSign = async () => {
-        const shouldContinueWithoutSigning = Boolean(
-          txInfo?.transactionTokenInfo?.type &&
-            txInfo?.transactionTokenInfo?.multiTxData &&
-            !txInfo?.dataField.endsWith(
-              txInfo?.transactionTokenInfo?.multiTxData
-            )
-        );
-
-        const removeEvents = () => {
-          eventBus.unsubscribe(SignEventsEnum.SIGN_TRANSACTION, onSign);
-          eventBus.unsubscribe(
-            SignEventsEnum.CLOSE_SIGN_TRANSACTIONS_PANEL,
-            onCancel
-          );
-          eventBus.unsubscribe(
-            SignEventsEnum.PREV_TRANSACTION,
-            onPreviousTransaction
-          );
-          eventBus.unsubscribe(
-            SignEventsEnum.NEXT_TRANSACTION,
-            onNextTransaction
-          );
-        };
-
-        if (shouldContinueWithoutSigning) {
-          currentTransactionIndex++;
-          removeEvents();
-          manager.setNextUnsignedTxIndex(currentTransactionIndex);
-          return signNextTransaction();
+      function removeEvents() {
+        if (!eventBus) {
+          return;
         }
 
+        eventBus.unsubscribe(SignEventsEnum.CONFIRM, onSign);
+        eventBus.unsubscribe(
+          SignEventsEnum.CLOSE_SIGN_TRANSACTIONS_PANEL,
+          onCancel
+        );
+        eventBus.unsubscribe(SignEventsEnum.BACK, onBack);
+        eventBus.unsubscribe(SignEventsEnum.SET_PPU, onSetPpu);
+      }
+
+      async function onSign() {
+        const shouldContinueWithoutSigning = !commonData.needsSigning;
+
+        removeEvents();
+
+        if (shouldContinueWithoutSigning) {
+          return showNextScreen(currentScreenIndex + 1);
+        }
+
+        const currentEditedTransaction = currentTransaction.transaction;
+
+        const txNonce = currentEditedTransaction.getNonce().valueOf();
+
+        if (!currentNonce) {
+          throw new Error('Current nonce not found');
+        }
+
+        const newGasPrice = getRecommendedGasPrice({
+          transaction: currentEditedTransaction.toPlainObject(),
+          gasPriceData: manager.ppuMap[txNonce]
+        });
+
+        const transactionToSign = Transaction.fromPlainObject({
+          ...currentEditedTransaction.toPlainObject(),
+          gasPrice: newGasPrice
+        });
+
         try {
-          const signedTransaction = await handleSign([
-            currentTransaction.transaction
-          ]);
+          const signedTransaction = await handleSign([transactionToSign]);
 
           if (signedTransaction) {
+            signedIndexes.push(currentScreenIndex);
             signedTransactions.push(signedTransaction[0]);
           }
 
-          removeEvents();
+          const isLastScreen =
+            currentScreenIndex === allTransactions.length - 1;
 
-          const areAllSigned = signedTransactions.length == transactions.length;
+          const areAllTransactionsSigned =
+            signedTransactions.length === transactions.length;
 
-          if (areAllSigned) {
+          if (isLastScreen && areAllTransactionsSigned) {
             const optionallyGuardedTransactions =
               await guardTransactions(signedTransactions);
             manager.closeAndReset();
@@ -248,28 +199,23 @@ export async function signTransactions({
             return resolve(optionallyGuardedTransactions);
           }
 
-          currentTransactionIndex++;
-          manager.setNextUnsignedTxIndex(currentTransactionIndex);
-          signNextTransaction();
+          showNextScreen(currentScreenIndex + 1);
         } catch (error) {
           removeEvents();
           manager.closeAndReset();
           reject(error);
         }
-      };
+      }
 
-      eventBus.subscribe(SignEventsEnum.SIGN_TRANSACTION, onSign);
+      eventBus.subscribe(SignEventsEnum.CONFIRM, onSign);
       eventBus.subscribe(
         SignEventsEnum.CLOSE_SIGN_TRANSACTIONS_PANEL,
         onCancel
       );
-      eventBus.subscribe(
-        SignEventsEnum.PREV_TRANSACTION,
-        onPreviousTransaction
-      );
-      eventBus.subscribe(SignEventsEnum.NEXT_TRANSACTION, onNextTransaction);
+      eventBus.subscribe(SignEventsEnum.BACK, onBack);
+      eventBus.subscribe(SignEventsEnum.SET_PPU, onSetPpu);
     };
 
-    signNextTransaction();
+    showNextScreen(0);
   });
 }

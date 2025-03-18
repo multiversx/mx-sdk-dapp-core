@@ -4,8 +4,14 @@ import { TIMEOUT } from 'constants/index';
 import { ScamInfoType } from 'types/account.types';
 import { ACCOUNTS_ENDPOINT } from '../endpoints';
 
-export async function getScamAddressData(addressToVerify: string) {
-  const apiAddress = getCleanApiAddress();
+export async function getScamAddressData({
+  addressToVerify,
+  baseURL
+}: {
+  addressToVerify: string;
+  baseURL: string;
+}) {
+  const apiAddress = getCleanApiAddress(baseURL);
 
   const { data } = await axios.get<{
     scamInfo?: ScamInfoType;

@@ -1,4 +1,5 @@
-import { EsdtEnumType, NftEnumType } from 'types/tokens.types';
+// types here need to be synced with the types in sdk-dapp-core-ui sign-transactions-modal.types.ts
+import type { EsdtEnumType, NftEnumType } from 'types/tokens.types';
 
 export interface ITransactionData {
   receiver?: string;
@@ -12,23 +13,37 @@ export type FungibleTransactionType = {
   imageURL: string;
 };
 
-export type TokenType = NftEnumType | EsdtEnumType;
+export type TokenType = EsdtEnumType | NftEnumType;
+
+export interface ISignTransactionsPanelCommonData {
+  receiver?: string;
+  data?: string;
+  gasPrice?: string;
+  /**
+   * ppu - Price Per Unit
+   * a constant that is used to calculate the gas price inside `recommendGasPrice`
+   */
+  ppu?: number;
+  ppuOptions: {
+    label: string;
+    value: number;
+  }[];
+  gasLimit?: string;
+  transactionsCount: number;
+  tokenType?: TokenType;
+  egldLabel: string;
+  feeLimit?: string;
+  feeInFiatLimit?: string | null;
+  currentIndex: number;
+  needsSigning?: boolean;
+  isEditable?: boolean;
+  highlight?: string | null;
+  scCall?: string | null;
+}
 
 export interface ISignTransactionsPanelData {
   shouldClose?: true;
-  commonData: {
-    receiver?: string;
-    data?: string;
-    transactionsCount: number;
-    tokenType?: TokenType;
-    egldLabel: string;
-    feeLimit?: string;
-    feeInFiatLimit?: string | null;
-    currentIndex: number;
-    nextUnsignedTxIndex?: number;
-    highlight?: string | null;
-    scCall?: string | null;
-  };
+  commonData: ISignTransactionsPanelCommonData;
   tokenTransaction: {
     identifier?: string;
     amount: string;
@@ -39,10 +54,11 @@ export interface ISignTransactionsPanelData {
 }
 
 export enum SignEventsEnum {
-  SIGN_TRANSACTION = 'SIGN_TRANSACTION',
-  NEXT_TRANSACTION = 'NEXT_TRANSACTION',
-  PREV_TRANSACTION = 'PREV_TRANSACTION',
+  CONFIRM = 'CONFIRM', // can be sign or next
+  BACK = 'BACK',
+  CLOSE = 'CLOSE',
   DATA_UPDATE = 'DATA_UPDATE',
+  SET_PPU = 'SET_PPU',
   OPEN_SIGN_TRANSACTIONS_PANEL = 'OPEN_SIGN_TRANSACTIONS_PANEL',
   CLOSE_SIGN_TRANSACTIONS_PANEL = 'CLOSE_SIGN_TRANSACTIONS_PANEL'
 }

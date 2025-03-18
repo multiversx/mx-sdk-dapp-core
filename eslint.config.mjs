@@ -99,8 +99,8 @@ export default [
       curly: ['error', 'all'],
       'operator-linebreak': 'off',
       'function-paren-newline': 'off',
-      'no-shadow': 'off',
-      '@typescript-eslint/no-shadow': 'off'
+      'no-shadow': 'warn',
+      '@typescript-eslint/no-shadow': 'warn'
     }
   }
 ];

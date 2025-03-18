@@ -1,11 +1,14 @@
 import { getAccountFromApi } from 'apiCalls/account';
-import { getScamAddressData } from 'apiCalls/utils/getScamAddressData';
+import { getScamAddressData } from 'apiCalls/account/getScamAddressData';
 import { SigningErrorsEnum } from 'types/enums.types';
 
-import { MultiSignTransactionType } from 'types/transactions.types';
+import {
+  MultiSignTransactionType,
+  TransactionDataTokenType
+} from 'types/transactions.types';
 import { checkIsValidSender } from './checkIsValidSender';
-import { getMultiEsdtTransferData } from './getMultiEsdtTransferData/getMultiEsdtTransferData';
-import { isTokenTransfer } from './isTokenTransfer';
+import { getTxInfoByDataField } from './getTxInfoByDataField';
+import { isTokenTransfer } from '../../isTokenTransfer';
 
 interface VerifiedAddressesType {
   [address: string]: { type: string; info: string };
@@ -13,19 +16,19 @@ interface VerifiedAddressesType {
 let verifiedAddresses: VerifiedAddressesType = {};
 
 type ExtractTransactionsInfoType = {
-  getTxInfoByDataField: ReturnType<
-    typeof getMultiEsdtTransferData
-  >['getTxInfoByDataField'];
   sender: string;
   address: string;
+  apiAddress: string;
   egldLabel: string;
+  parsedTransactionsByDataField: Record<string, TransactionDataTokenType>;
 };
 
 export function getExtractTransactionsInfo({
-  getTxInfoByDataField,
   egldLabel,
+  apiAddress,
   sender,
-  address
+  address,
+  parsedTransactionsByDataField
 }: ExtractTransactionsInfoType) {
   const extractTransactionsInfo = async (
     currentTx: MultiSignTransactionType
@@ -35,14 +38,20 @@ export function getExtractTransactionsInfo({
     }
 
     const senderAccount =
-      !sender || sender === address ? null : await getAccountFromApi(sender);
+      !sender || sender === address
+        ? null
+        : await getAccountFromApi({
+            address: sender,
+            baseURL: apiAddress
+          });
 
     const { transaction, multiTxData, transactionIndex } = currentTx;
     const dataField = transaction.getData().toString();
-    const transactionTokenInfo = getTxInfoByDataField(
-      transaction.getData().toString(),
-      multiTxData
-    );
+    const transactionTokenInfo = getTxInfoByDataField({
+      data: transaction.getData().toString(),
+      multiTransactionData: multiTxData,
+      parsedTransactionsByDataField
+    });
 
     const { tokenId } = transactionTokenInfo;
     const receiver = transaction.getReceiver().toString();
@@ -60,7 +69,10 @@ export function getExtractTransactionsInfo({
     const verified = receiver in verifiedAddresses;
 
     if (receiver && notSender && !verified) {
-      const data = await getScamAddressData(receiver);
+      const data = await getScamAddressData({
+        addressToVerify: receiver,
+        baseURL: apiAddress
+      });
       verifiedAddresses = {
         ...verifiedAddresses,
         ...(data?.scamInfo ? { [receiver]: data.scamInfo } : {})
@@ -77,7 +89,8 @@ export function getExtractTransactionsInfo({
       transactionTokenInfo,
       isTokenTransaction,
       dataField,
-      transactionIndex
+      transactionIndex,
+      needsSigning: currentTx.needsSigning
     };
   };
   return extractTransactionsInfo;
