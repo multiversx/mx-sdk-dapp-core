@@ -81,6 +81,7 @@ export abstract class SidePanelBaseManager<TElement, TData, TEventEnum> {
 
   public async getEventBus(): Promise<IEventBus | null> {
     if (!this.uiElement) {
+      // Try to create the UI element again
       await this.createUIElement();
     }
 

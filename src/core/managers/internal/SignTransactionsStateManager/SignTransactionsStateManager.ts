@@ -59,7 +59,9 @@ export class SignTransactionsStateManager extends SidePanelBaseManager<
     this.resetData();
   }
 
-  public async openSignTransactions(data: ISignTransactionsPanelData) {
+  public async openSignTransactions(
+    data: ISignTransactionsPanelData = this.data
+  ) {
     await this.openUI(data);
   }
 
