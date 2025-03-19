@@ -1,32 +1,34 @@
-import { Transaction } from '@multiversx/sdk-core/out';
 import { EMPTY_PPU } from 'constants/placeholders.constants';
-import { IEventBus } from 'types/manager.types';
-
+import { UITagsEnum } from 'constants/UITags.enum';
+import { Transaction } from 'lib/sdkCore';
+import { SignTransactionsPanel } from 'lib/sdkDappCoreUi';
 import { NftEnumType } from 'types/tokens.types';
 import {
   FungibleTransactionType,
-  ISignTransactionsModalCommonData,
-  ISignTransactionsModalData,
+  ISignTransactionsPanelData,
   SignEventsEnum,
-  TokenType
-} from './types/signTransactionsModal.types';
+  TokenType,
+  ISignTransactionsPanelCommonData
+} from './types/signTransactionsPanel.types';
+import { SidePanelBaseManager } from '../../SidePanelBaseManager/SidePanelBaseManager';
 
-const notInitializedError = () => new Error('Event bus not initialized');
-
-export class SignTransactionsStateManager<
-  T extends
-    IEventBus<ISignTransactionsModalData> = IEventBus<ISignTransactionsModalData>
+export class SignTransactionsStateManager extends SidePanelBaseManager<
+  SignTransactionsPanel,
+  ISignTransactionsPanelData,
+  SignEventsEnum
 > {
+  private static instance: SignTransactionsStateManager;
   public readonly addressesPerPage = 10;
 
-  private eventBus: T = {
-    publish: notInitializedError,
-    subscribe: notInitializedError,
-    unsubscribe: notInitializedError
-  } as unknown as T;
+  private _ppuMap: Record<
+    number, // nonce
+    {
+      initialGasPrice: number;
+      ppu: ISignTransactionsPanelCommonData['ppu'];
+    }
+  > = {};
 
-  // whole data to be sent on update events
-  private initialData: ISignTransactionsModalData = {
+  protected initialData: ISignTransactionsPanelData = {
     commonData: {
       transactionsCount: 0,
       egldLabel: '',
@@ -38,24 +40,29 @@ export class SignTransactionsStateManager<
     sftTransaction: null
   };
 
-  private _ppuMap: Record<
-    number, // nonce
-    {
-      initialGasPrice: number;
-      ppu: ISignTransactionsModalCommonData['ppu'];
+  protected data: ISignTransactionsPanelData = { ...this.initialData };
+
+  public static getInstance(): SignTransactionsStateManager {
+    if (!SignTransactionsStateManager.instance) {
+      SignTransactionsStateManager.instance =
+        new SignTransactionsStateManager();
     }
-  > = {};
+    return SignTransactionsStateManager.instance;
+  }
 
-  private data: ISignTransactionsModalData = { ...this.initialData };
+  constructor() {
+    super();
+  }
 
-  constructor(eventBus: T) {
-    this.eventBus = eventBus;
+  public async init() {
+    await super.init();
     this.resetData();
   }
 
-  public updateData(newData: ISignTransactionsModalData) {
-    this.data = { ...newData };
-    this.notifyDataUpdate();
+  public async openSignTransactions(
+    data: ISignTransactionsPanelData = this.data
+  ) {
+    await this.openUI(data);
   }
 
   public initializeGasPriceMap(transactions: Transaction[]) {
@@ -81,7 +88,7 @@ export class SignTransactionsStateManager<
   }: {
     nonce: number;
     initialGasPrice?: number;
-    ppu: ISignTransactionsModalCommonData['ppu'];
+    ppu: ISignTransactionsPanelCommonData['ppu'];
   }) {
     this._ppuMap[nonce] = {
       ...this._ppuMap[nonce],
@@ -94,7 +101,7 @@ export class SignTransactionsStateManager<
   }
 
   public updateCommonData(
-    newCommonData: Partial<ISignTransactionsModalCommonData>
+    newCommonData: Partial<ISignTransactionsPanelCommonData>
   ): void {
     this.data.commonData = {
       ...this.data.commonData,
@@ -103,23 +110,8 @@ export class SignTransactionsStateManager<
     this.notifyDataUpdate();
   }
 
-  private resetData(): void {
-    this.data = { ...this.initialData };
-  }
-
-  public closeAndReset(): void {
-    this.data.shouldClose = true;
-    this.notifyDataUpdate();
-    this.resetData();
-  }
-
-  private notifyDataUpdate(): void {
-    const data = { ...this.data };
-    this.eventBus.publish(SignEventsEnum.DATA_UPDATE, data);
-  }
-
   public updateTokenTransaction(
-    tokenData: ISignTransactionsModalData['tokenTransaction']
+    tokenData: ISignTransactionsPanelData['tokenTransaction']
   ): void {
     this.data.tokenTransaction = tokenData;
     this.data.sftTransaction = null;
@@ -156,5 +148,32 @@ export class SignTransactionsStateManager<
 
   public get ppuMap() {
     return this._ppuMap;
+  }
+
+  protected getUIElementName(): UITagsEnum {
+    return UITagsEnum.SIGN_TRANSACTIONS_PANEL;
+  }
+
+  protected getOpenEventName(): SignEventsEnum {
+    return SignEventsEnum.OPEN_SIGN_TRANSACTIONS_PANEL;
+  }
+
+  protected getCloseEventName(): SignEventsEnum {
+    return SignEventsEnum.CLOSE_SIGN_TRANSACTIONS_PANEL;
+  }
+
+  protected getDataUpdateEventName(): SignEventsEnum {
+    return SignEventsEnum.DATA_UPDATE;
+  }
+
+  protected async setupEventListeners() {
+    if (!this.eventBus) {
+      return;
+    }
+
+    this.eventBus.subscribe(
+      SignEventsEnum.CLOSE_SIGN_TRANSACTIONS_PANEL,
+      this.handleCloseUI.bind(this)
+    );
   }
 }

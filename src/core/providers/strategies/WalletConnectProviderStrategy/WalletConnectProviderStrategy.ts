@@ -5,18 +5,18 @@ import {
   SessionTypes,
   OptionalOperation
 } from '@multiversx/sdk-wallet-connect-provider/out';
-import { UITagsEnum } from 'constants/UITags.enum';
 import { safeWindow } from 'constants/window.constants';
 
 import { PendingTransactionsEventsEnum } from 'core/managers/internal/PendingTransactionsStateManager/types/pendingTransactions.types';
 import { WalletConnectStateManager } from 'core/managers/internal/WalletConnectStateManager/WalletConnectStateManager';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import { getAccountProvider } from 'core/providers/helpers/accountProvider';
+import { getPendingTransactionsHandlers } from 'core/providers/strategies/helpers';
 import {
   IProvider,
   providerLabels
 } from 'core/providers/types/providerFactory.types';
-import { defineCustomElements, WalletConnectModal } from 'lib/sdkDappCoreUi';
+import { defineCustomElements, IEventBus } from 'lib/sdkDappCoreUi';
 import { logoutAction } from 'store/actions';
 import {
   chainIdSelector,
@@ -24,9 +24,7 @@ import {
   walletConnectConfigSelector
 } from 'store/selectors';
 import { getState } from 'store/store';
-import { IEventBus } from 'types/manager.types';
 import { ProviderErrorsEnum } from 'types/provider.types';
-import { createUIElement } from 'utils/createUIElement';
 import {
   WalletConnectOptionalMethodsEnum,
   WalletConnectV2Provider
@@ -34,10 +32,8 @@ import {
 import {
   WalletConnectEventsEnum,
   WalletConnectV2Error,
-  WalletConnectConfig,
-  IWalletConnectModalData
+  WalletConnectConfig
 } from './types';
-import { getModalHandlers } from '../helpers/getModalHandlers';
 import { signMessage } from '../helpers/signMessage/signMessage';
 
 const dappMethods: string[] = [
@@ -49,11 +45,7 @@ export class WalletConnectProviderStrategy {
   private provider: WalletConnectV2Provider | null = null;
   private config: WalletConnectConfig | undefined;
   private methods: string[] = [];
-  private manager: WalletConnectStateManager<
-    IEventBus<IWalletConnectModalData>
-  > | null = null;
   private approval: (() => Promise<SessionTypes.Struct>) | null = null;
-  private unsubscribeEvents: (() => void) | null = null;
   private _login:
     | ((options?: {
         approval?: () => Promise<SessionTypes.Struct>;
@@ -64,6 +56,7 @@ export class WalletConnectProviderStrategy {
     | ((transactions: Transaction[]) => Promise<Transaction[]>)
     | null = null;
   private _signMessage: ((message: Message) => Promise<Message>) | null = null;
+  private eventBus: IEventBus | null = null;
 
   constructor(config?: WalletConnectConfig) {
     this.config = config;
@@ -74,13 +67,7 @@ export class WalletConnectProviderStrategy {
   }): Promise<IProvider> => {
     this.initialize();
     await defineCustomElements(safeWindow);
-
-    const eventBus = await this.createEventBus(options.anchor);
-
-    if (eventBus) {
-      const manager = new WalletConnectStateManager(eventBus);
-      this.manager = manager;
-    }
+    await this.createEventBus(options.anchor);
 
     if (!this.provider && this.config) {
       const { walletConnectProvider, dappMethods } =
@@ -99,31 +86,22 @@ export class WalletConnectProviderStrategy {
       this.methods = dappMethods;
     }
 
-    const onClose = () => {
-      if (!this.manager) {
-        throw new Error('State manager is not initialized');
-      }
-
-      this.manager.closeAndReset();
-    };
-
-    this.unsubscribeEvents = () => {
-      if (!eventBus) {
-        throw new Error(ProviderErrorsEnum.eventBusError);
-      }
-
-      eventBus.unsubscribe(WalletConnectEventsEnum.CLOSE, onClose);
-    };
-
-    if (eventBus && this.manager && this.provider) {
+    if (this.provider) {
       const { uri = '', approval } = await this.provider.connect({
         methods: this.methods
       });
 
       this.approval = approval;
-      this.manager.updateWcURI(uri);
 
-      eventBus.subscribe(WalletConnectEventsEnum.CLOSE, onClose);
+      if (!options.anchor) {
+        const walletConnectManager = WalletConnectStateManager.getInstance();
+        walletConnectManager.updateWcURI(uri);
+        await walletConnectManager.openWalletConnect({ wcURI: uri });
+      } else if (this.eventBus) {
+        this.eventBus.publish(WalletConnectEventsEnum.DATA_UPDATE, {
+          wcURI: uri
+        });
+      }
     }
 
     return this.buildProvider();
@@ -163,16 +141,15 @@ export class WalletConnectProviderStrategy {
       return;
     }
 
-    const modalElement = anchor
-      ? await createUIElement<WalletConnectModal>({
-          name: UITagsEnum.WALLET_CONNECT_MODAL
-        })
-      : await createUIElement<WalletConnectModal>({
-          name: UITagsEnum.WALLET_CONNECT_MODAL
-        });
+    const walletConnectManager = WalletConnectStateManager.getInstance();
+    await walletConnectManager.init(anchor);
+    const eventBus = await walletConnectManager.getEventBus();
 
-    const eventBus = await modalElement.getEventBus();
-    return eventBus;
+    if (!eventBus) {
+      throw new Error(ProviderErrorsEnum.eventBusError);
+    }
+
+    this.eventBus = eventBus;
   };
 
   private createWalletConnectProvider = async (config: WalletConnectConfig) => {
@@ -237,9 +214,9 @@ export class WalletConnectProviderStrategy {
     address: string;
     signature: string;
   }> => {
-    if (!this.provider || !this.manager) {
+    if (!this.provider) {
       throw new Error(
-        'Provider or manager is not initialized. Call createProvider first.'
+        'Provider is not initialized. Call createProvider first.'
       );
     }
 
@@ -253,7 +230,7 @@ export class WalletConnectProviderStrategy {
       address: string;
       signature: string;
     }> => {
-      if (!this.provider || !this.manager) {
+      if (!this.provider) {
         throw new Error(ProviderErrorsEnum.notInitialized);
       }
 
@@ -268,7 +245,9 @@ export class WalletConnectProviderStrategy {
           methods: this.methods
         });
 
-        this.manager.updateWcURI(uri);
+        const walletConnectManager = WalletConnectStateManager.getInstance();
+        walletConnectManager.updateWcURI(uri);
+        walletConnectManager.openWalletConnect({ wcURI: uri });
 
         const providerInfo = await this._login({
           approval: wcApproval,
@@ -277,8 +256,7 @@ export class WalletConnectProviderStrategy {
 
         const { address = '', signature = '' } = providerInfo ?? {};
 
-        this.manager.closeAndReset();
-        this.unsubscribeEvents?.();
+        walletConnectManager.closeAndReset();
         return { address, signature };
       } catch {
         return await reconnect();
@@ -297,8 +275,8 @@ export class WalletConnectProviderStrategy {
 
       const { address = '', signature = '' } = providerData ?? {};
 
-      this.manager.closeAndReset();
-      this.unsubscribeEvents?.();
+      const walletConnectManager = WalletConnectStateManager.getInstance();
+      walletConnectManager.closeAndReset();
       return { address, signature };
     } catch (error) {
       console.error(WalletConnectV2Error.userRejected, error);
@@ -311,11 +289,16 @@ export class WalletConnectProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    const { eventBus, manager, onClose } = await getModalHandlers({
-      cancelAction: this.cancelAction.bind(this)
-    });
+    const { eventBus, manager, onClose } = await getPendingTransactionsHandlers(
+      {
+        cancelAction: this.cancelAction.bind(this)
+      }
+    );
 
-    eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
+    eventBus.subscribe(
+      PendingTransactionsEventsEnum.CLOSE_PENDING_TRANSACTIONS,
+      onClose
+    );
 
     manager.updateData({
       isPending: true,
@@ -335,7 +318,10 @@ export class WalletConnectProviderStrategy {
       throw error;
     } finally {
       onClose(false);
-      eventBus.unsubscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
+      eventBus.unsubscribe(
+        PendingTransactionsEventsEnum.CLOSE_PENDING_TRANSACTIONS,
+        onClose
+      );
     }
   };
 

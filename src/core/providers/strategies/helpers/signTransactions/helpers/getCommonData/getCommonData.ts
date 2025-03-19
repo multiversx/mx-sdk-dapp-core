@@ -2,7 +2,7 @@ import { getPersistedTokenDetails } from 'apiCalls/tokens/getPersistedTokenDetai
 import { MULTI_TRANSFER_EGLD_TOKEN } from 'constants/mvx.constants';
 import {
   FungibleTransactionType,
-  ISignTransactionsModalCommonData
+  ISignTransactionsPanelCommonData
 } from 'core/managers/internal/SignTransactionsStateManager/types';
 import { formatAmount } from 'lib/sdkDappUtils';
 import { NetworkType } from 'types/network.types';
@@ -32,7 +32,7 @@ export type GetCommonDataPropsType = {
   parsedTransactionsByDataField: Record<string, TransactionDataTokenType>;
   gasPriceData: {
     initialGasPrice: number;
-    ppu: ISignTransactionsModalCommonData['ppu'];
+    ppu: ISignTransactionsPanelCommonData['ppu'];
   };
 };
 
@@ -147,7 +147,7 @@ export async function getCommonData({
     gasPriceData
   }).toString();
 
-  const commonData: ISignTransactionsModalCommonData = {
+  const commonData: ISignTransactionsPanelCommonData = {
     receiver: plainTransaction.receiver.toString(),
     data: currentTransaction.transaction.getData().toString(),
     gasPrice,

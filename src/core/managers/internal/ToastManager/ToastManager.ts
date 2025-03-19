@@ -1,6 +1,6 @@
 import isEqual from 'lodash.isequal';
 import { UITagsEnum } from 'constants/UITags.enum';
-import { NotificationsFeedManager } from 'core/managers/internal/NotificationsFeedManager';
+import { NotificationsFeedManager } from 'core/managers/NotificationsFeedManager/NotificationsFeedManager';
 import { ToastList } from 'lib/sdkDappCoreUi';
 import {
   customToastCloseHandlersDictionary,

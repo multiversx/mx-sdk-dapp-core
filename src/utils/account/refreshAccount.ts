@@ -1,9 +1,9 @@
 import { getAddress } from 'core/methods/account/getAddress';
 import { getLatestNonce } from 'core/methods/account/getLatestNonce';
+import { getNetworkConfig } from 'core/methods/network/getNetworkConfig';
 import { getAccountProvider } from 'core/providers/helpers/accountProvider';
 import { setAccount } from 'store/actions';
 import { fetchAccount } from './fetchAccount';
-import { getNetworkConfig } from 'core/methods/network/getNetworkConfig';
 
 const setNewAccount = async () => {
   try {
