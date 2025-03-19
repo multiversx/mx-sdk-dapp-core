@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- [Fixed handling of array data in side panel manager](https://github.com/multiversx/mx-sdk-dapp-core/pull/125)
 - [Migrate modals to side panel](https://github.com/multiversx/mx-sdk-dapp-core/pull/122)
 
 ## [[0.0.0-alpha.16](https://github.com/multiversx/mx-sdk-dapp-core/pull/124)] - 2025-03-18

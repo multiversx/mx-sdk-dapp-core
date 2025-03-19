@@ -54,9 +54,17 @@ export abstract class SidePanelBaseManager<TElement, TData, TEventEnum> {
       throw new Error(ProviderErrorsEnum.eventBusError);
     }
 
-    this.data = { ...this.getInitialData(), ...data };
-    this.isOpen = true;
+    const initialData = this.getInitialData();
 
+    if (Object.keys(data).length === 0) {
+      this.data = initialData;
+    } else if (Array.isArray(data) && Array.isArray(initialData)) {
+      this.updateDataArray([...initialData, ...data]);
+    } else {
+      this.data = { ...initialData, ...data };
+    }
+
+    this.isOpen = true;
     this.publishEvent(this.getOpenEventName());
     this.notifyDataUpdate();
   }
@@ -66,7 +74,10 @@ export abstract class SidePanelBaseManager<TElement, TData, TEventEnum> {
       return;
     }
 
-    this.data = { ...this.data, shouldClose: true } as unknown as TData;
+    if (!Array.isArray(this.data)) {
+      this.data = { ...this.data, shouldClose: true } as unknown as TData;
+    }
+
     this.notifyDataUpdate();
     this.resetData();
     this.isOpen = false;
@@ -75,7 +86,12 @@ export abstract class SidePanelBaseManager<TElement, TData, TEventEnum> {
   }
 
   public updateData(newData: Partial<TData>): void {
-    this.data = { ...this.data, ...newData };
+    if (Array.isArray(newData)) {
+      this.updateDataArray(newData);
+    } else {
+      this.data = { ...this.data, ...newData };
+    }
+
     this.notifyDataUpdate();
   }
 
@@ -161,7 +177,7 @@ export abstract class SidePanelBaseManager<TElement, TData, TEventEnum> {
     return this.initialData;
   }
 
-  protected publishEvent(event: TEventEnum, data?: TData) {
+  protected publishEvent(event: TEventEnum, data?: TData | TData[]) {
     if (!this.eventBus) {
       return;
     }
@@ -191,4 +207,8 @@ export abstract class SidePanelBaseManager<TElement, TData, TEventEnum> {
   protected abstract getCloseEventName(): TEventEnum;
   protected abstract getDataUpdateEventName(): TEventEnum;
   protected abstract setupEventListeners(): Promise<void>;
+
+  private updateDataArray(newData: TData[]): void {
+    this.data = [...newData] as unknown as TData;
+  }
 }

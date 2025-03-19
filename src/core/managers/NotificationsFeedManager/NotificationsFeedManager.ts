@@ -11,9 +11,7 @@ import { SidePanelBaseManager } from '../SidePanelBaseManager/SidePanelBaseManag
 
 export class NotificationsFeedManager extends SidePanelBaseManager<
   NotificationsFeed,
-  {
-    shouldClose?: boolean;
-  },
+  ITransactionListItem[],
   NotificationsFeedEventsEnum
 > {
   private static instance: NotificationsFeedManager;
@@ -22,9 +20,7 @@ export class NotificationsFeedManager extends SidePanelBaseManager<
   private store = getStore();
   private storeToastsUnsubscribe: () => void = () => null;
 
-  protected initialData = {
-    shouldClose: false
-  };
+  protected initialData: ITransactionListItem[] = [];
 
   public static getInstance(): NotificationsFeedManager {
     if (!NotificationsFeedManager.instance) {
@@ -35,6 +31,8 @@ export class NotificationsFeedManager extends SidePanelBaseManager<
 
   constructor() {
     super();
+    this.data = [];
+    this.initialData = [];
   }
 
   public isNotificationsFeedOpen(): boolean {
@@ -43,6 +41,8 @@ export class NotificationsFeedManager extends SidePanelBaseManager<
 
   public async init() {
     await super.init();
+    this.data = [];
+    this.initialData = [];
     await this.updateDataAndNotifications();
 
     this.storeToastsUnsubscribe = this.store.subscribe(
