@@ -1,7 +1,6 @@
-import { testAddress } from '__mocks__/accountConfig';
+import { ITransactionListItem } from 'lib/sdkDappCoreUi';
 import { getIsTransactionPending } from 'store/actions/transactions/transactionStateByStatus';
 import { TransactionServerStatusesEnum } from 'types/enums.types';
-import { SignedTransactionType } from 'types/transactions.types';
 import { createTransactionToast } from '../createTransactionToast';
 import { getToastDataStateByStatus } from '../getToastDataStateByStatus';
 import { getToastTransactionsStatus } from '../getToastTransactionsStatus';
@@ -38,18 +37,17 @@ describe('createTransactionToast', () => {
 
   const EXPLORER_ADDRESS = 'https://explorer.example.com';
 
-  const baseTransaction: SignedTransactionType = {
+  const baseTransaction: ITransactionListItem = {
+    status: TransactionServerStatusesEnum.success,
+    asset: null,
+    action: { name: 'Transfer' },
+    link: `${EXPLORER_ADDRESS}/tx/tx-hash`,
     hash: 'tx-hash',
-    sender: testAddress,
-    receiver: testAddress,
-    value: '1000000000000000000',
-    data: 'data',
-    nonce: 1,
-    gasPrice: 1000000000,
-    gasLimit: 50000,
-    chainID: '1',
-    version: 1,
-    options: 0
+    details: {
+      initiator: 'erd1...',
+      directionLabel: 'To'
+    },
+    amount: '1 EGLD'
   };
 
   beforeEach(() => {
@@ -66,7 +64,7 @@ describe('createTransactionToast', () => {
 
     const result = createTransactionToast({
       toastId: TOAST_IDS.PENDING,
-      address: testAddress,
+      address: 'erd1...',
       status: TransactionServerStatusesEnum.pending,
       transactions: [
         { ...baseTransaction, status: TransactionServerStatusesEnum.pending }
@@ -87,9 +85,8 @@ describe('createTransactionToast', () => {
       },
       transactions: [
         {
-          hash: 'tx-hash',
-          status: TransactionServerStatusesEnum.pending,
-          link: `${EXPLORER_ADDRESS}/tx/tx-hash`
+          ...baseTransaction,
+          status: TransactionServerStatusesEnum.pending
         }
       ]
     });
@@ -104,7 +101,7 @@ describe('createTransactionToast', () => {
 
     const result = createTransactionToast({
       toastId: TOAST_IDS.SUCCESS,
-      address: testAddress,
+      address: 'erd1...',
       status: TransactionServerStatusesEnum.success,
       transactions: [
         { ...baseTransaction, status: TransactionServerStatusesEnum.success }
@@ -122,9 +119,8 @@ describe('createTransactionToast', () => {
       transactionProgressState: null,
       transactions: [
         {
-          hash: 'tx-hash',
-          status: TransactionServerStatusesEnum.success,
-          link: `${EXPLORER_ADDRESS}/tx/tx-hash`
+          ...baseTransaction,
+          status: TransactionServerStatusesEnum.success
         }
       ]
     });
@@ -137,22 +133,24 @@ describe('createTransactionToast', () => {
     });
     (getToastTransactionsStatus as jest.Mock).mockReturnValue('All Completed');
 
-    const transactions = [
+    const transactions: ITransactionListItem[] = [
       {
         ...baseTransaction,
         hash: 'tx-1',
+        link: `${EXPLORER_ADDRESS}/tx/tx-1`,
         status: TransactionServerStatusesEnum.success
       },
       {
         ...baseTransaction,
         hash: 'tx-2',
+        link: `${EXPLORER_ADDRESS}/tx/tx-2`,
         status: TransactionServerStatusesEnum.success
       }
     ];
 
     const result = createTransactionToast({
       toastId: TOAST_IDS.SUCCESS,
-      address: testAddress,
+      address: 'erd1...',
       status: TransactionServerStatusesEnum.success,
       transactions,
       transactionsDisplayInfo: {

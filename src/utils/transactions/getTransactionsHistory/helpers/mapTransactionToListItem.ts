@@ -2,6 +2,8 @@ import { ITransactionListItem } from 'lib/sdkDappCoreUi';
 import { TransactionServerStatusesEnum } from 'types/enums.types';
 import { ServerTransactionType } from 'types/serverTransactions.types';
 import { IBaseTransactionParams } from 'types/transaction-list-item.types';
+import { explorerUrlBuilder } from 'utils/transactions/explorerUrlBuilder';
+import { getExplorerLink } from 'utils/transactions/getExplorerLink';
 import { getReceiverData } from 'utils/transactions/getTransactionsHistory/helpers/getReceiverData';
 import { getTransactionAction } from './getTransactionAction';
 import { getTransactionAmount } from './getTransactionAmount';
@@ -17,6 +19,7 @@ interface IMapTransactionToListItemParamsType extends IBaseTransactionParams {
 export const mapTransactionToListItem = ({
   transaction,
   address,
+  explorerAddress,
   egldLabel,
   isPending = false
 }: IMapTransactionToListItemParamsType): ITransactionListItem => {
@@ -36,6 +39,8 @@ export const mapTransactionToListItem = ({
     egldLabel
   });
 
+  const hash = transaction.originalTxHash ?? transaction.txHash;
+
   const transactionListItem: ITransactionListItem = {
     asset: getTransactionAsset({
       ...transaction,
@@ -54,6 +59,12 @@ export const mapTransactionToListItem = ({
     amount: getTransactionAmount({
       transactionAssets,
       isIncomingTransaction
+    }),
+    hash,
+    status: transaction.status as TransactionServerStatusesEnum,
+    link: getExplorerLink({
+      explorerAddress,
+      to: explorerUrlBuilder.transactionDetails(hash)
     })
   };
 

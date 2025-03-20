@@ -107,13 +107,13 @@ export class ToastManager {
   private async updateTransactionToastsList(toastList: ToastsSliceType) {
     const { transactions: sessions, account } = this.store.getState();
 
-    const { pendingTransactions } = createToastsFromTransactions({
+    const { pendingTransactionToasts } = await createToastsFromTransactions({
       toastList,
       sessions,
       account
     });
 
-    this.transactionToasts = pendingTransactions;
+    this.transactionToasts = pendingTransactionToasts;
 
     for (const toast of toastList.transactionToasts) {
       const sessionTransactions = sessions[toast.toastId];

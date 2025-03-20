@@ -1,19 +1,30 @@
+import { ITransactionListItem } from 'lib/sdkDappCoreUi';
 import { isServerTransactionPending } from 'store/actions/transactions/transactionStateByStatus';
 import { TransactionServerStatusesEnum } from 'types';
-import { SignedTransactionType } from 'types/transactions.types';
 import { getToastTransactionsStatus } from '../helpers/getToastTransactionsStatus';
 
 jest.mock('store/actions/transactions/transactionStateByStatus');
 
 describe('getToastProceededStatus', () => {
+  const baseTransaction: ITransactionListItem = {
+    status: TransactionServerStatusesEnum.success,
+    asset: null,
+    action: { name: 'Transfer' },
+    link: 'https://explorer.example.com/tx/123',
+    hash: '123',
+    details: {
+      initiator: 'erd1...',
+      directionLabel: 'To'
+    },
+    amount: '1 EGLD'
+  };
+
   beforeEach(() => {
     jest.resetAllMocks();
   });
 
   it('should return "Transaction processed" for a single processed transaction', () => {
-    const transactions: SignedTransactionType[] = [
-      { status: TransactionServerStatusesEnum.success } as SignedTransactionType
-    ];
+    const transactions: ITransactionListItem[] = [baseTransaction];
     (isServerTransactionPending as jest.Mock).mockReturnValue(false);
 
     const result = getToastTransactionsStatus(transactions);
@@ -22,8 +33,8 @@ describe('getToastProceededStatus', () => {
   });
 
   it('should return "0 / 1 transactions processed" for a single pending transaction', () => {
-    const transactions: SignedTransactionType[] = [
-      { status: TransactionServerStatusesEnum.pending } as SignedTransactionType
+    const transactions: ITransactionListItem[] = [
+      { ...baseTransaction, status: TransactionServerStatusesEnum.pending }
     ];
     (isServerTransactionPending as jest.Mock).mockReturnValue(true);
 
@@ -33,11 +44,14 @@ describe('getToastProceededStatus', () => {
   });
 
   it('should return "1 / 2 transactions processed" for multiple transactions with one processed', () => {
-    const transactions: SignedTransactionType[] = [
+    const transactions: ITransactionListItem[] = [
+      baseTransaction,
       {
-        status: TransactionServerStatusesEnum.success
-      } as SignedTransactionType,
-      { status: TransactionServerStatusesEnum.pending } as SignedTransactionType
+        ...baseTransaction,
+        status: TransactionServerStatusesEnum.pending,
+        hash: '456',
+        link: 'https://explorer.example.com/tx/456'
+      }
     ];
     (isServerTransactionPending as jest.Mock).mockImplementation(
       (status) => status === TransactionServerStatusesEnum.pending
@@ -49,11 +63,14 @@ describe('getToastProceededStatus', () => {
   });
 
   it('should return "0 / 2 transactions processed" for multiple pending transactions', () => {
-    const transactions: SignedTransactionType[] = [
+    const transactions: ITransactionListItem[] = [
+      { ...baseTransaction, status: TransactionServerStatusesEnum.pending },
       {
-        status: TransactionServerStatusesEnum.pending
-      } as SignedTransactionType,
-      { status: TransactionServerStatusesEnum.pending } as SignedTransactionType
+        ...baseTransaction,
+        status: TransactionServerStatusesEnum.pending,
+        hash: '456',
+        link: 'https://explorer.example.com/tx/456'
+      }
     ];
     (isServerTransactionPending as jest.Mock).mockReturnValue(true);
 
@@ -63,11 +80,13 @@ describe('getToastProceededStatus', () => {
   });
 
   it('should return "2 / 2 transactions processed" for multiple processed transactions', () => {
-    const transactions: SignedTransactionType[] = [
+    const transactions: ITransactionListItem[] = [
+      baseTransaction,
       {
-        status: TransactionServerStatusesEnum.success
-      } as SignedTransactionType,
-      { status: TransactionServerStatusesEnum.success } as SignedTransactionType
+        ...baseTransaction,
+        hash: '456',
+        link: 'https://explorer.example.com/tx/456'
+      }
     ];
     (isServerTransactionPending as jest.Mock).mockReturnValue(false);
 

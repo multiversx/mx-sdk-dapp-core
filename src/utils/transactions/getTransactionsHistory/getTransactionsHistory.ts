@@ -1,10 +1,9 @@
 import isEmpty from 'lodash/isEmpty';
-import { getServerTransactionsByHashes } from 'apiCalls/transactions/getServerTransactionsByHashes';
 import { ITransactionListItem } from 'lib/sdkDappCoreUi';
 import type { IGetHistoricalTransactionsParams } from 'types/transaction-list-item.types';
 import {
   createTransactionsHistoryFromSessions,
-  mapTransactionToListItem
+  mapServerTransactionsToListItems
 } from './helpers';
 
 export const getTransactionsHistory = async ({
@@ -19,16 +18,10 @@ export const getTransactionsHistory = async ({
 
   const signedTransactions = createTransactionsHistoryFromSessions(sessions);
 
-  const serverTransactions = await getServerTransactionsByHashes(
-    signedTransactions.map((tx) => tx.hash)
-  );
-
-  return serverTransactions.map((transaction) =>
-    mapTransactionToListItem({
-      transaction,
-      address,
-      explorerAddress,
-      egldLabel
-    })
-  );
+  return mapServerTransactionsToListItems({
+    hashes: signedTransactions.map((tx) => tx.hash),
+    address,
+    explorerAddress,
+    egldLabel
+  });
 };

@@ -1,4 +1,3 @@
-import { testAddress } from '__mocks__/accountConfig';
 import {
   getIsTransactionPending,
   getIsTransactionSuccessful
@@ -34,29 +33,16 @@ describe('createToastsFromTransactions', () => {
     MISSING: 'missing-toast'
   } as const;
 
+  const TEST_ADDRESS = 'erd1...';
+
   const mockAccount: AccountSliceType = {
-    address: testAddress,
+    address: TEST_ADDRESS,
     accounts: {},
     publicKey: '',
     ledgerAccount: null,
     walletConnectAccount: null,
     websocketEvent: null,
     websocketBatchEvent: null
-  };
-
-  const mockTransaction: SignedTransactionType = {
-    nonce: 0,
-    value: '0',
-    receiver: testAddress,
-    sender: testAddress,
-    gasPrice: 1000000000,
-    gasLimit: 50000,
-    data: '',
-    chainID: '1',
-    version: 1,
-    options: 0,
-    signature: '',
-    hash: 'tx-1'
   };
 
   const mockDisplayInfo: TransactionsDisplayInfoType = {
@@ -77,19 +63,27 @@ describe('createToastsFromTransactions', () => {
     };
   };
 
+  const createSignedTransaction = (hash: string): SignedTransactionType => ({
+    nonce: 0,
+    value: '0',
+    receiver: TEST_ADDRESS,
+    sender: TEST_ADDRESS,
+    gasPrice: 1000000000,
+    gasLimit: 50000,
+    data: '',
+    chainID: '1',
+    version: 1,
+    options: 0,
+    signature: '',
+    hash
+  });
+
   const createMockSession = (
     status: TransactionServerStatusesEnum,
-    transactionHash: string,
-    transactionStatus?: TransactionServerStatusesEnum
+    transactionHash: string
   ) => ({
     status,
-    transactions: [
-      {
-        ...mockTransaction,
-        hash: transactionHash,
-        ...(transactionStatus && { status: transactionStatus })
-      }
-    ],
+    transactions: [createSignedTransaction(transactionHash)],
     transactionsDisplayInfo: mockDisplayInfo
   });
 
@@ -110,7 +104,7 @@ describe('createToastsFromTransactions', () => {
     });
   });
 
-  it('should correctly classify transactions as processing or completed based on their status', () => {
+  it('should correctly classify transactions as processing or completed based on their status', async () => {
     (getIsTransactionPending as jest.Mock).mockImplementation(
       (status) => status === TransactionServerStatusesEnum.pending
     );
@@ -134,12 +128,11 @@ describe('createToastsFromTransactions', () => {
       ),
       [TOAST_IDS.SUCCESS]: createMockSession(
         TransactionServerStatusesEnum.success,
-        'tx-2',
-        TransactionServerStatusesEnum.success
+        'tx-2'
       )
     };
 
-    const result = createToastsFromTransactions({
+    const result = await createToastsFromTransactions({
       toastList,
       sessions,
       account: mockAccount
@@ -151,7 +144,7 @@ describe('createToastsFromTransactions', () => {
     expect(result.completedTransactions[0].toastId).toBe(TOAST_IDS.SUCCESS);
   });
 
-  it('should preserve existing completed transactions and not create duplicates when same transaction is processed again', () => {
+  it('should preserve existing completed transactions and not create duplicates when same transaction is processed again', async () => {
     (getIsTransactionSuccessful as jest.Mock).mockReturnValue(true);
 
     const existingCompleted: ITransactionToast[] = [
@@ -181,7 +174,7 @@ describe('createToastsFromTransactions', () => {
       )
     };
 
-    const result = createToastsFromTransactions({
+    const result = await createToastsFromTransactions({
       toastList,
       sessions,
       account: mockAccount,
@@ -192,13 +185,13 @@ describe('createToastsFromTransactions', () => {
     expect(createTransactionToast).not.toHaveBeenCalled();
   });
 
-  it('should safely handle transactions with missing session data without creating toasts', () => {
+  it('should safely handle transactions with missing session data without creating toasts', async () => {
     const toastList = {
       transactionToasts: [createMockToast(TOAST_IDS.MISSING)],
       customToasts: []
     };
 
-    const result = createToastsFromTransactions({
+    const result = await createToastsFromTransactions({
       toastList,
       sessions: {},
       account: mockAccount

@@ -1,20 +1,15 @@
+import { ITransactionListItem } from 'lib/sdkDappCoreUi';
 import { getIsTransactionPending } from 'store/actions/transactions/transactionStateByStatus';
 import { TransactionServerStatusesEnum } from 'types/enums.types';
-import {
-  SignedTransactionType,
-  TransactionsDisplayInfoType
-} from 'types/transactions.types';
-import { explorerUrlBuilder } from 'utils/transactions/explorerUrlBuilder';
-import { getExplorerLink } from 'utils/transactions/getExplorerLink';
+import { TransactionsDisplayInfoType } from 'types/transactions.types';
 import { getToastDataStateByStatus } from './getToastDataStateByStatus';
 import { getToastTransactionsStatus } from './getToastTransactionsStatus';
 import { ITransactionToast } from '../types/toast.types';
-
 interface CreateTransactionToastParamsType {
   toastId: string;
   address: string;
   status: TransactionServerStatusesEnum;
-  transactions: SignedTransactionType[];
+  transactions: ITransactionListItem[];
   transactionsDisplayInfo?: TransactionsDisplayInfoType;
   explorerAddress: string;
   startTime: number;
@@ -27,15 +22,24 @@ export const createTransactionToast = ({
   status,
   transactions,
   transactionsDisplayInfo,
-  explorerAddress,
   startTime,
   endTime
 }: CreateTransactionToastParamsType): ITransactionToast => {
+  console.log('createTransactionToast', {
+    toastId,
+    address,
+    status,
+    transactions,
+    transactionsDisplayInfo,
+    startTime,
+    endTime
+  });
+
   const isPending = getIsTransactionPending(status);
 
   const toastDataState = getToastDataStateByStatus({
     address,
-    sender: transactions[0]?.sender || '',
+    sender: transactions[0]?.details?.initiator ?? '',
     toastId,
     status,
     transactionsDisplayInfo
@@ -50,20 +54,11 @@ export const createTransactionToast = ({
       }
     : null;
 
-  const mappedTransactions = transactions.map(({ hash, status: txStatus }) => ({
-    hash,
-    status: txStatus ?? TransactionServerStatusesEnum.pending,
-    link: getExplorerLink({
-      explorerAddress,
-      to: explorerUrlBuilder.transactionDetails(hash)
-    })
-  }));
-
   return {
     toastDataState,
     processedTransactionsStatus,
     transactionProgressState,
     toastId,
-    transactions: mappedTransactions
+    transactions
   };
 };
