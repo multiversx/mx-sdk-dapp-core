@@ -48,7 +48,7 @@ export class LedgerProviderStrategy {
     const ledgerConnectManager = LedgerConnectStateManager.getInstance();
     const isLoggedIn = getIsLoggedIn();
 
-    const shouldOpenPanel = !options?.anchor; // TODO: check if this is correct
+    const shouldOpenPanel = !options?.anchor;
 
     if (shouldOpenPanel && !isLoggedIn) {
       await ledgerConnectManager.openLedgerConnect();
