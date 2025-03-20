@@ -56,11 +56,9 @@ export abstract class SidePanelBaseManager<TElement, TData, TEventEnum> {
 
     const initialData = this.getInitialData();
 
-    if (Object.keys(data).length === 0) {
-      this.data = initialData;
-    } else {
-      this.data = { ...initialData, ...data };
-    }
+    const isDataEmpty = Object.keys(data).length === 0;
+
+    this.data = isDataEmpty ? initialData : { ...initialData, ...data };
 
     this.isOpen = true;
     this.publishEvent(this.getOpenEventName());
