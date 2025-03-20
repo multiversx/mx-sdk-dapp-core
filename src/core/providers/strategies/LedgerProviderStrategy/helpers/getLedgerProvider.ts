@@ -61,10 +61,6 @@ export async function getLedgerProvider(props?: {
   } catch (err) {
     console.error('Could not initialize ledger app', err);
 
-    // if (isLoggedIn) {
-    //   await provider.logout();
-    // }
-
     throw err;
   }
 }
