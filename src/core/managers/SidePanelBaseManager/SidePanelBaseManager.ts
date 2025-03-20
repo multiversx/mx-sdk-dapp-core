@@ -54,9 +54,13 @@ export abstract class SidePanelBaseManager<TElement, TData, TEventEnum> {
       throw new Error(ProviderErrorsEnum.eventBusError);
     }
 
-    this.data = { ...this.getInitialData(), ...data };
-    this.isOpen = true;
+    const initialData = this.getInitialData();
 
+    const isDataEmpty = Object.keys(data).length === 0;
+
+    this.data = isDataEmpty ? initialData : { ...initialData, ...data };
+
+    this.isOpen = true;
     this.publishEvent(this.getOpenEventName());
     this.notifyDataUpdate();
   }
@@ -66,7 +70,7 @@ export abstract class SidePanelBaseManager<TElement, TData, TEventEnum> {
       return;
     }
 
-    this.data = { ...this.data, shouldClose: true } as unknown as TData;
+    this.data = { ...this.data, shouldClose: true };
     this.notifyDataUpdate();
     this.resetData();
     this.isOpen = false;
