@@ -30,7 +30,8 @@ export class PendingTransactionsStateManager extends SidePanelBaseManager<
   }
 
   constructor() {
-    super();
+    super('pending-transactions');
+    this.data = { ...this.initialData };
   }
 
   public isPendingTransactionsOpen(): boolean {

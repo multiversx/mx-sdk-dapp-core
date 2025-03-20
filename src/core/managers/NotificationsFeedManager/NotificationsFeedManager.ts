@@ -36,7 +36,8 @@ export class NotificationsFeedManager extends SidePanelBaseManager<
   }
 
   constructor() {
-    super();
+    super('notifications-feed');
+    this.data = { ...this.initialData };
   }
 
   public isNotificationsFeedOpen(): boolean {
@@ -127,6 +128,8 @@ export class NotificationsFeedManager extends SidePanelBaseManager<
       sessions,
       account
     });
+
+    console.log(112, this.data);
 
     this.data.pendingTransactions = pendingTransactions;
 

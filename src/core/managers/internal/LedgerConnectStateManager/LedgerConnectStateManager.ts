@@ -63,7 +63,7 @@ export class LedgerConnectStateManager extends SidePanelBaseManager<
   };
 
   constructor() {
-    super();
+    super('ledger-connect');
     this.data = this.getInitialData();
   }
 
