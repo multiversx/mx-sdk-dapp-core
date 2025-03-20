@@ -1,7 +1,7 @@
 import isEqual from 'lodash.isequal';
 import { UITagsEnum } from 'constants/UITags.enum';
 import { TransactionsHistoryController } from 'controllers/TransactionsHistoryController';
-import { NotificationsFeed, ITransactionListItem } from 'lib/sdkDappCoreUi';
+import { ITransactionListItem } from 'lib/sdkDappCoreUi';
 import { clearCompletedTransactions } from 'store/actions/transactions/transactionsActions';
 import { getStore } from 'store/store';
 import { NotificationsFeedEventsEnum } from './types';
@@ -9,18 +9,24 @@ import { createToastsFromTransactions } from '../internal/ToastManager/helpers/c
 import { ITransactionToast } from '../internal/ToastManager/types/toast.types';
 import { SidePanelBaseManager } from '../SidePanelBaseManager/SidePanelBaseManager';
 
+interface INotificationsFeedManagerData {
+  pendingTransactions: ITransactionToast[];
+  historicTransactions: ITransactionListItem[];
+}
+
 export class NotificationsFeedManager extends SidePanelBaseManager<
-  NotificationsFeed,
-  ITransactionListItem[],
+  INotificationsFeedManagerData,
+  INotificationsFeedManagerData,
   NotificationsFeedEventsEnum
 > {
   private static instance: NotificationsFeedManager;
-  private historicTransactions: ITransactionListItem[] = [];
-  private pendingTransactions: ITransactionToast[] = [];
   private store = getStore();
   private storeToastsUnsubscribe: () => void = () => null;
 
-  protected initialData: ITransactionListItem[] = [];
+  protected initialData: INotificationsFeedManagerData = {
+    pendingTransactions: [],
+    historicTransactions: []
+  };
 
   public static getInstance(): NotificationsFeedManager {
     if (!NotificationsFeedManager.instance) {
@@ -31,8 +37,6 @@ export class NotificationsFeedManager extends SidePanelBaseManager<
 
   constructor() {
     super();
-    this.data = [];
-    this.initialData = [];
   }
 
   public isNotificationsFeedOpen(): boolean {
@@ -41,8 +45,6 @@ export class NotificationsFeedManager extends SidePanelBaseManager<
 
   public async init() {
     await super.init();
-    this.data = [];
-    this.initialData = [];
     await this.updateDataAndNotifications();
 
     this.storeToastsUnsubscribe = this.store.subscribe(
@@ -108,7 +110,7 @@ export class NotificationsFeedManager extends SidePanelBaseManager<
 
   private handleClearNotificationsFeedHistory() {
     clearCompletedTransactions();
-    this.historicTransactions = [];
+    this.resetData();
     this.updateNotificationsFeed();
   }
 
@@ -126,9 +128,9 @@ export class NotificationsFeedManager extends SidePanelBaseManager<
       account
     });
 
-    this.pendingTransactions = pendingTransactions;
+    this.data.pendingTransactions = pendingTransactions;
 
-    this.historicTransactions =
+    this.data.historicTransactions =
       await TransactionsHistoryController.getTransactionsHistory({
         sessions,
         address: account.address,
@@ -150,12 +152,12 @@ export class NotificationsFeedManager extends SidePanelBaseManager<
 
     this.eventBus.publish(
       NotificationsFeedEventsEnum.PENDING_TRANSACTIONS_UPDATE,
-      this.pendingTransactions
+      this.data.pendingTransactions
     );
 
     this.eventBus.publish(
       NotificationsFeedEventsEnum.TRANSACTIONS_HISTORY_UPDATE,
-      this.historicTransactions
+      this.data.historicTransactions
     );
   }
 }
