@@ -129,8 +129,6 @@ export class NotificationsFeedManager extends SidePanelBaseManager<
       account
     });
 
-    console.log(112, this.data);
-
     this.data.pendingTransactions = pendingTransactions;
 
     this.data.historicTransactions =
