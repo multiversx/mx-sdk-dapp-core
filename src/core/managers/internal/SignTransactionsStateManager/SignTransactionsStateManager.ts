@@ -51,7 +51,8 @@ export class SignTransactionsStateManager extends SidePanelBaseManager<
   }
 
   constructor() {
-    super();
+    super('sign-transactions');
+    this.data = { ...this.initialData };
   }
 
   public async init() {
