@@ -46,7 +46,7 @@ export class IFrameProviderStrategy {
     this.provider.setLoginType(this.type);
     this.provider.setWalletUrl(String(network.iframeWalletAddress));
     this._signTransactions = this.provider.signTransactions.bind(this.provider);
-    this._signMessage = this.provider.signMessage.bind(this.provider) as any;
+    this._signMessage = this.provider.signMessage.bind(this.provider);
 
     return this.buildProvider();
   };
