@@ -41,11 +41,11 @@ export async function signTransactionsWithProvider({
     activeGuardianAddress && isGuarded && !options.skipGuardian
       ? transactionsWithComputedNonce?.map((transaction) => {
           transaction.setVersion(TransactionVersion.withTxOptions());
-          const options = {
+          const txOptions = {
             guarded: true,
             ...(isLedger ? { hashSign: true } : {})
           };
-          transaction.setOptions(TransactionOptions.withOptions(options));
+          transaction.setOptions(TransactionOptions.withOptions(txOptions));
           transaction.setGuardian(Address.fromBech32(activeGuardianAddress));
 
           return transaction;

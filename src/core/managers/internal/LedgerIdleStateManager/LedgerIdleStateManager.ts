@@ -1,10 +1,25 @@
+import { DappProvider } from 'core/providers/DappProvider';
+import {
+  getAccountProvider,
+  setAccountProvider
+} from 'core/providers/helpers/accountProvider';
+import { LedgerProviderStrategy } from 'core/providers/strategies/LedgerProviderStrategy/LedgerProviderStrategy';
 import { ProviderTypeEnum } from 'core/providers/types/providerFactory.types';
+import { createCustomToast } from 'store/actions';
+import { accountSelector, loginInfoSelector } from 'store/selectors';
 import { getStore } from 'store/store';
+import { ToastIconsEnum } from '../ToastManager/helpers/getToastDataStateByStatus';
+
+const LEDGER_IDLE_STATE_CHECK_INTERVAL = 30_000;
+const LEDGER_IDLE_STATE_RECONNECT_INTERVAL = 5_000;
+const RECONNECT_SUCCESS_DURATION = 3000;
 
 export class LedgerIdleStateManager {
   private static instance: LedgerIdleStateManager;
   private store = getStore();
-  private interval: ReturnType<typeof setInterval> | null = null;
+  private connectionCheckInterval: ReturnType<typeof setInterval> | null = null;
+  private recreateProviderInterval: ReturnType<typeof setInterval> | null =
+    null;
 
   public static getInstance(): LedgerIdleStateManager {
     if (!LedgerIdleStateManager.instance) {
@@ -15,36 +30,93 @@ export class LedgerIdleStateManager {
 
   private constructor() {}
 
-  public init = () => {
-    this.store.subscribe(
-      async ({ loginInfo: { providerType }, account: { address } }) => {
-        if (providerType === ProviderTypeEnum.ledger && address) {
-          console.log('\x1b[42m%s\x1b[0m', 'Ledger connected');
-          this.checkConnection();
-        } else {
-          console.log('\x1b[41m%s\x1b[0m', 'Ledger disconnected');
-          this.reset();
-        }
-      }
-    );
+  public init = async () => {
+    this.startCheckConnectionLoop();
   };
 
-  private checkConnection = () => {
-    if (this.interval) {
+  private shouldCheckConnection = (): boolean => {
+    const { providerType } = loginInfoSelector(this.store.getState());
+    const address = accountSelector(this.store.getState()).address;
+    return Boolean(providerType === ProviderTypeEnum.ledger && address);
+  };
+
+  private startCheckConnectionLoop = () => {
+    if (this.connectionCheckInterval) {
       return;
     }
 
-    this.interval = setInterval(() => {
-      console.log('test');
-    }, 2000);
+    this.connectionCheckInterval = setInterval(async () => {
+      if (!this.shouldCheckConnection()) {
+        return;
+      }
+
+      try {
+        const ledgerProvider = getAccountProvider().getProvider();
+        await ledgerProvider.getAddress();
+      } catch (_error) {
+        createCustomToast({
+          toastId: 'ledger-provider-idle-warning',
+          icon: ToastIconsEnum.times,
+          iconClassName: 'warning',
+          message: 'Unlock your device to continue signing transactions',
+          title: 'Ledger disconnected'
+        });
+        this.reset();
+        if (this.recreateProviderInterval) {
+          return;
+        }
+        this.recreateProviderInterval = setInterval(
+          this.reconnectProvider,
+          LEDGER_IDLE_STATE_RECONNECT_INTERVAL
+        );
+      }
+    }, LEDGER_IDLE_STATE_CHECK_INTERVAL);
+  };
+
+  private getLedgerAddress = async () => {
+    if (!this.shouldCheckConnection()) {
+      return;
+    }
+
+    const ledgerProvider = getAccountProvider().getProvider();
+    const address = await ledgerProvider.getAddress();
+    return address;
+  };
+
+  private reconnectProvider = async () => {
+    if (!this.shouldCheckConnection()) {
+      return;
+    }
+
+    try {
+      const providerInstance = new LedgerProviderStrategy();
+      const createdProvider = await providerInstance.createProvider({
+        shouldInitProvider: true
+      });
+      const dappProvider = new DappProvider(createdProvider);
+      createdProvider.getType = () => ProviderTypeEnum.ledger;
+      setAccountProvider(dappProvider);
+
+      this.reset();
+      clearInterval(this.recreateProviderInterval ?? 0);
+      this.recreateProviderInterval = null;
+
+      createCustomToast({
+        toastId: 'ledger-provider-idle-warning',
+        duration: RECONNECT_SUCCESS_DURATION,
+        icon: ToastIconsEnum.check,
+        iconClassName: 'success',
+        message: 'Your device is ready to sign transactions',
+        title: 'Ledger reconnected'
+      });
+      this.startCheckConnectionLoop();
+    } catch (_err) {
+      console.log('Unable to reconnect to Ledger');
+    }
   };
 
   public reset = () => {
-    if (!this.interval) {
-      return;
-    }
-
-    clearInterval(this.interval);
-    this.interval = null;
+    clearInterval(this.connectionCheckInterval ?? 0);
+    this.connectionCheckInterval = null;
   };
 }

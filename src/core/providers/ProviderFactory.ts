@@ -1,4 +1,5 @@
 import { IframeLoginTypes } from '@multiversx/sdk-web-wallet-iframe-provider/out/constants';
+import { LedgerIdleStateManager } from 'core/managers/internal/LedgerIdleStateManager/LedgerIdleStateManager';
 import { getAddress } from 'core/methods/account/getAddress';
 import {
   CrossWindowProviderStrategy,
@@ -50,6 +51,9 @@ export class ProviderFactory {
       case ProviderTypeEnum.ledger: {
         const providerInstance = new LedgerProviderStrategy();
         createdProvider = await providerInstance.createProvider({ anchor });
+
+        const ledgerIdleStateManager = LedgerIdleStateManager.getInstance();
+        await ledgerIdleStateManager.init();
 
         break;
       }
