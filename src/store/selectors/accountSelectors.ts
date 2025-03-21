@@ -30,3 +30,7 @@ export const isLoggedInSelector = (store: StoreType) => {
   const account = accountSelector(store);
   return Boolean(address && account?.address === address);
 };
+
+export const ledgerAccountSelector = ({
+  account: { ledgerAccount }
+}: StoreType) => ledgerAccount;

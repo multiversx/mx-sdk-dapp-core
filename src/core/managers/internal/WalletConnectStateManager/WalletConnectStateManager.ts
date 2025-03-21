@@ -26,7 +26,8 @@ export class WalletConnectStateManager extends SidePanelBaseManager<
   }
 
   constructor() {
-    super();
+    super('wallet-connect');
+    this.data = { ...this.initialData };
   }
 
   public async openWalletConnect(data: IWalletConnectModalData) {
