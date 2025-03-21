@@ -1,4 +1,5 @@
 import { safeWindow } from 'constants/index';
+import { LedgerIdleStateManager } from 'core/managers/internal/LedgerIdleStateManager/LedgerIdleStateManager';
 import { PendingTransactionsStateManager } from 'core/managers/internal/PendingTransactionsStateManager/PendingTransactionsStateManager';
 import { SignTransactionsStateManager } from 'core/managers/internal/SignTransactionsStateManager/SignTransactionsStateManager';
 import { ToastManager } from 'core/managers/internal/ToastManager/ToastManager';
@@ -93,6 +94,9 @@ export async function initApp({
   const signTransactionsStateManager =
     SignTransactionsStateManager.getInstance();
   await signTransactionsStateManager.init();
+
+  const ledgerIdleStateManager = LedgerIdleStateManager.getInstance();
+  ledgerIdleStateManager.init();
 
   const usedProviders = [
     ...((safeWindow as any)?.multiversx?.providers || []),
