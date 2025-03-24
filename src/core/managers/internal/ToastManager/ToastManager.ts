@@ -1,6 +1,7 @@
 import isEqual from 'lodash.isequal';
 import { UITagsEnum } from 'constants/UITags.enum';
 import { NotificationsFeedManager } from 'core/managers/NotificationsFeedManager/NotificationsFeedManager';
+import { NotificationsFeedEventsEnum } from 'core/managers/NotificationsFeedManager/types';
 import { ToastList } from 'lib/sdkDappCoreUi';
 import {
   customToastCloseHandlersDictionary,
@@ -54,9 +55,9 @@ export class ToastManager {
   }
 
   public async init() {
-    const { toasts } = this.store.getState();
-    this.updateTransactionToastsList(toasts);
-    this.updateCustomToastList(toasts);
+    const { toasts: toastState } = this.store.getState();
+    this.updateTransactionToastsList(toastState);
+    this.updateCustomToastList(toastState);
 
     await this.notificationsFeedManager.init();
 
@@ -161,6 +162,16 @@ export class ToastManager {
 
   private async renderToasts() {
     if (this.notificationsFeedManager.isNotificationsFeedOpen()) {
+      const notificationsFeedEventBus =
+        await this.notificationsFeedManager.getEventBus();
+
+      if (notificationsFeedEventBus) {
+        notificationsFeedEventBus.subscribe(
+          NotificationsFeedEventsEnum.CLOSE_NOTIFICATIONS_FEED,
+          this.renderToasts.bind(this)
+        );
+      }
+
       return;
     }
 

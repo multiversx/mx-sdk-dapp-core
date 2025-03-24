@@ -62,6 +62,7 @@ export const mapTransactionToListItem = ({
     }),
     hash,
     status: transaction.status as TransactionServerStatusesEnum,
+    timestamp: transaction.timestamp,
     link: getExplorerLink({
       explorerAddress,
       to: explorerUrlBuilder.transactionDetails(hash)

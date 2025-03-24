@@ -8,9 +8,15 @@ import {
   SignedTransactionType,
   TransactionsDisplayInfoType
 } from 'types/transactions.types';
+import { mapServerTransactionsToListItems } from 'utils/transactions/getTransactionsHistory/helpers';
 import { ITransactionToast } from '../../types/toast.types';
 import { createToastsFromTransactions } from '../createToastsFromTransactions';
 import { createTransactionToast } from '../createTransactionToast';
+import { baseTransactionMock } from './baseTransactionMock';
+
+jest.mock('utils/transactions/getTransactionsHistory/helpers', () => ({
+  mapServerTransactionsToListItems: jest.fn()
+}));
 
 jest.mock('store/actions/transactions/transactionStateByStatus', () => ({
   getIsTransactionPending: jest.fn(),
@@ -89,18 +95,27 @@ describe('createToastsFromTransactions', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    (mapServerTransactionsToListItems as jest.Mock).mockImplementation(
+      ({ hashes }) =>
+        Promise.resolve(
+          hashes.map((hash: string) => ({
+            ...baseTransactionMock,
+            hash
+          }))
+        )
+    );
   });
 
-  it('should return empty arrays for processing and completed transactions when no transactions exist', () => {
-    const result = createToastsFromTransactions({
+  it('should return empty arrays for processing and completed transactions when no transactions exist', async () => {
+    const result = await createToastsFromTransactions({
       toastList: { transactionToasts: [], customToasts: [] },
       sessions: {},
       account: mockAccount
     });
 
     expect(result).toEqual({
-      pendingTransactions: [],
-      completedTransactions: []
+      pendingTransactionToasts: [],
+      completedTransactionToasts: []
     });
   });
 
@@ -138,10 +153,12 @@ describe('createToastsFromTransactions', () => {
       account: mockAccount
     });
 
-    expect(result.pendingTransactions).toHaveLength(1);
-    expect(result.pendingTransactions[0].toastId).toBe(TOAST_IDS.PENDING);
-    expect(result.completedTransactions).toHaveLength(1);
-    expect(result.completedTransactions[0].toastId).toBe(TOAST_IDS.SUCCESS);
+    expect(result.pendingTransactionToasts).toHaveLength(1);
+    expect(result.pendingTransactionToasts[0].toastId).toBe(TOAST_IDS.PENDING);
+    expect(result.completedTransactionToasts).toHaveLength(1);
+    expect(result.completedTransactionToasts[0].toastId).toBe(
+      TOAST_IDS.SUCCESS
+    );
   });
 
   it('should preserve existing completed transactions and not create duplicates when same transaction is processed again', async () => {
@@ -181,7 +198,7 @@ describe('createToastsFromTransactions', () => {
       existingCompletedTransactions: existingCompleted
     });
 
-    expect(result.completedTransactions).toHaveLength(1);
+    expect(result.completedTransactionToasts).toHaveLength(1);
     expect(createTransactionToast).not.toHaveBeenCalled();
   });
 
@@ -197,8 +214,8 @@ describe('createToastsFromTransactions', () => {
       account: mockAccount
     });
 
-    expect(result.pendingTransactions).toHaveLength(0);
-    expect(result.completedTransactions).toHaveLength(0);
+    expect(result.pendingTransactionToasts).toHaveLength(0);
+    expect(result.completedTransactionToasts).toHaveLength(0);
     expect(createTransactionToast).not.toHaveBeenCalled();
   });
 });

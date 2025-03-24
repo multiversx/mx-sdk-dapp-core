@@ -16,7 +16,8 @@ describe('getToastProceededStatus', () => {
       initiator: 'erd1...',
       directionLabel: 'To'
     },
-    amount: '1 EGLD'
+    amount: '1 EGLD',
+    timestamp: Date.now()
   };
 
   beforeEach(() => {

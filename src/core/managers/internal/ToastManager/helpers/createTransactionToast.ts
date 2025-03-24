@@ -25,16 +25,6 @@ export const createTransactionToast = ({
   startTime,
   endTime
 }: CreateTransactionToastParamsType): ITransactionToast => {
-  console.log('createTransactionToast', {
-    toastId,
-    address,
-    status,
-    transactions,
-    transactionsDisplayInfo,
-    startTime,
-    endTime
-  });
-
   const isPending = getIsTransactionPending(status);
 
   const toastDataState = getToastDataStateByStatus({

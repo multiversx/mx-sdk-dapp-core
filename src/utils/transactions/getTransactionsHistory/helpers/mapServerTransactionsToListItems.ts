@@ -1,5 +1,6 @@
 import { getServerTransactionsByHashes } from 'apiCalls/transactions/getServerTransactionsByHashes';
 import { ITransactionListItem } from 'lib/sdkDappCoreUi';
+import { cacheTransaction, getCachedTransaction } from './cacheTransactions';
 import { mapTransactionToListItem } from './mapTransactionToListItem';
 
 interface IMapServerTransactionsToListItemsParams {
@@ -17,14 +18,36 @@ export const mapServerTransactionsToListItems = async ({
 }: IMapServerTransactionsToListItemsParams): Promise<
   ITransactionListItem[]
 > => {
-  const serverTransactions = await getServerTransactionsByHashes(hashes);
+  const cachedTransactions: ITransactionListItem[] = [];
+  const hashesToFetch: string[] = [];
 
-  return serverTransactions.map((transaction) =>
-    mapTransactionToListItem({
-      transaction,
-      address,
-      explorerAddress,
-      egldLabel
-    })
-  );
+  hashes.forEach((hash) => {
+    const cachedTransaction = getCachedTransaction(hash);
+    if (cachedTransaction) {
+      cachedTransactions.push(cachedTransaction);
+    } else {
+      hashesToFetch.push(hash);
+    }
+  });
+
+  if (hashesToFetch.length > 0) {
+    const newTransactions = await getServerTransactionsByHashes(hashesToFetch);
+
+    // Cache the newly fetched transactions
+    newTransactions.forEach((transaction) => {
+      const hash = transaction.originalTxHash ?? transaction.txHash;
+
+      const transactionListItem = mapTransactionToListItem({
+        transaction,
+        address,
+        explorerAddress,
+        egldLabel
+      });
+
+      cacheTransaction(hash, transactionListItem);
+      cachedTransactions.push(transactionListItem);
+    });
+  }
+
+  return cachedTransactions.sort((a, b) => b.timestamp - a.timestamp);
 };

@@ -2,37 +2,24 @@ import { ITransactionListItem } from 'lib/sdkDappCoreUi';
 import { isServerTransactionPending } from 'store/actions/transactions/transactionStateByStatus';
 import { TransactionServerStatusesEnum } from 'types/enums.types';
 import { getToastTransactionsStatus } from '../getToastTransactionsStatus';
-
+import { baseTransactionMock } from './baseTransactionMock';
 jest.mock('store/actions/transactions/transactionStateByStatus', () => ({
   isServerTransactionPending: jest.fn()
 }));
 
 describe('getToastProceededStatus', () => {
-  const baseTransaction: ITransactionListItem = {
-    status: TransactionServerStatusesEnum.success,
-    asset: null,
-    action: { name: 'Transfer' },
-    link: 'https://explorer.example.com/tx/123',
-    hash: '123',
-    details: {
-      initiator: 'erd1...',
-      directionLabel: 'To'
-    },
-    amount: '1 EGLD'
-  };
-
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   it('should return correct message for single pending or completed transaction', () => {
     const pendingTx: ITransactionListItem = {
-      ...baseTransaction,
+      ...baseTransactionMock,
       status: TransactionServerStatusesEnum.pending
     };
 
     const successTx: ITransactionListItem = {
-      ...baseTransaction,
+      ...baseTransactionMock,
       status: TransactionServerStatusesEnum.success
     };
 
@@ -52,17 +39,17 @@ describe('getToastProceededStatus', () => {
   it('should show fraction of completed transactions when handling multiple transactions with mixed states', () => {
     const transactions: ITransactionListItem[] = [
       {
-        ...baseTransaction,
+        ...baseTransactionMock,
         status: TransactionServerStatusesEnum.success
       },
       {
-        ...baseTransaction,
+        ...baseTransactionMock,
         status: TransactionServerStatusesEnum.pending,
         hash: '456',
         link: 'https://explorer.example.com/tx/456'
       },
       {
-        ...baseTransaction,
+        ...baseTransactionMock,
         status: TransactionServerStatusesEnum.fail,
         hash: '789',
         link: 'https://explorer.example.com/tx/789'
@@ -81,7 +68,7 @@ describe('getToastProceededStatus', () => {
   it('should handle empty array and transactions with undefined status', () => {
     const emptyTransactions: ITransactionListItem[] = [];
     const undefinedStatusTx: ITransactionListItem = {
-      ...baseTransaction,
+      ...baseTransactionMock,
       status: undefined as unknown as TransactionServerStatusesEnum
     };
 
