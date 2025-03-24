@@ -88,7 +88,7 @@ export class NotificationsFeedManager extends SidePanelBaseManager<
   }
 
   protected getDataUpdateEventName(): NotificationsFeedEventsEnum {
-    return NotificationsFeedEventsEnum.TRANSACTIONS_HISTORY_UPDATE;
+    return NotificationsFeedEventsEnum.OPEN_NOTIFICATIONS_FEED;
   }
 
   protected handleCloseUI() {

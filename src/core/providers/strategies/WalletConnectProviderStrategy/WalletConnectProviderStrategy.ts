@@ -311,13 +311,14 @@ export class WalletConnectProviderStrategy {
 
       return signedTransactions;
     } catch (error) {
+      await onClose(true);
       await this.sendCustomRequest({
         method: WalletConnectOptionalMethodsEnum.CANCEL_ACTION,
         action: OptionalOperation.CANCEL_ACTION
       });
       throw error;
     } finally {
-      onClose(false);
+      manager.closeAndReset();
       eventBus.unsubscribe(
         PendingTransactionsEventsEnum.CLOSE_PENDING_TRANSACTIONS,
         onClose
