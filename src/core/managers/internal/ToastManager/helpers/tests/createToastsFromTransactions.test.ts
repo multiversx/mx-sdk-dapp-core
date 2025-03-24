@@ -1,3 +1,4 @@
+import { testAddress } from '__mocks__';
 import {
   getIsTransactionPending,
   getIsTransactionSuccessful
@@ -39,10 +40,8 @@ describe('createToastsFromTransactions', () => {
     MISSING: 'missing-toast'
   } as const;
 
-  const TEST_ADDRESS = 'erd1...';
-
   const mockAccount: AccountSliceType = {
-    address: TEST_ADDRESS,
+    address: testAddress,
     accounts: {},
     publicKey: '',
     ledgerAccount: null,
@@ -72,8 +71,8 @@ describe('createToastsFromTransactions', () => {
   const createSignedTransaction = (hash: string): SignedTransactionType => ({
     nonce: 0,
     value: '0',
-    receiver: TEST_ADDRESS,
-    sender: TEST_ADDRESS,
+    receiver: testAddress,
+    sender: testAddress,
     gasPrice: 1000000000,
     gasLimit: 50000,
     data: '',
