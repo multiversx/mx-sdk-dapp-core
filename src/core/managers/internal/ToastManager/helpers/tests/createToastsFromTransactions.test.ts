@@ -40,6 +40,21 @@ describe('createToastsFromTransactions', () => {
     MISSING: 'missing-toast'
   } as const;
 
+  const mockTx = {
+    nonce: 0,
+    value: '0',
+    receiver: testAddress,
+    sender: testAddress,
+    gasPrice: 1000000000,
+    gasLimit: 50000,
+    data: '',
+    chainID: '1',
+    version: 1,
+    options: 0,
+    signature: '',
+    hash: ''
+  };
+
   const mockAccount: AccountSliceType = {
     address: testAddress,
     accounts: {},
@@ -68,27 +83,12 @@ describe('createToastsFromTransactions', () => {
     };
   };
 
-  const createSignedTransaction = (hash: string): SignedTransactionType => ({
-    nonce: 0,
-    value: '0',
-    receiver: testAddress,
-    sender: testAddress,
-    gasPrice: 1000000000,
-    gasLimit: 50000,
-    data: '',
-    chainID: '1',
-    version: 1,
-    options: 0,
-    signature: '',
-    hash
-  });
-
   const createMockSession = (
     status: TransactionServerStatusesEnum,
     transactionHash: string
   ) => ({
     status,
-    transactions: [createSignedTransaction(transactionHash)],
+    transactions: [{ ...mockTx, hash: transactionHash }],
     transactionsDisplayInfo: mockDisplayInfo
   });
 
