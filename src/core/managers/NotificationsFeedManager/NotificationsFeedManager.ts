@@ -36,9 +36,8 @@ export class NotificationsFeedManager extends SidePanelBaseManager<
   }
 
   constructor() {
-    super();
-    this.setInitialData();
-    this.resetData();
+    super('notifications-feed');
+    this.data = { ...this.initialData };
   }
 
   public isNotificationsFeedOpen(): boolean {

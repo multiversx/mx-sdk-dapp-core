@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- [Added ledger idle connection manager](https://github.com/multiversx/mx-sdk-dapp-core/pull/127)
+- [Fixed ledger logout on page reload](https://github.com/multiversx/mx-sdk-dapp-core/pull/126)
 - [Fixed handling of array data in side panel manager](https://github.com/multiversx/mx-sdk-dapp-core/pull/125)
 - [Migrate modals to side panel](https://github.com/multiversx/mx-sdk-dapp-core/pull/122)
 

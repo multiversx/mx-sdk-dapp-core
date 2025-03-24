@@ -13,11 +13,13 @@ export abstract class SidePanelBaseManager<TElement, TData, TEventEnum> {
   protected isCreatingElement = false;
   protected isOpen = false;
   protected anchor?: HTMLElement;
+  protected type?: string; // useful for debugging
 
   protected abstract initialData: TData;
   protected data: TData;
 
-  constructor() {
+  constructor(type?: string) {
+    this.type = type;
     this.data = this.getInitialData();
   }
 

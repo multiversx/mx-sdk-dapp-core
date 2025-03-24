@@ -1,14 +1,21 @@
 import { HWProvider } from '@multiversx/sdk-hw-provider';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import { getAccountProvider } from 'core/providers/helpers/accountProvider';
+import { ledgerAccountSelector } from 'store/selectors/accountSelectors';
 import { ledgerLoginSelector } from 'store/selectors/loginInfoSelectors';
 import { getState } from 'store/store';
 import { getLedgerConfiguration } from './getLedgerConfiguration';
 
-export async function getLedgerProvider() {
+export async function getLedgerProvider(props?: {
+  shouldInitProvider?: boolean; // provider will be initialized if not logged in
+}) {
   const isLoggedIn = getIsLoggedIn();
+  const shouldInitProvider = props?.shouldInitProvider || !isLoggedIn;
   const ledgerLogin = ledgerLoginSelector(getState());
+  const ledgerAccount = ledgerAccountSelector(getState());
   const provider = getAccountProvider();
+
+  const ledgerProvider = new HWProvider();
 
   const initHWProvider = async () => {
     const hasAddressIndex = ledgerLogin?.index != null;
@@ -21,11 +28,11 @@ export async function getLedgerProvider() {
       return provider;
     }
 
-    const ledgerProvider = new HWProvider();
-    const isInitialized = await ledgerProvider.init();
-
-    if (!isInitialized) {
-      throw new Error('Failed to initialize Ledger Provider');
+    if (shouldInitProvider) {
+      const isInitialized = await ledgerProvider.init();
+      if (!isInitialized) {
+        throw new Error('Failed to initialize Ledger Provider');
+      }
     }
 
     if (hasAddressIndex) {
@@ -36,15 +43,23 @@ export async function getLedgerProvider() {
   };
 
   try {
-    const ledgerProvider = await initHWProvider();
-    const ledgerConfig = await getLedgerConfiguration(ledgerProvider);
-    return { ledgerProvider, ledgerConfig };
+    if (!shouldInitProvider && ledgerAccount) {
+      return {
+        ledgerProvider,
+        ledgerConfig: {
+          version: ledgerAccount.version,
+          dataEnabled: ledgerAccount.hasContractDataEnabled
+        }
+      };
+    }
+
+    const initializedLedgerProvider = await initHWProvider();
+    const ledgerConfig = await getLedgerConfiguration(
+      initializedLedgerProvider
+    );
+    return { ledgerProvider: initializedLedgerProvider, ledgerConfig };
   } catch (err) {
     console.error('Could not initialize ledger app', err);
-
-    if (isLoggedIn) {
-      await provider.logout();
-    }
 
     throw err;
   }
