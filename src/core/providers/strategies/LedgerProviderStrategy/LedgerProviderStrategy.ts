@@ -5,6 +5,7 @@ import { safeWindow } from 'constants/index';
 
 import { CANCEL_TRANSACTION_TOAST_DEFAULT_DURATION } from 'constants/transactions.constants';
 import { LedgerConnectStateManager } from 'core/managers/internal/LedgerConnectStateManager/LedgerConnectStateManager';
+import { ToastIconsEnum } from 'core/managers/internal/ToastManager/helpers/getToastDataStateByStatus';
 import { getAddress } from 'core/methods/account/getAddress';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import { IProvider } from 'core/providers/types/providerFactory.types';
@@ -41,6 +42,7 @@ export class LedgerProviderStrategy {
 
   public createProvider = async (options?: {
     anchor?: HTMLElement;
+    shouldInitProvider?: boolean;
   }): Promise<IProvider> => {
     this.initialize();
     await defineCustomElements(safeWindow);
@@ -60,7 +62,8 @@ export class LedgerProviderStrategy {
       initializeLedgerProvider({
         manager: ledgerConnectManager,
         resolve,
-        reject
+        reject,
+        shouldInitProvider: options?.shouldInitProvider
       })
     );
 
@@ -196,7 +199,7 @@ export class LedgerProviderStrategy {
         createCustomToast({
           toastId: 'ledger-provider-rebuild-error',
           duration: CANCEL_TRANSACTION_TOAST_DEFAULT_DURATION,
-          icon: 'times',
+          icon: ToastIconsEnum.times,
           iconClassName: 'warning',
           message: 'Unlock your device & open the MultiversX App',
           title: 'Ledger unavailable'
