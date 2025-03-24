@@ -1,3 +1,4 @@
+import { testAddress } from '__mocks__';
 import { ITransactionListItem } from 'lib/sdkDappCoreUi';
 import { getIsTransactionPending } from 'store/actions/transactions/transactionStateByStatus';
 import { TransactionServerStatusesEnum } from 'types/enums.types';
@@ -44,7 +45,7 @@ describe('createTransactionToast', () => {
     link: `${EXPLORER_ADDRESS}/tx/tx-hash`,
     hash: 'tx-hash',
     details: {
-      initiator: 'erd1...',
+      initiator: testAddress,
       directionLabel: 'To'
     },
     amount: '1 EGLD',
@@ -65,7 +66,7 @@ describe('createTransactionToast', () => {
 
     const result = createTransactionToast({
       toastId: TOAST_IDS.PENDING,
-      address: 'erd1...',
+      address: testAddress,
       status: TransactionServerStatusesEnum.pending,
       transactions: [
         { ...baseTransaction, status: TransactionServerStatusesEnum.pending }
@@ -102,7 +103,7 @@ describe('createTransactionToast', () => {
 
     const result = createTransactionToast({
       toastId: TOAST_IDS.SUCCESS,
-      address: 'erd1...',
+      address: testAddress,
       status: TransactionServerStatusesEnum.success,
       transactions: [
         { ...baseTransaction, status: TransactionServerStatusesEnum.success }
@@ -151,7 +152,7 @@ describe('createTransactionToast', () => {
 
     const result = createTransactionToast({
       toastId: TOAST_IDS.SUCCESS,
-      address: 'erd1...',
+      address: testAddress,
       status: TransactionServerStatusesEnum.success,
       transactions,
       transactionsDisplayInfo: {

@@ -40,6 +40,8 @@ export const mapServerTransactionsToListItems = async ({
           !newTransactions.some((transaction) => transaction.txHash === hash)
       );
 
+      // In case the transactions were not found, we create a dummy transaction with the pending status
+      // untill all pending transactions are returned from the API
       const pendingDummyTransactions = filteredHashes.map(
         (hash) =>
           ({
@@ -65,7 +67,6 @@ export const mapServerTransactionsToListItems = async ({
       newTransactions.push(...pendingDummyTransactions);
     }
 
-    // Cache the newly fetched transactions
     newTransactions.forEach((transaction) => {
       const hash = transaction.originalTxHash ?? transaction.txHash;
 
