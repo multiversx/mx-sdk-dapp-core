@@ -44,7 +44,7 @@ describe('createTransactionToast', () => {
     action: { name: 'Transfer' },
     link: `${EXPLORER_ADDRESS}/tx/tx-hash`,
     hash: 'tx-hash',
-    initiator: testAddress,
+    interactor: testAddress,
     directionLabel: 'To',
     amount: '1 EGLD',
     timestamp: Date.now()

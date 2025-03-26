@@ -47,7 +47,7 @@ export const createToastsFromTransactions = async ({
     const { status, transactions, transactionsDisplayInfo } = session;
 
     const interprettedTransactions = await mapServerTransactionsToListItems({
-      hashes: transactions.map((tx) => tx.hash),
+      transactions,
       address: account.address,
       explorerAddress,
       egldLabel

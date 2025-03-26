@@ -8,7 +8,7 @@ export const baseTransactionMock: ITransactionListItem = {
   action: { name: 'Transfer' },
   link: 'https://explorer.example.com/tx/123',
   hash: '123',
-  initiator: testAddress,
+  interactor: testAddress,
   directionLabel: 'To',
   amount: '1 EGLD',
   timestamp: Date.now()

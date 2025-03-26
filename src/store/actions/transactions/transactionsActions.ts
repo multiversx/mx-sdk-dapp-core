@@ -1,5 +1,6 @@
 import { getTransactionsSessionStatus } from 'core/managers/TransactionManager/helpers/getTransactionsStatus';
 import { ITransactionListItem } from 'lib/sdkDappCoreUi';
+import { saveToCache } from 'store/actions/cache/cacheActions';
 import { getStore } from 'store/store';
 import {
   TransactionBatchStatusesEnum,
@@ -22,7 +23,7 @@ export const createTransactionsSession = ({
   const sessionId = Date.now().toString();
   getStore().setState(
     ({ transactions: state }) => {
-      state.sessions[sessionId] = {
+      state[sessionId] = {
         transactions,
         status,
         transactionsDisplayInfo,
@@ -46,8 +47,8 @@ export const updateTransactionsSession = ({
 }) => {
   getStore().setState(
     ({ transactions: state }) => {
-      state.sessions[sessionId].status = status;
-      state.sessions[sessionId].errorMessage = errorMessage;
+      state[sessionId].status = status;
+      state[sessionId].errorMessage = errorMessage;
     },
     false,
     'updateTransactionsSession'
@@ -63,23 +64,21 @@ export const updateTransactionStatus = ({
 }) => {
   getStore().setState(
     ({ transactions: state }) => {
-      const transactions = state.sessions[sessionId]?.transactions;
+      const transactions = state[sessionId]?.transactions;
       if (transactions != null) {
-        state.sessions[sessionId].transactions = transactions.map(
-          (transaction) => {
-            if (transaction.hash === updatedTransaction.hash) {
-              return {
-                ...transaction,
-                ...(updatedTransaction ?? {})
-              };
-            }
-            return transaction;
+        state[sessionId].transactions = transactions.map((transaction) => {
+          if (transaction.hash === updatedTransaction.hash) {
+            return {
+              ...transaction,
+              ...(updatedTransaction ?? {})
+            };
           }
-        );
+          return transaction;
+        });
 
         const status = getTransactionsSessionStatus(transactions);
         if (status) {
-          state.sessions[sessionId].status = status;
+          state[sessionId].status = status;
         }
       }
     },
@@ -91,10 +90,10 @@ export const updateTransactionStatus = ({
 export const clearCompletedTransactions = () => {
   getStore().setState(
     ({ transactions: state, toasts: toastsState }) => {
-      const sessionIds = Object.keys(state.sessions);
+      const sessionIds = Object.keys(state);
 
       const completedSessionIds = sessionIds.filter((sessionId) => {
-        const session = state.sessions[sessionId];
+        const session = state[sessionId];
         if (!session) {
           return false;
         }
@@ -110,7 +109,7 @@ export const clearCompletedTransactions = () => {
       });
 
       completedSessionIds.forEach((sessionId) => {
-        delete state.sessions[sessionId];
+        delete state[sessionId];
       });
 
       const filteredTransactionToasts = toastsState.transactionToasts.filter(
@@ -129,11 +128,9 @@ export const setInterpretedTransactions = ({
 }: {
   transaction: ITransactionListItem;
 }) => {
-  getStore().setState(
-    ({ transactions: state }) => {
-      state.interpretedTransactions[transaction.hash] = transaction;
-    },
-    false,
-    'setInterpretedTransactions'
-  );
+  // Store transaction in the cache instead of in session
+  saveToCache({
+    key: `transaction-${transaction.hash}`,
+    value: transaction
+  });
 };

@@ -110,14 +110,14 @@ export class ToastManager {
 
     const { pendingTransactionToasts } = await createToastsFromTransactions({
       toastList,
-      sessions: transactions.sessions,
+      sessions: transactions,
       account
     });
 
     this.transactionToasts = pendingTransactionToasts;
 
     for (const toast of toastList.transactionToasts) {
-      const sessionTransactions = transactions.sessions[toast.toastId];
+      const sessionTransactions = transactions[toast.toastId];
       if (!sessionTransactions) {
         continue;
       }

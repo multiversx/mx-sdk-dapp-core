@@ -19,7 +19,7 @@ export const getTransactionsHistory = async ({
   const signedTransactions = createTransactionsHistoryFromSessions(sessions);
 
   return mapServerTransactionsToListItems({
-    hashes: signedTransactions.map((tx) => tx.hash),
+    transactions: signedTransactions,
     address,
     explorerAddress,
     egldLabel

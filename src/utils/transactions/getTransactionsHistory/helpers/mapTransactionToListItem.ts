@@ -48,8 +48,8 @@ export const mapTransactionToListItem = ({
       showDefaultState: isPending,
       status: transaction.status as TransactionServerStatusesEnum
     }),
-    initiator: isIncomingTransaction ? transaction.sender : receiver,
-    initiatorAsset: isIncomingTransaction
+    interactor: isIncomingTransaction ? transaction.sender : receiver,
+    interactorAsset: isIncomingTransaction
       ? transaction.senderAssets?.iconSvg ?? transaction.senderAssets?.iconPng
       : receiverAssets?.iconSvg ?? receiverAssets?.iconPng,
     directionLabel: isIncomingTransaction ? 'From' : 'To',
