@@ -1,6 +1,4 @@
 import { getTransactionsSessionStatus } from 'core/managers/TransactionManager/helpers/getTransactionsStatus';
-import { ITransactionListItem } from 'lib/sdkDappCoreUi';
-import { saveToCache } from 'store/actions/cache/cacheActions';
 import { getStore } from 'store/store';
 import {
   TransactionBatchStatusesEnum,
@@ -121,16 +119,4 @@ export const clearCompletedTransactions = () => {
     false,
     'clearCompletedTransactions'
   );
-};
-
-export const setInterpretedTransactions = ({
-  transaction
-}: {
-  transaction: ITransactionListItem;
-}) => {
-  // Store transaction in the cache instead of in session
-  saveToCache({
-    key: `transaction-${transaction.hash}`,
-    value: transaction
-  });
 };
