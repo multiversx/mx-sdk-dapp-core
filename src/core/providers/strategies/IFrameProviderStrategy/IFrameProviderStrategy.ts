@@ -107,7 +107,7 @@ export class IFrameProviderStrategy {
 
       return signedTransactions;
     } catch (error) {
-      await onClose(true);
+      await onClose({ shouldCancelAction: true });
       throw error;
     } finally {
       manager.closeAndReset();

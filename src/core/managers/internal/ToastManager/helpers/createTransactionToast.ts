@@ -29,7 +29,7 @@ export const createTransactionToast = ({
 
   const toastDataState = getToastDataStateByStatus({
     address,
-    sender: transactions[0]?.details?.initiator ?? '',
+    sender: transactions[0]?.initiator ?? '',
     toastId,
     status,
     transactionsDisplayInfo

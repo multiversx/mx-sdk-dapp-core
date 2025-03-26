@@ -1,4 +1,4 @@
-import { testAddress } from '__mocks__';
+import { testAddress } from '__mocks__/accountConfig';
 import { ITransactionListItem } from 'lib/sdkDappCoreUi';
 import { getIsTransactionPending } from 'store/actions/transactions/transactionStateByStatus';
 import { TransactionServerStatusesEnum } from 'types/enums.types';
@@ -44,10 +44,8 @@ describe('createTransactionToast', () => {
     action: { name: 'Transfer' },
     link: `${EXPLORER_ADDRESS}/tx/tx-hash`,
     hash: 'tx-hash',
-    details: {
-      initiator: testAddress,
-      directionLabel: 'To'
-    },
+    initiator: testAddress,
+    directionLabel: 'To',
     amount: '1 EGLD',
     timestamp: Date.now()
   };

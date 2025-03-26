@@ -1,11 +1,11 @@
 import { accountNonceSelector } from 'store/selectors/accountSelectors';
-import { transactionsSliceSelector } from 'store/selectors/transactionsSelector';
+import { transactionsSessionsSelector } from 'store/selectors/transactionsSelector';
 import { getState } from 'store/store';
 import { AccountType } from 'types/account.types';
 
 export function getLatestNonce(apiAccount: AccountType | null) {
   const state = getState();
-  const transactionsSessions = transactionsSliceSelector(state);
+  const transactionsSessions = transactionsSessionsSelector(state);
   const currentAccountNonce = accountNonceSelector(state);
 
   // Get the max transactions nonce

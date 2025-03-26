@@ -1,3 +1,4 @@
+import { testAddress } from '__mocks__/accountConfig';
 import { ITransactionListItem } from 'lib/sdkDappCoreUi';
 import { isServerTransactionPending } from 'store/actions/transactions/transactionStateByStatus';
 import { TransactionServerStatusesEnum } from 'types';
@@ -12,10 +13,8 @@ describe('getToastProceededStatus', () => {
     action: { name: 'Transfer' },
     link: 'https://explorer.example.com/tx/123',
     hash: '123',
-    details: {
-      initiator: 'erd1...',
-      directionLabel: 'To'
-    },
+    initiator: testAddress,
+    directionLabel: 'To',
     amount: '1 EGLD',
     timestamp: Date.now()
   };

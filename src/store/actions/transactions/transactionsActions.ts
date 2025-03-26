@@ -1,4 +1,5 @@
 import { getTransactionsSessionStatus } from 'core/managers/TransactionManager/helpers/getTransactionsStatus';
+import { ITransactionListItem } from 'lib/sdkDappCoreUi';
 import { getStore } from 'store/store';
 import {
   TransactionBatchStatusesEnum,
@@ -21,10 +22,11 @@ export const createTransactionsSession = ({
   const sessionId = Date.now().toString();
   getStore().setState(
     ({ transactions: state }) => {
-      state[sessionId] = {
+      state.sessions[sessionId] = {
         transactions,
         status,
-        transactionsDisplayInfo
+        transactionsDisplayInfo,
+        interpretedTransactions: {}
       };
     },
     false,
@@ -44,8 +46,8 @@ export const updateTransactionsSession = ({
 }) => {
   getStore().setState(
     ({ transactions: state }) => {
-      state[sessionId].status = status;
-      state[sessionId].errorMessage = errorMessage;
+      state.sessions[sessionId].status = status;
+      state.sessions[sessionId].errorMessage = errorMessage;
     },
     false,
     'updateTransactionsSession'
@@ -61,21 +63,23 @@ export const updateTransactionStatus = ({
 }) => {
   getStore().setState(
     ({ transactions: state }) => {
-      const transactions = state[sessionId]?.transactions;
+      const transactions = state.sessions[sessionId]?.transactions;
       if (transactions != null) {
-        state[sessionId].transactions = transactions.map((transaction) => {
-          if (transaction.hash === updatedTransaction.hash) {
-            return {
-              ...transaction,
-              ...(updatedTransaction ?? {})
-            };
+        state.sessions[sessionId].transactions = transactions.map(
+          (transaction) => {
+            if (transaction.hash === updatedTransaction.hash) {
+              return {
+                ...transaction,
+                ...(updatedTransaction ?? {})
+              };
+            }
+            return transaction;
           }
-          return transaction;
-        });
+        );
 
         const status = getTransactionsSessionStatus(transactions);
         if (status) {
-          state[sessionId].status = status;
+          state.sessions[sessionId].status = status;
         }
       }
     },
@@ -87,10 +91,10 @@ export const updateTransactionStatus = ({
 export const clearCompletedTransactions = () => {
   getStore().setState(
     ({ transactions: state, toasts: toastsState }) => {
-      const sessionIds = Object.keys(state);
+      const sessionIds = Object.keys(state.sessions);
 
       const completedSessionIds = sessionIds.filter((sessionId) => {
-        const session = state[sessionId];
+        const session = state.sessions[sessionId];
         if (!session) {
           return false;
         }
@@ -106,7 +110,7 @@ export const clearCompletedTransactions = () => {
       });
 
       completedSessionIds.forEach((sessionId) => {
-        delete state[sessionId];
+        delete state.sessions[sessionId];
       });
 
       const filteredTransactionToasts = toastsState.transactionToasts.filter(
@@ -117,5 +121,19 @@ export const clearCompletedTransactions = () => {
     },
     false,
     'clearCompletedTransactions'
+  );
+};
+
+export const setInterpretedTransactions = ({
+  transaction
+}: {
+  transaction: ITransactionListItem;
+}) => {
+  getStore().setState(
+    ({ transactions: state }) => {
+      state.interpretedTransactions[transaction.hash] = transaction;
+    },
+    false,
+    'setInterpretedTransactions'
   );
 };

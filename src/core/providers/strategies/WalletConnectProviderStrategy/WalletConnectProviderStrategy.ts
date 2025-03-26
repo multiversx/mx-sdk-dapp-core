@@ -311,7 +311,7 @@ export class WalletConnectProviderStrategy {
 
       return signedTransactions;
     } catch (error) {
-      await onClose(true);
+      await onClose({ shouldCancelAction: true });
       await this.sendCustomRequest({
         method: WalletConnectOptionalMethodsEnum.CANCEL_ACTION,
         action: OptionalOperation.CANCEL_ACTION

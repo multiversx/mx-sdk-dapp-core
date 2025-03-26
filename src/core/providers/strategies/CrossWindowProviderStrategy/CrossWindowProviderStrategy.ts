@@ -117,7 +117,7 @@ export class CrossWindowProviderStrategy {
 
       return optionallyGuardedTransactions;
     } catch (error) {
-      await onClose(true);
+      await onClose({ shouldCancelAction: true });
 
       throw error;
     } finally {

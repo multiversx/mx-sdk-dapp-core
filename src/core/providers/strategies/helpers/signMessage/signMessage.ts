@@ -24,7 +24,7 @@ export async function signMessage<T>({
         });
 
       const handleClose = async () => {
-        await onClose(false);
+        await onClose({ shouldCancelAction: false });
         reject({ message: SigningWarningsEnum.cancelled });
       };
 
@@ -43,7 +43,7 @@ export async function signMessage<T>({
         const signedMessage = await handleSignMessage(message);
         resolve(signedMessage);
       } catch (err) {
-        await onClose(true);
+        await onClose({ shouldCancelAction: true });
         reject(err);
       } finally {
         manager.closeAndReset();

@@ -2,7 +2,10 @@ import { StateCreator } from 'zustand/vanilla';
 import { StoreType, MutatorsIn } from 'store/store.types';
 import { TransactionsSliceType } from './transactionsSlice.types';
 
-export const initialState: TransactionsSliceType = {};
+export const initialState: TransactionsSliceType = {
+  sessions: {},
+  interpretedTransactions: {}
+};
 
 function getTransactionsSlice(): StateCreator<
   StoreType,
