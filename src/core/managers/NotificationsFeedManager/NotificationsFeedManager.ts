@@ -6,7 +6,7 @@ import { clearCompletedTransactions } from 'store/actions/transactions/transacti
 import { getStore } from 'store/store';
 import { NotificationsFeedEventsEnum } from './types';
 import { createToastsFromTransactions } from '../internal/ToastManager/helpers/createToastsFromTransactions';
-import { ITransactionToast } from '../internal/ToastManager/types/toast.types';
+import { ITransactionToast } from '../internal/ToastManager/types';
 import { SidePanelBaseManager } from '../SidePanelBaseManager/SidePanelBaseManager';
 
 interface INotificationsFeedManagerData {
@@ -46,6 +46,8 @@ export class NotificationsFeedManager extends SidePanelBaseManager<
 
   public async init() {
     await super.init();
+    this.setInitialData();
+    this.resetData();
     await this.updateDataAndNotifications();
 
     this.storeToastsUnsubscribe = this.store.subscribe(
@@ -86,7 +88,7 @@ export class NotificationsFeedManager extends SidePanelBaseManager<
   }
 
   protected getDataUpdateEventName(): NotificationsFeedEventsEnum {
-    return NotificationsFeedEventsEnum.TRANSACTIONS_HISTORY_UPDATE;
+    return NotificationsFeedEventsEnum.OPEN_NOTIFICATIONS_FEED;
   }
 
   protected handleCloseUI() {
@@ -116,24 +118,19 @@ export class NotificationsFeedManager extends SidePanelBaseManager<
   }
 
   protected async updateDataAndNotifications() {
-    const {
-      transactions: sessions,
-      account,
-      toasts,
-      network
-    } = this.store.getState();
+    const { transactions, account, toasts, network } = this.store.getState();
 
-    const { pendingTransactions } = createToastsFromTransactions({
+    const { pendingTransactionToasts } = await createToastsFromTransactions({
       toastList: toasts,
-      sessions,
+      transactionsSessions: transactions,
       account
     });
 
-    this.data.pendingTransactions = pendingTransactions;
+    this.data.pendingTransactions = pendingTransactionToasts;
 
     this.data.historicTransactions =
       await TransactionsHistoryController.getTransactionsHistory({
-        sessions,
+        transactionsSessions: transactions,
         address: account.address,
         explorerAddress: network.network.explorerAddress,
         egldLabel: network.network.egldLabel
@@ -160,5 +157,12 @@ export class NotificationsFeedManager extends SidePanelBaseManager<
       NotificationsFeedEventsEnum.TRANSACTIONS_HISTORY_UPDATE,
       this.data.historicTransactions
     );
+  }
+
+  private setInitialData() {
+    this.initialData = {
+      pendingTransactions: [],
+      historicTransactions: []
+    };
   }
 }

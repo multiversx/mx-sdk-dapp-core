@@ -85,13 +85,17 @@ export class ExtensionProviderStrategy {
       title: 'Confirm on MultiversX DeFi Wallet',
       subtitle: 'Check your MultiversX Wallet Extension to sign the transaction'
     });
+
     try {
       const signedTransactions: Transaction[] =
         (await this._signTransactions(transactions)) ?? [];
 
       return signedTransactions;
+    } catch (error) {
+      await onClose({ shouldCancelAction: true });
+      throw error;
     } finally {
-      onClose();
+      manager.closeAndReset();
       eventBus.unsubscribe(
         PendingTransactionsEventsEnum.CLOSE_PENDING_TRANSACTIONS,
         onClose

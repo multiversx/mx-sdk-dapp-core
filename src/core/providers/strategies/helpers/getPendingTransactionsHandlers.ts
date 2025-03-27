@@ -13,7 +13,9 @@ export async function getPendingTransactionsHandlers<T>(props?: {
     throw new Error(ProviderErrorsEnum.eventBusError);
   }
 
-  const onClose = async (shouldCancelAction = true) => {
+  const onClose = async ({
+    shouldCancelAction = true
+  }: { shouldCancelAction?: boolean } = {}) => {
     pendingTransactionsStateManager.closeAndReset();
 
     if (shouldCancelAction && props?.cancelAction) {

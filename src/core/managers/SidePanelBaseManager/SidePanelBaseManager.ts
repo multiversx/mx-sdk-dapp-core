@@ -68,7 +68,7 @@ export abstract class SidePanelBaseManager<TElement, TData, TEventEnum> {
   }
 
   public closeAndReset(): void {
-    if (!this.eventBus || !this.isOpen) {
+    if (!this.eventBus) {
       return;
     }
 
@@ -76,8 +76,6 @@ export abstract class SidePanelBaseManager<TElement, TData, TEventEnum> {
     this.notifyDataUpdate();
     this.resetData();
     this.isOpen = false;
-
-    this.publishEvent(this.getCloseEventName());
   }
 
   public updateData(newData: Partial<TData>): void {

@@ -1,4 +1,4 @@
-import type { TransactionsSliceType } from 'store/slices/transactions/transactionsSlice.types';
+import type { SessionTransactionType } from 'types/transactions.types';
 
 export enum TransactionIconTypeEnum {
   FAILED = 'failed',
@@ -17,7 +17,7 @@ export interface IBaseTransactionParams {
 
 export interface IGetHistoricalTransactionsParams
   extends IBaseTransactionParams {
-  sessions: TransactionsSliceType;
+  transactionsSessions: Record<string, SessionTransactionType>;
 }
 
 export enum TransactionActionMethodTypeEnum {

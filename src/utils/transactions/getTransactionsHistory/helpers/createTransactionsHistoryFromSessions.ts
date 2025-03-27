@@ -1,8 +1,10 @@
-import { TransactionsSliceType } from 'store/slices/transactions/transactionsSlice.types';
-import { SignedTransactionType } from 'types/transactions.types';
+import {
+  SessionTransactionType,
+  SignedTransactionType
+} from 'types/transactions.types';
 
 export const createTransactionsHistoryFromSessions = (
-  sessions: TransactionsSliceType
+  sessions: Record<string, SessionTransactionType>
 ): SignedTransactionType[] => {
   const sortedSessionKeys = Object.keys(sessions).sort(
     (a, b) => Number(b) - Number(a)
