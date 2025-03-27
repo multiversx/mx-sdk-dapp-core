@@ -122,7 +122,7 @@ export class NotificationsFeedManager extends SidePanelBaseManager<
 
     const { pendingTransactionToasts } = await createToastsFromTransactions({
       toastList: toasts,
-      sessions: transactions,
+      transactionsSessions: transactions,
       account
     });
 
@@ -130,7 +130,7 @@ export class NotificationsFeedManager extends SidePanelBaseManager<
 
     this.data.historicTransactions =
       await TransactionsHistoryController.getTransactionsHistory({
-        sessions: transactions,
+        transactionsSessions: transactions,
         address: account.address,
         explorerAddress: network.network.explorerAddress,
         egldLabel: network.network.egldLabel

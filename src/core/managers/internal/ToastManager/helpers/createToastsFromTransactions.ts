@@ -20,14 +20,14 @@ interface CreateToastsFromTransactionsReturnType {
 
 interface CreateToastsFromTransactionsParamsType {
   toastList: ToastsSliceType;
-  sessions: Record<string, SessionTransactionType>;
+  transactionsSessions: Record<string, SessionTransactionType>;
   account: AccountSliceType;
   existingCompletedTransactions?: ITransactionToast[];
 }
 
 export const createToastsFromTransactions = async ({
   toastList,
-  sessions,
+  transactionsSessions,
   account,
   existingCompletedTransactions = []
 }: CreateToastsFromTransactionsParamsType): Promise<CreateToastsFromTransactionsReturnType> => {
@@ -39,12 +39,13 @@ export const createToastsFromTransactions = async ({
   const egldLabel = getEgldLabel();
 
   for (const toast of toastList.transactionToasts) {
-    const session = sessions[toast.toastId];
-    if (!session?.status) {
+    const transactionSession = transactionsSessions[toast.toastId];
+    if (!transactionSession?.status) {
       continue;
     }
 
-    const { status, transactions, transactionsDisplayInfo } = session;
+    const { status, transactions, transactionsDisplayInfo } =
+      transactionSession;
 
     const interprettedTransactions = await mapServerTransactionsToListItems({
       transactions,

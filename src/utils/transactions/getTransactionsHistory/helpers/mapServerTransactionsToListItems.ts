@@ -64,7 +64,6 @@ export const mapServerTransactionsToListItems = async ({
           status: TransactionServerStatusesEnum.pending,
           gasUsed: 0,
           miniBlockHash: '',
-          nonce: 0,
           receiverShard: 0,
           round: 0,
           senderShard: 0,

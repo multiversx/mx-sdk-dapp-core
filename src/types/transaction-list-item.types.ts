@@ -17,7 +17,7 @@ export interface IBaseTransactionParams {
 
 export interface IGetHistoricalTransactionsParams
   extends IBaseTransactionParams {
-  sessions: Record<string, SessionTransactionType>;
+  transactionsSessions: Record<string, SessionTransactionType>;
 }
 
 export enum TransactionActionMethodTypeEnum {
