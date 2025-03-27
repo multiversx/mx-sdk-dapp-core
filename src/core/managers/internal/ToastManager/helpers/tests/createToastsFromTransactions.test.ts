@@ -5,7 +5,10 @@ import {
 } from 'store/actions/transactions/transactionStateByStatus';
 import { AccountSliceType } from 'store/slices/account/account.types';
 import { TransactionServerStatusesEnum } from 'types/enums.types';
-import { TransactionsDisplayInfoType } from 'types/transactions.types';
+import {
+  SignedTransactionType,
+  TransactionsDisplayInfoType
+} from 'types/transactions.types';
 import { mapServerTransactionsToListItems } from 'utils/transactions/getTransactionsHistory/helpers';
 import { ITransactionToast } from '../../types/toast.types';
 import { createToastsFromTransactions } from '../createToastsFromTransactions';
@@ -92,11 +95,11 @@ describe('createToastsFromTransactions', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (mapServerTransactionsToListItems as jest.Mock).mockImplementation(
-      ({ hashes }) =>
+      ({ transactions }) =>
         Promise.resolve(
-          hashes.map((hash: string) => ({
+          transactions.map((transaction: SignedTransactionType) => ({
             ...baseTransactionMock,
-            hash
+            hash: transaction.hash
           }))
         )
     );
