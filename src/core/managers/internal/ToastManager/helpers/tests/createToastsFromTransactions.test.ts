@@ -108,7 +108,7 @@ describe('createToastsFromTransactions', () => {
   it('should return empty arrays for processing and completed transactions when no transactions exist', async () => {
     const result = await createToastsFromTransactions({
       toastList: { transactionToasts: [], customToasts: [] },
-      sessions: {},
+      transactionsSessions: {},
       account: mockAccount
     });
 
@@ -135,7 +135,7 @@ describe('createToastsFromTransactions', () => {
       customToasts: []
     };
 
-    const sessions = {
+    const transactionsSessions = {
       [TOAST_IDS.PENDING]: createMockSession(
         TransactionServerStatusesEnum.pending,
         'tx-1'
@@ -148,7 +148,7 @@ describe('createToastsFromTransactions', () => {
 
     const result = await createToastsFromTransactions({
       toastList,
-      sessions,
+      transactionsSessions,
       account: mockAccount
     });
 
