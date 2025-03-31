@@ -1,6 +1,5 @@
 export {
   Transaction,
-  TransactionPayload,
   TransactionVersion,
   Address,
   TransactionComputer,

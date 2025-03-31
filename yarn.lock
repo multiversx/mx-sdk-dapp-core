@@ -1044,10 +1044,10 @@
     axios "^1.7.4"
     bip39 "3.1.0"
 
-"@multiversx/sdk-dapp-core-ui@>=0.0.0-alpha.6":
-  version "0.0.0-alpha.9"
-  resolved "https://registry.yarnpkg.com/@multiversx/sdk-dapp-core-ui/-/sdk-dapp-core-ui-0.0.0-alpha.9.tgz#d66e091a1494ba73dae021039c63d0d71ea8efd8"
-  integrity sha512-NV3lESvwTNmImZZKKOm2eypo0d4CPjFdXsZlycX356EVVg3JK7roXl2vky95/2ZTb+brRcwGwa23dIunMAYyMA==
+"@multiversx/sdk-dapp-core-ui@>=0.0.0-alpha.10":
+  version "0.0.0-alpha.10"
+  resolved "https://registry.yarnpkg.com/@multiversx/sdk-dapp-core-ui/-/sdk-dapp-core-ui-0.0.0-alpha.10.tgz#617311c28589e5ff4d6d6482df510a4954c18e27"
+  integrity sha512-8xxb2YbOpJ7I/SK9/hvD8Chu/VHhzhi9bbg4Nla6FQnqcPOf37cN897FTecm0SZC0QpBauOhzd//BAwIZGYbgg==
   dependencies:
     "@fortawesome/fontawesome-svg-core" ">= 6.7.2"
     "@fortawesome/free-solid-svg-icons" ">= 6.7.2"

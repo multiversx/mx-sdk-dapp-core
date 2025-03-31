@@ -46,7 +46,7 @@ export async function signTransactionsWithProvider({
             ...(isLedger ? { hashSign: true } : {})
           }).valueOf();
 
-          transaction.guardian = activeGuardianAddress;
+          transaction.guardian = Address.newFromBech32(activeGuardianAddress);
 
           return transaction;
         })
