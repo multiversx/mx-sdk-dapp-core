@@ -3,12 +3,6 @@ import {
   removeCustomToast,
   removeTransactionToast
 } from 'store/actions/toasts/toastsActions';
-import {
-  getIsTransactionFailed,
-  getIsTransactionSuccessful,
-  getIsTransactionTimedOut
-} from 'store/actions/transactions/transactionStateByStatus';
-import { getState } from 'store/store';
 
 interface IToastProgressManagerParams {
   successfulToastLifetime?: number;
