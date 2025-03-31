@@ -17,10 +17,7 @@ import {
   getIsTransactionTimedOut
 } from 'store/actions/transactions/transactionStateByStatus';
 
-import {
-  CustomToastType,
-  ToastsSliceType
-} from 'store/slices/toast/toastSlice.types';
+import { CustomToastType } from 'store/slices/toast/toastSlice.types';
 import { getStore } from 'store/store';
 import { IEventBus } from 'types/manager.types';
 import { ProviderErrorsEnum } from 'types/provider.types';
@@ -60,10 +57,8 @@ export class ToastManager {
   }
 
   public async init() {
-    const { toasts: toastState } = this.store.getState();
-    this.refreshTransactionToasts();
-    this.updateCustomToastList(toastState);
-    await this.loadPendingTransactionsToasts();
+    this.updateTransactionToastsList();
+    this.updateCustomToastList();
     await this.notificationsFeedManager.init();
     await this.subscribeToEventBusNotifications();
 
@@ -76,11 +71,11 @@ export class ToastManager {
           !isEqual(prevToasts.transactionToasts, toasts.transactionToasts) ||
           !isEqual(prevTransactions, transactions)
         ) {
-          this.refreshTransactionToasts();
+          this.updateTransactionToastsList();
         }
 
         if (!isEqual(prevToasts.customToasts, toasts.customToasts)) {
-          this.updateCustomToastList(toasts);
+          this.updateCustomToastList();
         }
       }
     );
@@ -104,12 +99,10 @@ export class ToastManager {
       if (this.successfulToastLifetime) {
         this.lifetimeManager.start(toastId);
       }
-
       return isCompleted;
     }
 
     this.lifetimeManager.stop(toastId);
-
     return isCompleted;
   }
 
@@ -120,17 +113,15 @@ export class ToastManager {
     });
 
     this.handleCompletedTransaction(toastId);
-    this.refreshTransactionToasts();
+    this.updateTransactionToastsList();
   }
 
-  public async refreshTransactionToasts() {
-    const { toasts } = this.store.getState();
-    await this.updateTransactionToastsList(toasts);
-  }
-
-  private async updateTransactionToastsList(toastList: ToastsSliceType) {
-    const { transactions: transactionsSessions, account } =
-      this.store.getState();
+  private async updateTransactionToastsList() {
+    const {
+      toasts: toastList,
+      transactions: transactionsSessions,
+      account
+    } = this.store.getState();
 
     const { pendingTransactionToasts, completedTransactionToasts } =
       await createToastsFromTransactions({
@@ -151,7 +142,8 @@ export class ToastManager {
     await this.publishTransactionToasts();
   }
 
-  private async updateCustomToastList(toastList: ToastsSliceType) {
+  private async updateCustomToastList() {
+    const { toasts: toastList } = this.store.getState();
     this.customToasts = [];
 
     for (const toast of toastList.customToasts) {
@@ -198,23 +190,9 @@ export class ToastManager {
   }
 
   private handleTransactionToastClose(toastId: string) {
-    const { transactions } = this.store.getState();
-    const transactionSession = transactions[toastId];
-
-    if (!transactionSession) {
-      this.lifetimeManager.stop(toastId);
-      removeTransactionToast(toastId);
-      return;
-    }
-
-    const { status } = transactionSession;
-    const isTimedOut = getIsTransactionTimedOut(status);
-    const isFailed = getIsTransactionFailed(status);
-    const isSuccessful = getIsTransactionSuccessful(status);
-    const isCompleted = isFailed || isSuccessful || isTimedOut;
+    const isCompleted = this.handleCompletedTransaction(toastId);
 
     if (isCompleted) {
-      this.lifetimeManager.stop(toastId);
       removeTransactionToast(toastId);
     }
   }
@@ -327,52 +305,6 @@ export class ToastManager {
       ToastEventsEnum.TRANSACTION_TOAST_DATA_UPDATE,
       this.transactionToasts
     );
-  }
-
-  private async loadPendingTransactionsToasts() {
-    const {
-      transactions: transactionsSessions,
-      toasts,
-      account
-    } = this.store.getState();
-
-    const { pendingTransactionToasts, completedTransactionToasts } =
-      await createToastsFromTransactions({
-        toastList: toasts,
-        transactionsSessions,
-        account
-      });
-
-    const hasNewToastsToShow =
-      pendingTransactionToasts.length > 0 ||
-      completedTransactionToasts.length > 0;
-    if (!hasNewToastsToShow) {
-      return;
-    }
-
-    const existingToastIds = toasts.transactionToasts.map(
-      (toast) => toast.toastId
-    );
-
-    for (const pendingToast of pendingTransactionToasts) {
-      const { toastId } = pendingToast;
-      const hasExistingToast = existingToastIds.includes(toastId);
-
-      if (!hasExistingToast) {
-        addTransactionToast({
-          toastId,
-          totalDuration: this.successfulToastLifetime || 10000
-        });
-      }
-    }
-
-    for (const completedToast of completedTransactionToasts) {
-      const { toastId } = completedToast;
-
-      this.handleCompletedTransaction(toastId);
-    }
-
-    await this.refreshTransactionToasts();
   }
 
   public destroy() {
