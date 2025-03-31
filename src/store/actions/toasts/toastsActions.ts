@@ -71,6 +71,12 @@ export const removeAllCustomToasts = () => {
   );
 };
 
+export const removeAllTransactionToasts = () => {
+  getStore().setState(({ toasts: state }) => {
+    state.transactionToasts = [];
+  });
+};
+
 export const addTransactionToast = ({
   toastId,
   totalDuration

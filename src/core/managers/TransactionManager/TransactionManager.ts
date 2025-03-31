@@ -23,8 +23,6 @@ import { isBatchTransaction } from './helpers/isBatchTransaction';
 export class TransactionManager {
   private static instance: TransactionManager | null = null;
 
-  constructor() {}
-
   public static getInstance(): TransactionManager {
     if (!TransactionManager.instance) {
       TransactionManager.instance = new TransactionManager();
@@ -94,7 +92,11 @@ export class TransactionManager {
     }
 
     const totalDuration = getToastDuration(sentTransactions);
-    addTransactionToast({ toastId: sessionId, totalDuration });
+    addTransactionToast({
+      toastId: sessionId,
+      totalDuration
+    });
+
     return sessionId;
   };
 

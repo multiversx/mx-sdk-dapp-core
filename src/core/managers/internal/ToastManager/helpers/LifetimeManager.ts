@@ -3,6 +3,12 @@ import {
   removeCustomToast,
   removeTransactionToast
 } from 'store/actions/toasts/toastsActions';
+import {
+  getIsTransactionFailed,
+  getIsTransactionSuccessful,
+  getIsTransactionTimedOut
+} from 'store/actions/transactions/transactionStateByStatus';
+import { getState } from 'store/store';
 
 interface IToastProgressManagerParams {
   successfulToastLifetime?: number;
@@ -11,26 +17,48 @@ interface IToastProgressManagerParams {
 export class LifetimeManager {
   // eslint-disable-next-line no-undef
   private timeoutIntervals: Map<string, NodeJS.Timeout> = new Map();
-  private successfulToastLifetime?: number;
+  private successfulToastLifetime: number;
+  private static DEFAULT_TIMEOUT = 10000; // 10 seconds default timeout
 
   constructor({ successfulToastLifetime }: IToastProgressManagerParams = {}) {
-    this.successfulToastLifetime = successfulToastLifetime;
+    this.successfulToastLifetime =
+      successfulToastLifetime || LifetimeManager.DEFAULT_TIMEOUT;
   }
 
   public start = (toastId: string) => {
-    if (this.timeoutIntervals.has(toastId)) {
+    this.stop(toastId);
+
+    if (this.successfulToastLifetime <= 0) {
       return;
     }
 
     const timeout = setTimeout(() => {
-      removeTransactionToast(toastId);
+      const { transactions } = getState();
+      const transaction = transactions[toastId];
+
+      if (!transaction) {
+        removeTransactionToast(toastId);
+        return;
+      }
+
+      const { status } = transaction;
+      const isTimedOut = getIsTransactionTimedOut(status);
+      const isFailed = getIsTransactionFailed(status);
+      const isSuccessful = getIsTransactionSuccessful(status);
+      const isCompleted = isFailed || isSuccessful || isTimedOut;
+
+      if (isCompleted) {
+        removeTransactionToast(toastId);
+      }
     }, this.successfulToastLifetime);
 
     this.timeoutIntervals.set(toastId, timeout);
   };
 
   public startWithCustomDuration = (toastId: string, duration: number) => {
-    if (this.timeoutIntervals.has(toastId)) {
+    this.stop(toastId);
+
+    if (duration <= 0) {
       return;
     }
 
@@ -46,13 +74,13 @@ export class LifetimeManager {
   public stop = (toastId: string) => {
     const timeout = this.timeoutIntervals.get(toastId);
     if (timeout) {
-      clearInterval(timeout);
+      clearTimeout(timeout);
       this.timeoutIntervals.delete(toastId);
     }
   };
 
   public destroy() {
-    this.timeoutIntervals.forEach((interval) => clearInterval(interval));
+    this.timeoutIntervals.forEach((interval) => clearTimeout(interval));
     this.timeoutIntervals.clear();
   }
 }

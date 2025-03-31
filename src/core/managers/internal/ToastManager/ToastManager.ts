@@ -8,7 +8,8 @@ import {
   customToastComponentDictionary,
   removeAllCustomToasts,
   removeCustomToast,
-  removeTransactionToast
+  removeTransactionToast,
+  addTransactionToast
 } from 'store/actions/toasts/toastsActions';
 import {
   getIsTransactionFailed,
@@ -56,10 +57,11 @@ export class ToastManager {
 
   public async init() {
     const { toasts: toastState } = this.store.getState();
-    this.updateTransactionToastsList(toastState);
+    this.refreshTransactionToasts();
     this.updateCustomToastList(toastState);
-
+    await this.loadPendingTransactionsToasts();
     await this.notificationsFeedManager.init();
+    await this.subscribeToEventBusNotifications();
 
     this.storeToastsSubscription = this.store.subscribe(
       (
@@ -70,7 +72,7 @@ export class ToastManager {
           !isEqual(prevToasts.transactionToasts, toasts.transactionToasts) ||
           !isEqual(prevTransactions, transactions)
         ) {
-          this.updateTransactionToastsList(toasts);
+          this.refreshTransactionToasts();
         }
 
         if (!isEqual(prevToasts.customToasts, toasts.customToasts)) {
@@ -78,6 +80,72 @@ export class ToastManager {
         }
       }
     );
+  }
+
+  private handleCompletedTransaction(toastId: string): boolean {
+    const { transactions } = this.store.getState();
+    const transaction = transactions[toastId];
+
+    if (!transaction) {
+      return false;
+    }
+
+    const { status } = transaction;
+    const isTimedOut = getIsTransactionTimedOut(status);
+    const isFailed = getIsTransactionFailed(status);
+    const isSuccessful = getIsTransactionSuccessful(status);
+    const isCompleted = isFailed || isSuccessful || isTimedOut;
+
+    if (isCompleted) {
+      if (this.successfulToastLifetime) {
+        this.lifetimeManager.start(toastId);
+      }
+
+      return isCompleted;
+    }
+
+    this.lifetimeManager.stop(toastId);
+
+    return isCompleted;
+  }
+
+  // Method to create a transaction toast from TransactionManager
+  public createTransactionToast(toastId: string, totalDuration: number) {
+    addTransactionToast({
+      toastId,
+      totalDuration
+    });
+
+    this.handleCompletedTransaction(toastId);
+    this.refreshTransactionToasts();
+  }
+
+  public async refreshTransactionToasts() {
+    const { toasts } = this.store.getState();
+    await this.updateTransactionToastsList(toasts);
+  }
+
+  private async updateTransactionToastsList(toastList: ToastsSliceType) {
+    const { transactions: transactionsSessions, account } =
+      this.store.getState();
+
+    const { pendingTransactionToasts, completedTransactionToasts } =
+      await createToastsFromTransactions({
+        toastList,
+        transactionsSessions,
+        account
+      });
+
+    this.transactionToasts = [
+      ...pendingTransactionToasts,
+      ...completedTransactionToasts
+    ];
+
+    for (const toast of toastList.transactionToasts) {
+      this.handleCompletedTransaction(toast.toastId);
+    }
+
+    await this.publishTransactionToasts();
   }
 
   private async updateCustomToastList(toastList: ToastsSliceType) {
@@ -102,40 +170,7 @@ export class ToastManager {
       }
     }
 
-    this.renderCustomToasts();
-  }
-
-  private async updateTransactionToastsList(toastList: ToastsSliceType) {
-    const { transactions: transactionsSessions, account } =
-      this.store.getState();
-
-    const { pendingTransactionToasts } = await createToastsFromTransactions({
-      toastList,
-      transactionsSessions,
-      account
-    });
-
-    this.transactionToasts = pendingTransactionToasts;
-
-    for (const toast of toastList.transactionToasts) {
-      const transactionSession = transactionsSessions[toast.toastId];
-      if (!transactionSession) {
-        continue;
-      }
-
-      const { toastId } = toast;
-      const { status } = transactionSession;
-      const isTimedOut = getIsTransactionTimedOut(status);
-      const isFailed = getIsTransactionFailed(status);
-      const isSuccessful = getIsTransactionSuccessful(status);
-      const isCompleted = isFailed || isSuccessful || isTimedOut;
-
-      if (isCompleted && this.successfulToastLifetime) {
-        this.lifetimeManager.start(toastId);
-      }
-    }
-
-    await this.renderToasts();
+    await this.publishCustomToasts();
   }
 
   private async createToastListElement(): Promise<ToastList | null> {
@@ -157,11 +192,28 @@ export class ToastManager {
   }
 
   private handleTransactionToastClose(toastId: string) {
-    this.lifetimeManager.stop(toastId);
-    removeTransactionToast(toastId);
+    const { transactions } = this.store.getState();
+    const transactionSession = transactions[toastId];
+
+    if (!transactionSession) {
+      this.lifetimeManager.stop(toastId);
+      removeTransactionToast(toastId);
+      return;
+    }
+
+    const { status } = transactionSession;
+    const isTimedOut = getIsTransactionTimedOut(status);
+    const isFailed = getIsTransactionFailed(status);
+    const isSuccessful = getIsTransactionSuccessful(status);
+    const isCompleted = isFailed || isSuccessful || isTimedOut;
+
+    if (isCompleted) {
+      this.lifetimeManager.stop(toastId);
+      removeTransactionToast(toastId);
+    }
   }
 
-  private async renderToasts() {
+  private async subscribeToEventBusNotifications() {
     if (this.notificationsFeedManager.isNotificationsFeedOpen()) {
       const notificationsFeedEventBus =
         await this.notificationsFeedManager.getEventBus();
@@ -169,7 +221,7 @@ export class ToastManager {
       if (notificationsFeedEventBus) {
         notificationsFeedEventBus.subscribe(
           NotificationsFeedEventsEnum.CLOSE_NOTIFICATIONS_FEED,
-          this.renderToasts.bind(this)
+          this.publishTransactionToasts.bind(this)
         );
       }
 
@@ -177,29 +229,33 @@ export class ToastManager {
     }
 
     const toastsElement = await this.createToastListElement();
-
     if (!toastsElement) {
       return;
     }
 
     const eventBus = await toastsElement.getEventBus();
-
     if (!eventBus) {
       throw new Error(ProviderErrorsEnum.eventBusError);
     }
 
-    eventBus.publish(
-      ToastEventsEnum.TRANSACTION_TOAST_DATA_UPDATE,
-      this.transactionToasts
-    );
+    eventBus.subscribe(ToastEventsEnum.CLOSE_TOAST, (toastId: string) => {
+      const customToast = this.customToasts.find(
+        (toast) => toast.toastId === toastId
+      );
 
-    eventBus.subscribe(
-      ToastEventsEnum.CLOSE_TOAST,
-      this.handleTransactionToastClose.bind(this)
-    );
+      if (customToast) {
+        this.lifetimeManager.stop(toastId);
+        const handleClose = customToastCloseHandlersDictionary[toastId];
+        handleClose?.();
+        removeCustomToast(toastId);
+        return;
+      }
 
+      this.handleTransactionToastClose(toastId);
+    });
+
+    // Subscribe to open notifications feed event
     eventBus.subscribe(ToastEventsEnum.OPEN_NOTIFICATIONS_FEED, () => {
-      this.transactionToasts = [];
       eventBus.publish(
         ToastEventsEnum.TRANSACTION_TOAST_DATA_UPDATE,
         this.transactionToasts
@@ -209,7 +265,28 @@ export class ToastManager {
     });
   }
 
-  private async renderCustomToasts() {
+  private async publishTransactionToasts() {
+    if (this.notificationsFeedManager.isNotificationsFeedOpen()) {
+      return;
+    }
+
+    const toastsElement = await this.createToastListElement();
+    if (!toastsElement) {
+      return;
+    }
+
+    const eventBus = await toastsElement.getEventBus();
+    if (!eventBus) {
+      throw new Error(ProviderErrorsEnum.eventBusError);
+    }
+
+    eventBus.publish(
+      ToastEventsEnum.TRANSACTION_TOAST_DATA_UPDATE,
+      this.transactionToasts
+    );
+  }
+
+  private async publishCustomToasts() {
     if (this.notificationsFeedManager.isNotificationsFeedOpen()) {
       return;
     }
@@ -228,13 +305,52 @@ export class ToastManager {
       ToastEventsEnum.CUSTOM_TOAST_DATA_UPDATE,
       this.customToasts
     );
+  }
 
-    eventBus.subscribe(ToastEventsEnum.CLOSE_TOAST, (toastId: string) => {
-      this.lifetimeManager.stop(toastId);
-      const handleClose = customToastCloseHandlersDictionary[toastId];
-      handleClose?.();
-      removeCustomToast(toastId);
-    });
+  private async loadPendingTransactionsToasts() {
+    const {
+      transactions: transactionsSessions,
+      toasts,
+      account
+    } = this.store.getState();
+
+    const { pendingTransactionToasts, completedTransactionToasts } =
+      await createToastsFromTransactions({
+        toastList: toasts,
+        transactionsSessions,
+        account
+      });
+
+    const hasNewToastsToShow =
+      pendingTransactionToasts.length > 0 ||
+      completedTransactionToasts.length > 0;
+    if (!hasNewToastsToShow) {
+      return;
+    }
+
+    const existingToastIds = toasts.transactionToasts.map(
+      (toast) => toast.toastId
+    );
+
+    for (const pendingToast of pendingTransactionToasts) {
+      const { toastId } = pendingToast;
+      const hasExistingToast = existingToastIds.includes(toastId);
+
+      if (!hasExistingToast) {
+        addTransactionToast({
+          toastId,
+          totalDuration: this.successfulToastLifetime || 10000
+        });
+      }
+    }
+
+    for (const completedToast of completedTransactionToasts) {
+      const { toastId } = completedToast;
+
+      this.handleCompletedTransaction(toastId);
+    }
+
+    await this.refreshTransactionToasts();
   }
 
   public destroy() {

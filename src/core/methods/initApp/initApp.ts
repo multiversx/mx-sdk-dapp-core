@@ -84,7 +84,7 @@ export async function initApp({
     successfulToastLifetime: dAppConfig.successfulToastLifetime
   });
 
-  toastManager.init();
+  await toastManager.init();
 
   const pendingTransactionsStateManager =
     PendingTransactionsStateManager.getInstance();
