@@ -73,7 +73,7 @@ export class SignTransactionsStateManager extends SidePanelBaseManager<
         const initialGasPrice = transaction ? Number(transaction.gasPrice) : 0;
         const ppu = EMPTY_PPU;
         this.updateGasPriceMap({
-          nonce: Number(transaction.nonce ?? 0),
+          nonce: Number(transaction.nonce),
           ppu,
           initialGasPrice
         });
