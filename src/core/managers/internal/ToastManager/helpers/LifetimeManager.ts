@@ -33,23 +33,7 @@ export class LifetimeManager {
     }
 
     const timeout = setTimeout(() => {
-      const { transactions } = getState();
-      const transaction = transactions[toastId];
-
-      if (!transaction) {
-        removeTransactionToast(toastId);
-        return;
-      }
-
-      const { status } = transaction;
-      const isTimedOut = getIsTransactionTimedOut(status);
-      const isFailed = getIsTransactionFailed(status);
-      const isSuccessful = getIsTransactionSuccessful(status);
-      const isCompleted = isFailed || isSuccessful || isTimedOut;
-
-      if (isCompleted) {
-        removeTransactionToast(toastId);
-      }
+      removeTransactionToast(toastId);
     }, this.successfulToastLifetime);
 
     this.timeoutIntervals.set(toastId, timeout);
