@@ -63,7 +63,7 @@ export class NotificationsFeedManager extends SidePanelBaseManager<
       }
     );
 
-    this.eventBusUnsubscribeFunctions.push(storeToastsUnsubscribe);
+    this.unsubscribeFunctions.push(storeToastsUnsubscribe);
   }
 
   public async openNotificationsFeed() {
@@ -105,7 +105,7 @@ export class NotificationsFeedManager extends SidePanelBaseManager<
       this.handleCloseUI.bind(this)
     );
 
-    this.eventBusUnsubscribeFunctions.push(() => {
+    this.unsubscribeFunctions.push(() => {
       this.eventBus?.unsubscribe(
         NotificationsFeedEventsEnum.CLOSE_NOTIFICATIONS_FEED,
         this.handleCloseUI.bind(this)
@@ -117,7 +117,7 @@ export class NotificationsFeedManager extends SidePanelBaseManager<
       this.handleClearNotificationsFeedHistory.bind(this)
     );
 
-    this.eventBusUnsubscribeFunctions.push(() => {
+    this.unsubscribeFunctions.push(() => {
       this.eventBus?.unsubscribe(
         NotificationsFeedEventsEnum.CLEAR_NOTIFICATIONS_FEED_HISTORY,
         this.handleClearNotificationsFeedHistory.bind(this)
