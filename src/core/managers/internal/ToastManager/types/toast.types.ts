@@ -1,3 +1,4 @@
+import { ITransactionListItem } from 'lib/sdkDappCoreUi';
 import {
   TransactionBatchStatusesEnum,
   TransactionServerStatusesEnum
@@ -40,7 +41,7 @@ export interface ITransaction {
 export interface ITransactionToast {
   toastId: string;
   processedTransactionsStatus: string;
-  transactions: ITransaction[];
+  transactions: ITransactionListItem[];
   toastDataState: IToastDataState;
   transactionProgressState?: ITransactionProgressState | null;
 }

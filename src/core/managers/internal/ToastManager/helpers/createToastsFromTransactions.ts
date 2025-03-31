@@ -1,3 +1,4 @@
+import { getEgldLabel } from 'core/methods/network/getEgldLabel';
 import { getExplorerAddress } from 'core/methods/network/getExplorerAddress';
 import {
   getIsTransactionFailed,
@@ -9,40 +10,49 @@ import { AccountSliceType } from 'store/slices/account/account.types';
 import { ToastsSliceType } from 'store/slices/toast/toastSlice.types';
 import { TransactionServerStatusesEnum } from 'types/enums.types';
 import { SessionTransactionType } from 'types/transactions.types';
+import { mapServerTransactionsToListItems } from 'utils/transactions/getTransactionsHistory/helpers';
 import { createTransactionToast } from './createTransactionToast';
 import { ITransactionToast } from '../types/toast.types';
-
 interface CreateToastsFromTransactionsReturnType {
-  pendingTransactions: ITransactionToast[];
-  completedTransactions: ITransactionToast[];
+  pendingTransactionToasts: ITransactionToast[];
+  completedTransactionToasts: ITransactionToast[];
 }
 
 interface CreateToastsFromTransactionsParamsType {
   toastList: ToastsSliceType;
-  sessions: Record<string, SessionTransactionType>;
+  transactionsSessions: Record<string, SessionTransactionType>;
   account: AccountSliceType;
   existingCompletedTransactions?: ITransactionToast[];
 }
 
-export const createToastsFromTransactions = ({
+export const createToastsFromTransactions = async ({
   toastList,
-  sessions,
+  transactionsSessions,
   account,
   existingCompletedTransactions = []
-}: CreateToastsFromTransactionsParamsType): CreateToastsFromTransactionsReturnType => {
-  const pendingTransactions: ITransactionToast[] = [];
-  const completedTransactions: ITransactionToast[] = [
+}: CreateToastsFromTransactionsParamsType): Promise<CreateToastsFromTransactionsReturnType> => {
+  const pendingTransactionToasts: ITransactionToast[] = [];
+  const completedTransactionToasts: ITransactionToast[] = [
     ...existingCompletedTransactions
   ];
   const explorerAddress = getExplorerAddress();
+  const egldLabel = getEgldLabel();
 
   for (const toast of toastList.transactionToasts) {
-    const session = sessions[toast.toastId];
-    if (!session?.status) {
+    const transactionSession = transactionsSessions[toast.toastId];
+    if (!transactionSession?.status) {
       continue;
     }
 
-    const { status, transactions, transactionsDisplayInfo } = session;
+    const { status, transactions, transactionsDisplayInfo } =
+      transactionSession;
+
+    const interprettedTransactions = await mapServerTransactionsToListItems({
+      transactions,
+      address: account.address,
+      explorerAddress,
+      egldLabel
+    });
 
     const isTimedOut = getIsTransactionTimedOut(status);
     const isFailed = getIsTransactionFailed(status);
@@ -53,7 +63,7 @@ export const createToastsFromTransactions = ({
 
     if (
       isCompleted &&
-      completedTransactions.some((t) => t.toastId === toast.toastId)
+      completedTransactionToasts.some((t) => t.toastId === toast.toastId)
     ) {
       continue;
     }
@@ -62,7 +72,7 @@ export const createToastsFromTransactions = ({
       toastId: toast.toastId,
       address: account.address,
       status: status as TransactionServerStatusesEnum,
-      transactions,
+      transactions: interprettedTransactions,
       transactionsDisplayInfo,
       explorerAddress,
       startTime,
@@ -70,16 +80,16 @@ export const createToastsFromTransactions = ({
     });
 
     if (isCompleted) {
-      completedTransactions.push(transactionToast);
+      completedTransactionToasts.push(transactionToast);
     }
 
     if (isPending) {
-      pendingTransactions.push(transactionToast);
+      pendingTransactionToasts.push(transactionToast);
     }
   }
 
   return {
-    pendingTransactions,
-    completedTransactions
+    pendingTransactionToasts,
+    completedTransactionToasts
   };
 };

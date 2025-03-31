@@ -1,9 +1,10 @@
 export enum UITagsEnum {
-  NOTIFICATIONS_FEED = 'notifications-feed',
-  TOAST_LIST = 'toast-list',
-  WALLET_CONNECT_MODAL = 'wallet-connect-modal',
-  PENDING_TRANSACTIONS_MODAL = 'pending-transactions-modal',
   LEDGER_CONNECT = 'ledger-connect',
-  LEDGER_CONNECT_MODAL = 'ledger-connect-modal',
-  SIGN_TRANSACTIONS_MODAL = 'sign-transactions-modal'
+  LEDGER_CONNECT_PANEL = 'ledger-connect-panel',
+  NOTIFICATIONS_FEED = 'notifications-feed',
+  PENDING_TRANSACTIONS_PANEL = 'pending-transactions-panel',
+  SIGN_TRANSACTIONS_PANEL = 'sign-transactions-panel',
+  TOAST_LIST = 'toast-list',
+  WALLET_CONNECT = 'wallet-connect',
+  WALLET_CONNECT_PANEL = 'wallet-connect-panel'
 }

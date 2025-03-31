@@ -1,44 +1,71 @@
-import { IEventBus } from 'types/manager.types';
+import { UITagsEnum } from 'constants/UITags.enum';
 import {
-  IPendingTransactionsModalData,
+  IPendingTransactionsPanelData,
+  PendingTransactionsPanel
+} from 'lib/sdkDappCoreUi';
+import { PendingTransactionsEventsEnum } from './types/pendingTransactions.types';
+import { SidePanelBaseManager } from '../../SidePanelBaseManager/SidePanelBaseManager';
+
+export class PendingTransactionsStateManager extends SidePanelBaseManager<
+  PendingTransactionsPanel,
+  IPendingTransactionsPanelData,
   PendingTransactionsEventsEnum
-} from './types';
-
-export class PendingTransactionsStateManager<
-  T extends
-    IEventBus<IPendingTransactionsModalData> = IEventBus<IPendingTransactionsModalData>
 > {
-  private eventBus: T;
+  private static instance: PendingTransactionsStateManager;
 
-  private initialData: IPendingTransactionsModalData = {
+  protected initialData: IPendingTransactionsPanelData = {
     isPending: false,
     title: '',
     subtitle: '',
     shouldClose: false
   };
 
-  private data: IPendingTransactionsModalData = { ...this.initialData };
+  public static getInstance(): PendingTransactionsStateManager {
+    if (!PendingTransactionsStateManager.instance) {
+      PendingTransactionsStateManager.instance =
+        new PendingTransactionsStateManager();
+    }
 
-  constructor(eventBus: T) {
-    this.eventBus = eventBus;
+    return PendingTransactionsStateManager.instance;
   }
 
-  public closeAndReset(): void {
-    this.data.shouldClose = true;
-    this.notifyDataUpdate();
-    this.resetData();
-  }
-
-  private resetData(): void {
+  constructor() {
+    super('pending-transactions');
     this.data = { ...this.initialData };
   }
 
-  public updateData(newData: IPendingTransactionsModalData): void {
-    this.data = { ...this.data, ...newData };
-    this.notifyDataUpdate();
+  public isPendingTransactionsOpen(): boolean {
+    return this.isOpen;
   }
 
-  private notifyDataUpdate(): void {
-    this.eventBus.publish(PendingTransactionsEventsEnum.DATA_UPDATE, this.data);
+  public async openPendingTransactions(data: IPendingTransactionsPanelData) {
+    await this.openUI({ ...data, isPending: true });
+  }
+
+  protected getUIElementName(): UITagsEnum {
+    return UITagsEnum.PENDING_TRANSACTIONS_PANEL;
+  }
+
+  protected getOpenEventName(): PendingTransactionsEventsEnum {
+    return PendingTransactionsEventsEnum.OPEN_PENDING_TRANSACTIONS_PANEL;
+  }
+
+  protected getCloseEventName(): PendingTransactionsEventsEnum {
+    return PendingTransactionsEventsEnum.CLOSE_PENDING_TRANSACTIONS;
+  }
+
+  protected getDataUpdateEventName(): PendingTransactionsEventsEnum {
+    return PendingTransactionsEventsEnum.DATA_UPDATE;
+  }
+
+  protected async setupEventListeners() {
+    if (!this.eventBus) {
+      return;
+    }
+
+    this.eventBus.subscribe(
+      PendingTransactionsEventsEnum.CLOSE_PENDING_TRANSACTIONS,
+      this.handleCloseUI.bind(this)
+    );
   }
 }

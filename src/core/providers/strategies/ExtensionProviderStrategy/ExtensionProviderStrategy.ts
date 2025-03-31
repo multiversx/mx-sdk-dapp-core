@@ -8,7 +8,7 @@ import {
   providerLabels
 } from 'core/providers/types/providerFactory.types';
 import { ProviderErrorsEnum } from 'types/provider.types';
-import { getModalHandlers } from '../helpers/getModalHandlers';
+import { getPendingTransactionsHandlers } from '../helpers/getPendingTransactionsHandlers';
 import { signMessage } from '../helpers/signMessage/signMessage';
 
 export class ExtensionProviderStrategy {
@@ -69,25 +69,37 @@ export class ExtensionProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    const { eventBus, manager, onClose } = await getModalHandlers({
-      cancelAction: this.provider.cancelAction.bind(this.provider)
-    });
+    const { eventBus, manager, onClose } = await getPendingTransactionsHandlers(
+      {
+        cancelAction: this.provider.cancelAction.bind(this.provider)
+      }
+    );
 
-    eventBus.subscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
+    eventBus.subscribe(
+      PendingTransactionsEventsEnum.CLOSE_PENDING_TRANSACTIONS,
+      onClose
+    );
 
     manager.updateData({
       isPending: true,
       title: 'Confirm on MultiversX DeFi Wallet',
       subtitle: 'Check your MultiversX Wallet Extension to sign the transaction'
     });
+
     try {
       const signedTransactions: Transaction[] =
         (await this._signTransactions(transactions)) ?? [];
 
       return signedTransactions;
+    } catch (error) {
+      await onClose({ shouldCancelAction: true });
+      throw error;
     } finally {
-      onClose();
-      eventBus.unsubscribe(PendingTransactionsEventsEnum.CLOSE, onClose);
+      manager.closeAndReset();
+      eventBus.unsubscribe(
+        PendingTransactionsEventsEnum.CLOSE_PENDING_TRANSACTIONS,
+        onClose
+      );
     }
   };
 

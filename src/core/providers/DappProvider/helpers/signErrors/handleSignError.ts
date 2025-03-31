@@ -3,6 +3,7 @@ import {
   CANCEL_TRANSACTION_TOAST_ID,
   ERROR_SIGNING_TOAST_ID
 } from 'constants/transactions.constants';
+import { ToastIconsEnum } from 'core/managers/internal/ToastManager/helpers/getToastDataStateByStatus';
 import { createCustomToast } from 'store/actions';
 import { SigningErrorsEnum, SigningWarningsEnum } from 'types/enums.types';
 
@@ -35,7 +36,7 @@ export function handleSignError(
   createCustomToast({
     toastId,
     duration: CANCEL_TRANSACTION_TOAST_DEFAULT_DURATION,
-    icon: 'times',
+    icon: ToastIconsEnum.times,
     iconClassName,
     message: errorMessage,
     title

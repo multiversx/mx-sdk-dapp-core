@@ -1,11 +1,11 @@
 import { getLatestNonce } from 'core/methods/account/getLatestNonce';
+import { getNetworkConfig } from 'core/methods/network/getNetworkConfig';
 import { IProvider } from 'core/providers/types/providerFactory.types';
 import { loginAction } from 'store/actions';
 import { setAccount } from 'store/actions/account';
 import { setLoginToken } from 'store/actions/loginInfo/loginInfoActions';
 import { AccountType } from 'types/account.types';
 import { getAccountFromToken } from './getAccountFromToken';
-import { getNetworkConfig } from 'core/methods/network/getNetworkConfig';
 
 interface IExtractAccountFromTokenProps {
   loginToken: string;

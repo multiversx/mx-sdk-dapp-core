@@ -24,7 +24,8 @@ export const createTransactionsSession = ({
       state[sessionId] = {
         transactions,
         status,
-        transactionsDisplayInfo
+        transactionsDisplayInfo,
+        interpretedTransactions: {}
       };
     },
     false,

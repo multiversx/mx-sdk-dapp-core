@@ -1,4 +1,4 @@
-import { testAddress } from '__mocks__/accountConfig';
+import { testAddress } from '__mocks__';
 import {
   getIsTransactionPending,
   getIsTransactionSuccessful
@@ -9,9 +9,15 @@ import {
   SignedTransactionType,
   TransactionsDisplayInfoType
 } from 'types/transactions.types';
+import { mapServerTransactionsToListItems } from 'utils/transactions/getTransactionsHistory/helpers';
 import { ITransactionToast } from '../../types/toast.types';
 import { createToastsFromTransactions } from '../createToastsFromTransactions';
 import { createTransactionToast } from '../createTransactionToast';
+import { baseTransactionMock } from './baseTransactionMock';
+
+jest.mock('utils/transactions/getTransactionsHistory/helpers', () => ({
+  mapServerTransactionsToListItems: jest.fn()
+}));
 
 jest.mock('store/actions/transactions/transactionStateByStatus', () => ({
   getIsTransactionPending: jest.fn(),
@@ -34,17 +40,7 @@ describe('createToastsFromTransactions', () => {
     MISSING: 'missing-toast'
   } as const;
 
-  const mockAccount: AccountSliceType = {
-    address: testAddress,
-    accounts: {},
-    publicKey: '',
-    ledgerAccount: null,
-    walletConnectAccount: null,
-    websocketEvent: null,
-    websocketBatchEvent: null
-  };
-
-  const mockTransaction: SignedTransactionType = {
+  const mockTx = {
     nonce: 0,
     value: '0',
     receiver: testAddress,
@@ -56,7 +52,17 @@ describe('createToastsFromTransactions', () => {
     version: 1,
     options: 0,
     signature: '',
-    hash: 'tx-1'
+    hash: ''
+  };
+
+  const mockAccount: AccountSliceType = {
+    address: testAddress,
+    accounts: {},
+    publicKey: '',
+    ledgerAccount: null,
+    walletConnectAccount: null,
+    websocketEvent: null,
+    websocketBatchEvent: null
   };
 
   const mockDisplayInfo: TransactionsDisplayInfoType = {
@@ -79,38 +85,40 @@ describe('createToastsFromTransactions', () => {
 
   const createMockSession = (
     status: TransactionServerStatusesEnum,
-    transactionHash: string,
-    transactionStatus?: TransactionServerStatusesEnum
+    transactionHash: string
   ) => ({
     status,
-    transactions: [
-      {
-        ...mockTransaction,
-        hash: transactionHash,
-        ...(transactionStatus && { status: transactionStatus })
-      }
-    ],
+    transactions: [{ ...mockTx, hash: transactionHash }],
     transactionsDisplayInfo: mockDisplayInfo
   });
 
   beforeEach(() => {
     jest.clearAllMocks();
+    (mapServerTransactionsToListItems as jest.Mock).mockImplementation(
+      ({ transactions }) =>
+        Promise.resolve(
+          transactions.map((transaction: SignedTransactionType) => ({
+            ...baseTransactionMock,
+            hash: transaction.hash
+          }))
+        )
+    );
   });
 
-  it('should return empty arrays for processing and completed transactions when no transactions exist', () => {
-    const result = createToastsFromTransactions({
+  it('should return empty arrays for processing and completed transactions when no transactions exist', async () => {
+    const result = await createToastsFromTransactions({
       toastList: { transactionToasts: [], customToasts: [] },
-      sessions: {},
+      transactionsSessions: {},
       account: mockAccount
     });
 
     expect(result).toEqual({
-      pendingTransactions: [],
-      completedTransactions: []
+      pendingTransactionToasts: [],
+      completedTransactionToasts: []
     });
   });
 
-  it('should correctly classify transactions as processing or completed based on their status', () => {
+  it('should correctly classify transactions as processing or completed based on their status', async () => {
     (getIsTransactionPending as jest.Mock).mockImplementation(
       (status) => status === TransactionServerStatusesEnum.pending
     );
@@ -127,31 +135,32 @@ describe('createToastsFromTransactions', () => {
       customToasts: []
     };
 
-    const sessions = {
+    const transactionsSessions = {
       [TOAST_IDS.PENDING]: createMockSession(
         TransactionServerStatusesEnum.pending,
         'tx-1'
       ),
       [TOAST_IDS.SUCCESS]: createMockSession(
         TransactionServerStatusesEnum.success,
-        'tx-2',
-        TransactionServerStatusesEnum.success
+        'tx-2'
       )
     };
 
-    const result = createToastsFromTransactions({
+    const result = await createToastsFromTransactions({
       toastList,
-      sessions,
+      transactionsSessions,
       account: mockAccount
     });
 
-    expect(result.pendingTransactions).toHaveLength(1);
-    expect(result.pendingTransactions[0].toastId).toBe(TOAST_IDS.PENDING);
-    expect(result.completedTransactions).toHaveLength(1);
-    expect(result.completedTransactions[0].toastId).toBe(TOAST_IDS.SUCCESS);
+    expect(result.pendingTransactionToasts).toHaveLength(1);
+    expect(result.pendingTransactionToasts[0].toastId).toBe(TOAST_IDS.PENDING);
+    expect(result.completedTransactionToasts).toHaveLength(1);
+    expect(result.completedTransactionToasts[0].toastId).toBe(
+      TOAST_IDS.SUCCESS
+    );
   });
 
-  it('should preserve existing completed transactions and not create duplicates when same transaction is processed again', () => {
+  it('should preserve existing completed transactions and not create duplicates when same transaction is processed again', async () => {
     (getIsTransactionSuccessful as jest.Mock).mockReturnValue(true);
 
     const existingCompleted: ITransactionToast[] = [
@@ -174,38 +183,38 @@ describe('createToastsFromTransactions', () => {
       customToasts: []
     };
 
-    const sessions = {
+    const transactionsSessions = {
       [TOAST_IDS.EXISTING]: createMockSession(
         TransactionServerStatusesEnum.success,
         'tx-existing'
       )
     };
 
-    const result = createToastsFromTransactions({
+    const result = await createToastsFromTransactions({
       toastList,
-      sessions,
+      transactionsSessions,
       account: mockAccount,
       existingCompletedTransactions: existingCompleted
     });
 
-    expect(result.completedTransactions).toHaveLength(1);
+    expect(result.completedTransactionToasts).toHaveLength(1);
     expect(createTransactionToast).not.toHaveBeenCalled();
   });
 
-  it('should safely handle transactions with missing session data without creating toasts', () => {
+  it('should safely handle transactions with missing session data without creating toasts', async () => {
     const toastList = {
       transactionToasts: [createMockToast(TOAST_IDS.MISSING)],
       customToasts: []
     };
 
-    const result = createToastsFromTransactions({
+    const result = await createToastsFromTransactions({
       toastList,
-      sessions: {},
+      transactionsSessions: {},
       account: mockAccount
     });
 
-    expect(result.pendingTransactions).toHaveLength(0);
-    expect(result.completedTransactions).toHaveLength(0);
+    expect(result.pendingTransactionToasts).toHaveLength(0);
+    expect(result.completedTransactionToasts).toHaveLength(0);
     expect(createTransactionToast).not.toHaveBeenCalled();
   });
 });

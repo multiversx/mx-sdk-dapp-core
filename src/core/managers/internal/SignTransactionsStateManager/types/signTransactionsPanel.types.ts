@@ -15,7 +15,7 @@ export type FungibleTransactionType = {
 
 export type TokenType = EsdtEnumType | NftEnumType;
 
-export interface ISignTransactionsModalCommonData {
+export interface ISignTransactionsPanelCommonData {
   receiver?: string;
   data?: string;
   gasPrice?: string;
@@ -40,9 +40,10 @@ export interface ISignTransactionsModalCommonData {
   highlight?: string | null;
   scCall?: string | null;
 }
-export interface ISignTransactionsModalData {
+
+export interface ISignTransactionsPanelData {
   shouldClose?: true;
-  commonData: ISignTransactionsModalCommonData;
+  commonData: ISignTransactionsPanelCommonData;
   tokenTransaction: {
     identifier?: string;
     amount: string;
@@ -53,9 +54,10 @@ export interface ISignTransactionsModalData {
 }
 
 export enum SignEventsEnum {
-  'CONFIRM' = 'CONFIRM', // can be sign or next
-  'BACK' = 'BACK',
-  'CLOSE' = 'CLOSE',
-  'DATA_UPDATE' = 'DATA_UPDATE',
-  'SET_PPU' = 'SET_PPU'
+  CONFIRM = 'CONFIRM', // can be sign or next
+  BACK = 'BACK',
+  DATA_UPDATE = 'DATA_UPDATE',
+  SET_PPU = 'SET_PPU',
+  OPEN_SIGN_TRANSACTIONS_PANEL = 'OPEN_SIGN_TRANSACTIONS_PANEL',
+  CLOSE_SIGN_TRANSACTIONS_PANEL = 'CLOSE_SIGN_TRANSACTIONS_PANEL'
 }

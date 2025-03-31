@@ -1,4 +1,5 @@
 import { IPlainTransactionObject, Transaction } from '@multiversx/sdk-core/out';
+import { ITransactionListItem } from 'lib/sdkDappCoreUi';
 import {
   TransactionBatchStatusesEnum,
   TransactionServerStatusesEnum,
@@ -121,4 +122,5 @@ export type SessionTransactionType = {
    * Optional custom information to be displayed in the toast notification.
    */
   transactionsDisplayInfo?: TransactionsDisplayInfoType;
+  interpretedTransactions?: Record<string, ITransactionListItem>;
 };

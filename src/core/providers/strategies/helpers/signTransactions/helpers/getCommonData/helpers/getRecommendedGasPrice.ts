@@ -1,12 +1,11 @@
 import { IPlainTransactionObject } from '@multiversx/sdk-core/out';
-import { ISignTransactionsModalCommonData } from 'core/managers/internal/SignTransactionsStateManager/types/signTransactionsModal.types';
+import { ISignTransactionsPanelCommonData } from 'core/managers/internal/SignTransactionsStateManager/types/signTransactionsPanel.types';
 import { recommendGasPrice } from 'lib/sdkDappUtils';
-
 interface GetRecommendedGasPricePropsType {
   transaction: IPlainTransactionObject;
   gasPriceData?: {
     initialGasPrice: number;
-    ppu: ISignTransactionsModalCommonData['ppu'];
+    ppu: ISignTransactionsPanelCommonData['ppu'];
   };
 }
 

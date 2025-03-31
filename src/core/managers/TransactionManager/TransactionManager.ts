@@ -1,7 +1,7 @@
-import { Transaction } from '@multiversx/sdk-core/out';
 import axios, { AxiosError } from 'axios';
 import { BATCH_TRANSACTIONS_ID_SEPARATOR } from 'constants/transactions.constants';
 import { getAccount } from 'core/methods/account/getAccount';
+import { Transaction, TransactionComputer } from 'lib/sdkCore';
 import { addTransactionToast } from 'store/actions/toasts/toastsActions';
 import { createTransactionsSession } from 'store/actions/transactions/transactionsActions';
 import { networkSelector } from 'store/selectors';
@@ -22,8 +22,6 @@ import { isBatchTransaction } from './helpers/isBatchTransaction';
 
 export class TransactionManager {
   private static instance: TransactionManager | null = null;
-
-  private constructor() {}
 
   public static getInstance(): TransactionManager {
     if (!TransactionManager.instance) {
@@ -94,7 +92,11 @@ export class TransactionManager {
     }
 
     const totalDuration = getToastDuration(sentTransactions);
-    addTransactionToast({ toastId: sessionId, totalDuration });
+    addTransactionToast({
+      toastId: sessionId,
+      totalDuration
+    });
+
     return sessionId;
   };
 
@@ -172,9 +174,11 @@ export class TransactionManager {
   private parseSignedTransaction = (
     signedTransaction: Transaction
   ): SignedTransactionType => {
+    const transactionComputer = new TransactionComputer();
+
     const parsedTransaction = {
       ...signedTransaction.toPlainObject(),
-      hash: signedTransaction.getHash().hex(),
+      hash: transactionComputer.computeTransactionHash(signedTransaction),
       status: TransactionServerStatusesEnum.pending
     };
 

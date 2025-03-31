@@ -1,42 +1,69 @@
+import { UITagsEnum } from 'constants/UITags.enum';
 import {
+  WalletConnectEventsEnum,
+  IWalletConnectModalData
+} from 'core/providers/strategies/WalletConnectProviderStrategy/types';
+import { WalletConnectPanel } from 'lib/sdkDappCoreUi';
+import { SidePanelBaseManager } from '../../SidePanelBaseManager/SidePanelBaseManager';
+
+export class WalletConnectStateManager extends SidePanelBaseManager<
+  WalletConnectPanel,
   IWalletConnectModalData,
   WalletConnectEventsEnum
-} from 'core/providers/strategies/WalletConnectProviderStrategy/types';
-import { IEventBus } from 'types/manager.types';
-
-export class WalletConnectStateManager<
-  T extends
-    IEventBus<IWalletConnectModalData> = IEventBus<IWalletConnectModalData>
 > {
-  private eventBus: T;
+  private static instance: WalletConnectStateManager;
 
-  private initialData: IWalletConnectModalData = {
+  protected initialData: IWalletConnectModalData = {
     wcURI: '',
     shouldClose: false
   };
 
-  private data: IWalletConnectModalData = { ...this.initialData };
-
-  constructor(eventBus: T) {
-    this.eventBus = eventBus;
+  public static getInstance(): WalletConnectStateManager {
+    if (!WalletConnectStateManager.instance) {
+      WalletConnectStateManager.instance = new WalletConnectStateManager();
+    }
+    return WalletConnectStateManager.instance;
   }
 
-  public closeAndReset(): void {
-    this.data.shouldClose = true;
-    this.notifyDataUpdate();
-    this.resetData();
-  }
-
-  private resetData(): void {
+  constructor() {
+    super('wallet-connect');
     this.data = { ...this.initialData };
   }
 
-  public updateWcURI(wcURI: string): void {
-    this.data.wcURI = wcURI;
-    this.notifyDataUpdate();
+  public async openWalletConnect(data: IWalletConnectModalData) {
+    await this.openUI(data);
   }
 
-  private notifyDataUpdate(): void {
-    this.eventBus.publish(WalletConnectEventsEnum.DATA_UPDATE, this.data);
+  public updateWcURI(uri: string): void {
+    this.updateData({ wcURI: uri });
+  }
+
+  protected getUIElementName(): UITagsEnum {
+    return this.anchor
+      ? UITagsEnum.WALLET_CONNECT
+      : UITagsEnum.WALLET_CONNECT_PANEL;
+  }
+
+  protected getOpenEventName(): WalletConnectEventsEnum {
+    return WalletConnectEventsEnum.OPEN_WALLET_CONNECT_PANEL;
+  }
+
+  protected getCloseEventName(): WalletConnectEventsEnum {
+    return WalletConnectEventsEnum.CLOSE_WALLET_CONNECT_PANEL;
+  }
+
+  protected getDataUpdateEventName(): WalletConnectEventsEnum {
+    return WalletConnectEventsEnum.DATA_UPDATE;
+  }
+
+  protected async setupEventListeners() {
+    if (!this.eventBus) {
+      return;
+    }
+
+    this.eventBus.subscribe(
+      WalletConnectEventsEnum.CLOSE_WALLET_CONNECT_PANEL,
+      this.handleCloseUI.bind(this)
+    );
   }
 }

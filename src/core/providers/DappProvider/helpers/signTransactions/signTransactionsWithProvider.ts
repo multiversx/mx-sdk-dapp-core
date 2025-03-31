@@ -1,14 +1,14 @@
-import {
-  Address,
-  Transaction,
-  TransactionOptions,
-  TransactionVersion
-} from '@multiversx/sdk-core/out';
 import { getAccount } from 'core/methods/account/getAccount';
 import {
   IProvider,
   ProviderTypeEnum
 } from 'core/providers/types/providerFactory.types';
+import {
+  Address,
+  Transaction,
+  TransactionOptions,
+  TransactionVersion
+} from 'lib/sdkCore';
 import { setAccountNonce } from 'store/actions';
 import { refreshAccount } from 'utils';
 import { computeNonces } from '../computeNonces/computeNonces';
@@ -40,13 +40,13 @@ export async function signTransactionsWithProvider({
   const transactionsToSign =
     activeGuardianAddress && isGuarded && !options.skipGuardian
       ? transactionsWithComputedNonce?.map((transaction) => {
-          transaction.setVersion(TransactionVersion.withTxOptions());
-          const options = {
+          transaction.version = TransactionVersion.withTxOptions().valueOf();
+          transaction.options = TransactionOptions.withOptions({
             guarded: true,
             ...(isLedger ? { hashSign: true } : {})
-          };
-          transaction.setOptions(TransactionOptions.withOptions(options));
-          transaction.setGuardian(Address.fromBech32(activeGuardianAddress));
+          }).valueOf();
+
+          transaction.guardian = Address.newFromBech32(activeGuardianAddress);
 
           return transaction;
         })

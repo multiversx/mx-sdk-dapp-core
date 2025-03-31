@@ -1,4 +1,6 @@
 import { safeWindow } from 'constants/index';
+import { PendingTransactionsStateManager } from 'core/managers/internal/PendingTransactionsStateManager/PendingTransactionsStateManager';
+import { SignTransactionsStateManager } from 'core/managers/internal/SignTransactionsStateManager/SignTransactionsStateManager';
 import { ToastManager } from 'core/managers/internal/ToastManager/ToastManager';
 import { login } from 'core/providers/DappProvider/helpers/login/login';
 import { restoreProvider } from 'core/providers/helpers/restoreProvider';
@@ -82,7 +84,15 @@ export async function initApp({
     successfulToastLifetime: dAppConfig.successfulToastLifetime
   });
 
-  toastManager.init();
+  await toastManager.init();
+
+  const pendingTransactionsStateManager =
+    PendingTransactionsStateManager.getInstance();
+  await pendingTransactionsStateManager.init();
+
+  const signTransactionsStateManager =
+    SignTransactionsStateManager.getInstance();
+  await signTransactionsStateManager.init();
 
   const usedProviders = [
     ...((safeWindow as any)?.multiversx?.providers || []),

@@ -1,43 +1,45 @@
+import { LedgerConnectStateManager } from 'core/managers/internal/LedgerConnectStateManager/LedgerConnectStateManager';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
-import { LedgerConnectEventsEnum } from '../types';
 import { getLedgerErrorCodes } from './getLedgerErrorCodes';
 import { getLedgerProvider } from './getLedgerProvider';
-import {
-  LedgerEventBusType,
-  LedgerConnectStateManagerType
-} from '../types/ledgerProvider.types';
 
 type InitializeLedgerProviderType = {
-  eventBus?: LedgerEventBusType;
-  manager?: LedgerConnectStateManagerType | null;
+  manager: LedgerConnectStateManager | null;
   resolve: (value: Awaited<ReturnType<typeof getLedgerProvider>>) => void;
   reject: (reason?: string) => void;
+  shouldInitProvider?: boolean;
 };
 
 const failInitializeErrorText = 'Check if the MultiversX App is open on Ledger';
 
-export const initializeLedgerProvider = async ({
-  eventBus,
+export async function initializeLedgerProvider({
   manager,
   resolve,
-  reject
-}: InitializeLedgerProviderType) => {
+  reject,
+  shouldInitProvider
+}: InitializeLedgerProviderType) {
   const shouldInitiateLogin = !getIsLoggedIn();
 
   // Calls itself to handle retry logic if the user needs to reconnect to the Ledger provider.
-  const onRetry = () =>
-    initializeLedgerProvider({ eventBus, manager, resolve, reject });
-  const onCancel = () => reject('Device unavailable');
+  const handleRetry = () =>
+    initializeLedgerProvider({ manager, resolve, reject, shouldInitProvider });
+
+  const handleCancel = () => reject('Device unavailable');
 
   try {
     manager?.updateAccountScreen({
       isLoading: true
     });
 
-    const data = await getLedgerProvider();
+    if (manager && shouldInitiateLogin) {
+      manager.subscribeToProviderInit(handleRetry, handleCancel);
+    }
 
-    eventBus?.unsubscribe(LedgerConnectEventsEnum.CONNECT_DEVICE, onRetry);
-    eventBus?.unsubscribe(LedgerConnectEventsEnum.CLOSE, onCancel);
+    const data = await getLedgerProvider({ shouldInitProvider });
+
+    if (manager && shouldInitiateLogin) {
+      manager.unsubscribeFromProviderInit(handleRetry, handleCancel);
+    }
 
     resolve(data);
   } catch (err) {
@@ -50,7 +52,8 @@ export const initializeLedgerProvider = async ({
       error: errorMessage ?? defaultErrorMessage ?? failInitializeErrorText
     });
 
-    eventBus?.subscribe(LedgerConnectEventsEnum.CONNECT_DEVICE, onRetry);
-    eventBus?.subscribe(LedgerConnectEventsEnum.CLOSE, onCancel);
+    if (manager) {
+      manager.subscribeToProviderInit(handleRetry, handleCancel);
+    }
   }
-};
+}

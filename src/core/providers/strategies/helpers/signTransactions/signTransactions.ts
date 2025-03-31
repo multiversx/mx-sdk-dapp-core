@@ -1,20 +1,18 @@
-import { Transaction } from '@multiversx/sdk-core/out';
 import { getEconomics } from 'apiCalls/economics/getEconomics';
 import { EMPTY_PPU } from 'constants/placeholders.constants';
-import { UITagsEnum } from 'constants/UITags.enum';
 import { SignTransactionsStateManager } from 'core/managers/internal/SignTransactionsStateManager/SignTransactionsStateManager';
 import {
-  ISignTransactionsModalCommonData,
+  ISignTransactionsPanelCommonData,
   SignEventsEnum
 } from 'core/managers/internal/SignTransactionsStateManager/types';
 import { getAccountInfo } from 'core/methods/account/getAccountInfo';
 import { getEgldLabel } from 'core/methods/network/getEgldLabel';
 import { cancelCrossWindowAction } from 'core/providers/helpers/cancelCrossWindowAction';
 import { IProvider } from 'core/providers/types/providerFactory.types';
-import { SignTransactionsModal } from 'lib/sdkDappCoreUi';
+import { Transaction } from 'lib/sdkCore';
 import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
-import { createUIElement } from 'utils/createUIElement';
+import { ProviderErrorsEnum } from 'types/provider.types';
 import { getCommonData } from './helpers/getCommonData/getCommonData';
 import { getRecommendedGasPrice } from './helpers/getCommonData/helpers/getRecommendedGasPrice';
 import { getFeeData } from './helpers/getFeeData';
@@ -38,22 +36,19 @@ export async function signTransactions({
   const network = networkSelector(getState());
 
   const egldLabel = getEgldLabel();
-  const signModalElement = await createUIElement<SignTransactionsModal>({
-    name: UITagsEnum.SIGN_TRANSACTIONS_MODAL
-  });
 
   const { allTransactions, parsedTransactionsByDataField } =
     getMultiEsdtTransferData(transactions);
 
   let signedIndexes: number[] = [];
 
-  const eventBus = await signModalElement.getEventBus();
+  const manager = SignTransactionsStateManager.getInstance();
+  const eventBus = await manager.getEventBus();
 
   if (!eventBus) {
-    throw new Error('Event bus not provided for Ledger provider');
+    throw new Error(ProviderErrorsEnum.eventBusError);
   }
 
-  const manager = new SignTransactionsStateManager(eventBus);
   if (!manager) {
     throw new Error('Unable to establish connection with sign screens');
   }
@@ -61,14 +56,14 @@ export async function signTransactions({
   return new Promise<Transaction[]>(async (resolve, reject) => {
     const signedTransactions: Transaction[] = [];
     const economics = await getEconomics({ baseURL: network.apiAddress });
-
+    await manager.openSignTransactions();
     manager.initializeGasPriceMap(allTransactions.map((tx) => tx.transaction));
 
     const showNextScreen = async (currentScreenIndex: number) => {
       const currentTransaction = allTransactions[currentScreenIndex];
       const transaction = currentTransaction?.transaction;
       const price = economics?.price;
-      const currentNonce = currentTransaction.transaction?.getNonce().valueOf();
+      const currentNonce = Number(currentTransaction.transaction.nonce);
 
       const { commonData, tokenTransaction, fungibleTransaction } =
         await getCommonData({
@@ -103,7 +98,7 @@ export async function signTransactions({
       };
 
       const onSetPpu = (
-        ppu: ISignTransactionsModalCommonData['ppu'] = EMPTY_PPU
+        ppu: ISignTransactionsPanelCommonData['ppu'] = EMPTY_PPU
       ) => {
         manager.updateGasPriceMap({
           nonce: currentNonce,
@@ -138,12 +133,19 @@ export async function signTransactions({
       const onCancel = async () => {
         reject(new Error('Transaction signing cancelled by user'));
         await cancelCrossWindowAction();
-        signModalElement.remove();
+        manager.closeAndReset();
       };
 
       function removeEvents() {
+        if (!eventBus) {
+          return;
+        }
+
         eventBus.unsubscribe(SignEventsEnum.CONFIRM, onSign);
-        eventBus.unsubscribe(SignEventsEnum.CLOSE, onCancel);
+        eventBus.unsubscribe(
+          SignEventsEnum.CLOSE_SIGN_TRANSACTIONS_PANEL,
+          onCancel
+        );
         eventBus.unsubscribe(SignEventsEnum.BACK, onBack);
         eventBus.unsubscribe(SignEventsEnum.SET_PPU, onSetPpu);
       }
@@ -158,20 +160,20 @@ export async function signTransactions({
         }
 
         const currentEditedTransaction = currentTransaction.transaction;
-
-        const txNonce = currentEditedTransaction.getNonce().valueOf();
+        const plainTransaction = currentEditedTransaction.toPlainObject();
+        const txNonce = plainTransaction.nonce;
 
         if (!currentNonce) {
           throw new Error('Current nonce not found');
         }
 
         const newGasPrice = getRecommendedGasPrice({
-          transaction: currentEditedTransaction.toPlainObject(),
+          transaction: plainTransaction,
           gasPriceData: manager.ppuMap[txNonce]
         });
 
-        const transactionToSign = Transaction.fromPlainObject({
-          ...currentEditedTransaction.toPlainObject(),
+        const transactionToSign = Transaction.newFromPlainObject({
+          ...plainTransaction,
           gasPrice: newGasPrice
         });
 
@@ -192,20 +194,24 @@ export async function signTransactions({
           if (isLastScreen && areAllTransactionsSigned) {
             const optionallyGuardedTransactions =
               await guardTransactions(signedTransactions);
-            signModalElement.remove();
+            manager.closeAndReset();
 
             return resolve(optionallyGuardedTransactions);
           }
 
           showNextScreen(currentScreenIndex + 1);
         } catch (error) {
-          reject('Error signing transactions: ' + error);
-          signModalElement.remove();
+          removeEvents();
+          manager.closeAndReset();
+          reject(error);
         }
       }
 
       eventBus.subscribe(SignEventsEnum.CONFIRM, onSign);
-      eventBus.subscribe(SignEventsEnum.CLOSE, onCancel);
+      eventBus.subscribe(
+        SignEventsEnum.CLOSE_SIGN_TRANSACTIONS_PANEL,
+        onCancel
+      );
       eventBus.subscribe(SignEventsEnum.BACK, onBack);
       eventBus.subscribe(SignEventsEnum.SET_PPU, onSetPpu);
     };

@@ -1,1 +1,1 @@
-export * from './ledger.types';
+export * from './ledgerProvider.types';
