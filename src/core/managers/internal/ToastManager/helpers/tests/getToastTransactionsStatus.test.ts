@@ -1,41 +1,25 @@
-import { testAddress } from '__mocks__/accountConfig';
+import { ITransactionListItem } from 'lib/sdkDappCoreUi';
 import { isServerTransactionPending } from 'store/actions/transactions/transactionStateByStatus';
 import { TransactionServerStatusesEnum } from 'types/enums.types';
-import { SignedTransactionType } from 'types/transactions.types';
 import { getToastTransactionsStatus } from '../getToastTransactionsStatus';
-
+import { baseTransactionMock } from './baseTransactionMock';
 jest.mock('store/actions/transactions/transactionStateByStatus', () => ({
   isServerTransactionPending: jest.fn()
 }));
 
 describe('getToastProceededStatus', () => {
-  const baseTransaction: Omit<SignedTransactionType, 'status' | 'hash'> = {
-    nonce: 1,
-    value: '1000000000000000000',
-    receiver: testAddress,
-    sender: testAddress,
-    gasPrice: 1000000000,
-    gasLimit: 50000,
-    data: 'data',
-    chainID: '1',
-    version: 1,
-    options: 0
-  };
-
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   it('should return correct message for single pending or completed transaction', () => {
-    const pendingTx: SignedTransactionType = {
-      ...baseTransaction,
-      hash: 'tx1',
+    const pendingTx: ITransactionListItem = {
+      ...baseTransactionMock,
       status: TransactionServerStatusesEnum.pending
     };
 
-    const successTx: SignedTransactionType = {
-      ...baseTransaction,
-      hash: 'tx2',
+    const successTx: ITransactionListItem = {
+      ...baseTransactionMock,
       status: TransactionServerStatusesEnum.success
     };
 
@@ -53,21 +37,22 @@ describe('getToastProceededStatus', () => {
   });
 
   it('should show fraction of completed transactions when handling multiple transactions with mixed states', () => {
-    const transactions: SignedTransactionType[] = [
+    const transactions: ITransactionListItem[] = [
       {
-        ...baseTransaction,
-        hash: 'tx1',
+        ...baseTransactionMock,
         status: TransactionServerStatusesEnum.success
       },
       {
-        ...baseTransaction,
-        hash: 'tx2',
-        status: TransactionServerStatusesEnum.pending
+        ...baseTransactionMock,
+        status: TransactionServerStatusesEnum.pending,
+        hash: '456',
+        link: 'https://explorer.example.com/tx/456'
       },
       {
-        ...baseTransaction,
-        hash: 'tx3',
-        status: TransactionServerStatusesEnum.fail
+        ...baseTransactionMock,
+        status: TransactionServerStatusesEnum.fail,
+        hash: '789',
+        link: 'https://explorer.example.com/tx/789'
       }
     ];
 
@@ -81,10 +66,10 @@ describe('getToastProceededStatus', () => {
   });
 
   it('should handle empty array and transactions with undefined status', () => {
-    const emptyTransactions: SignedTransactionType[] = [];
-    const undefinedStatusTx: SignedTransactionType = {
-      ...baseTransaction,
-      hash: 'tx1'
+    const emptyTransactions: ITransactionListItem[] = [];
+    const undefinedStatusTx: ITransactionListItem = {
+      ...baseTransactionMock,
+      status: undefined as unknown as TransactionServerStatusesEnum
     };
 
     (isServerTransactionPending as jest.Mock).mockReturnValue(true);

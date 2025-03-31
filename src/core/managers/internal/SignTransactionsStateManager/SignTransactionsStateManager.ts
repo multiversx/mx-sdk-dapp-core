@@ -2,11 +2,7 @@ import { EMPTY_PPU } from 'constants/placeholders.constants';
 import { UITagsEnum } from 'constants/UITags.enum';
 import { Transaction } from 'lib/sdkCore';
 import { SignTransactionsPanel } from 'lib/sdkDappCoreUi';
-import { IEventBus } from 'types/manager.types';
-import { ProviderErrorsEnum } from 'types/provider.types';
-
 import { NftEnumType } from 'types/tokens.types';
-import { createUIElement } from 'utils/createUIElement';
 import {
   FungibleTransactionType,
   ISignTransactionsPanelData,
@@ -14,17 +10,25 @@ import {
   TokenType,
   ISignTransactionsPanelCommonData
 } from './types/signTransactionsPanel.types';
+import { SidePanelBaseManager } from '../../SidePanelBaseManager/SidePanelBaseManager';
 
-export class SignTransactionsStateManager {
+export class SignTransactionsStateManager extends SidePanelBaseManager<
+  SignTransactionsPanel,
+  ISignTransactionsPanelData,
+  SignEventsEnum
+> {
   private static instance: SignTransactionsStateManager;
-  private eventBus: IEventBus<ISignTransactionsPanelData> | null = null;
-  private signTransactionsElement: SignTransactionsPanel | null = null;
-  private isCreatingElement = false;
-  private isOpen = false;
   public readonly addressesPerPage = 10;
 
-  // whole data to be sent on update events
-  private initialData: ISignTransactionsPanelData = {
+  private _ppuMap: Record<
+    number, // nonce
+    {
+      initialGasPrice: number;
+      ppu: ISignTransactionsPanelCommonData['ppu'];
+    }
+  > = {};
+
+  protected initialData: ISignTransactionsPanelData = {
     commonData: {
       transactionsCount: 0,
       egldLabel: '',
@@ -36,15 +40,7 @@ export class SignTransactionsStateManager {
     sftTransaction: null
   };
 
-  private _ppuMap: Record<
-    number, // nonce
-    {
-      initialGasPrice: number;
-      ppu: ISignTransactionsPanelCommonData['ppu'];
-    }
-  > = {};
-
-  private data: ISignTransactionsPanelData = { ...this.initialData };
+  protected data: ISignTransactionsPanelData = { ...this.initialData };
 
   public static getInstance(): SignTransactionsStateManager {
     if (!SignTransactionsStateManager.instance) {
@@ -54,46 +50,20 @@ export class SignTransactionsStateManager {
     return SignTransactionsStateManager.instance;
   }
 
-  private constructor() {}
+  constructor() {
+    super('sign-transactions');
+    this.data = { ...this.initialData };
+  }
 
   public async init() {
-    await this.createSignTransactionsElement();
-    await this.getEventBus();
-    await this.setupEventListeners();
+    await super.init();
     this.resetData();
   }
 
-  public async openSignTransactions(data: ISignTransactionsPanelData) {
-    if (this.isOpen && this.signTransactionsElement) {
-      return;
-    }
-
-    if (!this.signTransactionsElement) {
-      await this.createSignTransactionsElement();
-    }
-
-    if (!this.signTransactionsElement || !this.eventBus) {
-      return;
-    }
-
-    this.data = { ...this.initialData, ...data };
-    this.isOpen = true;
-
-    this.publishEvent(SignEventsEnum.OPEN_SIGN_TRANSACTIONS_PANEL);
-    this.notifyDataUpdate();
-  }
-
-  private publishEvent(event: string, data?: ISignTransactionsPanelData) {
-    if (!this.eventBus) {
-      return;
-    }
-
-    this.eventBus.publish(event, data || this.data);
-  }
-
-  public updateData(newData: ISignTransactionsPanelData) {
-    this.data = { ...newData };
-    this.notifyDataUpdate();
+  public async openSignTransactions(
+    data: ISignTransactionsPanelData = this.data
+  ) {
+    await this.openUI(data);
   }
 
   public initializeGasPriceMap(transactions: Transaction[]) {
@@ -141,33 +111,6 @@ export class SignTransactionsStateManager {
     this.notifyDataUpdate();
   }
 
-  private resetData(): void {
-    this.data = { ...this.initialData };
-  }
-
-  public closeAndReset(): void {
-    if (!this.eventBus || !this.isOpen) {
-      return;
-    }
-
-    this.data.shouldClose = true;
-    this.notifyDataUpdate();
-    this.resetData();
-    this.isOpen = false;
-
-    this.publishEvent(SignEventsEnum.CLOSE_SIGN_TRANSACTIONS_PANEL);
-  }
-
-  private notifyDataUpdate(): void {
-    if (!this.eventBus) {
-      return;
-    }
-
-    const data = { ...this.data };
-    this.publishEvent(SignEventsEnum.DATA_UPDATE, data);
-    this.eventBus.publish(SignEventsEnum.DATA_UPDATE, data);
-  }
-
   public updateTokenTransaction(
     tokenData: ISignTransactionsPanelData['tokenTransaction']
   ): void {
@@ -208,89 +151,30 @@ export class SignTransactionsStateManager {
     return this._ppuMap;
   }
 
-  public async getEventBus(): Promise<IEventBus<ISignTransactionsPanelData> | null> {
-    if (!this.signTransactionsElement) {
-      await this.createSignTransactionsElement();
-    }
-
-    if (!this.signTransactionsElement) {
-      return null;
-    }
-
-    if (!this.eventBus) {
-      this.eventBus = await this.signTransactionsElement.getEventBus();
-    }
-
-    if (!this.eventBus) {
-      throw new Error(ProviderErrorsEnum.eventBusError);
-    }
-
-    return this.eventBus;
+  protected getUIElementName(): UITagsEnum {
+    return UITagsEnum.SIGN_TRANSACTIONS_PANEL;
   }
 
-  private async createSignTransactionsElement(): Promise<SignTransactionsPanel | null> {
-    if (this.signTransactionsElement) {
-      return this.signTransactionsElement;
-    }
-
-    if (!this.isCreatingElement) {
-      this.isCreatingElement = true;
-      const element = await createUIElement<SignTransactionsPanel>({
-        name: UITagsEnum.SIGN_TRANSACTIONS_PANEL
-      });
-
-      this.signTransactionsElement = element || null;
-      await this.getEventBus();
-      this.isCreatingElement = false;
-    }
-
-    if (!this.signTransactionsElement) {
-      throw new Error('Failed to create sign transactions element');
-    }
-
-    return this.signTransactionsElement;
+  protected getOpenEventName(): SignEventsEnum {
+    return SignEventsEnum.OPEN_SIGN_TRANSACTIONS_PANEL;
   }
 
-  private async setupEventListeners() {
-    if (!this.signTransactionsElement) {
-      await this.createSignTransactionsElement();
-    }
+  protected getCloseEventName(): SignEventsEnum {
+    return SignEventsEnum.CLOSE_SIGN_TRANSACTIONS_PANEL;
+  }
 
+  protected getDataUpdateEventName(): SignEventsEnum {
+    return SignEventsEnum.DATA_UPDATE;
+  }
+
+  protected async setupEventListeners() {
     if (!this.eventBus) {
       return;
     }
 
     this.eventBus.subscribe(
       SignEventsEnum.CLOSE_SIGN_TRANSACTIONS_PANEL,
-      this.handleCloseSignTransactions.bind(this)
+      this.handleCloseUI.bind(this)
     );
-  }
-
-  private handleCloseSignTransactions() {
-    this.isOpen = false;
-    this.resetData();
-  }
-
-  public destroy() {
-    if (this.eventBus) {
-      this.eventBus.unsubscribe(
-        SignEventsEnum.CLOSE_SIGN_TRANSACTIONS_PANEL,
-        this.handleCloseSignTransactions.bind(this)
-      );
-
-      this.eventBus = null;
-    }
-
-    if (this.signTransactionsElement) {
-      const parentElement = this.signTransactionsElement.parentElement;
-
-      if (parentElement) {
-        parentElement.removeChild(this.signTransactionsElement);
-      }
-
-      this.signTransactionsElement = null;
-    }
-
-    this.isOpen = false;
   }
 }

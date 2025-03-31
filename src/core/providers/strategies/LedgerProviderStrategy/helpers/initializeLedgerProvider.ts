@@ -7,21 +7,24 @@ type InitializeLedgerProviderType = {
   manager: LedgerConnectStateManager | null;
   resolve: (value: Awaited<ReturnType<typeof getLedgerProvider>>) => void;
   reject: (reason?: string) => void;
+  shouldInitProvider?: boolean;
 };
 
 const failInitializeErrorText = 'Check if the MultiversX App is open on Ledger';
 
-export const initializeLedgerProvider = async ({
+export async function initializeLedgerProvider({
   manager,
   resolve,
-  reject
-}: InitializeLedgerProviderType) => {
+  reject,
+  shouldInitProvider
+}: InitializeLedgerProviderType) {
   const shouldInitiateLogin = !getIsLoggedIn();
 
   // Calls itself to handle retry logic if the user needs to reconnect to the Ledger provider.
-  const onRetry = () => initializeLedgerProvider({ manager, resolve, reject });
+  const handleRetry = () =>
+    initializeLedgerProvider({ manager, resolve, reject, shouldInitProvider });
 
-  const onCancel = () => reject('Device unavailable');
+  const handleCancel = () => reject('Device unavailable');
 
   try {
     manager?.updateAccountScreen({
@@ -29,13 +32,13 @@ export const initializeLedgerProvider = async ({
     });
 
     if (manager && shouldInitiateLogin) {
-      manager.subscribeToProviderInit(onRetry, onCancel);
+      manager.subscribeToProviderInit(handleRetry, handleCancel);
     }
 
-    const data = await getLedgerProvider();
+    const data = await getLedgerProvider({ shouldInitProvider });
 
     if (manager && shouldInitiateLogin) {
-      manager.unsubscribeFromProviderInit(onRetry, onCancel);
+      manager.unsubscribeFromProviderInit(handleRetry, handleCancel);
     }
 
     resolve(data);
@@ -50,7 +53,7 @@ export const initializeLedgerProvider = async ({
     });
 
     if (manager) {
-      manager.subscribeToProviderInit(onRetry, onCancel);
+      manager.subscribeToProviderInit(handleRetry, handleCancel);
     }
   }
-};
+}

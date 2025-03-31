@@ -1,18 +1,20 @@
-import { TransactionsSliceType } from 'store/slices/transactions/transactionsSlice.types';
 import { StoreType } from 'store/store.types';
 import {
   TransactionBatchStatusesEnum,
   TransactionServerStatusesEnum
 } from 'types/enums.types';
-import { SignedTransactionType } from 'types/transactions.types';
+import {
+  SignedTransactionType,
+  SessionTransactionType
+} from 'types/transactions.types';
 
 export const transactionsSliceSelector = ({ transactions }: StoreType) =>
   transactions;
 
 export const pendingTransactionsSessionsSelector = ({
   transactions: state
-}: StoreType): TransactionsSliceType => {
-  const pendingSessions: TransactionsSliceType = {};
+}: StoreType): Record<string, SessionTransactionType> => {
+  const pendingSessions: Record<string, SessionTransactionType> = {};
 
   Object.entries(state).forEach(([sessionId, data]) => {
     const hasPendingTransactions = data.transactions.some(
@@ -38,7 +40,7 @@ export const pendingTransactionsSelector = ({
         [
           TransactionServerStatusesEnum.pending,
           TransactionBatchStatusesEnum.sent
-        ].includes(transaction.status) // fixing the typo 'Strign' to 'String'
+        ].includes(transaction.status)
       ) {
         pendingTransactions.push(transaction);
       }
@@ -67,7 +69,7 @@ export const successfulTransactionsSelector = ({
 export const failedTransactionsSelector = ({
   transactions: state
 }: StoreType) => {
-  const successfulTransactions: SignedTransactionType[] = [];
+  const failedTransactions: SignedTransactionType[] = [];
 
   Object.values(state).forEach(({ transactions }) => {
     transactions.forEach((transaction) => {
@@ -80,26 +82,26 @@ export const failedTransactionsSelector = ({
           TransactionBatchStatusesEnum.timedOut
         ].includes(transaction.status)
       ) {
-        successfulTransactions.push(transaction);
+        failedTransactions.push(transaction);
       }
     });
   });
 
-  return successfulTransactions;
+  return failedTransactions;
 };
 
 export const timedOutTransactionsSelector = ({
   transactions: state
 }: StoreType) => {
-  const successfulTransactions: SignedTransactionType[] = [];
+  const timedOutTransactions: SignedTransactionType[] = [];
 
   Object.values(state).forEach(({ transactions }) => {
     transactions.forEach((transaction) => {
       if (transaction.status === TransactionBatchStatusesEnum.timedOut) {
-        successfulTransactions.push(transaction);
+        timedOutTransactions.push(transaction);
       }
     });
   });
 
-  return successfulTransactions;
+  return timedOutTransactions;
 };

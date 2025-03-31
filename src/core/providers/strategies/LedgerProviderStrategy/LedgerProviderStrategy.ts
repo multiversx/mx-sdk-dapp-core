@@ -3,11 +3,14 @@ import { IDAppProviderOptions } from '@multiversx/sdk-dapp-utils/out';
 import { HWProvider } from '@multiversx/sdk-hw-provider';
 import { safeWindow } from 'constants/index';
 
+import { CANCEL_TRANSACTION_TOAST_DEFAULT_DURATION } from 'constants/transactions.constants';
 import { LedgerConnectStateManager } from 'core/managers/internal/LedgerConnectStateManager/LedgerConnectStateManager';
+import { ToastIconsEnum } from 'core/managers/internal/ToastManager/helpers/getToastDataStateByStatus';
 import { getAddress } from 'core/methods/account/getAddress';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import { IProvider } from 'core/providers/types/providerFactory.types';
 import { defineCustomElements, IEventBus } from 'lib/sdkDappCoreUi';
+import { createCustomToast } from 'store/actions/toasts/toastsActions';
 import { ProviderErrorsEnum } from 'types/provider.types';
 import { getLedgerProvider } from './helpers';
 import { authenticateLedgerAccount } from './helpers/authenticateLedgerAccount';
@@ -39,13 +42,17 @@ export class LedgerProviderStrategy {
 
   public createProvider = async (options?: {
     anchor?: HTMLElement;
+    shouldInitProvider?: boolean;
   }): Promise<IProvider> => {
     this.initialize();
     await defineCustomElements(safeWindow);
     await this.createEventBus(options?.anchor);
     const ledgerConnectManager = LedgerConnectStateManager.getInstance();
+    const isLoggedIn = getIsLoggedIn();
 
-    if (!options?.anchor) {
+    const shouldOpenPanel = !options?.anchor;
+
+    if (shouldOpenPanel && !isLoggedIn) {
       await ledgerConnectManager.openLedgerConnect();
     }
 
@@ -55,7 +62,8 @@ export class LedgerProviderStrategy {
       initializeLedgerProvider({
         manager: ledgerConnectManager,
         resolve,
-        reject
+        reject,
+        shouldInitProvider: options?.shouldInitProvider
       })
     );
 
@@ -138,11 +146,7 @@ export class LedgerProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    const isConnected = this.provider.isConnected();
-
-    if (!isConnected) {
-      throw new Error('Ledger device is not connected');
-    }
+    await this.rebuildProvider();
 
     const ledgerConnectManager = LedgerConnectStateManager.getInstance();
     await ledgerConnectManager.init();
@@ -169,11 +173,39 @@ export class LedgerProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
+    await this.rebuildProvider();
+
     const signedMessage = await signLedgerMessage({
       message,
       handleSignMessage: this._signMessage.bind(this.provider)
     });
 
     return signedMessage;
+  };
+
+  private rebuildProvider = async () => {
+    try {
+      await this.provider?.getAddress(); // can communicate with device
+    } catch (_err) {
+      try {
+        const { ledgerProvider } = await getLedgerProvider({
+          shouldInitProvider: true
+        });
+        this.provider = ledgerProvider;
+        this._signTransactions =
+          ledgerProvider.signTransactions.bind(ledgerProvider);
+        this._signMessage = ledgerProvider.signMessage.bind(ledgerProvider);
+      } catch (error) {
+        createCustomToast({
+          toastId: 'ledger-provider-rebuild-error',
+          duration: CANCEL_TRANSACTION_TOAST_DEFAULT_DURATION,
+          icon: ToastIconsEnum.times,
+          iconClassName: 'warning',
+          message: 'Unlock your device & open the MultiversX App',
+          title: 'Ledger unavailable'
+        });
+        throw error;
+      }
+    }
   };
 }

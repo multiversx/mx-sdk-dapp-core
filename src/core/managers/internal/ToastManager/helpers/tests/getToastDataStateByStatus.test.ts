@@ -7,7 +7,6 @@ import {
 import { TransactionServerStatusesEnum } from 'types/enums.types';
 import { getToastDataStateByStatus } from '../getToastDataStateByStatus';
 
-// Mock dependencies
 jest.mock('store/actions/transactions/transactionStateByStatus', () => ({
   getIsTransactionPending: jest.fn(),
   getIsTransactionTimedOut: jest.fn(),
@@ -18,8 +17,6 @@ jest.mock('store/actions/transactions/transactionStateByStatus', () => ({
 describe('getToastDataStateByStatus', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-
-    // Default mock returns
     (getIsTransactionPending as jest.Mock).mockReturnValue(false);
     (getIsTransactionTimedOut as jest.Mock).mockReturnValue(false);
     (getIsTransactionFailed as jest.Mock).mockReturnValue(false);
@@ -27,7 +24,6 @@ describe('getToastDataStateByStatus', () => {
   });
 
   it('should return pending state when transaction is pending', () => {
-    // Setup
     (getIsTransactionPending as jest.Mock).mockReturnValue(true);
 
     const params = {
@@ -43,17 +39,12 @@ describe('getToastDataStateByStatus', () => {
       }
     };
 
-    // Execute
     const result = getToastDataStateByStatus(params);
-
-    // Verify - more flexible assertions that focus on expected properties
     expect(result).toHaveProperty('icon');
     expect(result).toHaveProperty('hasCloseButton', false);
-    // The exact icon might vary by implementation, so we just verify it's present
   });
 
   it('should return successful state when transaction is successful', () => {
-    // Setup
     (getIsTransactionSuccessful as jest.Mock).mockReturnValue(true);
 
     const params = {
@@ -69,17 +60,13 @@ describe('getToastDataStateByStatus', () => {
       }
     };
 
-    // Execute
     const result = getToastDataStateByStatus(params);
-
-    // Verify - more flexible assertions
     expect(result).toHaveProperty('icon');
     expect(result).toHaveProperty('hasCloseButton', true);
     expect(result).toHaveProperty('iconClassName');
   });
 
   it('should return failed state when transaction fails', () => {
-    // Setup
     (getIsTransactionFailed as jest.Mock).mockReturnValue(true);
 
     const params = {
@@ -95,24 +82,20 @@ describe('getToastDataStateByStatus', () => {
       }
     };
 
-    // Execute
     const result = getToastDataStateByStatus(params);
-
-    // Verify - more flexible assertions
     expect(result).toHaveProperty('icon');
     expect(result).toHaveProperty('hasCloseButton', true);
     expect(result).toHaveProperty('iconClassName');
   });
 
   it('should return timed out state when transaction times out', () => {
-    // Setup
     (getIsTransactionTimedOut as jest.Mock).mockReturnValue(true);
 
     const params = {
       address: 'user-address',
       sender: 'user-address',
       toastId: 'toast-123',
-      status: TransactionServerStatusesEnum.fail, // Using fail as a placeholder for timeout
+      status: TransactionServerStatusesEnum.fail,
       transactionsDisplayInfo: {
         successMessage: '',
         errorMessage: '',
@@ -121,16 +104,12 @@ describe('getToastDataStateByStatus', () => {
       }
     };
 
-    // Execute
     const result = getToastDataStateByStatus(params);
-
-    // Verify - more flexible assertions that don't depend on specific icon names
     expect(result).toHaveProperty('icon');
     expect(result).toHaveProperty('hasCloseButton', true);
   });
 
   it('should handle case when sender is different from user address', () => {
-    // Setup
     (getIsTransactionPending as jest.Mock).mockReturnValue(true);
 
     const params = {
@@ -146,10 +125,7 @@ describe('getToastDataStateByStatus', () => {
       }
     };
 
-    // Execute
     const result = getToastDataStateByStatus(params);
-
-    // Verify - we're just checking that the function runs without error
     expect(result).toBeTruthy();
   });
 });

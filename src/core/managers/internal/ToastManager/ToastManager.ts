@@ -1,6 +1,7 @@
 import isEqual from 'lodash.isequal';
 import { UITagsEnum } from 'constants/UITags.enum';
 import { NotificationsFeedManager } from 'core/managers/NotificationsFeedManager/NotificationsFeedManager';
+import { NotificationsFeedEventsEnum } from 'core/managers/NotificationsFeedManager/types';
 import { ToastList } from 'lib/sdkDappCoreUi';
 import {
   customToastCloseHandlersDictionary,
@@ -54,9 +55,9 @@ export class ToastManager {
   }
 
   public async init() {
-    const { toasts } = this.store.getState();
-    this.updateTransactionToastsList(toasts);
-    this.updateCustomToastList(toasts);
+    const { toasts: toastState } = this.store.getState();
+    this.updateTransactionToastsList(toastState);
+    this.updateCustomToastList(toastState);
 
     await this.notificationsFeedManager.init();
 
@@ -105,24 +106,25 @@ export class ToastManager {
   }
 
   private async updateTransactionToastsList(toastList: ToastsSliceType) {
-    const { transactions: sessions, account } = this.store.getState();
+    const { transactions: transactionsSessions, account } =
+      this.store.getState();
 
-    const { pendingTransactions } = createToastsFromTransactions({
+    const { pendingTransactionToasts } = await createToastsFromTransactions({
       toastList,
-      sessions,
+      transactionsSessions,
       account
     });
 
-    this.transactionToasts = pendingTransactions;
+    this.transactionToasts = pendingTransactionToasts;
 
     for (const toast of toastList.transactionToasts) {
-      const sessionTransactions = sessions[toast.toastId];
-      if (!sessionTransactions) {
+      const transactionSession = transactionsSessions[toast.toastId];
+      if (!transactionSession) {
         continue;
       }
 
       const { toastId } = toast;
-      const { status } = sessionTransactions;
+      const { status } = transactionSession;
       const isTimedOut = getIsTransactionTimedOut(status);
       const isFailed = getIsTransactionFailed(status);
       const isSuccessful = getIsTransactionSuccessful(status);
@@ -161,6 +163,16 @@ export class ToastManager {
 
   private async renderToasts() {
     if (this.notificationsFeedManager.isNotificationsFeedOpen()) {
+      const notificationsFeedEventBus =
+        await this.notificationsFeedManager.getEventBus();
+
+      if (notificationsFeedEventBus) {
+        notificationsFeedEventBus.subscribe(
+          NotificationsFeedEventsEnum.CLOSE_NOTIFICATIONS_FEED,
+          this.renderToasts.bind(this)
+        );
+      }
+
       return;
     }
 

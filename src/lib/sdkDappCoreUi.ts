@@ -20,8 +20,7 @@ export type { IEventBus } from '@multiversx/sdk-dapp-core-ui/dist/types/utils/Ev
 export type {
   ITransactionListItem,
   ITransactionListItemAsset,
-  ITransactionListItemAction,
-  ITransactionListItemDetails
+  ITransactionListItemAction
 } from '@multiversx/sdk-dapp-core-ui/dist/types/components/visual/transaction-list-item/transaction-list-item.types.d.ts';
 
 export async function defineCustomElements(

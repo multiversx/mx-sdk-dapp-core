@@ -14,9 +14,9 @@ export function isContract(
     return false;
   }
 
-  const isContract = new Address(receiver).isContractAddress();
+  const isContractAddress = new Address(receiver).isContractAddress();
 
-  if (isContract) {
+  if (isContractAddress) {
     return true;
   }
 

@@ -24,7 +24,7 @@ export async function signMessage<T>({
         });
 
       const handleClose = async () => {
-        await onClose(false);
+        await onClose({ shouldCancelAction: false });
         reject({ message: SigningWarningsEnum.cancelled });
       };
 
@@ -41,12 +41,12 @@ export async function signMessage<T>({
 
       try {
         const signedMessage = await handleSignMessage(message);
-        await onClose(false);
         resolve(signedMessage);
       } catch (err) {
-        await onClose(false);
+        await onClose({ shouldCancelAction: true });
         reject(err);
       } finally {
+        manager.closeAndReset();
         eventBus.unsubscribe(
           PendingTransactionsEventsEnum.CLOSE_PENDING_TRANSACTIONS,
           handleClose

@@ -117,10 +117,11 @@ export class CrossWindowProviderStrategy {
 
       return optionallyGuardedTransactions;
     } catch (error) {
-      this.provider.cancelAction();
+      await onClose({ shouldCancelAction: true });
+
       throw error;
     } finally {
-      onClose(false);
+      manager.closeAndReset();
       eventBus.unsubscribe(
         PendingTransactionsEventsEnum.CLOSE_PENDING_TRANSACTIONS,
         onClose

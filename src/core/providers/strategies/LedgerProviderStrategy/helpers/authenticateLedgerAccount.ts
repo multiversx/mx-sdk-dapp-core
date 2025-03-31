@@ -13,7 +13,7 @@ import {
   LedgerLoginType
 } from '../types/ledgerProvider.types';
 
-type GetLedgerLoginType = {
+interface IGetLedgerLogin {
   options?: {
     callbackUrl?: string;
     token?: string;
@@ -23,7 +23,13 @@ type GetLedgerLoginType = {
   provider: HWProvider | null;
   eventBus?: IEventBus | null;
   login: LedgerLoginType | null;
-};
+}
+
+interface ISelectedAccount {
+  address: string;
+  signature: string;
+  addressIndex: number;
+}
 
 export function authenticateLedgerAccount({
   options,
@@ -32,7 +38,7 @@ export function authenticateLedgerAccount({
   provider,
   eventBus,
   login
-}: GetLedgerLoginType) {
+}: IGetLedgerLogin) {
   const authData = getAuthTokenText({
     loginToken: options?.token,
     version: config.version
@@ -41,22 +47,21 @@ export function authenticateLedgerAccount({
   // refresh account list
   return updateAccountsList({ manager, provider }).then(async function () {
     // cycle trough accounts until user makes a choice
-    const selectedAccount = await new Promise<{
-      address: string;
-      signature: string;
-      addressIndex: number;
-    }>(async function (resolve, reject) {
+    const selectedAccount = await new Promise<ISelectedAccount>(async function (
+      resolve,
+      reject
+    ) {
       function closeComponent() {
         manager?.closeAndReset();
       }
 
-      async function onNextPageChanged() {
+      async function handleNextPageChanged() {
         const startIndex = manager?.getAccountScreenData()?.startIndex || 0;
         manager?.updateStartIndex(startIndex + manager.addressesPerPage);
         await updateAccountsList({ manager, provider });
       }
 
-      async function onPrevPageChanged() {
+      async function handlePrevPageChanged() {
         const startIndex = manager?.getAccountScreenData()?.startIndex || 0;
 
         if (startIndex > 0) {
@@ -68,7 +73,7 @@ export function authenticateLedgerAccount({
         }
       }
 
-      async function onAccessWallet(payload: {
+      async function handleAccessWallet(payload: {
         addressIndex: number;
         selectedAddress: string;
       }) {
@@ -120,23 +125,23 @@ export function authenticateLedgerAccount({
 
         eventBus.unsubscribe(
           LedgerConnectEventsEnum.CLOSE_LEDGER_CONNECT_PANEL,
-          onCancel
+          handleCancel
         );
         eventBus.unsubscribe(
           LedgerConnectEventsEnum.NEXT_PAGE,
-          onNextPageChanged
+          handleNextPageChanged
         );
         eventBus.unsubscribe(
           LedgerConnectEventsEnum.PREV_PAGE,
-          onPrevPageChanged
+          handlePrevPageChanged
         );
         eventBus.unsubscribe(
           LedgerConnectEventsEnum.ACCESS_WALLET,
-          onAccessWallet
+          handleAccessWallet
         );
       }
 
-      async function onCancel() {
+      async function handleCancel() {
         await updateAccountsList({ manager, provider });
         unsubscribeFromEvents();
         reject('User cancelled login');
@@ -148,11 +153,20 @@ export function authenticateLedgerAccount({
 
       eventBus.subscribe(
         LedgerConnectEventsEnum.CLOSE_LEDGER_CONNECT_PANEL,
-        onCancel
+        handleCancel
       );
-      eventBus.subscribe(LedgerConnectEventsEnum.NEXT_PAGE, onNextPageChanged);
-      eventBus.subscribe(LedgerConnectEventsEnum.PREV_PAGE, onPrevPageChanged);
-      eventBus.subscribe(LedgerConnectEventsEnum.ACCESS_WALLET, onAccessWallet);
+      eventBus.subscribe(
+        LedgerConnectEventsEnum.NEXT_PAGE,
+        handleNextPageChanged
+      );
+      eventBus.subscribe(
+        LedgerConnectEventsEnum.PREV_PAGE,
+        handlePrevPageChanged
+      );
+      eventBus.subscribe(
+        LedgerConnectEventsEnum.ACCESS_WALLET,
+        handleAccessWallet
+      );
     });
 
     const { version, dataEnabled } = config;
