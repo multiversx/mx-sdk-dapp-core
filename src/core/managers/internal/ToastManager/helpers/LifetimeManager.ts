@@ -11,14 +11,18 @@ interface IToastProgressManagerParams {
 export class LifetimeManager {
   // eslint-disable-next-line no-undef
   private timeoutIntervals: Map<string, NodeJS.Timeout> = new Map();
-  private successfulToastLifetime?: number;
+  private successfulToastLifetime: number;
+  private static DEFAULT_TIMEOUT = 10000;
 
   constructor({ successfulToastLifetime }: IToastProgressManagerParams = {}) {
-    this.successfulToastLifetime = successfulToastLifetime;
+    this.successfulToastLifetime =
+      successfulToastLifetime || LifetimeManager.DEFAULT_TIMEOUT;
   }
 
   public start = (toastId: string) => {
-    if (this.timeoutIntervals.has(toastId)) {
+    this.stop(toastId);
+
+    if (this.successfulToastLifetime <= 0) {
       return;
     }
 
@@ -30,7 +34,9 @@ export class LifetimeManager {
   };
 
   public startWithCustomDuration = (toastId: string, duration: number) => {
-    if (this.timeoutIntervals.has(toastId)) {
+    this.stop(toastId);
+
+    if (duration <= 0) {
       return;
     }
 
@@ -46,13 +52,13 @@ export class LifetimeManager {
   public stop = (toastId: string) => {
     const timeout = this.timeoutIntervals.get(toastId);
     if (timeout) {
-      clearInterval(timeout);
+      clearTimeout(timeout);
       this.timeoutIntervals.delete(toastId);
     }
   };
 
   public destroy() {
-    this.timeoutIntervals.forEach((interval) => clearInterval(interval));
+    this.timeoutIntervals.forEach((interval) => clearTimeout(interval));
     this.timeoutIntervals.clear();
   }
 }
