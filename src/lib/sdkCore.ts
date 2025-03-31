@@ -1,1 +1,11 @@
-export { Transaction } from '@multiversx/sdk-core/out';
+export {
+  Transaction,
+  TransactionVersion,
+  Address,
+  TransactionComputer,
+  TransactionOptions,
+  Message,
+  UserPublicKey,
+  MessageComputer,
+  UserVerifier
+} from '@multiversx/sdk-core';

@@ -13,7 +13,7 @@ export type { WalletConnectPanel } from '@multiversx/sdk-dapp-core-ui/dist/web-c
 export type { WalletConnect } from '@multiversx/sdk-dapp-core-ui/dist/web-components/wallet-connect';
 export type { IWalletConnectPanelData } from '@multiversx/sdk-dapp-core-ui/dist/types/components/functional/wallet-connect-components/wallet-connect-panel.types.d';
 export type { PendingTransactionsPanel } from '@multiversx/sdk-dapp-core-ui/dist/web-components/pending-transactions-panel';
-export type { IPendingTransactionsPanelData } from '@multiversx/sdk-dapp-core-ui/dist/types/components/functional/pending-transactions-panel/pending-transactions-panel.types.d';
+export { type IPendingTransactionsPanelData } from '@multiversx/sdk-dapp-core-ui/dist/types/components/functional/pending-transactions-panel/pending-transactions-panel.types.d';
 export type { NotificationsFeed } from '@multiversx/sdk-dapp-core-ui/dist/web-components/notifications-feed';
 export type { ToastList } from '@multiversx/sdk-dapp-core-ui/dist/web-components/toast-list';
 export type { IEventBus } from '@multiversx/sdk-dapp-core-ui/dist/types/utils/EventBus';

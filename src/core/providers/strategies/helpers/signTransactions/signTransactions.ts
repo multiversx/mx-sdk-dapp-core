@@ -1,4 +1,3 @@
-import { Transaction } from '@multiversx/sdk-core/out';
 import { getEconomics } from 'apiCalls/economics/getEconomics';
 import { EMPTY_PPU } from 'constants/placeholders.constants';
 import { SignTransactionsStateManager } from 'core/managers/internal/SignTransactionsStateManager/SignTransactionsStateManager';
@@ -10,6 +9,7 @@ import { getAccountInfo } from 'core/methods/account/getAccountInfo';
 import { getEgldLabel } from 'core/methods/network/getEgldLabel';
 import { cancelCrossWindowAction } from 'core/providers/helpers/cancelCrossWindowAction';
 import { IProvider } from 'core/providers/types/providerFactory.types';
+import { Transaction } from 'lib/sdkCore';
 import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
 import { ProviderErrorsEnum } from 'types/provider.types';
@@ -63,7 +63,7 @@ export async function signTransactions({
       const currentTransaction = allTransactions[currentScreenIndex];
       const transaction = currentTransaction?.transaction;
       const price = economics?.price;
-      const currentNonce = currentTransaction.transaction?.getNonce().valueOf();
+      const currentNonce = Number(currentTransaction.transaction.nonce);
 
       const { commonData, tokenTransaction, fungibleTransaction } =
         await getCommonData({
@@ -160,20 +160,20 @@ export async function signTransactions({
         }
 
         const currentEditedTransaction = currentTransaction.transaction;
-
-        const txNonce = currentEditedTransaction.getNonce().valueOf();
+        const plainTransaction = currentEditedTransaction.toPlainObject();
+        const txNonce = plainTransaction.nonce;
 
         if (!currentNonce) {
           throw new Error('Current nonce not found');
         }
 
         const newGasPrice = getRecommendedGasPrice({
-          transaction: currentEditedTransaction.toPlainObject(),
+          transaction: plainTransaction,
           gasPriceData: manager.ppuMap[txNonce]
         });
 
-        const transactionToSign = Transaction.fromPlainObject({
-          ...currentEditedTransaction.toPlainObject(),
+        const transactionToSign = Transaction.newFromPlainObject({
+          ...plainTransaction,
           gasPrice: newGasPrice
         });
 
