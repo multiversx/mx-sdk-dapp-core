@@ -1,4 +1,4 @@
-import { Transaction } from '@multiversx/sdk-core/out';
+import { Transaction } from 'lib/sdkCore';
 import { computeNonce } from './computeNonce';
 
 export const computeNonces = ({
@@ -15,7 +15,7 @@ export const computeNonces = ({
   return transactions.map((tx: Transaction, index: number) => {
     const nextNonce = latestNonce + index;
 
-    const transactionNonce = tx.getNonce().valueOf();
+    const transactionNonce = tx.toPlainObject().nonce;
 
     // stop replacing nonce if transaction is configured with a higher nonce than the existing one
     const computedNonce = computeNonce({
@@ -23,7 +23,7 @@ export const computeNonces = ({
       transactionNonce
     });
 
-    tx.setNonce(computedNonce);
+    tx.nonce = BigInt(computedNonce);
 
     return tx;
   });

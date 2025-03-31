@@ -65,10 +65,10 @@ describe('when the gas limit is updated', () => {
 
   const updatedTransactions = [...transactionsToModify].map((tx, i) => {
     if (i === 0) {
-      tx.transaction.setGasLimit(20_700_000);
+      tx.transaction.gasLimit = BigInt(20_700_000);
       return tx;
     }
-    tx.transaction.setGasLimit(520_000_000);
+    tx.transaction.gasLimit = BigInt(520_000_000);
     return tx;
   });
 
