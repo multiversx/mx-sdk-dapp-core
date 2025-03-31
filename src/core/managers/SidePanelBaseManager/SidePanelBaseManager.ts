@@ -17,7 +17,7 @@ export abstract class SidePanelBaseManager<TElement, TData, TEventEnum> {
 
   protected abstract initialData: TData;
   protected data: TData;
-
+  protected eventBusUnsubscribeFunctions: (() => void)[] = [];
   constructor(type?: string) {
     this.type = type;
     this.data = this.getInitialData();
@@ -159,6 +159,9 @@ export abstract class SidePanelBaseManager<TElement, TData, TEventEnum> {
     }
 
     this.isOpen = false;
+
+    this.eventBusUnsubscribeFunctions.forEach((unsubscribe) => unsubscribe());
+    this.eventBusUnsubscribeFunctions = [];
   }
 
   protected getInitialData(): TData {

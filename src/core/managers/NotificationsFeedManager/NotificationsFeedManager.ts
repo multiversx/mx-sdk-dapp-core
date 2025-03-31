@@ -21,8 +21,6 @@ export class NotificationsFeedManager extends SidePanelBaseManager<
 > {
   private static instance: NotificationsFeedManager;
   private store = getStore();
-  private storeToastsUnsubscribe: () => void = () => null;
-  private eventBusUnsubscribeFunctions: (() => void)[] = [];
 
   protected initialData: INotificationsFeedManagerData = {
     pendingTransactions: [],
@@ -51,7 +49,7 @@ export class NotificationsFeedManager extends SidePanelBaseManager<
     this.resetData();
     await this.updateDataAndNotifications();
 
-    this.storeToastsUnsubscribe = this.store.subscribe(
+    const storeToastsUnsubscribe = this.store.subscribe(
       async (
         { toasts, transactions },
         { toasts: prevToasts, transactions: prevTransactions }
@@ -64,6 +62,8 @@ export class NotificationsFeedManager extends SidePanelBaseManager<
         }
       }
     );
+
+    this.eventBusUnsubscribeFunctions.push(storeToastsUnsubscribe);
   }
 
   public async openNotificationsFeed() {
@@ -72,9 +72,6 @@ export class NotificationsFeedManager extends SidePanelBaseManager<
   }
 
   public destroy() {
-    this.storeToastsUnsubscribe();
-    this.eventBusUnsubscribeFunctions.forEach((unsubscribe) => unsubscribe());
-    this.eventBusUnsubscribeFunctions = [];
     super.destroy();
   }
 
