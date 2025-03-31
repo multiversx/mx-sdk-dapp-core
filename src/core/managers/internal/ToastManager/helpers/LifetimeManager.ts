@@ -18,7 +18,7 @@ export class LifetimeManager {
   // eslint-disable-next-line no-undef
   private timeoutIntervals: Map<string, NodeJS.Timeout> = new Map();
   private successfulToastLifetime: number;
-  private static DEFAULT_TIMEOUT = 10000; // 10 seconds default timeout
+  private static DEFAULT_TIMEOUT = 10000;
 
   constructor({ successfulToastLifetime }: IToastProgressManagerParams = {}) {
     this.successfulToastLifetime =
