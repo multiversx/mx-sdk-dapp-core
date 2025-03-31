@@ -7,7 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [[0.0.0-alpha.17](https://github.com/multiversx/mx-sdk-dapp-core/pull/124)] - 2025-03-31
+
 - [Fixed toasts completion and notifications feed toasts management](https://github.com/multiversx/mx-sdk-dapp-core/pull/131)
+- [Upgrade sdk core v14](https://github.com/multiversx/mx-sdk-dapp-core/pull/130)
 - [Toasts data refactoring](https://github.com/multiversx/mx-sdk-dapp-core/pull/129)
 - [Added ledger idle connection manager](https://github.com/multiversx/mx-sdk-dapp-core/pull/127)
 - [Fixed ledger logout on page reload](https://github.com/multiversx/mx-sdk-dapp-core/pull/126)
