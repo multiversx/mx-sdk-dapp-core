@@ -70,12 +70,10 @@ export class SignTransactionsStateManager extends SidePanelBaseManager<
     transactions
       .filter((tx) => tx != null)
       .forEach((transaction) => {
-        const initialGasPrice = transaction
-          ? transaction.toPlainObject().gasPrice
-          : 0;
+        const initialGasPrice = transaction ? Number(transaction.gasPrice) : 0;
         const ppu = EMPTY_PPU;
         this.updateGasPriceMap({
-          nonce: transaction?.toPlainObject().nonce,
+          nonce: Number(transaction.nonce ?? 0),
           ppu,
           initialGasPrice
         });

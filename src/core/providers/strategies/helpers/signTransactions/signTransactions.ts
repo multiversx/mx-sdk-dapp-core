@@ -63,7 +63,7 @@ export async function signTransactions({
       const currentTransaction = allTransactions[currentScreenIndex];
       const transaction = currentTransaction?.transaction;
       const price = economics?.price;
-      const currentNonce = currentTransaction.transaction.toPlainObject().nonce;
+      const currentNonce = Number(currentTransaction.transaction.nonce);
 
       const { commonData, tokenTransaction, fungibleTransaction } =
         await getCommonData({
