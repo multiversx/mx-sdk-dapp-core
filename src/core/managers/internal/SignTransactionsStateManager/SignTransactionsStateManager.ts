@@ -1,7 +1,7 @@
 import { EMPTY_PPU } from 'constants/placeholders.constants';
 import { UITagsEnum } from 'constants/UITags.enum';
 import { Transaction } from 'lib/sdkCore';
-import { SignTransactionsPanel } from 'lib/sdkDappCoreUi';
+import { MvxSignTransactionsPanel } from 'lib/sdkDappCoreUi';
 import { NftEnumType } from 'types/tokens.types';
 import {
   FungibleTransactionType,
@@ -13,7 +13,7 @@ import {
 import { SidePanelBaseManager } from '../../SidePanelBaseManager/SidePanelBaseManager';
 
 export class SignTransactionsStateManager extends SidePanelBaseManager<
-  SignTransactionsPanel,
+  MvxSignTransactionsPanel,
   ISignTransactionsPanelData,
   SignEventsEnum
 > {
