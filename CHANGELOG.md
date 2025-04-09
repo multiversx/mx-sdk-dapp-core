@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [[0.0.0-alpha.18](https://github.com/multiversx/mx-sdk-dapp-core/pull/135)] - 2025-04-09
 - [Fix DappProvider init in NextJS](https://github.com/multiversx/mx-sdk-dapp-core/pull/134)
 - [Updated prefix to ui tags and component imports](https://github.com/multiversx/mx-sdk-dapp-core/pull/133)
 
