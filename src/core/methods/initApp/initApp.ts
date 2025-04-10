@@ -84,15 +84,17 @@ export async function initApp({
     successfulToastLifetime: dAppConfig.successfulToastLifetime
   });
 
-  await toastManager.init();
-
   const pendingTransactionsStateManager =
     PendingTransactionsStateManager.getInstance();
-  await pendingTransactionsStateManager.init();
 
   const signTransactionsStateManager =
     SignTransactionsStateManager.getInstance();
-  await signTransactionsStateManager.init();
+
+  await Promise.all([
+    toastManager.init(),
+    pendingTransactionsStateManager.init(),
+    signTransactionsStateManager.init()
+  ]);
 
   const usedProviders = [
     ...((safeWindow as any)?.multiversx?.providers || []),
