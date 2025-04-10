@@ -33,7 +33,7 @@ jobs:
         run: yarn test
 
       - name: Build project
-        run: yarn compile
+        run: yarn build
 
       - name: Get package info
         id: package
