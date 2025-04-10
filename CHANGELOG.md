@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- [Switched publish workflow to esbuild](https://github.com/multiversx/mx-sdk-dapp-core/pull/137)
 - [Add parallel manager initialization](https://github.com/multiversx/mx-sdk-dapp-core/pull/136)
 
 ## [[0.0.0-alpha.18](https://github.com/multiversx/mx-sdk-dapp-core/pull/135)] - 2025-04-09
