@@ -3,11 +3,11 @@ import {
   WalletConnectEventsEnum,
   IWalletConnectModalData
 } from 'core/providers/strategies/WalletConnectProviderStrategy/types';
-import { WalletConnectPanel } from 'lib/sdkDappCoreUi';
+import { MvxWalletConnectPanel } from 'lib/sdkDappCoreUi';
 import { SidePanelBaseManager } from '../../SidePanelBaseManager/SidePanelBaseManager';
 
 export class WalletConnectStateManager extends SidePanelBaseManager<
-  WalletConnectPanel,
+  MvxWalletConnectPanel,
   IWalletConnectModalData,
   WalletConnectEventsEnum
 > {

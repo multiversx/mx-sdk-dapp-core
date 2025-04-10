@@ -6,13 +6,13 @@ import {
   IConnectScreenData,
   ILedgerAccount,
   ILedgerConnectPanelData,
-  LedgerConnectPanel
+  MvxLedgerConnectPanel
 } from 'lib/sdkDappCoreUi';
 import { LedgerConnectEventsEnum } from './types';
 import { SidePanelBaseManager } from '../../SidePanelBaseManager/SidePanelBaseManager';
 
 export class LedgerConnectStateManager extends SidePanelBaseManager<
-  LedgerConnectPanel,
+  MvxLedgerConnectPanel,
   ILedgerConnectPanelData,
   LedgerConnectEventsEnum
 > {

@@ -2,7 +2,7 @@ import isEqual from 'lodash.isequal';
 import { UITagsEnum } from 'constants/UITags.enum';
 import { NotificationsFeedManager } from 'core/managers/NotificationsFeedManager/NotificationsFeedManager';
 import { NotificationsFeedEventsEnum } from 'core/managers/NotificationsFeedManager/types';
-import { ToastList } from 'lib/sdkDappCoreUi';
+import { MvxToastList } from 'lib/sdkDappCoreUi';
 import {
   customToastCloseHandlersDictionary,
   customToastComponentDictionary,
@@ -33,7 +33,7 @@ interface IToastManager {
 export class ToastManager {
   private lifetimeManager: LifetimeManager;
   private isCreatingElement = false;
-  private toastsElement: ToastList | null = null;
+  private toastsElement: MvxToastList | null = null;
   private transactionToasts: ITransactionToast[] = [];
   private customToasts: CustomToastType[] = [];
   private successfulToastLifetime?: number;
@@ -171,7 +171,7 @@ export class ToastManager {
     );
   }
 
-  private async createToastListElement(): Promise<ToastList | null> {
+  private async createToastListElement(): Promise<MvxToastList | null> {
     if (this.toastsElement) {
       return this.toastsElement;
     }
@@ -179,7 +179,7 @@ export class ToastManager {
     if (!this.isCreatingElement) {
       this.isCreatingElement = true;
 
-      this.toastsElement = await createUIElement<ToastList>({
+      this.toastsElement = await createUIElement<MvxToastList>({
         name: UITagsEnum.TOAST_LIST
       });
 
