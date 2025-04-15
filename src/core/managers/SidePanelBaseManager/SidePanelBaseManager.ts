@@ -99,7 +99,6 @@ export abstract class SidePanelBaseManager<TElement, TData, TEventEnum> {
       throw new Error(`Failed to create ${this.getUIElementName()} element`);
     }
 
-    // Try to get the event bus from the UI element again
     this.eventBus ??= await (
       this.uiElement as unknown as IUIElement
     ).getEventBus();
