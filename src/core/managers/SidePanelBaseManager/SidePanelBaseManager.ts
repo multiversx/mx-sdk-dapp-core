@@ -84,6 +84,11 @@ export abstract class SidePanelBaseManager<TElement, TData, TEventEnum> {
   }
 
   public async getEventBus(): Promise<IEventBus | null> {
+    // Return eventBus in null state while element is being created
+    if (this.isCreatingElement) {
+      return this.eventBus;
+    }
+
     if (!this.uiElement) {
       // Try to create the UI element again
       await this.createUIElement();
@@ -109,21 +114,18 @@ export abstract class SidePanelBaseManager<TElement, TData, TEventEnum> {
     return this.eventBus;
   }
 
-  public async createUIElement(
-    anchor: HTMLElement | undefined = this.anchor
-  ): Promise<TElement | null> {
-    if (this.uiElement) {
+  public async createUIElement(anchor?: HTMLElement): Promise<TElement | null> {
+    if (this.isCreatingElement || this.uiElement) {
       return this.uiElement;
     }
 
     if (!this.isCreatingElement) {
       this.isCreatingElement = true;
 
-      const options = anchor
-        ? { name: this.getUIElementName(), anchor }
-        : { name: this.getUIElementName() };
-
-      const element = await createUIElement<TElement>(options);
+      const element = await createUIElement<TElement>({
+        name: this.getUIElementName(),
+        anchor
+      });
 
       this.uiElement = element || null;
       await this.getEventBus();

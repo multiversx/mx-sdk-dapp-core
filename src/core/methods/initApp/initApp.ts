@@ -80,7 +80,7 @@ export async function initApp({
     await login(provider.getProvider());
   }
 
-  const toastManager = new ToastManager({
+  const toastManager = ToastManager.getInstance({
     successfulToastLifetime: dAppConfig.successfulToastLifetime
   });
 
