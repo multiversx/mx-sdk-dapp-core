@@ -97,7 +97,7 @@ export async function initApp({
   ]);
 
   const usedProviders = [
-    ...((safeWindow as any)?.multiversx?.providers || []),
+    ...((safeWindow as any)?.multiversx?.providers ?? []),
     ...(customProviders || [])
   ];
 

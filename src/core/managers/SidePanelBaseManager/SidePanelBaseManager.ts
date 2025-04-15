@@ -99,12 +99,10 @@ export abstract class SidePanelBaseManager<TElement, TData, TEventEnum> {
       throw new Error(`Failed to create ${this.getUIElementName()} element`);
     }
 
-    if (!this.eventBus) {
-      // Try to get the event bus from the UI element again
-      this.eventBus = await (
-        this.uiElement as unknown as IUIElement
-      ).getEventBus();
-    }
+    // Try to get the event bus from the UI element again
+    this.eventBus ??= await (
+      this.uiElement as unknown as IUIElement
+    ).getEventBus();
 
     if (!this.eventBus) {
       // The event bus failed to be retrieved
@@ -114,7 +112,9 @@ export abstract class SidePanelBaseManager<TElement, TData, TEventEnum> {
     return this.eventBus;
   }
 
-  public async createUIElement(anchor?: HTMLElement): Promise<TElement | null> {
+  public async createUIElement(
+    anchor: HTMLElement | undefined = this.anchor
+  ): Promise<TElement | null> {
     if (this.isCreatingElement || this.uiElement) {
       return this.uiElement;
     }
