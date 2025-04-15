@@ -80,7 +80,7 @@ export async function initApp({
     await login(provider.getProvider());
   }
 
-  const toastManager = new ToastManager({
+  const toastManager = ToastManager.getInstance({
     successfulToastLifetime: dAppConfig.successfulToastLifetime
   });
 
@@ -97,7 +97,7 @@ export async function initApp({
   ]);
 
   const usedProviders = [
-    ...((safeWindow as any)?.multiversx?.providers || []),
+    ...((safeWindow as any)?.multiversx?.providers ?? []),
     ...(customProviders || [])
   ];
 

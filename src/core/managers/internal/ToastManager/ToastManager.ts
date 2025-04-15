@@ -33,6 +33,7 @@ interface IToastManager {
 export class ToastManager {
   private lifetimeManager: LifetimeManager;
   private isCreatingElement = false;
+  private static instance: ToastManager;
   private toastsElement: MvxToastList | null = null;
   private transactionToasts: ITransactionToast[] = [];
   private customToasts: CustomToastType[] = [];
@@ -79,6 +80,13 @@ export class ToastManager {
         }
       }
     );
+  }
+
+  public static getInstance(config?: IToastManager): ToastManager {
+    if (!ToastManager.instance) {
+      ToastManager.instance = new ToastManager(config);
+    }
+    return ToastManager.instance;
   }
 
   private handleCompletedTransaction(toastId: string): boolean {
