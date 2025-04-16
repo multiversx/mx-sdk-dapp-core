@@ -107,7 +107,7 @@ export async function initApp({
 
   ProviderFactory.customProviders(usedProviders || []);
 
-  // Aoid multiple init on multiple initApp executions
+  // Avoid multiple init on multiple initApp executions
   // Multiple subscriptions may be generated
   if (isLoggedIn && !isAppInitialized) {
     await restoreProvider();
