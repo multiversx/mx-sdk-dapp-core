@@ -1,18 +1,18 @@
 import { io } from 'socket.io-client';
 import { getWebsocketUrl } from 'apiCalls/websocket';
 import {
+  WebsocketConnectionStatusEnum,
+  websocketConnection
+} from 'constants/websocket.constants';
+import {
   setWebsocketStatus,
   setWebsocketBatchEvent,
   setWebsocketEvent
 } from 'store/actions/account/accountActions';
 import { networkSelector } from 'store/selectors';
 import { getStore } from 'store/store';
+import { BatchTransactionsWSResponseType } from 'types/websocket.types';
 import { retryMultipleTimes } from 'utils/retryMultipleTimes';
-import {
-  BatchTransactionsWSResponseType,
-  websocketConnection,
-  WebsocketConnectionStatusEnum
-} from './websocket.constants';
 
 const TIMEOUT = 3000;
 const RECONNECTION_ATTEMPTS = 3;
@@ -24,8 +24,7 @@ const CONNECT = 'connect';
 const CONNECT_ERROR = 'connect_error';
 const DISCONNECT = 'disconnect';
 
-// eslint-disable-next-line no-undef
-type TimeoutType = NodeJS.Timeout | null;
+type TimeoutType = ReturnType<typeof setTimeout> | null;
 
 export async function initializeWebsocketConnection(address: string) {
   const { apiAddress, websocketUrl: customWebsocketUrl } = networkSelector(
@@ -78,7 +77,6 @@ export async function initializeWebsocketConnection(address: string) {
       }
 
       attempt++;
-      console.log(`WebSocket reconnect attempt ${attempt}/${retries}...`);
 
       // Clean up previous socket
       websocketConnection.instance?.off();
@@ -94,12 +92,10 @@ export async function initializeWebsocketConnection(address: string) {
           const isConnected = websocketConnection.instance?.connected;
 
           if (!isConnected) {
-            console.warn('WebSocket not connected. Retrying...');
             setTimeout(tryReconnect, delay);
           }
         }, SOCKET_CONNECTION_DELAY);
-      } catch (error) {
-        console.warn('Reconnect threw an error. Retrying...', error);
+      } catch {
         setTimeout(tryReconnect, delay);
       }
     };
@@ -132,16 +128,13 @@ export async function initializeWebsocketConnection(address: string) {
 
   const initializeConnection = retryMultipleTimes(
     async () => {
-      // To avoid multiple connections to the same endpoint
       updateSocketStatus(WebsocketConnectionStatusEnum.PENDING);
 
       const websocketUrl =
         customWebsocketUrl ?? (await getWebsocketUrl(apiAddress));
 
       if (!websocketUrl) {
-        console.warn('Cannot get websocket URL');
         updateSocketStatus(WebsocketConnectionStatusEnum.NOT_INITIALIZED);
-
         return;
       }
 

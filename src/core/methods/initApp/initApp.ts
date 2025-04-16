@@ -29,6 +29,16 @@ const defaultInitAppProps = {
   }
 };
 
+/**
+ * Flag indicating whether the app has already been initialized.
+ *
+ * Prevents repeated initialization steps such as provider restoration,
+ * websocket listener registration, and transaction tracking setup.
+ * This ensures that multiple calls to `initApp` do not cause duplicated
+ * subscriptions or side effects.
+ *
+ * @internal
+ */
 let isAppInitialized = false;
 
 /**

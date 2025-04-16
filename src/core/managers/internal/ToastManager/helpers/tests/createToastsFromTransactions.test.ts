@@ -1,5 +1,5 @@
 import { testAddress } from '__mocks__';
-import { WebsocketConnectionStatusEnum } from 'core/methods/initApp/websocket/websocket.constants';
+import { WebsocketConnectionStatusEnum } from 'constants/websocket.constants';
 import {
   getIsTransactionPending,
   getIsTransactionSuccessful

@@ -1,25 +1,23 @@
 import { subscriptions } from 'constants/storage.constants';
+import {
+  WebsocketConnectionStatusEnum,
+  websocketConnection
+} from 'constants/websocket.constants';
 import { websocketEventSelector } from 'store/selectors/accountSelectors';
 import { getStore } from 'store/store';
 import { SubscriptionsEnum } from 'types/subscriptions.type';
 import { checkTransactionStatus } from './helpers/checkTransactionStatus';
 import { getPollingInterval } from './helpers/getPollingInterval';
-import {
-  websocketConnection,
-  WebsocketConnectionStatusEnum
-} from '../initApp/websocket/websocket.constants';
 
 /**
  * Tracks transactions using websocket or polling
- * @returns cleanup function
+ * @returns stopTransactionsTracking function
  */
 export async function trackTransactions() {
   const store = getStore();
   const pollingInterval = getPollingInterval();
-  // eslint-disable-next-line no-undef
-  let pollingIntervalTimer: NodeJS.Timeout | null = null;
-  // eslint-disable-next-line no-undef
-  let websocketStatusCheckTimer: NodeJS.Timeout | null = null;
+  let pollingIntervalRef: ReturnType<typeof setTimeout> | null = null;
+  let websocketStatusCheckRef: ReturnType<typeof setTimeout> | null = null;
   let timestamp = websocketEventSelector(store.getState())?.timestamp;
 
   const recheckStatus = () => {
@@ -27,15 +25,13 @@ export async function trackTransactions() {
   };
 
   const startPolling = () => {
-    if (!pollingIntervalTimer) {
-      pollingIntervalTimer = setInterval(recheckStatus, pollingInterval);
-    }
+    pollingIntervalRef ??= setInterval(recheckStatus, pollingInterval);
   };
 
   const stopPolling = () => {
-    if (pollingIntervalTimer) {
-      clearInterval(pollingIntervalTimer);
-      pollingIntervalTimer = null;
+    if (pollingIntervalRef) {
+      clearInterval(pollingIntervalRef);
+      pollingIntervalRef = null;
     }
   };
 
@@ -51,7 +47,7 @@ export async function trackTransactions() {
     );
 
     subscriptions.set(
-      SubscriptionsEnum.websocketEvent,
+      SubscriptionsEnum.websocketEventReceived,
       unsubscribeWebsocketEvent
     );
   };
@@ -60,17 +56,17 @@ export async function trackTransactions() {
     if (
       websocketConnection.status !==
         WebsocketConnectionStatusEnum.NOT_INITIALIZED ||
-      websocketStatusCheckTimer
+      websocketStatusCheckRef
     ) {
       return;
     }
 
-    websocketStatusCheckTimer = setInterval(() => {
+    websocketStatusCheckRef = setInterval(() => {
       if (
         websocketConnection.status === WebsocketConnectionStatusEnum.COMPLETED
       ) {
-        clearInterval(websocketStatusCheckTimer!);
-        websocketStatusCheckTimer = null;
+        clearInterval(websocketStatusCheckRef!);
+        websocketStatusCheckRef = null;
         setupWebSocketTracking();
       }
     }, 1000);
@@ -79,13 +75,13 @@ export async function trackTransactions() {
   // Initial execution
   recheckStatus();
 
-  function cleanup() {
+  const stopTransactionsTracking = () => {
     stopPolling();
-    if (websocketStatusCheckTimer) {
-      clearInterval(websocketStatusCheckTimer);
-      websocketStatusCheckTimer = null;
+    if (websocketStatusCheckRef) {
+      clearInterval(websocketStatusCheckRef);
+      websocketStatusCheckRef = null;
     }
-  }
+  };
 
   const unsubscribeWebsocketStatus = store.subscribe(
     ({ account: { websocketStatus, address } }, prevState) => {
@@ -105,22 +101,19 @@ export async function trackTransactions() {
           startWatchingWebsocketStatus();
           break;
         default:
-          {
-            if (address) {
-              startPolling();
-            } else {
-              cleanup();
-            }
-          }
+          address ? startPolling() : stopTransactionsTracking();
           break;
       }
     }
   );
 
   subscriptions.set(
-    SubscriptionsEnum.websocketStatus,
+    SubscriptionsEnum.websocketStatusChanged,
     unsubscribeWebsocketStatus
   );
-  subscriptions.set(SubscriptionsEnum.websocketCleanup, cleanup);
-  return { cleanup };
+  subscriptions.set(
+    SubscriptionsEnum.websocketEventReceived,
+    stopTransactionsTracking
+  );
+  return { stopTransactionsTracking };
 }

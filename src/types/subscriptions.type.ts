@@ -1,5 +1,5 @@
 export enum SubscriptionsEnum {
-  websocketStatus = 'websocketStatus',
-  websocketEvent = 'websocketEvent',
+  websocketStatusChanged = 'websocketStatusChanged',
+  websocketEventReceived = 'websocketEventReceived',
   websocketCleanup = 'websocketCleanup'
 }

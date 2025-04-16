@@ -97,10 +97,10 @@ export async function login(provider: IProvider) {
     return await loginWithNativeToken(provider, nativeAuthConfig);
   }
 
-  const data = await loginWithoutNativeToken(provider);
+  const { address } = await loginWithoutNativeToken(provider);
 
-  await registerWebsocketListener(data.address);
+  await registerWebsocketListener(address);
   trackTransactions();
 
-  return data;
+  return { address };
 }

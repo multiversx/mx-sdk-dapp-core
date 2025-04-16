@@ -1,11 +1,9 @@
-import { WebsocketConnectionStatusEnum } from 'core/methods/initApp/websocket/websocket.constants';
-import {
-  BatchTransactionsWSResponseType,
-  LedgerAccountType
-} from 'store/slices/account/account.types';
+import { WebsocketConnectionStatusEnum } from 'constants/websocket.constants';
+import { LedgerAccountType } from 'store/slices/account/account.types';
 import { emptyAccount } from 'store/slices/account/emptyAccount';
 import { getStore } from 'store/store';
 import { AccountType } from 'types/account.types';
+import { BatchTransactionsWSResponseType } from 'types/websocket.types';
 
 export const setAddress = (address: string) =>
   getStore().setState(

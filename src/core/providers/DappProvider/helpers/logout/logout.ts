@@ -1,7 +1,7 @@
 import { subscriptions } from 'constants/storage.constants';
 import { safeWindow } from 'constants/window.constants';
 import { getAddress } from 'core/methods/account/getAddress';
-import { closeConnectionRef } from 'core/methods/initApp/websocket/registerWebsocket';
+import { websocketManager } from 'core/methods/initApp/websocket/registerWebsocket';
 import {
   IProvider,
   ProviderTypeEnum
@@ -62,7 +62,7 @@ export async function logout({
     // Clear all active subscriptions on logout
     subscriptions.forEach((unsubscribe) => unsubscribe());
     subscriptions.clear();
-    closeConnectionRef();
+    websocketManager.closeConnectionRef?.();
     await provider.logout();
   } catch (err) {
     console.error('Logging out error:', err);

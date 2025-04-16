@@ -1,5 +1,5 @@
 import { StateCreator } from 'zustand/vanilla';
-import { WebsocketConnectionStatusEnum } from 'core/methods/initApp/websocket/websocket.constants';
+import { WebsocketConnectionStatusEnum } from 'constants/websocket.constants';
 import { StoreType, MutatorsIn } from 'store/store.types';
 import { AccountSliceType } from './account.types';
 import { emptyAccount } from './emptyAccount';

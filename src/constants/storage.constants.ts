@@ -1,4 +1,5 @@
 import { createJSONStorage } from 'zustand/middleware';
+import { SubscriptionsEnum } from 'types';
 import { safeWindow } from './window.constants';
 
 export const persistConfig: {
@@ -13,4 +14,4 @@ export const storage = safeWindow
     )
   : undefined;
 
-export const subscriptions = new Map<string, () => void>();
+export const subscriptions = new Map<SubscriptionsEnum, () => void>();
