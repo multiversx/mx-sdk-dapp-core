@@ -17,7 +17,8 @@ export async function trackTransactions() {
   const store = getStore();
   const pollingInterval = getPollingInterval();
   let pollingIntervalRef: ReturnType<typeof setTimeout> | null = null;
-  let websocketStatusCheckRef: ReturnType<typeof setTimeout> | null = null;
+  let websocketStatusCheckIntervalRef: ReturnType<typeof setTimeout> | null =
+    null;
   let timestamp = websocketEventSelector(store.getState())?.timestamp;
 
   const recheckStatus = () => {
@@ -56,17 +57,17 @@ export async function trackTransactions() {
     if (
       websocketConnection.status !==
         WebsocketConnectionStatusEnum.NOT_INITIALIZED ||
-      websocketStatusCheckRef
+      websocketStatusCheckIntervalRef
     ) {
       return;
     }
 
-    websocketStatusCheckRef = setInterval(() => {
+    websocketStatusCheckIntervalRef = setInterval(() => {
       if (
         websocketConnection.status === WebsocketConnectionStatusEnum.COMPLETED
       ) {
-        clearInterval(websocketStatusCheckRef!);
-        websocketStatusCheckRef = null;
+        clearInterval(websocketStatusCheckIntervalRef!);
+        websocketStatusCheckIntervalRef = null;
         setupWebSocketTracking();
       }
     }, 1000);
@@ -77,9 +78,9 @@ export async function trackTransactions() {
 
   const stopTransactionsTracking = () => {
     stopPolling();
-    if (websocketStatusCheckRef) {
-      clearInterval(websocketStatusCheckRef);
-      websocketStatusCheckRef = null;
+    if (websocketStatusCheckIntervalRef) {
+      clearInterval(websocketStatusCheckIntervalRef);
+      websocketStatusCheckIntervalRef = null;
     }
   };
 
