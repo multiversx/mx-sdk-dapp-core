@@ -84,7 +84,8 @@ export async function initializeWebsocketConnection(address: string) {
       websocketConnection.instance = null;
 
       try {
-        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        // Disable for being used before initialization
+        // eslint-disable-next-line
         await initializeConnection(); // attempt to reconnect
 
         // Wait briefly and check if socket is actually connected
