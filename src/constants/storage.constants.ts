@@ -12,3 +12,5 @@ export const storage = safeWindow
       () => safeWindow[persistConfig.persistReducersStorageType]
     )
   : undefined;
+
+export const subscriptions = new Map<string, () => void>();

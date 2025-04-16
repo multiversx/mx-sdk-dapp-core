@@ -1,4 +1,5 @@
 import { testAddress } from '__mocks__';
+import { WebsocketConnectionStatusEnum } from 'core/methods/initApp/websocket/websocket.constants';
 import {
   getIsTransactionPending,
   getIsTransactionSuccessful
@@ -59,6 +60,7 @@ describe('createToastsFromTransactions', () => {
     address: testAddress,
     accounts: {},
     publicKey: '',
+    websocketStatus: WebsocketConnectionStatusEnum.NOT_INITIALIZED,
     ledgerAccount: null,
     walletConnectAccount: null,
     websocketEvent: null,

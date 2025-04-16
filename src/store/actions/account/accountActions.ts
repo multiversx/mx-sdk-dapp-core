@@ -1,3 +1,4 @@
+import { WebsocketConnectionStatusEnum } from 'core/methods/initApp/websocket/websocket.constants';
 import {
   BatchTransactionsWSResponseType,
   LedgerAccountType
@@ -44,6 +45,15 @@ export const setWalletConnectAccount = (walletConnectAccount: string | null) =>
     },
     false,
     'setWalletConnectAccount'
+  );
+
+export const setWebsocketStatus = (status: WebsocketConnectionStatusEnum) =>
+  getStore().setState(
+    ({ account: state }) => {
+      state.websocketStatus = status;
+    },
+    false,
+    'setWebsocketStatus'
   );
 
 export const setWebsocketEvent = (message: string) =>

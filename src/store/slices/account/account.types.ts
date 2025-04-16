@@ -1,3 +1,4 @@
+import { WebsocketConnectionStatusEnum } from 'core/methods/initApp/websocket/websocket.constants';
 import { AccountType } from 'types/account.types';
 
 export interface LedgerAccountType {
@@ -18,6 +19,7 @@ export type AccountSliceType = {
   publicKey: string;
   ledgerAccount: LedgerAccountType | null;
   walletConnectAccount: string | null;
+  websocketStatus: WebsocketConnectionStatusEnum;
   websocketEvent: {
     timestamp: number;
     message: string;

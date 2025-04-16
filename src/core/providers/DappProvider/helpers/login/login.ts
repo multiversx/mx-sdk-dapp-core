@@ -1,4 +1,5 @@
 import { registerWebsocketListener } from 'core/methods/initApp/websocket/registerWebsocket';
+import { trackTransactions } from 'core/methods/trackTransactions/trackTransactions';
 import { IProvider } from 'core/providers/types/providerFactory.types';
 import { nativeAuth } from 'services/nativeAuth';
 import { NativeAuthConfigType } from 'services/nativeAuth/nativeAuth.types';
@@ -77,7 +78,8 @@ async function loginWithNativeToken(
     throw new Error('Failed to fetch account');
   }
 
-  await registerWebsocketListener();
+  await registerWebsocketListener(accountDetails.address);
+  trackTransactions();
 
   return {
     address: accountDetails?.address || address,
@@ -97,7 +99,8 @@ export async function login(provider: IProvider) {
 
   const data = await loginWithoutNativeToken(provider);
 
-  await registerWebsocketListener();
+  await registerWebsocketListener(data.address);
+  trackTransactions();
 
   return data;
 }

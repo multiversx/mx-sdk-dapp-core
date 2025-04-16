@@ -1,7 +1,7 @@
 import { io } from 'socket.io-client';
 import { getWebsocketUrl } from 'apiCalls/websocket';
-import { getAccount } from 'core/methods/account/getAccount';
 import {
+  setWebsocketStatus,
   setWebsocketBatchEvent,
   setWebsocketEvent
 } from 'store/actions/account/accountActions';
@@ -18,6 +18,7 @@ const TIMEOUT = 3000;
 const RECONNECTION_ATTEMPTS = 3;
 const RETRY_INTERVAL = 500;
 const MESSAGE_DELAY = 1000;
+const SOCKET_CONNECTION_DELAY = 1000;
 const BATCH_UPDATED_EVENT = 'batchUpdated';
 const CONNECT = 'connect';
 const CONNECT_ERROR = 'connect_error';
@@ -26,14 +27,23 @@ const DISCONNECT = 'disconnect';
 // eslint-disable-next-line no-undef
 type TimeoutType = NodeJS.Timeout | null;
 
-export async function initializeWebsocketConnection() {
-  const { address } = getAccount();
+export async function initializeWebsocketConnection(address: string) {
   const { apiAddress, websocketUrl: customWebsocketUrl } = networkSelector(
     getStore().getState()
   );
 
+  if (!address) {
+    throw new Error('Websocket could not be initialized: address missing');
+  }
+
   let messageTimeout: TimeoutType = null;
   let batchTimeout: TimeoutType = null;
+
+  // Update socket status in store for status subscription
+  const updateSocketStatus = (status: WebsocketConnectionStatusEnum) => {
+    websocketConnection.status = status;
+    setWebsocketStatus(status);
+  };
 
   const handleMessageReceived = (message: string) => {
     if (messageTimeout) {
@@ -53,25 +63,62 @@ export async function initializeWebsocketConnection() {
     }, MESSAGE_DELAY);
   };
 
-  const retryWebsocketConnect = () => {
-    setTimeout(() => {
-      if (address) {
-        console.log('Websocket reconnecting...');
-        websocketConnection.status = WebsocketConnectionStatusEnum.PENDING;
-        websocketConnection.instance?.connect();
+  // Retry mechanism for websocket connection
+  const retryWebsocketConnect = async (
+    retries = RECONNECTION_ATTEMPTS,
+    delay = RETRY_INTERVAL
+  ) => {
+    let attempt = 0;
+
+    const tryReconnect = async () => {
+      if (attempt >= retries) {
+        console.warn('WebSocket reconnection failed after max attempts.');
+        updateSocketStatus(WebsocketConnectionStatusEnum.NOT_INITIALIZED);
+        return;
       }
-    }, RETRY_INTERVAL);
+
+      attempt++;
+      console.log(`WebSocket reconnect attempt ${attempt}/${retries}...`);
+
+      // Clean up previous socket
+      websocketConnection.instance?.off();
+      websocketConnection.instance?.close();
+      websocketConnection.instance = null;
+
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        await initializeConnection(); // attempt to reconnect
+
+        // Wait briefly and check if socket is actually connected
+        setTimeout(() => {
+          const isConnected = websocketConnection.instance?.connected;
+
+          if (!isConnected) {
+            console.warn('WebSocket not connected. Retrying...');
+            setTimeout(tryReconnect, delay);
+          }
+        }, SOCKET_CONNECTION_DELAY);
+      } catch (error) {
+        console.warn('Reconnect threw an error. Retrying...', error);
+        setTimeout(tryReconnect, delay);
+      }
+    };
+
+    tryReconnect();
   };
 
   const closeConnection = () => {
-    if (websocketConnection.instance) {
-      websocketConnection.instance.off(CONNECT_ERROR);
-      websocketConnection.instance.off(CONNECT);
-      websocketConnection.instance.off(BATCH_UPDATED_EVENT);
-      websocketConnection.instance.close();
+    const instance = websocketConnection.instance;
+    if (instance) {
+      instance.off(CONNECT_ERROR);
+      instance.off(CONNECT);
+      instance.off(BATCH_UPDATED_EVENT);
+      instance.off(DISCONNECT);
+      instance.close();
+      console.log('Websocket disconnected.');
     }
 
-    websocketConnection.status = WebsocketConnectionStatusEnum.NOT_INITIALIZED;
+    updateSocketStatus(WebsocketConnectionStatusEnum.NOT_INITIALIZED);
     websocketConnection.instance = null;
 
     if (messageTimeout) {
@@ -85,22 +132,16 @@ export async function initializeWebsocketConnection() {
 
   const initializeConnection = retryMultipleTimes(
     async () => {
-      if (!address) {
-        websocketConnection.status =
-          WebsocketConnectionStatusEnum.NOT_INITIALIZED;
-        return;
-      }
-
       // To avoid multiple connections to the same endpoint
-      websocketConnection.status = WebsocketConnectionStatusEnum.PENDING;
+      updateSocketStatus(WebsocketConnectionStatusEnum.PENDING);
 
       const websocketUrl =
         customWebsocketUrl ?? (await getWebsocketUrl(apiAddress));
 
       if (!websocketUrl) {
         console.warn('Cannot get websocket URL');
-        websocketConnection.status =
-          WebsocketConnectionStatusEnum.NOT_INITIALIZED;
+        updateSocketStatus(WebsocketConnectionStatusEnum.NOT_INITIALIZED);
+
         return;
       }
 
@@ -118,35 +159,23 @@ export async function initializeWebsocketConnection() {
 
       websocketConnection.instance.on(CONNECT, () => {
         console.log('Websocket connected.');
-        websocketConnection.status = WebsocketConnectionStatusEnum.COMPLETED;
+        updateSocketStatus(WebsocketConnectionStatusEnum.COMPLETED);
       });
 
       websocketConnection.instance.on(CONNECT_ERROR, (error) => {
         console.warn('Websocket connect error: ', error.message);
-
-        if (address) {
-          retryWebsocketConnect();
-        } else {
-          websocketConnection.status =
-            WebsocketConnectionStatusEnum.NOT_INITIALIZED;
-        }
+        retryWebsocketConnect();
       });
 
       websocketConnection.instance.on(DISCONNECT, () => {
-        if (address) {
-          console.warn('Websocket disconnected. Trying to reconnect...');
-          retryWebsocketConnect();
-        } else {
-          websocketConnection.status =
-            WebsocketConnectionStatusEnum.NOT_INITIALIZED;
-        }
+        console.warn('Websocket disconnected. Trying to reconnect...');
+        retryWebsocketConnect();
       });
     },
     { retries: 2, delay: RETRY_INTERVAL }
   );
 
   if (
-    address &&
     websocketConnection.status ===
       WebsocketConnectionStatusEnum.NOT_INITIALIZED &&
     !websocketConnection.instance?.active

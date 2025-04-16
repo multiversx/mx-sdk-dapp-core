@@ -20,6 +20,7 @@ import { getIsInIframe } from 'utils/window/getIsInIframe';
 import { InitAppType } from './initApp.types';
 import { getIsLoggedIn } from '../account/getIsLoggedIn';
 import { registerWebsocketListener } from './websocket/registerWebsocket';
+import { getAccount } from '../account/getAccount';
 import { trackTransactions } from '../trackTransactions/trackTransactions';
 
 const defaultInitAppProps = {
@@ -27,6 +28,8 @@ const defaultInitAppProps = {
     getStorageCallback: defaultStorageCallback
   }
 };
+
+let isAppInitialized = false;
 
 /**
  * Initializes the dApp with the given configuration.
@@ -71,6 +74,7 @@ export async function initApp({
 
   const isInIframe = getIsInIframe();
   const isLoggedIn = getIsLoggedIn();
+  const account = getAccount();
 
   if (isInIframe && !isLoggedIn) {
     const provider = await ProviderFactory.create({
@@ -103,9 +107,13 @@ export async function initApp({
 
   ProviderFactory.customProviders(usedProviders || []);
 
-  if (isLoggedIn) {
+  // Aoid multiple init on multiple initApp executions
+  // Multiple subscriptions may be generated
+  if (isLoggedIn && !isAppInitialized) {
     await restoreProvider();
-    await registerWebsocketListener();
+    await registerWebsocketListener(account.address);
     trackTransactions();
   }
+
+  isAppInitialized = true;
 }
