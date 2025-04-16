@@ -5,10 +5,10 @@ import {
   websocketConnection
 } from 'constants/websocket.constants';
 import {
-  setWebsocketStatus,
   setWebsocketBatchEvent,
   setWebsocketEvent
 } from 'store/actions/account/accountActions';
+import { setWebsocketStatus } from 'store/actions/config/configActions';
 import { networkSelector } from 'store/selectors';
 import { getStore } from 'store/store';
 import { BatchTransactionsWSResponseType } from 'types/websocket.types';

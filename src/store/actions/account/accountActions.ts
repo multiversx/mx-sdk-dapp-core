@@ -1,4 +1,3 @@
-import { WebsocketConnectionStatusEnum } from 'constants/websocket.constants';
 import { LedgerAccountType } from 'store/slices/account/account.types';
 import { emptyAccount } from 'store/slices/account/emptyAccount';
 import { getStore } from 'store/store';
@@ -43,15 +42,6 @@ export const setWalletConnectAccount = (walletConnectAccount: string | null) =>
     },
     false,
     'setWalletConnectAccount'
-  );
-
-export const setWebsocketStatus = (status: WebsocketConnectionStatusEnum) =>
-  getStore().setState(
-    ({ account: state }) => {
-      state.websocketStatus = status;
-    },
-    false,
-    'setWebsocketStatus'
   );
 
 export const setWebsocketEvent = (message: string) =>
