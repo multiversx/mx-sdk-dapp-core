@@ -11,7 +11,7 @@ import { initializeWebsocketConnection } from './initializeWebsocketConnection';
  *
  * @example
  * ```ts
- * await registerWebsocketListener(userAddress);
+ * await registerWebsocketListener(address);
  * websocketManager.closeConnectionRef?.();
  * ```
  */
