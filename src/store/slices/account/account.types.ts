@@ -1,4 +1,3 @@
-import { WebsocketConnectionStatusEnum } from 'constants/websocket.constants';
 import { AccountType } from 'types/account.types';
 import { BatchTransactionsWSResponseType } from 'types/websocket.types';
 
@@ -15,7 +14,6 @@ export type AccountSliceType = {
   publicKey: string;
   ledgerAccount: LedgerAccountType | null;
   walletConnectAccount: string | null;
-  websocketStatus: WebsocketConnectionStatusEnum;
   websocketEvent: {
     timestamp: number;
     message: string;

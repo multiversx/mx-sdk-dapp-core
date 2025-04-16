@@ -85,9 +85,9 @@ export async function trackTransactions() {
   };
 
   const unsubscribeWebsocketStatus = store.subscribe(
-    ({ account: { websocketStatus, address } }, prevState) => {
+    ({ account: { address }, config: { websocketStatus } }, prevState) => {
       const hasStatusChange =
-        prevState.account.websocketStatus !== websocketStatus;
+        prevState.config.websocketStatus !== websocketStatus;
 
       if (!hasStatusChange) {
         return;
