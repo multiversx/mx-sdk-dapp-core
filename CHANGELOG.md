@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- [Fix isssues with websocket and polling on init](https://github.com/multiversx/mx-sdk-dapp-core/pull/139)
 - [Prevent multiple initApp executions](https://github.com/multiversx/mx-sdk-dapp-core/pull/138)
 
 ## [[0.0.0-alpha.19](https://github.com/multiversx/mx-sdk-dapp-core/pull/137)] - 2025-04-10
