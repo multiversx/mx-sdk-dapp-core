@@ -117,8 +117,6 @@ export async function initApp({
 
   ProviderFactory.customProviders(usedProviders || []);
 
-  // Avoid multiple init on multiple initApp executions
-  // Multiple subscriptions may be generated
   if (isLoggedIn && !isAppInitialized) {
     await restoreProvider();
     await registerWebsocketListener(account.address);
