@@ -62,68 +62,6 @@ export async function initializeWebsocketConnection(address: string) {
     }, MESSAGE_DELAY);
   };
 
-  // Retry mechanism for websocket connection
-  const retryWebsocketConnect = async (
-    retries = RECONNECTION_ATTEMPTS,
-    delay = RETRY_INTERVAL
-  ) => {
-    let attempt = 0;
-    let connectionCheckTimeout: TimeoutType = null;
-    let retryTimeout: TimeoutType = null;
-
-    const tryReconnect = async () => {
-      if (attempt >= retries) {
-        console.warn('WebSocket reconnection failed after max attempts.');
-        updateSocketStatus(WebsocketConnectionStatusEnum.NOT_INITIALIZED);
-        return;
-      }
-
-      attempt++;
-
-      // Clean up previous socket
-      websocketConnection.instance?.off();
-      websocketConnection.instance?.close();
-      websocketConnection.instance = null;
-
-      try {
-        // Attempt to reconnect
-        // eslint-disable-next-line
-        await initializeConnection(); // attempt to reconnect
-
-        // Wait briefly and check if socket is actually connected
-        connectionCheckTimeout = setTimeout(() => {
-          const isConnected = websocketConnection.instance?.connected;
-
-          if (!isConnected) {
-            // If not connected, retry the connection
-            retryTimeout = setTimeout(tryReconnect, delay);
-          }
-        }, SOCKET_CONNECTION_DELAY);
-      } catch {
-        // If reconnect fails, retry after delay
-        retryTimeout = setTimeout(tryReconnect, delay);
-      }
-    };
-
-    // Start the reconnection process
-    tryReconnect();
-
-    // Clear any timeouts
-    const clearTimeouts = () => {
-      if (connectionCheckTimeout) {
-        clearTimeout(connectionCheckTimeout);
-        connectionCheckTimeout = null;
-      }
-
-      if (retryTimeout) {
-        clearTimeout(retryTimeout);
-        retryTimeout = null;
-      }
-    };
-
-    return clearTimeouts;
-  };
-
   const closeConnection = () => {
     const instance = websocketConnection.instance;
     if (instance) {
@@ -149,6 +87,66 @@ export async function initializeWebsocketConnection(address: string) {
 
   const initializeConnection = retryMultipleTimes(
     async () => {
+      const retryWebsocketConnect = async (
+        retries = RECONNECTION_ATTEMPTS,
+        delay = RETRY_INTERVAL
+      ) => {
+        let attempt = 0;
+        let connectionCheckTimeout: TimeoutType = null;
+        let retryTimeout: TimeoutType = null;
+
+        const tryReconnect = async () => {
+          if (attempt >= retries) {
+            console.warn('WebSocket reconnection failed after max attempts.');
+            updateSocketStatus(WebsocketConnectionStatusEnum.NOT_INITIALIZED);
+            return;
+          }
+
+          attempt++;
+
+          // Clean up previous socket
+          websocketConnection.instance?.off();
+          websocketConnection.instance?.close();
+          websocketConnection.instance = null;
+
+          try {
+            // Attempt to reconnect
+            await initializeConnection(); // attempt to reconnect
+
+            // Wait briefly and check if socket is actually connected
+            connectionCheckTimeout = setTimeout(() => {
+              const isConnected = websocketConnection.instance?.connected;
+
+              if (!isConnected) {
+                // If not connected, retry the connection
+                retryTimeout = setTimeout(tryReconnect, delay);
+              }
+            }, SOCKET_CONNECTION_DELAY);
+          } catch {
+            // If reconnect fails, retry after delay
+            retryTimeout = setTimeout(tryReconnect, delay);
+          }
+        };
+
+        // Start the reconnection process
+        tryReconnect();
+
+        // Clear any timeouts
+        const clearTimeouts = () => {
+          if (connectionCheckTimeout) {
+            clearTimeout(connectionCheckTimeout);
+            connectionCheckTimeout = null;
+          }
+
+          if (retryTimeout) {
+            clearTimeout(retryTimeout);
+            retryTimeout = null;
+          }
+        };
+
+        return clearTimeouts;
+      };
+
       updateSocketStatus(WebsocketConnectionStatusEnum.PENDING);
 
       const websocketUrl =
