@@ -68,6 +68,8 @@ export async function initializeWebsocketConnection(address: string) {
     delay = RETRY_INTERVAL
   ) => {
     let attempt = 0;
+    let connectionCheckTimeout: TimeoutType = null;
+    let retryTimeout: TimeoutType = null;
 
     const tryReconnect = async () => {
       if (attempt >= retries) {
@@ -84,24 +86,42 @@ export async function initializeWebsocketConnection(address: string) {
       websocketConnection.instance = null;
 
       try {
-        // Disable for being used before initialization
+        // Attempt to reconnect
         // eslint-disable-next-line
         await initializeConnection(); // attempt to reconnect
 
         // Wait briefly and check if socket is actually connected
-        setTimeout(() => {
+        connectionCheckTimeout = setTimeout(() => {
           const isConnected = websocketConnection.instance?.connected;
 
           if (!isConnected) {
-            setTimeout(tryReconnect, delay);
+            // If not connected, retry the connection
+            retryTimeout = setTimeout(tryReconnect, delay);
           }
         }, SOCKET_CONNECTION_DELAY);
       } catch {
-        setTimeout(tryReconnect, delay);
+        // If reconnect fails, retry after delay
+        retryTimeout = setTimeout(tryReconnect, delay);
       }
     };
 
+    // Start the reconnection process
     tryReconnect();
+
+    // Clear any timeouts
+    const clearTimeouts = () => {
+      if (connectionCheckTimeout) {
+        clearTimeout(connectionCheckTimeout);
+        connectionCheckTimeout = null;
+      }
+
+      if (retryTimeout) {
+        clearTimeout(retryTimeout);
+        retryTimeout = null;
+      }
+    };
+
+    return clearTimeouts;
   };
 
   const closeConnection = () => {
@@ -156,14 +176,16 @@ export async function initializeWebsocketConnection(address: string) {
         updateSocketStatus(WebsocketConnectionStatusEnum.COMPLETED);
       });
 
-      websocketConnection.instance.on(CONNECT_ERROR, (error) => {
+      websocketConnection.instance.on(CONNECT_ERROR, async (error) => {
         console.warn('Websocket connect error: ', error.message);
-        retryWebsocketConnect();
+        const clearTimeouts = await retryWebsocketConnect();
+        clearTimeouts();
       });
 
-      websocketConnection.instance.on(DISCONNECT, () => {
+      websocketConnection.instance.on(DISCONNECT, async () => {
         console.warn('Websocket disconnected. Trying to reconnect...');
-        retryWebsocketConnect();
+        const clearTimeouts = await retryWebsocketConnect();
+        clearTimeouts();
       });
     },
     { retries: 2, delay: RETRY_INTERVAL }
