@@ -47,6 +47,7 @@ yarn add @multiversx/sdk-dapp-core
 ```
 
 If you need only the core behaviour, without the additional UI, you can create a project-specific `.npmrc` file to configure per-package installation behavior. This will skip the installation of `@multiversx/sdk-dapp-core-ui`, but keep in mind that you may need to provide the UI components yourself.
+Also, make sure you run your app on `https`, not `http`, otherwise some providers will not work.
 
 ```bash
 ## .npmrc
