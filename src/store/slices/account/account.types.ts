@@ -1,4 +1,5 @@
 import { AccountType } from 'types/account.types';
+import { BatchTransactionsWSResponseType } from 'types/websocket.types';
 
 export interface LedgerAccountType {
   index: number;
@@ -6,11 +7,6 @@ export interface LedgerAccountType {
   hasContractDataEnabled: boolean;
   version: string;
 }
-
-export type BatchTransactionsWSResponseType = {
-  batchId: string;
-  txHashes: string[];
-};
 
 export type AccountSliceType = {
   address: string;

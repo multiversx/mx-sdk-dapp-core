@@ -360,8 +360,3 @@ export interface BatchTransactionsResponseType {
   message?: string;
   statusCode?: string;
 }
-
-export type BatchTransactionsWSResponseType = {
-  batchId: string;
-  txHashes: string[];
-};
