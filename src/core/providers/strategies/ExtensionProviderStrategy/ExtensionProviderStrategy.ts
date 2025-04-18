@@ -92,6 +92,8 @@ export class ExtensionProviderStrategy {
 
       return signedTransactions;
     } catch (error) {
+      console.log('\x1b[42m%s\x1b[0m', 'extension sign denied', { error });
+
       await onClose({ shouldCancelAction: true });
       throw error;
     } finally {

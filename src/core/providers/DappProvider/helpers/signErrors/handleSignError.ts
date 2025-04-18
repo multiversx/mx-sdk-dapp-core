@@ -20,12 +20,32 @@ const states = {
   }
 };
 
+const errorsMap = {
+  extensionResponse: 'Unable to sign transactions', // extension
+  'Transaction canceled': 'Transaction canceled', // web wallet
+  'cancelled by user': 'Transaction signing cancelled by user', // custom
+  'denied by the user': 'Transaction signing denied by the user' // ledger
+};
+
+const getUserError = (error: string) => {
+  for (const [key, value] of Object.entries(errorsMap)) {
+    if (error.includes(key)) {
+      return value;
+    }
+  }
+  console.log('\x1b[42m%s\x1b[0m', 'errors', { error });
+
+  return SigningErrorsEnum.errorSigning;
+};
+
 export function handleSignError(
   error: unknown,
   type: 'error' | 'warning' = 'error'
 ) {
   const originalError = (error as Error)?.message;
-  const errorMessage = originalError || SigningErrorsEnum.errorSigning;
+  const errorMessage = getUserError(originalError);
+
+  console.log('\x1b[42m%s\x1b[0m', 'errors', { originalError, error, type });
 
   const state = Object.keys(states).includes(type)
     ? states[type]
