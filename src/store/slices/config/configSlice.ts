@@ -1,4 +1,5 @@
 import { StateCreator } from 'zustand/vanilla';
+import { WebsocketConnectionStatusEnum } from 'constants/websocket.constants';
 import { StoreType, MutatorsIn } from 'store/store.types';
 import { ConfigSliceType } from './config.types';
 
@@ -9,7 +10,8 @@ import { ConfigSliceType } from './config.types';
 const initialState: ConfigSliceType = {
   nativeAuthConfig: null,
   walletConnectConfig: null,
-  crossWindowConfig: null
+  crossWindowConfig: null,
+  websocketStatus: WebsocketConnectionStatusEnum.NOT_INITIALIZED
 };
 
 function getConfigSlice(): StateCreator<

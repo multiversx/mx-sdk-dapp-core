@@ -1,4 +1,5 @@
 import { fallbackWalletConnectConfigurations } from 'constants/walletConnect.constants';
+import { WebsocketConnectionStatusEnum } from 'constants/websocket.constants';
 import { CrossWindowConfig } from 'core/providers/strategies/CrossWindowProviderStrategy/types';
 import { WalletConnectConfig } from 'core/providers/strategies/WalletConnectProviderStrategy/types';
 import { NativeAuthConfigType } from 'services/nativeAuth/nativeAuth.types';
@@ -8,6 +9,15 @@ export const setNativeAuthConfig = (config: NativeAuthConfigType) =>
   getStore().setState(({ config: state }) => {
     state.nativeAuthConfig = config;
   });
+
+export const setWebsocketStatus = (status: WebsocketConnectionStatusEnum) =>
+  getStore().setState(
+    ({ config: state }) => {
+      state.websocketStatus = status;
+    },
+    false,
+    'setWebsocketStatus'
+  );
 
 export const setWalletConnectConfig = (config: WalletConnectConfig) =>
   getStore().setState(

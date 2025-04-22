@@ -9,8 +9,8 @@ interface IToastProgressManagerParams {
 }
 
 export class LifetimeManager {
-  // eslint-disable-next-line no-undef
-  private timeoutIntervals: Map<string, NodeJS.Timeout> = new Map();
+  private timeoutIntervals: Map<string, ReturnType<typeof setTimeout>> =
+    new Map();
   private successfulToastLifetime: number;
   private static DEFAULT_TIMEOUT = 10000;
 

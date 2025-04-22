@@ -1,25 +1,26 @@
-import { getAccount } from 'core/methods/account/getAccount';
-import { getStore } from 'store/store';
 import { initializeWebsocketConnection } from './initializeWebsocketConnection';
 
-let localAddress = '';
-let closeConnectionRef: () => void;
+/**
+ * Manages the WebSocket connection lifecycle.
+ *
+ * Holds a reference to the current WebSocket connection's `closeConnection` method,
+ * allowing other parts of the application to close the connection on demand (e.g., on logout).
+ *
+ * This pattern avoids exporting mutable bindings directly by encapsulating
+ * the reference within a stable object.
+ *
+ * @example
+ * ```ts
+ * await registerWebsocketListener(address);
+ * websocketManager.closeConnectionRef?.();
+ * ```
+ */
+export const websocketManager = {
+  closeConnectionRef: undefined as (() => void) | undefined
+};
 
-export async function registerWebsocketListener() {
-  const store = getStore();
-  const account = getAccount();
-  localAddress = account.address;
+export async function registerWebsocketListener(address: string) {
+  const { closeConnection } = await initializeWebsocketConnection(address);
 
-  // Initialize the websocket connection
-  const data = await initializeWebsocketConnection();
-  closeConnectionRef = data.closeConnection;
-
-  store.subscribe(async ({ account: { address } }) => {
-    if (localAddress && address !== localAddress) {
-      closeConnectionRef();
-      localAddress = address;
-      const { closeConnection } = await initializeWebsocketConnection();
-      closeConnectionRef = closeConnection;
-    }
-  });
+  websocketManager.closeConnectionRef = closeConnection;
 }
