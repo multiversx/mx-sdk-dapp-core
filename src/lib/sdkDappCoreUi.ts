@@ -10,8 +10,8 @@ export type {
 } from '@multiversx/sdk-dapp-core-ui/dist/types/components/functional/ledger-connect-components/ledger-connect.types.d';
 export type { MvxSignTransactionsPanel } from '@multiversx/sdk-dapp-core-ui/dist/web-components/mvx-sign-transactions-panel';
 export type { MvxWalletConnectPanel } from '@multiversx/sdk-dapp-core-ui/dist/web-components/mvx-wallet-connect-panel';
-export type { MvxWalletConnect } from '@multiversx/sdk-dapp-core-ui/dist/web-components/mvx-wallet-connect';
-export type { IWalletConnectPanelData } from '@multiversx/sdk-dapp-core-ui/dist/types/components/functional/wallet-connect-components/wallet-connect-panel.types.d';
+export type { MvxWalletConnectProvider } from '@multiversx/sdk-dapp-core-ui/dist/web-components/mvx-wallet-connect-provider';
+export type { IWalletConnectPanelData } from '@multiversx/sdk-dapp-core-ui/dist/types/components/functional/wallet-connect/wallet-connect-panel/wallet-connect-panel.types';
 export type { MvxPendingTransactionsPanel } from '@multiversx/sdk-dapp-core-ui/dist/web-components/mvx-pending-transactions-panel';
 export { type IPendingTransactionsPanelData } from '@multiversx/sdk-dapp-core-ui/dist/types/components/functional/pending-transactions-panel/pending-transactions-panel.types.d';
 export type { MvxNotificationsFeed } from '@multiversx/sdk-dapp-core-ui/dist/web-components/mvx-notifications-feed';
