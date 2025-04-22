@@ -33,8 +33,6 @@ const getUserError = (error: string) => {
       return value;
     }
   }
-  console.log('\x1b[42m%s\x1b[0m', 'errors', { error });
-
   return SigningErrorsEnum.errorSigning;
 };
 
@@ -45,10 +43,12 @@ export function handleSignError(
   const originalError = (error as Error)?.message;
   const errorMessage = getUserError(originalError);
 
-  console.log('\x1b[42m%s\x1b[0m', 'errors', { originalError, error, type });
+  const isKnownError = errorMessage !== SigningErrorsEnum.errorSigning;
 
-  const state = Object.keys(states).includes(type)
-    ? states[type]
+  const errorType = isKnownError ? 'warning' : type;
+
+  const state = Object.keys(states).includes(errorType)
+    ? states[errorType]
     : states.error;
 
   const { toastId, iconClassName, title } = state;
