@@ -18,6 +18,12 @@ export class ExtensionProviderStrategy {
     | ((transactions: Transaction[]) => Promise<Transaction[]>)
     | null = null;
   private _signMessage: ((message: Message) => Promise<Message>) | null = null;
+  // private _login:
+  //   | ((options?: {
+  //       callbackUrl?: string;
+  //       token?: string;
+  //     }) => Promise<IProviderAccount>)
+  //   | null = null;
 
   constructor(address?: string) {
     this.address = address || '';
@@ -30,11 +36,26 @@ export class ExtensionProviderStrategy {
       this.provider = ExtensionProvider.getInstance();
       await this.provider.init();
     }
-
+    // this._login = this.provider.login.bind(this.provider);
     this._signTransactions = this.provider.signTransactions.bind(this.provider);
     this._signMessage = this.provider.signMessage.bind(this.provider);
 
     return this.buildProvider();
+  };
+
+  private login = async (options?: {
+    callbackUrl?: string;
+    token?: string;
+  }) => {
+    if (!this.provider) {
+      throw new Error(ProviderErrorsEnum.notInitialized);
+    }
+    debugger;
+    // maybe integrate idle state manager here
+    const { address, signature } =
+      await ExtensionProvider.getInstance().login(options);
+
+    return { address, signature: signature || '' };
   };
 
   private buildProvider = () => {
@@ -43,6 +64,7 @@ export class ExtensionProviderStrategy {
     }
 
     const provider = this.provider as unknown as IProvider;
+    provider.login = this.login;
     provider.signTransactions = this.signTransactions;
     provider.signMessage = this.signMessage;
     provider.setAccount({ address: this.address });
