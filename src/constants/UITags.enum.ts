@@ -1,5 +1,5 @@
 export enum UITagsEnum {
-  LEDGER_CONNECT = 'mvx-ledger-connect',
+  LEDGER_FLOW = 'mvx-ledger-flow',
   LEDGER_CONNECT_PANEL = 'mvx-ledger-connect-panel',
   NOTIFICATIONS_FEED = 'mvx-notifications-feed',
   PENDING_TRANSACTIONS_PANEL = 'mvx-pending-transactions-panel',

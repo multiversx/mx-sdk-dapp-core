@@ -165,7 +165,7 @@ export class LedgerConnectStateManager extends SidePanelBaseManager<
 
   protected getUIElementName(): UITagsEnum {
     return this.anchor
-      ? UITagsEnum.LEDGER_CONNECT
+      ? UITagsEnum.LEDGER_FLOW
       : UITagsEnum.LEDGER_CONNECT_PANEL;
   }
 
