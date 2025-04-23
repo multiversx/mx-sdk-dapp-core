@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- [Fixed canceling transactions creates different toasts](https://github.com/multiversx/mx-sdk-dapp-core/pull/140)
 - [Fix isssues with websocket and polling on init](https://github.com/multiversx/mx-sdk-dapp-core/pull/139)
 - [Prevent multiple initApp executions](https://github.com/multiversx/mx-sdk-dapp-core/pull/138)
 

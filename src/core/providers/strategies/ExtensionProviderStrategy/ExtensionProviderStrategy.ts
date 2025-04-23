@@ -92,7 +92,8 @@ export class ExtensionProviderStrategy {
 
       return signedTransactions;
     } catch (error) {
-      await onClose({ shouldCancelAction: true });
+      await onClose({ shouldCancelAction: false }); // action was triggered by user in extension, no need to retrigger it
+
       throw error;
     } finally {
       manager.closeAndReset();
