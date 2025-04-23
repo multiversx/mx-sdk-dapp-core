@@ -10,7 +10,7 @@ import {
   TokenType,
   ISignTransactionsPanelCommonData
 } from './types/signTransactionsPanel.types';
-import { SidePanelBaseManager } from '../../SidePanelBaseManager/SidePanelBaseManager';
+import { SidePanelBaseManager } from '../SidePanelBaseManager/SidePanelBaseManager';
 
 export class SignTransactionsStateManager extends SidePanelBaseManager<
   MvxSignTransactionsPanel,
