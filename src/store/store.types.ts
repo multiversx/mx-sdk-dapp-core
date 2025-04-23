@@ -5,6 +5,7 @@ import { LoginInfoSliceType } from './slices/loginInfo/loginInfo.types';
 import { NetworkSliceType } from './slices/network/networkSlice.types';
 import { ToastsSliceType } from './slices/toast/toastSlice.types';
 import { TransactionsSliceType } from './slices/transactions/transactionsSlice.types';
+import { UiSliceType } from './slices/ui/ui.types';
 
 export type StoreType = {
   network: NetworkSliceType;
@@ -14,6 +15,7 @@ export type StoreType = {
   toasts: ToastsSliceType;
   transactions: TransactionsSliceType;
   cache: CacheSliceType;
+  ui: UiSliceType;
 };
 
 export type MutatorsIn = [
