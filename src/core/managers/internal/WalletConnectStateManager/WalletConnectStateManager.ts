@@ -4,7 +4,7 @@ import {
   IWalletConnectModalData
 } from 'core/providers/strategies/WalletConnectProviderStrategy/types';
 import { MvxWalletConnectPanel } from 'lib/sdkDappCoreUi';
-import { SidePanelBaseManager } from '../../SidePanelBaseManager/SidePanelBaseManager';
+import { SidePanelBaseManager } from '../SidePanelBaseManager/SidePanelBaseManager';
 
 export class WalletConnectStateManager extends SidePanelBaseManager<
   MvxWalletConnectPanel,

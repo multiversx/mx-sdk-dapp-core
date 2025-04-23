@@ -8,7 +8,8 @@ import {
   loginInfoSlice,
   configSlice,
   toastSlice,
-  cacheSlice
+  cacheSlice,
+  uiSlice
 } from './slices';
 import { transactionsSlice } from './slices/transactions';
 import {
@@ -41,7 +42,8 @@ export const createDAppStore = (getStorageCallback: StorageCallback) => {
           config: configSlice(...args),
           transactions: transactionsSlice(...args),
           toasts: toastSlice(...args),
-          cache: cacheSlice(...args)
+          cache: cacheSlice(...args),
+          ui: uiSlice(...args)
         })),
         {
           name: 'sdk-dapp-store',
