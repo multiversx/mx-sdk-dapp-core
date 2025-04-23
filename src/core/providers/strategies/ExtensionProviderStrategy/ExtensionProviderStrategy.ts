@@ -24,6 +24,7 @@ export class ExtensionProviderStrategy {
         token?: string;
       }) => Promise<{ address: string; signature?: string }>)
     | null = null;
+  private loginAbortController: AbortController | null = null;
 
   constructor(address?: string) {
     this.address = address || '';
@@ -50,9 +51,44 @@ export class ExtensionProviderStrategy {
     if (!this.provider || !this._login) {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
-    // TODO:maybe integrate idle state manager here
-    const { address, signature } = await this._login(options);
-    return { address, signature: signature || '' };
+
+    this.cancelLogin(); // Cancel any existing login attempt
+
+    this.loginAbortController = new AbortController();
+    const signal = this.loginAbortController.signal;
+
+    // TODO: maybe integrate idle state manager here
+    try {
+      const loginPromise = this._login(options); // Create a promise that can be cancelled
+
+      const abortPromise = new Promise<never>((_, reject) => {
+        signal.addEventListener('abort', () => {
+          reject(new Error('Login cancelled'));
+        });
+      });
+
+      const { address, signature } = await Promise.race([
+        loginPromise,
+        abortPromise
+      ]);
+
+      this.loginAbortController = null;
+      return { address, signature: signature ?? '' };
+    } catch (error) {
+      this.loginAbortController = null;
+      throw error;
+    }
+  };
+
+  public cancelLogin = () => {
+    if (this.loginAbortController) {
+      this.loginAbortController.abort();
+      this.loginAbortController = null;
+    }
+
+    if (this.provider && this.provider.cancelAction) {
+      this.provider.cancelAction();
+    }
   };
 
   private buildProvider = () => {
@@ -65,6 +101,9 @@ export class ExtensionProviderStrategy {
     provider.signTransactions = this.signTransactions;
     provider.signMessage = this.signMessage;
     provider.setAccount({ address: this.address });
+
+    // Add the cancelLogin method to the provider
+    provider.cancelLogin = this.cancelLogin;
 
     return provider;
   };

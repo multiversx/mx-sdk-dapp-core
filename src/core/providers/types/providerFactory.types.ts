@@ -11,6 +11,7 @@ export interface IProvider<T extends ProviderTypeEnum = ProviderTypeEnum>
     [key: string]: unknown;
   }>;
   logout: () => Promise<boolean>;
+  cancelLogin?: () => void;
   setShouldShowConsentPopup?: (shouldShow: boolean) => void;
   getType: () => T[keyof T] | string;
   getAddress(): Promise<string | undefined>;
