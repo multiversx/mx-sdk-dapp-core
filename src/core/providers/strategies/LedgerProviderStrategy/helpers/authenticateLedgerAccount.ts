@@ -74,6 +74,11 @@ export async function authenticateLedgerAccount({
       }
     }
 
+    async function handleGoToPage(page: number) {
+      manager?.updateStartIndex(Math.max(0, parseInt(page.toString())));
+      await updateAccountsList({ manager, provider });
+    }
+
     async function handleAccessWallet(payload: {
       addressIndex: number;
       selectedAddress: string;
@@ -140,6 +145,7 @@ export async function authenticateLedgerAccount({
         LedgerConnectEventsEnum.ACCESS_WALLET,
         handleAccessWallet
       );
+      eventBus.unsubscribe(LedgerConnectEventsEnum.GO_TO_PAGE, handleGoToPage);
     }
 
     async function handleCancel() {
@@ -164,6 +170,7 @@ export async function authenticateLedgerAccount({
       LedgerConnectEventsEnum.PREV_PAGE,
       handlePrevPageChanged
     );
+    eventBus.subscribe(LedgerConnectEventsEnum.GO_TO_PAGE, handleGoToPage);
     eventBus.subscribe(
       LedgerConnectEventsEnum.ACCESS_WALLET,
       handleAccessWallet
