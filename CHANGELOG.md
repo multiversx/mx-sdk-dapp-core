@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- [Fixed logging in without native auth](https://github.com/multiversx/mx-sdk-dapp-core/pull/143)
 - [Fixed ledger idle state manager check connection while signing](https://github.com/multiversx/mx-sdk-dapp-core/pull/141)
 - [Fixed canceling transactions creates different toasts](https://github.com/multiversx/mx-sdk-dapp-core/pull/140)
 - [Fix isssues with websocket and polling on init](https://github.com/multiversx/mx-sdk-dapp-core/pull/139)
