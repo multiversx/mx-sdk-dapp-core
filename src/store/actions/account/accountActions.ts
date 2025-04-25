@@ -4,6 +4,15 @@ import { getStore } from 'store/store';
 import { AccountType } from 'types/account.types';
 import { BatchTransactionsWSResponseType } from 'types/websocket.types';
 
+export const setAddress = (address: string) =>
+  getStore().setState(
+    ({ account: state }) => {
+      state.address = address;
+    },
+    false,
+    'setAddress'
+  );
+
 export const setAccount = (account: AccountType) => {
   getStore().setState(
     ({ account: state }) => {
