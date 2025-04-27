@@ -20,15 +20,35 @@ const states = {
   }
 };
 
+const errorsMap = {
+  extensionResponse: 'Unable to sign transactions', // extension
+  'Transaction canceled': 'Transaction canceled', // web wallet
+  'cancelled by user': 'Transaction signing cancelled by user', // custom
+  'denied by the user': 'Transaction signing denied by the user' // ledger
+};
+
+const getUserError = (error: string) => {
+  for (const [key, value] of Object.entries(errorsMap)) {
+    if (error.includes(key)) {
+      return value;
+    }
+  }
+  return SigningErrorsEnum.errorSigning;
+};
+
 export function handleSignError(
   error: unknown,
   type: 'error' | 'warning' = 'error'
 ) {
   const originalError = (error as Error)?.message;
-  const errorMessage = originalError || SigningErrorsEnum.errorSigning;
+  const errorMessage = getUserError(originalError);
 
-  const state = Object.keys(states).includes(type)
-    ? states[type]
+  const isKnownError = errorMessage !== SigningErrorsEnum.errorSigning;
+
+  const errorType = isKnownError ? 'warning' : type;
+
+  const state = Object.keys(states).includes(errorType)
+    ? states[errorType]
     : states.error;
 
   const { toastId, iconClassName, title } = state;

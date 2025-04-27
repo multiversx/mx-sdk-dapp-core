@@ -183,6 +183,9 @@ export class LedgerProviderStrategy {
     return signedMessage;
   };
 
+  /**
+   * Makes sure the device is accessible and if not, tries to initialize a new provider
+   */
   private rebuildProvider = async () => {
     try {
       await this.provider?.getAddress(); // can communicate with device

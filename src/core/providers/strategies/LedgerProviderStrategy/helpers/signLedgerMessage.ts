@@ -8,7 +8,7 @@ export async function signLedgerMessage({
   handleSignMessage
 }: {
   message: Message;
-  handleSignMessage: (message: Message) => Promise<Message>;
+  handleSignMessage: (msg: Message) => Promise<Message>;
 }): Promise<Message> {
   try {
     const signedMessage = await signMessage({
@@ -18,7 +18,7 @@ export async function signLedgerMessage({
     });
     return signedMessage;
   } catch (error) {
-    const { errorMessage: message } = getLedgerErrorCodes(error);
-    throw message ? { message } : error;
+    const { errorMessage } = getLedgerErrorCodes(error);
+    throw errorMessage ? { message: errorMessage } : error;
   }
 }
