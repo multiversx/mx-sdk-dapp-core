@@ -35,6 +35,7 @@ export class LedgerProviderStrategy {
       ) => Promise<Transaction[]>)
     | null = null;
   private _signMessage: ((message: Message) => Promise<Message>) | null = null;
+  private loginAbortController: AbortController | null = null;
 
   constructor(address?: string) {
     this.address = address || '';
@@ -88,6 +89,7 @@ export class LedgerProviderStrategy {
     provider.signTransactions = this.signTransactions;
     provider.login = this.login;
     provider.signMessage = this.signMessage;
+    provider.cancelLogin = this.cancelLogin;
 
     return provider;
   };
@@ -126,6 +128,13 @@ export class LedgerProviderStrategy {
     return this.eventBus;
   };
 
+  public cancelLogin = () => {
+    if (this.loginAbortController) {
+      this.loginAbortController.abort();
+      this.loginAbortController = null;
+    }
+  };
+
   private signTransactions = async (transactions: Transaction[]) => {
     if (!this._signTransactions) {
       throw new Error(ProviderErrorsEnum.signTransactionsNotInitialized);
@@ -146,26 +155,45 @@ export class LedgerProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
+    this.cancelLogin();
+
     await this.rebuildProvider();
+
+    this.loginAbortController = new AbortController();
+    const signal = this.loginAbortController.signal;
 
     const ledgerConnectManager = LedgerConnectStateManager.getInstance();
     await ledgerConnectManager.init();
 
-    const { address, signature } = await authenticateLedgerAccount({
-      options,
-      config: this.config,
-      manager: ledgerConnectManager,
-      provider: this.provider,
-      eventBus: this.eventBus,
-      login: this._login
-    });
+    try {
+      const loginPromise = await authenticateLedgerAccount({
+        options,
+        config: this.config,
+        manager: ledgerConnectManager,
+        provider: this.provider,
+        eventBus: this.eventBus,
+        login: this._login
+      });
 
-    ledgerConnectManager.closeAndReset();
+      const abortPromise = new Promise<never>((_, reject) => {
+        signal.addEventListener('abort', () => {
+          reject(new Error('Login cancelled'));
+        });
+      });
 
-    return {
-      address,
-      signature
-    };
+      const { address, signature } = await Promise.race([
+        loginPromise,
+        abortPromise
+      ]);
+
+      this.loginAbortController = null;
+      ledgerConnectManager.closeAndReset();
+
+      return { address, signature: signature ?? '' };
+    } catch (error) {
+      this.loginAbortController = null;
+      throw error;
+    }
   };
 
   private signMessage = async (message: Message): Promise<Message> => {

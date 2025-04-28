@@ -24,6 +24,13 @@ export class IFrameProviderStrategy {
     | ((transactions: Transaction[]) => Promise<Transaction[]>)
     | null = null;
   private _signMessage: ((message: Message) => Promise<Message>) | null = null;
+  private _login:
+    | ((options?: {
+        callbackUrl?: string;
+        token?: string;
+      }) => Promise<{ address: string; signature?: string }>)
+    | null = null;
+  private loginAbortController: AbortController | null = null;
 
   constructor({ type, address }: IFrameProviderType) {
     this.type = type;
@@ -47,6 +54,7 @@ export class IFrameProviderStrategy {
     this.provider.setWalletUrl(String(network.iframeWalletAddress));
     this._signTransactions = this.provider.signTransactions.bind(this.provider);
     this._signMessage = this.provider.signMessage.bind(this.provider);
+    this._login = this.provider.login.bind(this.provider);
 
     return this.buildProvider();
   };
@@ -59,10 +67,12 @@ export class IFrameProviderStrategy {
     }
 
     const provider = this.provider as unknown as IProvider;
-
     provider.setAccount({ address: this.address || address });
     provider.signTransactions = this.signTransactions;
     provider.signMessage = this.signMessage;
+    provider.login = this.login;
+    provider.cancelLogin = this.cancelLogin;
+
     return provider;
   };
 
@@ -78,6 +88,52 @@ export class IFrameProviderStrategy {
     }
 
     this.address = address;
+  };
+
+  private login = async (options?: {
+    callbackUrl?: string;
+    token?: string;
+  }) => {
+    if (!this.provider || !this._login) {
+      throw new Error(ProviderErrorsEnum.notInitialized);
+    }
+
+    this.cancelLogin();
+
+    this.loginAbortController = new AbortController();
+    const signal = this.loginAbortController.signal;
+
+    try {
+      const loginPromise = this._login(options);
+
+      const abortPromise = new Promise<never>((_, reject) => {
+        signal.addEventListener('abort', () => {
+          reject(new Error('Login cancelled'));
+        });
+      });
+
+      const { address, signature } = await Promise.race([
+        loginPromise,
+        abortPromise
+      ]);
+
+      this.loginAbortController = null;
+      return { address, signature: signature ?? '' };
+    } catch (error) {
+      this.loginAbortController = null;
+      throw error;
+    }
+  };
+
+  public cancelLogin = () => {
+    if (this.loginAbortController) {
+      this.loginAbortController.abort();
+      this.loginAbortController = null;
+    }
+
+    if (this.provider && this.provider.cancelAction) {
+      this.provider.cancelAction();
+    }
   };
 
   private signTransactions = async (transactions: Transaction[]) => {

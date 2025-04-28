@@ -1,5 +1,8 @@
 import { Message, Transaction } from '@multiversx/sdk-core/out';
-import { WebviewProvider } from '@multiversx/sdk-webview-provider/out/WebviewProvider';
+import {
+  IProviderAccount,
+  WebviewProvider
+} from '@multiversx/sdk-webview-provider/out/WebviewProvider';
 import { safeWindow } from 'constants/window.constants';
 import { getAddress } from 'core/methods/account/getAddress';
 import { IProvider } from 'core/providers/types/providerFactory.types';
@@ -15,9 +18,15 @@ export class WebviewProviderStrategy {
   private _signTransactions:
     | ((transactions: Transaction[]) => Promise<Transaction[] | null>)
     | null = null;
-  private _signMessage:
-    | ((messageToSign: Message) => Promise<Message | null>)
+  private _signMessage: ((message: Message) => Promise<Message | null>) | null =
+    null;
+  private _login:
+    | ((options?: {
+        callbackUrl?: string;
+        token?: string;
+      }) => Promise<IProviderAccount | null>)
     | null = null;
+  private loginAbortController: AbortController | null = null;
 
   constructor(config?: WebviewProviderProps) {
     this.address = config?.address || '';
@@ -33,13 +42,12 @@ export class WebviewProviderStrategy {
           safeWindow.sessionStorage?.clear?.();
         }
       });
-
       await this.provider.init();
     }
 
-    // Bind in order to break reference
     this._signTransactions = this.provider.signTransactions.bind(this.provider);
     this._signMessage = this.provider.signMessage.bind(this.provider);
+    this._login = this.provider.login.bind(this.provider);
 
     return this.buildProvider();
   };
@@ -52,8 +60,10 @@ export class WebviewProviderStrategy {
     const provider = this.provider as unknown as IProvider;
 
     provider.setAccount({ address: this.address });
+    provider.login = this.login;
     provider.signTransactions = this.signTransactions;
     provider.signMessage = this.signMessage;
+    provider.cancelLogin = this.cancelLogin;
 
     return provider;
   };
@@ -64,12 +74,55 @@ export class WebviewProviderStrategy {
     }
 
     const address = getAddress();
-
     if (!address) {
       return;
     }
 
     this.address = address;
+  };
+
+  private login = async (options?: {
+    callbackUrl?: string;
+    token?: string;
+  }) => {
+    if (!this.provider || !this._login) {
+      throw new Error(ProviderErrorsEnum.notInitialized);
+    }
+
+    this.cancelLogin();
+    this.loginAbortController = new AbortController();
+    const signal = this.loginAbortController.signal;
+
+    try {
+      const loginPromise = this._login(options);
+      const abortPromise = new Promise<never>((_, reject) => {
+        signal.addEventListener('abort', () => {
+          reject(new Error('Login cancelled'));
+        });
+      });
+
+      const response = await Promise.race([loginPromise, abortPromise]);
+
+      this.loginAbortController = null;
+      return {
+        address: response?.address ?? '',
+        signature: response?.signature ?? ''
+      };
+    } catch (error) {
+      this.loginAbortController = null;
+      throw error;
+    }
+  };
+
+  public cancelLogin = () => {
+    if (this.loginAbortController) {
+      this.loginAbortController.abort();
+      this.loginAbortController = null;
+    }
+
+    if (this.provider && this.provider.cancelAction) {
+      this.provider.cancelAction();
+    }
   };
 
   private signTransactions = async (transactions: Transaction[]) => {

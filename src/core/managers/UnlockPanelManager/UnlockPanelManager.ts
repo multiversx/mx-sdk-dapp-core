@@ -12,8 +12,8 @@ interface IUnlockPanel {
 }
 
 export enum UnlockPanelEventsEnum {
-  OPEN_UNLOCK_PANEL = 'OPEN_UNLOCK_PANEL',
-  CLOSE_UNLOCK_PANEL = 'CLOSE_UNLOCK_PANEL',
+  OPEN = 'OPEN',
+  CLOSE = 'CLOSE',
   HANDLE_LOGIN = 'HANDLE_LOGIN',
   HANDLE_CANCEL_LOGIN = 'HANDLE_CANCEL_LOGIN'
 }
@@ -91,25 +91,26 @@ export class UnlockPanelManager {
       throw new Error(ProviderErrorsEnum.eventBusError);
     }
 
-    this.eventBus.publish(UnlockPanelEventsEnum.OPEN_UNLOCK_PANEL, this.data);
+    this.eventBus.publish(UnlockPanelEventsEnum.OPEN, this.data);
     this.eventBus.subscribe(
       UnlockPanelEventsEnum.HANDLE_LOGIN,
       this.handleLogin.bind(this)
     );
     this.eventBus.subscribe(
-      UnlockPanelEventsEnum.CLOSE_UNLOCK_PANEL,
+      UnlockPanelEventsEnum.HANDLE_CANCEL_LOGIN,
+      this.handleCancelLogin.bind(this)
+    );
+    this.eventBus.subscribe(
+      UnlockPanelEventsEnum.CLOSE,
       this.handleCloseUI.bind(this)
     );
   }
 
   private async handleCloseUI() {
-    if (this.unlockPanelElement) {
-      await this.unlockPanelElement.reset();
-      this.unlockPanelElement.remove();
-      this.unlockPanelElement = null;
-    }
-    this.data.isOpen = false;
-    this.data.allowedProviders = undefined;
+    this.data = { ...this.initialData };
+    this.eventBus = null;
+    this.unlockPanelElement?.remove();
+    this.unlockPanelElement = null;
   }
 
   private async handleLogin({
@@ -132,10 +133,16 @@ export class UnlockPanelManager {
       });
       await provider?.login();
       UnlockPanelManager._login();
+      this.handleCloseUI();
       return;
     }
 
     UnlockPanelManager._login(type, anchor);
+    this.handleCloseUI();
+  }
+
+  private async handleCancelLogin() {
+    await ProviderFactory.destroy();
   }
 
   private isLoginCallback(

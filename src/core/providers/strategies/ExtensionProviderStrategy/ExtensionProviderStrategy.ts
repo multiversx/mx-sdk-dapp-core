@@ -52,14 +52,13 @@ export class ExtensionProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    this.cancelLogin(); // Cancel any existing login attempt
+    this.cancelLogin();
 
     this.loginAbortController = new AbortController();
     const signal = this.loginAbortController.signal;
 
-    // TODO: maybe integrate idle state manager here
     try {
-      const loginPromise = this._login(options); // Create a promise that can be cancelled
+      const loginPromise = this._login(options);
 
       const abortPromise = new Promise<never>((_, reject) => {
         signal.addEventListener('abort', () => {
@@ -101,8 +100,6 @@ export class ExtensionProviderStrategy {
     provider.signTransactions = this.signTransactions;
     provider.signMessage = this.signMessage;
     provider.setAccount({ address: this.address });
-
-    // Add the cancelLogin method to the provider
     provider.cancelLogin = this.cancelLogin;
 
     return provider;
