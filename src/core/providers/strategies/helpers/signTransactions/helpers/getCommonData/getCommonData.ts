@@ -11,8 +11,8 @@ import {
   MultiSignTransactionType,
   TransactionDataTokenType
 } from 'types/transactions.types';
+import { getUsdValue } from 'utils/operations/getUsdValue';
 import { getFeeData } from '../getFeeData';
-import { getUsdValue } from '../getUsdValue';
 import { getExtractTransactionsInfo } from './helpers/getExtractTransactionsInfo';
 import { getHighlight } from './helpers/getHighlight';
 import { getPpuOptions } from './helpers/getPpuOptions';
