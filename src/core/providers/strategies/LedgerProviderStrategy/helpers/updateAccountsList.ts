@@ -1,10 +1,13 @@
 import { HWProvider } from '@multiversx/sdk-hw-provider/out';
 import BigNumber from 'bignumber.js';
+import { getEconomics } from 'apiCalls/economics/getEconomics';
 import { LedgerConnectStateManager } from 'core/managers/internal/LedgerConnectStateManager/LedgerConnectStateManager';
 import { getNetworkConfig } from 'core/methods/network/getNetworkConfig';
-import { ILedgerAccount } from 'lib/sdkDappCoreUi';
+import { formatAmount } from 'lib/sdkDappUtils';
 import { ProviderErrorsEnum } from 'types';
 import { fetchAccount } from 'utils/account/fetchAccount';
+import { getUsdValue } from 'utils/operations/getUsdValue';
+import { ILedgerAccount } from '../types/ledger.types';
 
 type AccountsListType = {
   manager: LedgerConnectStateManager | null;
@@ -31,9 +34,11 @@ export const updateAccountsList = async ({
   }
 
   const network = getNetworkConfig();
-
   const startIndex = manager.getAccountScreenData()?.startIndex || 0;
   const allAccounts = manager.getAllAccounts();
+  const economics = await getEconomics({
+    baseURL: network.apiAddress
+  });
 
   const hasData = allAccounts.some(
     ({ index, balance }) =>
@@ -103,6 +108,14 @@ export const updateAccountsList = async ({
         .toString();
       const accountArrayIndex = index + startIndex;
       newAllAccounts[accountArrayIndex].balance = balance;
+      if (!economics?.price) {
+        return;
+      }
+      const usdValue = getUsdValue({
+        amount: formatAmount({ input: account.balance }),
+        usd: economics?.price
+      });
+      newAllAccounts[accountArrayIndex].usdValue = usdValue;
     });
 
     manager.updateAllAccounts(newAllAccounts);

@@ -45,8 +45,13 @@ export async function authenticateLedgerAccount({
     version: config.version
   });
 
+  const accountsListProps = {
+    manager,
+    provider
+  };
+
   // refresh account list
-  await updateAccountsList({ manager, provider });
+  await updateAccountsList(accountsListProps);
 
   // cycle trough accounts until user makes a choice
   const selectedAccount = await new Promise<ISelectedAccount>(async function (
@@ -60,7 +65,7 @@ export async function authenticateLedgerAccount({
     async function handleNextPageChanged() {
       const startIndex = manager?.getAccountScreenData()?.startIndex || 0;
       manager?.updateStartIndex(startIndex + manager.addressesPerPage);
-      await updateAccountsList({ manager, provider });
+      await updateAccountsList(accountsListProps);
     }
 
     async function handlePrevPageChanged() {
@@ -71,7 +76,7 @@ export async function authenticateLedgerAccount({
           Math.max(0, startIndex - manager.addressesPerPage)
         );
 
-        await updateAccountsList({ manager, provider });
+        await updateAccountsList(accountsListProps);
       }
     }
 
@@ -84,7 +89,7 @@ export async function authenticateLedgerAccount({
 
       manager?.updateStartIndex(updatedStartIndex);
 
-      await updateAccountsList({ manager, provider });
+      await updateAccountsList(accountsListProps);
     }
 
     async function handleAccessWallet(payload: {
@@ -127,7 +132,7 @@ export async function authenticateLedgerAccount({
         }
         const shouldGoBack = Boolean(manager?.getConfirmScreenData());
         if (shouldGoBack) {
-          await updateAccountsList({ manager, provider });
+          await updateAccountsList(accountsListProps);
         }
       }
     }
@@ -157,7 +162,7 @@ export async function authenticateLedgerAccount({
     }
 
     async function handleCancel() {
-      await updateAccountsList({ manager, provider });
+      await updateAccountsList(accountsListProps);
       unsubscribeFromEvents();
       reject('User cancelled login');
     }

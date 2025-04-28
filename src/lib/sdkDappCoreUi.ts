@@ -1,13 +1,6 @@
 import type { CustomElementsDefineOptions } from '@multiversx/sdk-dapp-core-ui/dist/loader';
 export type { MvxLedgerConnectPanel } from '@multiversx/sdk-dapp-core-ui/dist/web-components/mvx-ledger-connect-panel';
 export type { MvxLedgerFlow } from '@multiversx/sdk-dapp-core-ui/dist/web-components/mvx-ledger-flow';
-export type {
-  IAccountScreenData,
-  IConfirmScreenData,
-  IConnectScreenData,
-  ILedgerAccount,
-  ILedgerConnectPanelData
-} from '@multiversx/sdk-dapp-core-ui/dist/types/components/functional/ledger/ledger-flow/ledger-flow.types.d';
 export type { MvxSignTransactionsPanel } from '@multiversx/sdk-dapp-core-ui/dist/web-components/mvx-sign-transactions-panel';
 export type { MvxWalletConnectPanel } from '@multiversx/sdk-dapp-core-ui/dist/web-components/mvx-wallet-connect-panel';
 export type { MvxWalletConnectProvider } from '@multiversx/sdk-dapp-core-ui/dist/web-components/mvx-wallet-connect-provider';
