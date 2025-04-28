@@ -1,4 +1,5 @@
 import { HWProvider } from '@multiversx/sdk-hw-provider/out';
+import { BigNumber } from 'bignumber.js';
 import { LedgerConnectStateManager } from 'core/managers/internal/LedgerConnectStateManager/LedgerConnectStateManager';
 import { LedgerConnectEventsEnum } from 'core/managers/internal/LedgerConnectStateManager/types';
 import { ProviderTypeEnum } from 'core/providers/types/providerFactory.types';
@@ -75,7 +76,14 @@ export async function authenticateLedgerAccount({
     }
 
     async function handleGoToPage(page: number) {
-      manager?.updateStartIndex(Math.max(0, parseInt(page.toString())));
+      const startIndex = new BigNumber(page).times(
+        manager?.addressesPerPage || 1
+      );
+
+      const updatedStartIndex = Math.max(0, parseInt(startIndex.toString()));
+
+      manager?.updateStartIndex(updatedStartIndex);
+
       await updateAccountsList({ manager, provider });
     }
 
