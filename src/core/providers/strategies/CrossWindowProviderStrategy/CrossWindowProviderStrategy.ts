@@ -53,6 +53,7 @@ export class CrossWindowProviderStrategy {
       this.provider.init();
     }
 
+    // Bind in order to break reference
     this._signTransactions = this.provider.signTransactions.bind(this.provider);
     this._signMessage = this.provider.signMessage.bind(this.provider);
     this._login = this.provider.login.bind(this.provider);
