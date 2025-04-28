@@ -10,6 +10,8 @@ import {
 import { ProviderErrorsEnum } from 'types/provider.types';
 import { getPendingTransactionsHandlers } from '../helpers/getPendingTransactionsHandlers';
 import { signMessage } from '../helpers/signMessage/signMessage';
+import { withAbortableLogin } from '../helpers/withAbortableLogin/withAbortableLogin';
+import { cancelLogin } from '../helpers/cancelLogin/cancelLogin';
 
 export class ExtensionProviderStrategy {
   private address: string = '';
@@ -54,22 +56,18 @@ export class ExtensionProviderStrategy {
 
     this.cancelLogin();
 
-    this.loginAbortController = new AbortController();
-    const signal = this.loginAbortController.signal;
-
     try {
-      const loginPromise = this._login(options);
-
-      const abortPromise = new Promise<never>((_, reject) => {
-        signal.addEventListener('abort', () => {
-          reject(new Error('Login cancelled'));
-        });
+      const { address, signature } = await withAbortableLogin({
+        loginAbortController: this.loginAbortController,
+        setLoginAbortController: (controller) => {
+          this.loginAbortController = controller;
+        },
+        loginOperation: () =>
+          this._login?.(options) as Promise<{
+            address: string;
+            signature?: string;
+          }>
       });
-
-      const { address, signature } = await Promise.race([
-        loginPromise,
-        abortPromise
-      ]);
 
       this.loginAbortController = null;
       return { address, signature: signature ?? '' };
@@ -80,14 +78,13 @@ export class ExtensionProviderStrategy {
   };
 
   public cancelLogin = () => {
-    if (this.loginAbortController) {
-      this.loginAbortController.abort();
-      this.loginAbortController = null;
-    }
-
-    if (this.provider && this.provider.cancelAction) {
-      this.provider.cancelAction();
-    }
+    cancelLogin({
+      loginAbortController: this.loginAbortController,
+      resetLoginAbortController: () => {
+        this.loginAbortController = null;
+      },
+      onAfterCancel: this.provider?.cancelAction?.bind(this.provider)
+    });
   };
 
   private buildProvider = () => {

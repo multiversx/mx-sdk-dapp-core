@@ -5,102 +5,88 @@ import { MvxUnlockPanel } from 'lib/sdkDappCoreUi';
 import { IEventBus } from 'types/manager.types';
 import { ProviderErrorsEnum } from 'types/provider.types';
 import { createUIElement } from 'utils/createUIElement';
+import {
+  IUnlockPanel,
+  UnlockPanelEventsEnum
+} from './UnlockPanelManager.types';
 
-interface IUnlockPanel {
-  isOpen: boolean;
-  allowedProviders?: ProviderTypeEnum[];
-}
-
-export enum UnlockPanelEventsEnum {
-  OPEN = 'OPEN',
-  CLOSE = 'CLOSE',
-  HANDLE_LOGIN = 'HANDLE_LOGIN',
-  HANDLE_CANCEL_LOGIN = 'HANDLE_CANCEL_LOGIN'
-}
+type LoginCallback =
+  | ((providerType: ProviderTypeEnum, anchor: HTMLElement) => void)
+  | (() => void);
 
 export class UnlockPanelManager {
   private static instance: UnlockPanelManager;
-  private data: IUnlockPanel = {
-    isOpen: false
-  };
+  private static loginCallback: LoginCallback | null = null;
+
+  private data: IUnlockPanel = { isOpen: false };
   private unlockPanelElement: MvxUnlockPanel | null = null;
   private eventBus: IEventBus<IUnlockPanel> | null = null;
-  private static _login:
-    | ((providerType: ProviderTypeEnum, anchor: HTMLElement) => void)
-    | (() => void)
-    | null = null;
 
-  protected initialData = {
-    isOpen: false
-  };
+  private readonly initialData: IUnlockPanel = { isOpen: false };
+
+  private constructor() {
+    this.data = { ...this.initialData };
+  }
 
   public static getInstance(): UnlockPanelManager {
     if (!UnlockPanelManager.instance) {
       UnlockPanelManager.instance = new UnlockPanelManager();
     }
-
     return UnlockPanelManager.instance;
   }
 
-  public static init(
-    login:
-      | ((providerType: ProviderTypeEnum, anchor: HTMLElement) => void)
-      | (() => void)
-  ) {
-    this._login = login;
+  public static init(login: LoginCallback) {
+    this.loginCallback = login;
     return this.getInstance();
   }
 
-  constructor() {
-    this.data = { ...this.initialData };
-  }
-
-  private async createUnlockPanelElement(): Promise<MvxUnlockPanel | null> {
-    if (this.unlockPanelElement) {
-      return this.unlockPanelElement;
-    }
-
-    this.unlockPanelElement = await createUIElement<MvxUnlockPanel>({
-      name: UITagsEnum.UNLOCK_PANEL
-    });
-
-    return this.unlockPanelElement;
-  }
-
   public async openUnlockPanel(allowedProviders?: ProviderTypeEnum[]) {
-    if (this.data.isOpen && this.unlockPanelElement) {
-      return;
-    }
+    if (this.data.isOpen) return;
 
-    this.data.isOpen = true;
-    this.data.allowedProviders = allowedProviders;
+    this.data = {
+      isOpen: true,
+      allowedProviders
+    };
 
-    await this.createUnlockPanelElement();
+    await this.ensureUnlockPanelElement();
+    await this.ensureEventBus();
+    this.eventBus?.publish(UnlockPanelEventsEnum.OPEN, this.data);
 
+    this.subscribeToEvents();
+  }
+
+  private async ensureUnlockPanelElement() {
     if (!this.unlockPanelElement) {
-      throw new Error(
-        `Failed to create ${UITagsEnum.PENDING_TRANSACTIONS_PANEL} element`
-      );
-    }
+      this.unlockPanelElement = await createUIElement<MvxUnlockPanel>({
+        name: UITagsEnum.UNLOCK_PANEL
+      });
 
-    if (!this.eventBus) {
+      if (!this.unlockPanelElement) {
+        throw new Error(`Failed to create ${UITagsEnum.UNLOCK_PANEL} element`);
+      }
+    }
+  }
+
+  private async ensureEventBus() {
+    if (!this.eventBus && this.unlockPanelElement) {
       this.eventBus = await this.unlockPanelElement.getEventBus();
-    }
 
-    if (!this.eventBus) {
-      throw new Error(ProviderErrorsEnum.eventBusError);
+      if (!this.eventBus) {
+        throw new Error(ProviderErrorsEnum.eventBusError);
+      }
     }
+  }
 
-    this.eventBus.publish(UnlockPanelEventsEnum.OPEN, this.data);
-    this.eventBus.subscribe(
-      UnlockPanelEventsEnum.HANDLE_LOGIN,
+  private subscribeToEvents() {
+    this.eventBus?.subscribe(
+      UnlockPanelEventsEnum.LOGIN,
       this.handleLogin.bind(this)
     );
-    this.eventBus.subscribe(
-      UnlockPanelEventsEnum.HANDLE_CANCEL_LOGIN,
+    this.eventBus?.subscribe(
+      UnlockPanelEventsEnum.CANCEL_LOGIN,
       this.handleCancelLogin.bind(this)
     );
-    this.eventBus.subscribe(
+    this.eventBus?.subscribe(
       UnlockPanelEventsEnum.CLOSE,
       this.handleCloseUI.bind(this)
     );
@@ -108,9 +94,7 @@ export class UnlockPanelManager {
 
   private async handleCloseUI() {
     this.data = { ...this.initialData };
-    this.eventBus = null;
-    this.unlockPanelElement?.remove();
-    this.unlockPanelElement = null;
+    await this.destroyUnlockPanel();
   }
 
   private async handleLogin({
@@ -120,36 +104,34 @@ export class UnlockPanelManager {
     type: ProviderTypeEnum;
     anchor: HTMLElement;
   }) {
-    if (!UnlockPanelManager._login) {
+    if (!UnlockPanelManager.loginCallback) {
       throw new Error(
-        'Login method is not initialized. Please ensure that you have called the init method before attempting to log in.'
+        'Login callback not initialized. Please call `init()` first.'
       );
     }
 
-    if (this.isLoginCallback(UnlockPanelManager._login)) {
-      const provider = await ProviderFactory.create({
-        type,
-        anchor
-      });
+    if (this.isSimpleLoginCallback(UnlockPanelManager.loginCallback)) {
+      const provider = await ProviderFactory.create({ type, anchor });
       await provider?.login();
-      UnlockPanelManager._login();
-      this.handleCloseUI();
-      return;
+      UnlockPanelManager.loginCallback();
+    } else {
+      UnlockPanelManager.loginCallback(type, anchor);
     }
 
-    UnlockPanelManager._login(type, anchor);
-    this.handleCloseUI();
+    await this.handleCloseUI();
   }
 
   private async handleCancelLogin() {
     await ProviderFactory.destroy();
   }
 
-  private isLoginCallback(
-    login:
-      | ((providerType: ProviderTypeEnum, anchor: HTMLElement) => void)
-      | (() => void)
-  ): login is () => void {
+  private async destroyUnlockPanel() {
+    this.eventBus = null;
+    this.unlockPanelElement?.remove();
+    this.unlockPanelElement = null;
+  }
+
+  private isSimpleLoginCallback(login: LoginCallback): login is () => void {
     return login.length === 0;
   }
 }

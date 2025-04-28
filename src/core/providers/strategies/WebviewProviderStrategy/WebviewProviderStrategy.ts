@@ -7,6 +7,7 @@ import { safeWindow } from 'constants/window.constants';
 import { getAddress } from 'core/methods/account/getAddress';
 import { IProvider } from 'core/providers/types/providerFactory.types';
 import { ProviderErrorsEnum } from 'types/provider.types';
+import { withAbortableLogin } from '../helpers/withAbortableLogin/withAbortableLogin';
 
 type WebviewProviderProps = {
   address?: string;
@@ -90,23 +91,24 @@ export class WebviewProviderStrategy {
     }
 
     this.cancelLogin();
-    this.loginAbortController = new AbortController();
-    const signal = this.loginAbortController.signal;
 
     try {
-      const loginPromise = this._login(options);
-      const abortPromise = new Promise<never>((_, reject) => {
-        signal.addEventListener('abort', () => {
-          reject(new Error('Login cancelled'));
-        });
+      const { address, signature } = await withAbortableLogin({
+        loginAbortController: this.loginAbortController,
+        setLoginAbortController: (controller) => {
+          this.loginAbortController = controller;
+        },
+        loginOperation: () =>
+          this._login?.(options) as Promise<{
+            address: string;
+            signature?: string;
+          }>
       });
-
-      const response = await Promise.race([loginPromise, abortPromise]);
 
       this.loginAbortController = null;
       return {
-        address: response?.address ?? '',
-        signature: response?.signature ?? ''
+        address: address,
+        signature: signature ?? ''
       };
     } catch (error) {
       this.loginAbortController = null;

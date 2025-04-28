@@ -21,6 +21,8 @@ import {
   LedgerLoginType
 } from './types/ledgerProvider.types';
 import { signTransactions } from '../helpers/signTransactions/signTransactions';
+import { withAbortableLogin } from '../helpers/withAbortableLogin/withAbortableLogin';
+import { cancelLogin } from '../helpers/cancelLogin/cancelLogin';
 
 export class LedgerProviderStrategy {
   private address: string = '';
@@ -128,13 +130,6 @@ export class LedgerProviderStrategy {
     return this.eventBus;
   };
 
-  public cancelLogin = () => {
-    if (this.loginAbortController) {
-      this.loginAbortController.abort();
-      this.loginAbortController = null;
-    }
-  };
-
   private signTransactions = async (transactions: Transaction[]) => {
     if (!this._signTransactions) {
       throw new Error(ProviderErrorsEnum.signTransactionsNotInitialized);
@@ -159,33 +154,25 @@ export class LedgerProviderStrategy {
 
     await this.rebuildProvider();
 
-    this.loginAbortController = new AbortController();
-    const signal = this.loginAbortController.signal;
-
     const ledgerConnectManager = LedgerConnectStateManager.getInstance();
     await ledgerConnectManager.init();
 
     try {
-      const loginPromise = await authenticateLedgerAccount({
-        options,
-        config: this.config,
-        manager: ledgerConnectManager,
-        provider: this.provider,
-        eventBus: this.eventBus,
-        login: this._login
+      const { address, signature } = await withAbortableLogin({
+        loginAbortController: this.loginAbortController,
+        setLoginAbortController: (controller) => {
+          this.loginAbortController = controller;
+        },
+        loginOperation: async () =>
+          await authenticateLedgerAccount({
+            options,
+            config: this.config!,
+            manager: ledgerConnectManager,
+            provider: this.provider!,
+            eventBus: this.eventBus,
+            login: this._login
+          })
       });
-
-      const abortPromise = new Promise<never>((_, reject) => {
-        signal.addEventListener('abort', () => {
-          reject(new Error('Login cancelled'));
-        });
-      });
-
-      const { address, signature } = await Promise.race([
-        loginPromise,
-        abortPromise
-      ]);
-
       this.loginAbortController = null;
       ledgerConnectManager.closeAndReset();
 
@@ -194,6 +181,15 @@ export class LedgerProviderStrategy {
       this.loginAbortController = null;
       throw error;
     }
+  };
+
+  public cancelLogin = () => {
+    cancelLogin({
+      loginAbortController: this.loginAbortController,
+      resetLoginAbortController: () => {
+        this.loginAbortController = null;
+      }
+    });
   };
 
   private signMessage = async (message: Message): Promise<Message> => {

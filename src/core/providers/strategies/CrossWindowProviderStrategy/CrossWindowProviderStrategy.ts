@@ -14,6 +14,8 @@ import { ProviderErrorsEnum } from 'types/provider.types';
 import { getPendingTransactionsHandlers } from '../helpers/getPendingTransactionsHandlers';
 import { signMessage } from '../helpers/signMessage/signMessage';
 import { guardTransactions } from '../helpers/signTransactions/helpers/guardTransactions/guardTransactions';
+import { withAbortableLogin } from '../helpers/withAbortableLogin/withAbortableLogin';
+import { cancelLogin } from '../helpers/cancelLogin/cancelLogin';
 
 type CrossWindowProviderProps = {
   address?: string;
@@ -164,40 +166,29 @@ export class CrossWindowProviderStrategy {
 
     this.cancelLogin();
 
-    this.loginAbortController = new AbortController();
-    const signal = this.loginAbortController.signal;
+    const { address, signature } = await withAbortableLogin({
+      loginAbortController: this.loginAbortController,
+      setLoginAbortController: (controller) => {
+        this.loginAbortController = controller;
+      },
+      loginOperation: () =>
+        this._login?.(options) as Promise<{
+          address: string;
+          signature?: string;
+        }>
+    });
 
-    try {
-      const loginPromise = this._login(options);
-
-      const abortPromise = new Promise<never>((_, reject) => {
-        signal.addEventListener('abort', () => {
-          reject(new Error('Login cancelled'));
-        });
-      });
-
-      const { address, signature } = await Promise.race([
-        loginPromise,
-        abortPromise
-      ]);
-
-      this.loginAbortController = null;
-      return { address, signature: signature ?? '' };
-    } catch (error) {
-      this.loginAbortController = null;
-      throw error;
-    }
+    return { address, signature: signature ?? '' };
   };
 
   public cancelLogin = () => {
-    if (this.loginAbortController) {
-      this.loginAbortController.abort();
-      this.loginAbortController = null;
-    }
-
-    if (this.provider && this.provider.cancelAction) {
-      this.provider.cancelAction();
-    }
+    cancelLogin({
+      loginAbortController: this.loginAbortController,
+      resetLoginAbortController: () => {
+        this.loginAbortController = null;
+      },
+      onAfterCancel: this.provider?.cancelAction?.bind(this.provider)
+    });
   };
 
   private setPopupConsent = () => {
