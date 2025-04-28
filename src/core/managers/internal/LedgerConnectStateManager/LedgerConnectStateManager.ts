@@ -49,7 +49,8 @@ export class LedgerConnectStateManager extends SidePanelBaseManager<
 
   // third screen data
   private initialConfirmScreenData: IConfirmScreenData = {
-    selectedAddress: ''
+    selectedAddress: '',
+    addressExplorerLink: ''
   };
 
   private confirmScreenData: IConfirmScreenData = {

@@ -19,15 +19,11 @@ export const getAuthTokenText = ({
     return null;
   }
 
-  const confirmAddressText = 'For security, please confirm that your address:';
-  const authText = 'and Auth Token:';
-  const areShownText = 'are the one shown on your Ledger device screen now.';
+  const confirmAddressText = 'Confirm Ledger Address';
+  const authText = 'Authorise Authentication Token';
 
   if (ledgerWithUsernames) {
     const time = secondsToTimeString(nativeAuthInfo.ttl);
-
-    const confirmAddressText = 'For security, please confirm your address:';
-    const authText = 'and authorize:';
 
     return {
       data: `${nativeAuthInfo.origin} for ${time}.`,
@@ -40,7 +36,6 @@ export const getAuthTokenText = ({
   return {
     data: loginToken,
     confirmAddressText,
-    authText,
-    areShownText
+    authText
   };
 };

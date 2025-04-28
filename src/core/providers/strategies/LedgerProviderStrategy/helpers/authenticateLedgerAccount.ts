@@ -2,11 +2,13 @@ import { HWProvider } from '@multiversx/sdk-hw-provider/out';
 import { BigNumber } from 'bignumber.js';
 import { LedgerConnectStateManager } from 'core/managers/internal/LedgerConnectStateManager/LedgerConnectStateManager';
 import { LedgerConnectEventsEnum } from 'core/managers/internal/LedgerConnectStateManager/types';
+import { getExplorerAddress } from 'core/methods/network/getExplorerAddress';
 import { ProviderTypeEnum } from 'core/providers/types/providerFactory.types';
 import { IEventBus } from 'lib/sdkDappCoreUi';
 import { setLedgerAccount } from 'store/actions';
 import { setLedgerLogin } from 'store/actions/loginInfo/loginInfoActions';
 import { ProviderErrorsEnum } from 'types';
+import { getExplorerLink } from 'utils/transactions/getExplorerLink';
 import { getAuthTokenText } from './getAuthTokenText';
 import { updateAccountsList } from './updateAccountsList';
 import {
@@ -40,6 +42,8 @@ export async function authenticateLedgerAccount({
   eventBus,
   login
 }: IGetLedgerLogin) {
+  const explorerAddress = getExplorerAddress();
+
   const authData = getAuthTokenText({
     loginToken: options?.token,
     version: config.version
@@ -62,33 +66,11 @@ export async function authenticateLedgerAccount({
       manager?.closeAndReset();
     }
 
-    async function handleNextPageChanged() {
-      const startIndex = manager?.getAccountScreenData()?.startIndex || 0;
-      manager?.updateStartIndex(startIndex + manager.addressesPerPage);
-      await updateAccountsList(accountsListProps);
-    }
-
-    async function handlePrevPageChanged() {
-      const startIndex = manager?.getAccountScreenData()?.startIndex || 0;
-
-      if (startIndex > 0) {
-        manager?.updateStartIndex(
-          Math.max(0, startIndex - manager.addressesPerPage)
-        );
-
-        await updateAccountsList(accountsListProps);
-      }
-    }
-
     async function handleGoToPage(page: number) {
-      const startIndex = new BigNumber(page).times(
-        manager?.addressesPerPage || 1
-      );
+      const addressesPerPage = manager ? manager.addressesPerPage ?? 1 : 1;
+      const startIndex = new BigNumber(page - 1).times(addressesPerPage);
 
-      const updatedStartIndex = Math.max(0, parseInt(startIndex.toString()));
-
-      manager?.updateStartIndex(updatedStartIndex);
-
+      manager?.updateStartIndex(Math.max(0, parseInt(startIndex.toString())));
       await updateAccountsList(accountsListProps);
     }
 
@@ -102,7 +84,11 @@ export async function authenticateLedgerAccount({
 
       manager?.updateConfirmScreen({
         ...authData,
-        selectedAddress: payload.selectedAddress
+        selectedAddress: payload.selectedAddress,
+        addressExplorerLink: getExplorerLink({
+          to: payload.selectedAddress,
+          explorerAddress
+        })
       });
 
       try {
@@ -146,14 +132,7 @@ export async function authenticateLedgerAccount({
         LedgerConnectEventsEnum.CLOSE_LEDGER_CONNECT_PANEL,
         handleCancel
       );
-      eventBus.unsubscribe(
-        LedgerConnectEventsEnum.NEXT_PAGE,
-        handleNextPageChanged
-      );
-      eventBus.unsubscribe(
-        LedgerConnectEventsEnum.PREV_PAGE,
-        handlePrevPageChanged
-      );
+
       eventBus.unsubscribe(
         LedgerConnectEventsEnum.ACCESS_WALLET,
         handleAccessWallet
@@ -175,14 +154,7 @@ export async function authenticateLedgerAccount({
       LedgerConnectEventsEnum.CLOSE_LEDGER_CONNECT_PANEL,
       handleCancel
     );
-    eventBus.subscribe(
-      LedgerConnectEventsEnum.NEXT_PAGE,
-      handleNextPageChanged
-    );
-    eventBus.subscribe(
-      LedgerConnectEventsEnum.PREV_PAGE,
-      handlePrevPageChanged
-    );
+
     eventBus.subscribe(LedgerConnectEventsEnum.GO_TO_PAGE, handleGoToPage);
     eventBus.subscribe(
       LedgerConnectEventsEnum.ACCESS_WALLET,
