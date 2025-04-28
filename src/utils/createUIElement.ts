@@ -25,5 +25,7 @@ export const createUIElement = async <T = CreateEventBusUIElementType>({
   rootElement.appendChild(element);
   await customElements.whenDefined(name);
 
+  element.setAttribute('key', `${name}-${Date.now()}`);
+
   return element as T;
 };
