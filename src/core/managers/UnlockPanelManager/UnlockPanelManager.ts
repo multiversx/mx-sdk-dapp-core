@@ -35,8 +35,8 @@ export class UnlockPanelManager {
     return UnlockPanelManager.instance;
   }
 
-  public static init(login: LoginCallback) {
-    this.loginCallback = login;
+  public static init(options: { loginCallback: LoginCallback }) {
+    this.loginCallback = options.loginCallback;
     return this.getInstance();
   }
 
