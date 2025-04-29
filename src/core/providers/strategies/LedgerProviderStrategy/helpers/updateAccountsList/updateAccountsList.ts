@@ -37,16 +37,15 @@ export const updateAccountsList = async ({
   const allAccounts = manager.getAllAccounts();
   const economics = await getEconomics({ baseURL: network.apiAddress });
 
+  const filterByStartIndexRange = (account: ILedgerAccount) =>
+    account.index >= startIndex &&
+    account.index < startIndex + manager.addressesPerPage;
+
+  const currentAccounts = allAccounts.filter(filterByStartIndexRange);
   const allAccountsObject = allAccounts.reduce(
     (accountsObject: UpdateAccountObjectType, account) =>
       Object.assign(accountsObject, { [account.index]: account }),
     {}
-  );
-
-  const currentAccounts = allAccounts.filter(
-    (account) =>
-      account.index >= startIndex &&
-      account.index < startIndex + manager.addressesPerPage
   );
 
   manager.updateAccountScreen({
@@ -114,9 +113,7 @@ export const updateAccountsList = async ({
     );
 
     const accountsScreenArray = newAllAccountsArray.filter(
-      (account) =>
-        account.index >= startIndex &&
-        account.index < startIndex + manager.addressesPerPage
+      filterByStartIndexRange
     );
 
     manager.updateAllAccounts(newAllAccountsArray);
