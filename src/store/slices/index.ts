@@ -3,4 +3,5 @@ export * from './network';
 export * from './loginInfo';
 export * from './config';
 export * from './toast';
-export * from './cache/cacheSlice';
+export * from './cache';
+export * from './ui';

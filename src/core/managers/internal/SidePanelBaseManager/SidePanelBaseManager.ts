@@ -1,5 +1,6 @@
 import { UITagsEnum } from 'constants/UITags.enum';
 import { IEventBus } from 'lib/sdkDappCoreUi';
+import { setIsUnlockPanelOpen } from 'store/actions/ui/uiActions';
 import { ProviderErrorsEnum } from 'types/provider.types';
 import { createUIElement } from 'utils/createUIElement';
 
@@ -62,7 +63,7 @@ export abstract class SidePanelBaseManager<TElement, TData, TEventEnum> {
 
     this.data = isDataEmpty ? initialData : { ...initialData, ...data };
 
-    this.isOpen = true;
+    this.setIsUnlockPanelOpen(true);
     this.publishEvent(this.getOpenEventName());
     this.notifyDataUpdate();
   }
@@ -75,7 +76,7 @@ export abstract class SidePanelBaseManager<TElement, TData, TEventEnum> {
     this.data = { ...this.data, shouldClose: true };
     this.notifyDataUpdate();
     this.resetData();
-    this.isOpen = false;
+    this.setIsUnlockPanelOpen(false);
   }
 
   public updateData(newData: Partial<TData>): void {
@@ -159,8 +160,7 @@ export abstract class SidePanelBaseManager<TElement, TData, TEventEnum> {
       this.uiElement = null;
     }
 
-    this.isOpen = false;
-
+    this.setIsUnlockPanelOpen(false);
     this.unsubscribeFunctions.forEach((unsubscribe) => unsubscribe());
     this.unsubscribeFunctions = [];
   }
@@ -190,8 +190,13 @@ export abstract class SidePanelBaseManager<TElement, TData, TEventEnum> {
   }
 
   protected handleCloseUI(): void {
-    this.isOpen = false;
+    this.setIsUnlockPanelOpen(false);
     this.resetData();
+  }
+
+  private setIsUnlockPanelOpen(isOpen: boolean): void {
+    this.isOpen = isOpen;
+    setIsUnlockPanelOpen(isOpen);
   }
 
   protected abstract getUIElementName(): UITagsEnum;

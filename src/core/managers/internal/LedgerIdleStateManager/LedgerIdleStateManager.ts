@@ -7,7 +7,8 @@ import { LedgerProviderStrategy } from 'core/providers/strategies/LedgerProvider
 import { ProviderTypeEnum } from 'core/providers/types/providerFactory.types';
 import { createCustomToast } from 'store/actions';
 import { accountSelector, loginInfoSelector } from 'store/selectors';
-import { getStore } from 'store/store';
+import { isSidePanelOpenSelector } from 'store/selectors/uiSelectors';
+import { getState, getStore } from 'store/store';
 import { ToastIconsEnum } from '../ToastManager/helpers/getToastDataStateByStatus';
 
 const LEDGER_IDLE_STATE_CHECK_INTERVAL = 30_000;
@@ -46,7 +47,9 @@ export class LedgerIdleStateManager {
     }
 
     this.connectionCheckInterval = setInterval(async () => {
-      if (!this.shouldCheckConnection()) {
+      const isSigningProcess = isSidePanelOpenSelector(getState());
+
+      if (!this.shouldCheckConnection() || isSigningProcess) {
         return;
       }
 

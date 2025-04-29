@@ -2,14 +2,14 @@ import { UITagsEnum } from 'constants/UITags.enum';
 
 import {
   IAccountScreenData,
-  IConfirmScreenData,
-  IConnectScreenData,
   ILedgerAccount,
   ILedgerConnectPanelData,
-  MvxLedgerConnectPanel
-} from 'lib/sdkDappCoreUi';
+  IConnectScreenData,
+  IConfirmScreenData
+} from 'core/providers/strategies/LedgerProviderStrategy/types/ledger.types';
+import { MvxLedgerConnectPanel } from 'lib/sdkDappCoreUi';
 import { LedgerConnectEventsEnum } from './types';
-import { SidePanelBaseManager } from '../../SidePanelBaseManager/SidePanelBaseManager';
+import { SidePanelBaseManager } from '../SidePanelBaseManager/SidePanelBaseManager';
 
 export class LedgerConnectStateManager extends SidePanelBaseManager<
   MvxLedgerConnectPanel,

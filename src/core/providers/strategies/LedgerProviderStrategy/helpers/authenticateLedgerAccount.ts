@@ -31,7 +31,7 @@ interface ISelectedAccount {
   addressIndex: number;
 }
 
-export function authenticateLedgerAccount({
+export async function authenticateLedgerAccount({
   options,
   config,
   manager,
@@ -44,149 +44,161 @@ export function authenticateLedgerAccount({
     version: config.version
   });
 
+  const accountsListProps = {
+    manager,
+    provider
+  };
+
   // refresh account list
-  return updateAccountsList({ manager, provider }).then(async function () {
-    // cycle trough accounts until user makes a choice
-    const selectedAccount = await new Promise<ISelectedAccount>(async function (
-      resolve,
-      reject
-    ) {
-      function closeComponent() {
-        manager?.closeAndReset();
+  await updateAccountsList(accountsListProps);
+
+  // cycle trough accounts until user makes a choice
+  const selectedAccount = await new Promise<ISelectedAccount>(async function (
+    resolve,
+    reject
+  ) {
+    function closeComponent() {
+      manager?.closeAndReset();
+    }
+
+    async function handleNextPageChanged() {
+      const startIndex = manager?.getAccountScreenData()?.startIndex || 0;
+      manager?.updateStartIndex(startIndex + manager.addressesPerPage);
+      await updateAccountsList(accountsListProps);
+    }
+
+    async function handlePrevPageChanged() {
+      const startIndex = manager?.getAccountScreenData()?.startIndex || 0;
+
+      if (startIndex > 0) {
+        manager?.updateStartIndex(
+          Math.max(0, startIndex - manager.addressesPerPage)
+        );
+
+        await updateAccountsList(accountsListProps);
+      }
+    }
+
+    async function handleGoToPage(page: number) {
+      manager?.updateStartIndex(Math.max(0, parseInt(page.toString())));
+      await updateAccountsList(accountsListProps);
+    }
+
+    async function handleAccessWallet(payload: {
+      addressIndex: number;
+      selectedAddress: string;
+    }) {
+      if (!provider || !login) {
+        return;
       }
 
-      async function handleNextPageChanged() {
-        const startIndex = manager?.getAccountScreenData()?.startIndex || 0;
-        manager?.updateStartIndex(startIndex + manager.addressesPerPage);
-        await updateAccountsList({ manager, provider });
-      }
+      manager?.updateConfirmScreen({
+        ...authData,
+        selectedAddress: payload.selectedAddress
+      });
 
-      async function handlePrevPageChanged() {
-        const startIndex = manager?.getAccountScreenData()?.startIndex || 0;
+      try {
+        const loginInfo = options?.token
+          ? await provider.tokenLogin({
+              token: Buffer.from(`${options?.token}{}`),
+              addressIndex: payload.addressIndex
+            })
+          : await login({
+              addressIndex: payload.addressIndex
+            });
 
-        if (startIndex > 0) {
-          manager?.updateStartIndex(
-            Math.max(0, startIndex - manager.addressesPerPage)
-          );
+        closeComponent();
 
-          await updateAccountsList({ manager, provider });
-        }
-      }
-
-      async function handleAccessWallet(payload: {
-        addressIndex: number;
-        selectedAddress: string;
-      }) {
-        if (!provider || !login) {
-          return;
-        }
-
-        manager?.updateConfirmScreen({
-          ...authData,
-          selectedAddress: payload.selectedAddress
+        resolve({
+          address: loginInfo.address,
+          signature: loginInfo.signature
+            ? loginInfo.signature.toString('hex')
+            : '',
+          addressIndex: payload.addressIndex
         });
-
-        try {
-          const loginInfo = options?.token
-            ? await provider.tokenLogin({
-                token: Buffer.from(`${options?.token}{}`),
-                addressIndex: payload.addressIndex
-              })
-            : await login({
-                addressIndex: payload.addressIndex
-              });
-
-          closeComponent();
-
-          resolve({
-            address: loginInfo.address,
-            signature: loginInfo.signature
-              ? loginInfo.signature.toString('hex')
-              : '',
-            addressIndex: payload.addressIndex
-          });
-        } catch (err) {
-          console.error('User rejected login:', err);
-          const shouldClose = Boolean(manager?.getAccountScreenData());
-          if (shouldClose) {
-            return closeComponent();
-          }
-          const shouldGoBack = Boolean(manager?.getConfirmScreenData());
-          if (shouldGoBack) {
-            await updateAccountsList({ manager, provider });
-          }
+      } catch (err) {
+        console.error('User rejected login:', err);
+        const shouldClose = Boolean(manager?.getAccountScreenData());
+        if (shouldClose) {
+          return closeComponent();
+        }
+        const shouldGoBack = Boolean(manager?.getConfirmScreenData());
+        if (shouldGoBack) {
+          await updateAccountsList(accountsListProps);
         }
       }
+    }
 
-      function unsubscribeFromEvents() {
-        if (!eventBus) {
-          throw new Error(ProviderErrorsEnum.eventBusError);
-        }
-
-        eventBus.unsubscribe(
-          LedgerConnectEventsEnum.CLOSE_LEDGER_CONNECT_PANEL,
-          handleCancel
-        );
-        eventBus.unsubscribe(
-          LedgerConnectEventsEnum.NEXT_PAGE,
-          handleNextPageChanged
-        );
-        eventBus.unsubscribe(
-          LedgerConnectEventsEnum.PREV_PAGE,
-          handlePrevPageChanged
-        );
-        eventBus.unsubscribe(
-          LedgerConnectEventsEnum.ACCESS_WALLET,
-          handleAccessWallet
-        );
-      }
-
-      async function handleCancel() {
-        await updateAccountsList({ manager, provider });
-        unsubscribeFromEvents();
-        reject('User cancelled login');
-      }
-
+    function unsubscribeFromEvents() {
       if (!eventBus) {
         throw new Error(ProviderErrorsEnum.eventBusError);
       }
 
-      eventBus.subscribe(
+      eventBus.unsubscribe(
         LedgerConnectEventsEnum.CLOSE_LEDGER_CONNECT_PANEL,
         handleCancel
       );
-      eventBus.subscribe(
+      eventBus.unsubscribe(
         LedgerConnectEventsEnum.NEXT_PAGE,
         handleNextPageChanged
       );
-      eventBus.subscribe(
+      eventBus.unsubscribe(
         LedgerConnectEventsEnum.PREV_PAGE,
         handlePrevPageChanged
       );
-      eventBus.subscribe(
+      eventBus.unsubscribe(
         LedgerConnectEventsEnum.ACCESS_WALLET,
         handleAccessWallet
       );
-    });
+      eventBus.unsubscribe(LedgerConnectEventsEnum.GO_TO_PAGE, handleGoToPage);
+    }
 
-    const { version, dataEnabled } = config;
+    async function handleCancel() {
+      await updateAccountsList(accountsListProps);
+      unsubscribeFromEvents();
+      reject('User cancelled login');
+    }
 
-    // login is finished, data can be persisted in the store
-    setLedgerLogin({
-      index: selectedAccount.addressIndex,
-      loginType: ProviderTypeEnum.ledger
-    });
+    if (!eventBus) {
+      throw new Error(ProviderErrorsEnum.eventBusError);
+    }
 
-    setLedgerAccount({
-      address: selectedAccount.address,
-      index: selectedAccount.addressIndex,
-      version,
-      hasContractDataEnabled: dataEnabled
-    });
-
-    return {
-      address: selectedAccount.address,
-      signature: selectedAccount.signature
-    };
+    eventBus.subscribe(
+      LedgerConnectEventsEnum.CLOSE_LEDGER_CONNECT_PANEL,
+      handleCancel
+    );
+    eventBus.subscribe(
+      LedgerConnectEventsEnum.NEXT_PAGE,
+      handleNextPageChanged
+    );
+    eventBus.subscribe(
+      LedgerConnectEventsEnum.PREV_PAGE,
+      handlePrevPageChanged
+    );
+    eventBus.subscribe(LedgerConnectEventsEnum.GO_TO_PAGE, handleGoToPage);
+    eventBus.subscribe(
+      LedgerConnectEventsEnum.ACCESS_WALLET,
+      handleAccessWallet
+    );
   });
+
+  const { version, dataEnabled } = config;
+
+  // login is finished, data can be persisted in the store
+  setLedgerLogin({
+    index: selectedAccount.addressIndex,
+    loginType: ProviderTypeEnum.ledger
+  });
+
+  setLedgerAccount({
+    address: selectedAccount.address,
+    index: selectedAccount.addressIndex,
+    version,
+    hasContractDataEnabled: dataEnabled
+  });
+
+  return {
+    address: selectedAccount.address,
+    signature: selectedAccount.signature
+  };
 }
