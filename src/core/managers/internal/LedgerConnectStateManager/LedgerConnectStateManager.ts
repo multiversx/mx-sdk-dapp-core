@@ -7,12 +7,12 @@ import {
   IConnectScreenData,
   IConfirmScreenData
 } from 'core/providers/strategies/LedgerProviderStrategy/types/ledger.types';
-import { MvxLedgerConnectPanel } from 'lib/sdkDappCoreUi';
+import { MvxLedgerFlow } from 'lib/sdkDappCoreUi';
 import { LedgerConnectEventsEnum } from './types';
 import { SidePanelBaseManager } from '../SidePanelBaseManager/SidePanelBaseManager';
 
 export class LedgerConnectStateManager extends SidePanelBaseManager<
-  MvxLedgerConnectPanel,
+  MvxLedgerFlow,
   ILedgerConnectPanelData,
   LedgerConnectEventsEnum
 > {

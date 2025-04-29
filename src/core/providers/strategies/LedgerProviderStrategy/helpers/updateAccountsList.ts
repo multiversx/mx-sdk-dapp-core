@@ -82,7 +82,6 @@ export const updateAccountsList = async ({
     const newAllAccounts = [...allAccounts, ...accountsWithBalance];
 
     manager.updateAllAccounts(newAllAccounts);
-
     manager.updateAccountScreen({
       accounts: newAllAccounts.slice(
         startIndex,
@@ -97,7 +96,7 @@ export const updateAccountsList = async ({
 
     const balances = await Promise.all(balancePromises);
 
-    balances.forEach((account, index) => {
+    balances.forEach((account) => {
       const bNbalance = new BigNumber(String(account?.balance));
       if (!account || bNbalance.isNaN()) {
         return;
@@ -106,20 +105,25 @@ export const updateAccountsList = async ({
         .dividedBy(BigNumber(10).pow(18))
         .toFormat(4)
         .toString();
-      const accountArrayIndex = index + startIndex;
-      newAllAccounts[accountArrayIndex].balance = balance;
+
       if (!economics?.price) {
         return;
       }
+
       const usdValue = getUsdValue({
         amount: formatAmount({ input: account.balance }),
         usd: economics?.price
       });
-      newAllAccounts[accountArrayIndex].usdValue = usdValue;
+
+      newAllAccounts.forEach((accountsArrayItem) => {
+        if (account.address === accountsArrayItem.address) {
+          accountsArrayItem.balance = balance;
+          accountsArrayItem.usdValue = usdValue;
+        }
+      });
     });
 
     manager.updateAllAccounts(newAllAccounts);
-
     manager.updateAccountScreen({
       accounts: newAllAccounts.slice(
         startIndex,
