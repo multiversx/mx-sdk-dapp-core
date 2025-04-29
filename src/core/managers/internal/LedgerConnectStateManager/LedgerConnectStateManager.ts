@@ -49,7 +49,8 @@ export class LedgerConnectStateManager extends SidePanelBaseManager<
 
   // third screen data
   private initialConfirmScreenData: IConfirmScreenData = {
-    selectedAddress: ''
+    selectedAddress: '',
+    addressExplorerLink: ''
   };
 
   private confirmScreenData: IConfirmScreenData = {
@@ -165,7 +166,7 @@ export class LedgerConnectStateManager extends SidePanelBaseManager<
 
   protected getUIElementName(): UITagsEnum {
     return this.anchor
-      ? UITagsEnum.LEDGER_CONNECT
+      ? UITagsEnum.LEDGER_FLOW
       : UITagsEnum.LEDGER_CONNECT_PANEL;
   }
 
