@@ -28,8 +28,7 @@ export const getAuthTokenText = ({
     return {
       data: `${nativeAuthInfo.origin} for ${time}.`,
       confirmAddressText,
-      authText,
-      areShownText: ''
+      authText
     };
   }
 

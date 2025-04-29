@@ -1,5 +1,6 @@
 import { HWProvider } from '@multiversx/sdk-hw-provider/out';
 import { BigNumber } from 'bignumber.js';
+import { ACCOUNTS_ENDPOINT } from 'apiCalls';
 import { LedgerConnectStateManager } from 'core/managers/internal/LedgerConnectStateManager/LedgerConnectStateManager';
 import { LedgerConnectEventsEnum } from 'core/managers/internal/LedgerConnectStateManager/types';
 import { getExplorerAddress } from 'core/methods/network/getExplorerAddress';
@@ -86,7 +87,7 @@ export async function authenticateLedgerAccount({
         ...authData,
         selectedAddress: payload.selectedAddress,
         addressExplorerLink: getExplorerLink({
-          to: payload.selectedAddress,
+          to: `/${ACCOUNTS_ENDPOINT}/${payload.selectedAddress}`,
           explorerAddress
         })
       });
