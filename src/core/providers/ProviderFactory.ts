@@ -4,7 +4,7 @@ import { getAddress } from 'core/methods/account/getAddress';
 import {
   CrossWindowProviderStrategy,
   ExtensionProviderStrategy,
-  IFrameProviderStrategy,
+  IframeProviderStrategy,
   LedgerProviderStrategy,
   WalletConnectProviderStrategy
 } from 'core/providers/strategies';
@@ -62,7 +62,7 @@ export class ProviderFactory {
       }
 
       case ProviderTypeEnum.metamask: {
-        const providerInstance = new IFrameProviderStrategy({
+        const providerInstance = new IframeProviderStrategy({
           type: IframeLoginTypes.metamask
         });
 
@@ -72,7 +72,7 @@ export class ProviderFactory {
       }
 
       case ProviderTypeEnum.passkey: {
-        const providerInstance = new IFrameProviderStrategy({
+        const providerInstance = new IframeProviderStrategy({
           type: IframeLoginTypes.passkey
         });
         createdProvider = await providerInstance.createProvider();

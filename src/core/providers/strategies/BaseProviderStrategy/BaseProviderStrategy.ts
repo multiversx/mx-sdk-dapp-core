@@ -84,6 +84,12 @@ export abstract class BaseProviderStrategy {
     };
   };
 
+  /**
+   * Initializes the provider by setting the address if it is not already set.
+   * This method is typically used during the creation of a provider to ensure
+   * that the address is properly initialized. If the address is already set
+   * or cannot be retrieved, the method will exit without making changes.
+   */
   protected initialize = () => {
     if (this.address) {
       return;
@@ -97,6 +103,13 @@ export abstract class BaseProviderStrategy {
     this.address = address;
   };
 
+  /**
+   * This method is intended to be overridden by subclasses to define the specific
+   * action to be executed when a cancel login event occurs.
+   *
+   * Subclasses should provide their own implementation to handle the cancel login
+   * behavior appropriately.
+   */
   protected cancelAction() {
     return;
   }

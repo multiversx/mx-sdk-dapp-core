@@ -4,7 +4,6 @@ import { IframeLoginTypes } from '@multiversx/sdk-web-wallet-iframe-provider/out
 
 import { PendingTransactionsEventsEnum } from 'core/managers/internal/PendingTransactionsStateManager/types/pendingTransactions.types';
 import { getAccount } from 'core/methods/account/getAccount';
-import { getAddress } from 'core/methods/account/getAddress';
 import {
   IProvider,
   providerLabels
@@ -12,12 +11,12 @@ import {
 import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
 import { ProviderErrorsEnum } from 'types/provider.types';
-import { IFrameProviderType } from './types';
+import { IframeProviderType } from './types';
 import { getPendingTransactionsHandlers } from '../helpers/getPendingTransactionsHandlers';
 import { signMessage } from '../helpers/signMessage/signMessage';
 import { BaseProviderStrategy } from '../BaseProviderStrategy/BaseProviderStrategy';
 
-export class IFrameProviderStrategy extends BaseProviderStrategy {
+export class IframeProviderStrategy extends BaseProviderStrategy {
   private provider: IframeProvider | null = null;
   private type: IframeLoginTypes | null = null;
   private _signTransactions:
@@ -25,7 +24,7 @@ export class IFrameProviderStrategy extends BaseProviderStrategy {
     | null = null;
   private _signMessage: ((message: Message) => Promise<Message>) | null = null;
 
-  constructor({ type, address }: IFrameProviderType) {
+  constructor({ type, address }: IframeProviderType) {
     super(address);
     this.type = type;
   }
