@@ -37,10 +37,10 @@ export class UnlockPanelManager {
   }
 
   public static init(params: {
-    loginFunction: LoginHandlerType;
+    loginHandler: LoginHandlerType;
     allowedProviders?: ProviderTypeEnum[] | null;
   }) {
-    this.loginHandler = params.loginFunction;
+    this.loginHandler = params.loginHandler;
     this.allowedProviders = params.allowedProviders;
     return this.getInstance();
   }
