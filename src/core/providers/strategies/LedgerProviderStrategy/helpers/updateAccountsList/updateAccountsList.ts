@@ -41,15 +41,17 @@ export const updateAccountsList = async ({
     account.index >= startIndex &&
     account.index < startIndex + manager.addressesPerPage;
 
-  const currentAccounts = allAccounts.filter(filterByStartIndexRange);
   const allAccountsObject = allAccounts.reduce(
     (accountsObject: UpdateAccountObjectType, account) =>
       Object.assign(accountsObject, { [account.index]: account }),
     {}
   );
 
+  const currentAccounts = allAccounts.filter(filterByStartIndexRange);
+  const isStartIndexInAccounts = Boolean(allAccountsObject[startIndex]);
+
   manager.updateAccountScreen({
-    isLoading: !allAccountsObject[startIndex]
+    isLoading: !isStartIndexInAccounts
   });
 
   if (currentAccounts.length > 0) {
