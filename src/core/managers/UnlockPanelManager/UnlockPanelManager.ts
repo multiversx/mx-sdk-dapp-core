@@ -44,18 +44,6 @@ export type LoginCallbackType =
   | LoginFunctonType
   | LoginCallbackType;
 
-/**
- * The first type signature `(providerType: ProviderTypeEnum, anchor: HTMLElement) => void`
- * is used to handle the login process by specifying the provider type and an anchor element.
- *
- * The second type signature `() => void` is a simpler callback that is invoked after the login
- * process is completed. If this type is used, it overwrites the first type and assumes that
- * the login process is handled internally.
- */
-type LoginCallbackType =
-  | (({ type, anchor }: IProviderFactory) => void)
-  | (() => void);
-
 export class UnlockPanelManager {
   private static instance: UnlockPanelManager;
   private static loginCallback: LoginCallbackType | null = null;
