@@ -42,4 +42,4 @@ type LoginFunctonType = ({ type, anchor }: IProviderFactory) => Promise<void>;
  */
 type LoginCallbackType = () => void;
 
-export type LoginType = LoginFunctonType | LoginCallbackType;
+export type LoginHandlerType = LoginFunctonType | LoginCallbackType;

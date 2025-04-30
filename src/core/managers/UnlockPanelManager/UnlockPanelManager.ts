@@ -10,13 +10,13 @@ import { ProviderErrorsEnum } from 'types/provider.types';
 import { createUIElement } from 'utils/createUIElement';
 import {
   IUnlockPanel,
-  LoginType,
+  LoginHandlerType,
   UnlockPanelEventsEnum
 } from './UnlockPanelManager.types';
 
 export class UnlockPanelManager {
   private static instance: UnlockPanelManager;
-  private static loginFunction: LoginType | null = null;
+  private static loginHandler: LoginHandlerType | null = null;
   private static allowedProviders?: ProviderTypeEnum[] | null = null;
 
   private data: IUnlockPanel = { isOpen: false };
@@ -37,10 +37,10 @@ export class UnlockPanelManager {
   }
 
   public static init(params: {
-    loginFunction: LoginType;
+    loginFunction: LoginHandlerType;
     allowedProviders?: ProviderTypeEnum[] | null;
   }) {
-    this.loginFunction = params.loginFunction;
+    this.loginHandler = params.loginFunction;
     this.allowedProviders = params.allowedProviders;
     return this.getInstance();
   }
@@ -103,18 +103,18 @@ export class UnlockPanelManager {
   }
 
   private async handleLogin({ type, anchor }: IProviderFactory) {
-    if (!UnlockPanelManager.loginFunction) {
+    if (!UnlockPanelManager.loginHandler) {
       throw new Error(
         'Login callback not initialized. Please call `init()` first.'
       );
     }
 
-    if (this.isSimpleLoginCallback(UnlockPanelManager.loginFunction)) {
+    if (this.isSimpleLoginCallback(UnlockPanelManager.loginHandler)) {
       const provider = await ProviderFactory.create({ type, anchor });
       await provider?.login();
-      UnlockPanelManager.loginFunction();
+      UnlockPanelManager.loginHandler();
     } else {
-      UnlockPanelManager.loginFunction({ type, anchor });
+      UnlockPanelManager.loginHandler({ type, anchor });
     }
 
     await this.handleCloseUI();
@@ -130,7 +130,7 @@ export class UnlockPanelManager {
     this.unlockPanelElement = null;
   }
 
-  private isSimpleLoginCallback(login: LoginType): login is () => void {
+  private isSimpleLoginCallback(login: LoginHandlerType): login is () => void {
     const takesZeroArguments = login.length === 0;
     return takesZeroArguments;
   }
