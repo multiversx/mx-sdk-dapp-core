@@ -14,6 +14,37 @@ import {
 } from './UnlockPanelManager.types';
 
 /**
+ * Handle the full login process
+ * @example
+ * ```ts
+    async ({ type, anchor }: IProviderFactory) => {
+      const provider = await ProviderFactory.create({
+        type,
+        anchor
+      });
+      await provider?.login();
+      navigate('/dashboard');
+    };
+ *  ```
+ */
+type LoginFunctonType = (({ type, anchor }: IProviderFactory) => Promise<void>);
+
+/**
+ * Callback to be executed after login is performed
+ * @example
+ * ```ts
+    () => {
+      navigate('/dashboard');
+    };
+ *  ```
+ */
+type LoginCallbackType = (() => void)
+
+export type LoginCallbackType =
+  | LoginFunctonType
+  | LoginCallbackType;
+
+/**
  * The first type signature `(providerType: ProviderTypeEnum, anchor: HTMLElement) => void`
  * is used to handle the login process by specifying the provider type and an anchor element.
  *
