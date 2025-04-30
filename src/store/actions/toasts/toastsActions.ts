@@ -1,9 +1,14 @@
-import { CustomToastType } from 'store/slices/toast/toastSlice.types';
+import {
+  CustomToastType,
+  IComponentToast
+} from 'store/slices/toast/toastSlice.types';
 import { getStore } from 'store/store';
 import { getUnixTimestamp, getUnixTimestampWithAddedMilliseconds } from 'utils';
 
-export const customToastComponentDictionary: Record<string, () => HTMLElement> =
-  {};
+export const customToastComponentDictionary: Record<
+  string,
+  IComponentToast['instantiateToastElement']
+> = {};
 export const customToastCloseHandlersDictionary: Record<string, () => void> =
   {};
 
@@ -17,11 +22,11 @@ export const addCustomToast = (
         state.customToasts.length > 0
           ? Math.max(
               ...state.customToasts.map((toast) =>
-                parseInt(toast.toastId.split('-').pop() || '0')
+                parseInt(toast.toastId.split('-').pop() ?? '0')
               )
             )
           : 0;
-      const toastId = currentToastId || `custom-toast-${lastToastIndex + 1}`;
+      const toastId = currentToastId ?? `custom-toast-${lastToastIndex + 1}`;
 
       const existingToastIndex = state.customToasts.findIndex(
         (toast) => toast.toastId === toastId
@@ -90,7 +95,7 @@ export const addTransactionToast = ({
         state.transactionToasts.length > 0
           ? Math.max(
               ...state.transactionToasts.map((toast) =>
-                parseInt(toast.toastId.split('-').pop() || '0')
+                parseInt(toast.toastId.split('-').pop() ?? '0')
               )
             )
           : 0;
@@ -129,7 +134,7 @@ export const createCustomToast = (props: CustomToastType) => {
     toasts.customToasts.length > 0
       ? Math.max(
           ...toasts.customToasts.map((toast) =>
-            parseInt(toast.toastId.split('-').pop() || '0')
+            parseInt(toast.toastId.split('-').pop() ?? '0')
           )
         )
       : 0;
