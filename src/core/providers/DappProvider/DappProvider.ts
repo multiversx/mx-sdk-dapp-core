@@ -88,4 +88,8 @@ export class DappProvider {
   async verifyMessage(signedMessage: string): Promise<VerifyMessageReturnType> {
     return await verifyMessage(signedMessage);
   }
+
+  async cancelLogin() {
+    this.provider.cancelLogin?.();
+  }
 }

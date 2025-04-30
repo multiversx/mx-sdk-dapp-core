@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - [Fixed Ledger address table pagination transition state](https://github.com/multiversx/mx-sdk-dapp-core/pull/149)
 - [Removed unnecessary next and previous Ledger address table pagination handlers](https://github.com/multiversx/mx-sdk-dapp-core/pull/148)
+- [Added cancel login](https://github.com/multiversx/mx-sdk-dapp-core/pull/147)
 - [Added `usdValue` to ledger accounts](https://github.com/multiversx/mx-sdk-dapp-core-ui/pull/146)
 - [Fixed logging in without native auth](https://github.com/multiversx/mx-sdk-dapp-core/pull/143)
 - [Fixed ledger idle state manager check connection while signing](https://github.com/multiversx/mx-sdk-dapp-core/pull/141)

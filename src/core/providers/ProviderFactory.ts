@@ -4,13 +4,16 @@ import { getAddress } from 'core/methods/account/getAddress';
 import {
   CrossWindowProviderStrategy,
   ExtensionProviderStrategy,
-  IFrameProviderStrategy,
+  IframeProviderStrategy,
   LedgerProviderStrategy,
   WalletConnectProviderStrategy
 } from 'core/providers/strategies';
 import { setProviderType } from 'store/actions/loginInfo/loginInfoActions';
 import { DappProvider } from './DappProvider/DappProvider';
-import { setAccountProvider } from './helpers/accountProvider';
+import {
+  getAccountProvider,
+  setAccountProvider
+} from './helpers/accountProvider';
 import { clearInitiatedLogins } from './helpers/clearInitiatedLogins';
 import { WebviewProviderStrategy } from './strategies/WebviewProviderStrategy';
 import {
@@ -59,7 +62,7 @@ export class ProviderFactory {
       }
 
       case ProviderTypeEnum.metamask: {
-        const providerInstance = new IFrameProviderStrategy({
+        const providerInstance = new IframeProviderStrategy({
           type: IframeLoginTypes.metamask
         });
 
@@ -69,7 +72,7 @@ export class ProviderFactory {
       }
 
       case ProviderTypeEnum.passkey: {
-        const providerInstance = new IFrameProviderStrategy({
+        const providerInstance = new IframeProviderStrategy({
           type: IframeLoginTypes.passkey
         });
         createdProvider = await providerInstance.createProvider();
@@ -123,5 +126,12 @@ export class ProviderFactory {
     );
 
     return dappProvider;
+  }
+
+  public static async destroy() {
+    const provider = getAccountProvider();
+    provider.cancelLogin();
+    setAccountProvider(null);
+    setProviderType(ProviderTypeEnum.none);
   }
 }

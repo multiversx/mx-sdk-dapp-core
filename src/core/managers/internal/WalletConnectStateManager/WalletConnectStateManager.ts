@@ -65,5 +65,9 @@ export class WalletConnectStateManager extends SidePanelBaseManager<
       WalletConnectEventsEnum.CLOSE_WALLET_CONNECT_PANEL,
       this.handleCloseUI.bind(this)
     );
+    this.eventBus.subscribe(
+      WalletConnectEventsEnum.UI_DISCONNECTED,
+      this.destroy.bind(this)
+    );
   }
 }

@@ -6,6 +6,7 @@ export type { MvxPendingTransactionsPanel } from '@multiversx/sdk-dapp-core-ui/d
 export type { IPendingTransactionsPanelData } from '@multiversx/sdk-dapp-core-ui/dist/types/components/functional/pending-transactions-panel/pending-transactions-panel.types.d';
 export type { MvxNotificationsFeed } from '@multiversx/sdk-dapp-core-ui/dist/web-components/mvx-notifications-feed';
 export type { MvxToastList } from '@multiversx/sdk-dapp-core-ui/dist/web-components/mvx-toast-list';
+export type { MvxUnlockPanel } from '@multiversx/sdk-dapp-core-ui/dist/web-components/mvx-unlock-panel';
 export type { IEventBus } from '@multiversx/sdk-dapp-core-ui/dist/types/utils/EventBus';
 export type {
   ITransactionListItem,

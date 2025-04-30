@@ -6,5 +6,6 @@ export enum UITagsEnum {
   SIGN_TRANSACTIONS_PANEL = 'mvx-sign-transactions-panel',
   TOAST_LIST = 'mvx-toast-list',
   WALLET_CONNECT = 'mvx-wallet-connect-provider',
-  WALLET_CONNECT_PANEL = 'mvx-wallet-connect-panel'
+  WALLET_CONNECT_PANEL = 'mvx-wallet-connect-panel',
+  UNLOCK_PANEL = 'mvx-unlock-panel'
 }
