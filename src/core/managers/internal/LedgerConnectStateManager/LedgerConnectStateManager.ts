@@ -7,12 +7,12 @@ import {
   IConnectScreenData,
   IConfirmScreenData
 } from 'core/providers/strategies/LedgerProviderStrategy/types/ledger.types';
-import { MvxLedgerConnectPanel } from 'lib/sdkDappCoreUi';
+import { MvxLedgerFlow } from 'lib/sdkDappCoreUi';
 import { LedgerConnectEventsEnum } from './types';
 import { SidePanelBaseManager } from '../SidePanelBaseManager/SidePanelBaseManager';
 
 export class LedgerConnectStateManager extends SidePanelBaseManager<
-  MvxLedgerConnectPanel,
+  MvxLedgerFlow,
   ILedgerConnectPanelData,
   LedgerConnectEventsEnum
 > {
@@ -49,7 +49,8 @@ export class LedgerConnectStateManager extends SidePanelBaseManager<
 
   // third screen data
   private initialConfirmScreenData: IConfirmScreenData = {
-    selectedAddress: ''
+    selectedAddress: '',
+    addressExplorerLink: ''
   };
 
   private confirmScreenData: IConfirmScreenData = {
@@ -173,7 +174,7 @@ export class LedgerConnectStateManager extends SidePanelBaseManager<
 
   protected getUIElementName(): UITagsEnum {
     return this.anchor
-      ? UITagsEnum.LEDGER_CONNECT
+      ? UITagsEnum.LEDGER_FLOW
       : UITagsEnum.LEDGER_CONNECT_PANEL;
   }
 

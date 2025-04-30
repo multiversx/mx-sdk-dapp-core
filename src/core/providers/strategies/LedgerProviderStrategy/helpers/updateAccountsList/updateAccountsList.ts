@@ -1,18 +1,17 @@
-import { HWProvider } from '@multiversx/sdk-hw-provider/out';
 import BigNumber from 'bignumber.js';
+
 import { getEconomics } from 'apiCalls/economics/getEconomics';
-import { LedgerConnectStateManager } from 'core/managers/internal/LedgerConnectStateManager/LedgerConnectStateManager';
 import { getNetworkConfig } from 'core/methods/network/getNetworkConfig';
 import { formatAmount } from 'lib/sdkDappUtils';
 import { ProviderErrorsEnum } from 'types';
 import { fetchAccount } from 'utils/account/fetchAccount';
 import { getUsdValue } from 'utils/operations/getUsdValue';
-import { ILedgerAccount } from '../types/ledger.types';
 
-type AccountsListType = {
-  manager: LedgerConnectStateManager | null;
-  provider: HWProvider | null;
-};
+import {
+  IUpdateAccountsList,
+  UpdateAccountObjectType
+} from './updateAccountsList.types';
+import { ILedgerAccount } from '../../types/ledger.types';
 
 /**
  * Updates the list of accounts and fetches their balances.
@@ -28,7 +27,7 @@ type AccountsListType = {
 export const updateAccountsList = async ({
   manager,
   provider
-}: AccountsListType) => {
+}: IUpdateAccountsList) => {
   if (!manager || !provider) {
     throw new Error(ProviderErrorsEnum.notInitialized);
   }
@@ -36,31 +35,28 @@ export const updateAccountsList = async ({
   const network = getNetworkConfig();
   const startIndex = manager.getAccountScreenData()?.startIndex || 0;
   const allAccounts = manager.getAllAccounts();
-  const economics = await getEconomics({
-    baseURL: network.apiAddress
+  const economics = await getEconomics({ baseURL: network.apiAddress });
+
+  const filterByStartIndexRange = (account: ILedgerAccount) =>
+    account.index >= startIndex &&
+    account.index < startIndex + manager.addressesPerPage;
+
+  const allAccountsObject = allAccounts.reduce(
+    (accountsObject: UpdateAccountObjectType, account) =>
+      Object.assign(accountsObject, { [account.index]: account }),
+    {}
+  );
+
+  const currentAccounts = allAccounts.filter(filterByStartIndexRange);
+  const isStartIndexInAccounts = Boolean(allAccountsObject[startIndex]);
+
+  manager.updateAccountScreen({
+    isLoading: !isStartIndexInAccounts
   });
 
-  const hasData = allAccounts.some(
-    ({ index, balance }) =>
-      index === startIndex && new BigNumber(balance).isFinite()
-  );
-
-  const slicedAccounts = allAccounts.slice(
-    startIndex,
-    startIndex + manager.addressesPerPage
-  );
-
-  if (hasData) {
-    return manager.updateAccountScreen({
-      accounts: slicedAccounts,
-      isLoading: false
-    });
-  }
-
-  if (slicedAccounts.length === 0) {
-    manager.updateAccountScreen({
-      isLoading: true
-    });
+  if (currentAccounts.length > 0) {
+    manager.updateAccountScreen({ accounts: currentAccounts });
+    return;
   }
 
   try {
@@ -69,71 +65,65 @@ export const updateAccountsList = async ({
       manager.addressesPerPage
     );
 
-    const accountsWithBalance: ILedgerAccount[] = accountsArray.map(
-      (address, index) => {
-        return {
-          address,
-          balance: '...',
-          index: index + startIndex
-        };
-      }
+    const accountsWithBalance = accountsArray.map(
+      (address, accountIindex): ILedgerAccount => ({
+        address,
+        balance: '...',
+        index: accountIindex + startIndex
+      })
     );
 
     const newAllAccounts = [...allAccounts, ...accountsWithBalance];
-
-    manager.updateAllAccounts(newAllAccounts);
-
-    manager.updateAccountScreen({
-      accounts: newAllAccounts.slice(
-        startIndex,
-        startIndex + manager.addressesPerPage
-      ),
-      isLoading: false
-    });
-
     const balancePromises = accountsArray.map((address) =>
       fetchAccount({ address, baseURL: network.apiAddress })
     );
 
     const balances = await Promise.all(balancePromises);
+    const newAllAccountsObject = newAllAccounts.reduce(
+      (accountsObject: UpdateAccountObjectType, account) =>
+        Object.assign(accountsObject, { [account.address]: account }),
 
-    balances.forEach((account, index) => {
-      const bNbalance = new BigNumber(String(account?.balance));
-      if (!account || bNbalance.isNaN()) {
+      {}
+    );
+
+    balances.forEach((account) => {
+      if (!account || !economics || !economics.price) {
         return;
       }
-      const balance = bNbalance
+
+      const balanceBigNumber = new BigNumber(account.balance);
+      const formattedBalance = balanceBigNumber
         .dividedBy(BigNumber(10).pow(18))
         .toFormat(4)
         .toString();
-      const accountArrayIndex = index + startIndex;
-      newAllAccounts[accountArrayIndex].balance = balance;
-      if (!economics?.price) {
+
+      if (balanceBigNumber.isNaN()) {
         return;
       }
+
       const usdValue = getUsdValue({
         amount: formatAmount({ input: account.balance }),
         usd: economics?.price
       });
-      newAllAccounts[accountArrayIndex].usdValue = usdValue;
+
+      newAllAccountsObject[account.address].balance = formattedBalance;
+      newAllAccountsObject[account.address].usdValue = usdValue;
     });
 
-    manager.updateAllAccounts(newAllAccounts);
+    const newAllAccountsArray = Object.values(newAllAccountsObject).sort(
+      (alpha, beta) => alpha.index - beta.index
+    );
 
+    const accountsScreenArray = newAllAccountsArray.filter(
+      filterByStartIndexRange
+    );
+
+    manager.updateAllAccounts(newAllAccountsArray);
     manager.updateAccountScreen({
-      accounts: newAllAccounts.slice(
-        startIndex,
-        startIndex + manager.addressesPerPage
-      )
-    });
-  } catch (error) {
-    manager.updateAccountScreen({
-      accounts: allAccounts.slice(
-        startIndex,
-        startIndex + manager.addressesPerPage
-      ),
+      accounts: accountsScreenArray,
       isLoading: false
     });
+  } catch (error) {
     console.error('Failed to fetch accounts:', error);
   }
 };
