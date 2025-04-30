@@ -10,43 +10,13 @@ import { ProviderErrorsEnum } from 'types/provider.types';
 import { createUIElement } from 'utils/createUIElement';
 import {
   IUnlockPanel,
+  LoginType,
   UnlockPanelEventsEnum
 } from './UnlockPanelManager.types';
 
-/**
- * Handle the full login process
- * @example
- * ```ts
-    async ({ type, anchor }: IProviderFactory) => {
-      const provider = await ProviderFactory.create({
-        type,
-        anchor
-      });
-      await provider?.login();
-      navigate('/dashboard');
-    };
- *  ```
- */
-type LoginFunctonType = (({ type, anchor }: IProviderFactory) => Promise<void>);
-
-/**
- * Callback to be executed after login is performed
- * @example
- * ```ts
-    () => {
-      navigate('/dashboard');
-    };
- *  ```
- */
-type LoginCallbackType = (() => void)
-
-export type LoginCallbackType =
-  | LoginFunctonType
-  | LoginCallbackType;
-
 export class UnlockPanelManager {
   private static instance: UnlockPanelManager;
-  private static loginCallback: LoginCallbackType | null = null;
+  private static loginFunction: LoginType | null = null;
   private static allowedProviders?: ProviderTypeEnum[] | null = null;
 
   private data: IUnlockPanel = { isOpen: false };
@@ -67,10 +37,10 @@ export class UnlockPanelManager {
   }
 
   public static init(params: {
-    loginCallback: LoginCallbackType;
+    loginFunction: LoginType;
     allowedProviders?: ProviderTypeEnum[] | null;
   }) {
-    this.loginCallback = params.loginCallback;
+    this.loginFunction = params.loginFunction;
     this.allowedProviders = params.allowedProviders;
     return this.getInstance();
   }
@@ -133,18 +103,18 @@ export class UnlockPanelManager {
   }
 
   private async handleLogin({ type, anchor }: IProviderFactory) {
-    if (!UnlockPanelManager.loginCallback) {
+    if (!UnlockPanelManager.loginFunction) {
       throw new Error(
         'Login callback not initialized. Please call `init()` first.'
       );
     }
 
-    if (this.isSimpleLoginCallback(UnlockPanelManager.loginCallback)) {
+    if (this.isSimpleLoginCallback(UnlockPanelManager.loginFunction)) {
       const provider = await ProviderFactory.create({ type, anchor });
       await provider?.login();
-      UnlockPanelManager.loginCallback();
+      UnlockPanelManager.loginFunction();
     } else {
-      UnlockPanelManager.loginCallback({ type, anchor });
+      UnlockPanelManager.loginFunction({ type, anchor });
     }
 
     await this.handleCloseUI();
@@ -160,7 +130,7 @@ export class UnlockPanelManager {
     this.unlockPanelElement = null;
   }
 
-  private isSimpleLoginCallback(login: LoginCallbackType): login is () => void {
+  private isSimpleLoginCallback(login: LoginType): login is () => void {
     const takesZeroArguments = login.length === 0;
     return takesZeroArguments;
   }
