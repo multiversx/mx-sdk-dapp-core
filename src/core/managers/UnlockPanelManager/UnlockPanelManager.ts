@@ -1,6 +1,9 @@
 import { UITagsEnum } from 'constants/UITags.enum';
 import { ProviderFactory } from 'core/providers/ProviderFactory';
-import { ProviderTypeEnum } from 'core/providers/types/providerFactory.types';
+import {
+  IProviderFactory,
+  ProviderTypeEnum
+} from 'core/providers/types/providerFactory.types';
 import { MvxUnlockPanel } from 'lib/sdkDappCoreUi';
 import { IEventBus } from 'types/manager.types';
 import { ProviderErrorsEnum } from 'types/provider.types';
@@ -10,13 +13,22 @@ import {
   UnlockPanelEventsEnum
 } from './UnlockPanelManager.types';
 
-type LoginCallback =
-  | ((providerType: ProviderTypeEnum, anchor: HTMLElement) => void)
+/**
+ * The first type signature `(providerType: ProviderTypeEnum, anchor: HTMLElement) => void`
+ * is used to handle the login process by specifying the provider type and an anchor element.
+ *
+ * The second type signature `() => void` is a simpler callback that is invoked after the login
+ * process is completed. If this type is used, it overwrites the first type and assumes that
+ * the login process is handled internally.
+ */
+type LoginCallbackType =
+  | (({ type, anchor }: IProviderFactory) => void)
   | (() => void);
 
 export class UnlockPanelManager {
   private static instance: UnlockPanelManager;
-  private static loginCallback: LoginCallback | null = null;
+  private static loginCallback: LoginCallbackType | null = null;
+  private static allowedProviders?: ProviderTypeEnum[] | null = null;
 
   private data: IUnlockPanel = { isOpen: false };
   private unlockPanelElement: MvxUnlockPanel | null = null;
@@ -35,27 +47,31 @@ export class UnlockPanelManager {
     return UnlockPanelManager.instance;
   }
 
-  public static init(options: { loginCallback: LoginCallback }) {
-    this.loginCallback = options.loginCallback;
+  public static init(params: {
+    loginCallback: LoginCallbackType;
+    allowedProviders?: ProviderTypeEnum[] | null;
+  }) {
+    this.loginCallback = params.loginCallback;
+    this.allowedProviders = params.allowedProviders;
     return this.getInstance();
   }
 
-  public async openUnlockPanel(allowedProviders?: ProviderTypeEnum[]) {
+  public async openUnlockPanel() {
     if (this.data.isOpen) return;
 
     this.data = {
       isOpen: true,
-      allowedProviders
+      allowedProviders: UnlockPanelManager.allowedProviders
     };
 
-    await this.ensureUnlockPanelElement();
+    await this.ensureUnlockPanelElementExists();
     await this.ensureEventBus();
     this.eventBus?.publish(UnlockPanelEventsEnum.OPEN, this.data);
 
     this.subscribeToEvents();
   }
 
-  private async ensureUnlockPanelElement() {
+  private async ensureUnlockPanelElementExists() {
     if (!this.unlockPanelElement) {
       this.unlockPanelElement = await createUIElement<MvxUnlockPanel>({
         name: UITagsEnum.UNLOCK_PANEL
@@ -97,13 +113,7 @@ export class UnlockPanelManager {
     await this.destroyUnlockPanel();
   }
 
-  private async handleLogin({
-    type,
-    anchor
-  }: {
-    type: ProviderTypeEnum;
-    anchor: HTMLElement;
-  }) {
+  private async handleLogin({ type, anchor }: IProviderFactory) {
     if (!UnlockPanelManager.loginCallback) {
       throw new Error(
         'Login callback not initialized. Please call `init()` first.'
@@ -115,7 +125,7 @@ export class UnlockPanelManager {
       await provider?.login();
       UnlockPanelManager.loginCallback();
     } else {
-      UnlockPanelManager.loginCallback(type, anchor);
+      UnlockPanelManager.loginCallback({ type, anchor });
     }
 
     await this.handleCloseUI();
@@ -131,7 +141,8 @@ export class UnlockPanelManager {
     this.unlockPanelElement = null;
   }
 
-  private isSimpleLoginCallback(login: LoginCallback): login is () => void {
-    return login.length === 0;
+  private isSimpleLoginCallback(login: LoginCallbackType): login is () => void {
+    const takesZeroArguments = login.length === 0;
+    return takesZeroArguments;
   }
 }

@@ -14,33 +14,24 @@ import { ProviderErrorsEnum } from 'types/provider.types';
 import { getPendingTransactionsHandlers } from '../helpers/getPendingTransactionsHandlers';
 import { signMessage } from '../helpers/signMessage/signMessage';
 import { guardTransactions } from '../helpers/signTransactions/helpers/guardTransactions/guardTransactions';
-import { withAbortableLogin } from '../helpers/withAbortableLogin/withAbortableLogin';
-import { cancelLogin } from '../helpers/cancelLogin/cancelLogin';
+import { BaseProviderStrategy } from '../BaseProviderStrategy/BaseProviderStrategy';
 
 type CrossWindowProviderProps = {
   address?: string;
   walletAddress?: string;
 };
 
-export class CrossWindowProviderStrategy {
+export class CrossWindowProviderStrategy extends BaseProviderStrategy {
   private provider: CrossWindowProvider | null = null;
-  private address: string;
   private walletAddress?: string;
   private _signTransactions:
     | ((transactions: Transaction[]) => Promise<Transaction[]>)
     | null = null;
   private _signMessage: ((messageToSign: Message) => Promise<Message>) | null =
     null;
-  private _login:
-    | ((options?: {
-        callbackUrl?: string;
-        token?: string;
-      }) => Promise<{ address: string; signature?: string }>)
-    | null = null;
-  private loginAbortController: AbortController | null = null;
 
   constructor(config?: CrossWindowProviderProps) {
-    this.address = config?.address || '';
+    super(config?.address);
     this.walletAddress = config?.walletAddress;
   }
 
@@ -66,13 +57,16 @@ export class CrossWindowProviderStrategy {
     return this.buildProvider();
   };
 
+  protected override cancelAction() {
+    return this.provider?.cancelAction?.bind(this.provider)();
+  }
+
   private buildProvider = () => {
     if (!this.provider) {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
     const provider = this.provider as unknown as IProvider;
-
     provider.setAccount({ address: this.address });
     provider.signTransactions = this.signTransactions;
     provider.signMessage = this.signMessage;
@@ -80,19 +74,6 @@ export class CrossWindowProviderStrategy {
     provider.cancelLogin = this.cancelLogin;
 
     return provider;
-  };
-
-  private initialize = () => {
-    if (this.address) {
-      return;
-    }
-
-    const address = getAddress();
-    if (!address) {
-      return;
-    }
-
-    this.address = address;
   };
 
   private signTransactions = async (transactions: Transaction[]) => {
@@ -156,42 +137,6 @@ export class CrossWindowProviderStrategy {
 
     return signedMessage;
   };
-
-  private login = async (options?: {
-    callbackUrl?: string;
-    token?: string;
-  }) => {
-    if (!this.provider || !this._login) {
-      throw new Error(ProviderErrorsEnum.notInitialized);
-    }
-
-    this.cancelLogin();
-
-    const { address, signature } = await withAbortableLogin({
-      loginAbortController: this.loginAbortController,
-      setLoginAbortController: (controller) => {
-        this.loginAbortController = controller;
-      },
-      loginOperation: () =>
-        this._login?.(options) as Promise<{
-          address: string;
-          signature?: string;
-        }>
-    });
-
-    return { address, signature: signature ?? '' };
-  };
-
-  public cancelLogin = () => {
-    cancelLogin({
-      loginAbortController: this.loginAbortController,
-      resetLoginAbortController: () => {
-        this.loginAbortController = null;
-      },
-      onAfterCancel: this.provider?.cancelAction?.bind(this.provider)
-    });
-  };
-
   private setPopupConsent = () => {
     const crossWindowDappConfig = crossWindowConfigSelector(getState());
 

@@ -1,36 +1,24 @@
 import { Message, Transaction } from '@multiversx/sdk-core/out';
-import {
-  IProviderAccount,
-  WebviewProvider
-} from '@multiversx/sdk-webview-provider/out/WebviewProvider';
+import { WebviewProvider } from '@multiversx/sdk-webview-provider/out/WebviewProvider';
 import { safeWindow } from 'constants/window.constants';
-import { getAddress } from 'core/methods/account/getAddress';
 import { IProvider } from 'core/providers/types/providerFactory.types';
 import { ProviderErrorsEnum } from 'types/provider.types';
-import { withAbortableLogin } from '../helpers/withAbortableLogin/withAbortableLogin';
+import { BaseProviderStrategy } from '../BaseProviderStrategy/BaseProviderStrategy';
 
 type WebviewProviderProps = {
   address?: string;
 };
 
-export class WebviewProviderStrategy {
+export class WebviewProviderStrategy extends BaseProviderStrategy {
   private provider: WebviewProvider | null = null;
-  private address: string;
   private _signTransactions:
     | ((transactions: Transaction[]) => Promise<Transaction[] | null>)
     | null = null;
   private _signMessage: ((message: Message) => Promise<Message | null>) | null =
     null;
-  private _login:
-    | ((options?: {
-        callbackUrl?: string;
-        token?: string;
-      }) => Promise<IProviderAccount | null>)
-    | null = null;
-  private loginAbortController: AbortController | null = null;
 
   constructor(config?: WebviewProviderProps) {
-    this.address = config?.address || '';
+    super(config?.address);
   }
 
   public createProvider = async (): Promise<IProvider> => {
@@ -54,6 +42,10 @@ export class WebviewProviderStrategy {
     return this.buildProvider();
   };
 
+  protected override cancelAction() {
+    return this.provider?.cancelAction?.bind(this.provider)();
+  }
+
   private buildProvider = () => {
     if (!this.provider) {
       throw new Error(ProviderErrorsEnum.notInitialized);
@@ -68,64 +60,6 @@ export class WebviewProviderStrategy {
     provider.cancelLogin = this.cancelLogin;
 
     return provider;
-  };
-
-  private initialize = () => {
-    if (this.address) {
-      return;
-    }
-
-    const address = getAddress();
-    if (!address) {
-      return;
-    }
-
-    this.address = address;
-  };
-
-  private login = async (options?: {
-    callbackUrl?: string;
-    token?: string;
-  }) => {
-    if (!this.provider || !this._login) {
-      throw new Error(ProviderErrorsEnum.notInitialized);
-    }
-
-    this.cancelLogin();
-
-    try {
-      const { address, signature } = await withAbortableLogin({
-        loginAbortController: this.loginAbortController,
-        setLoginAbortController: (controller) => {
-          this.loginAbortController = controller;
-        },
-        loginOperation: () =>
-          this._login?.(options) as Promise<{
-            address: string;
-            signature?: string;
-          }>
-      });
-
-      this.loginAbortController = null;
-      return {
-        address: address,
-        signature: signature ?? ''
-      };
-    } catch (error) {
-      this.loginAbortController = null;
-      throw error;
-    }
-  };
-
-  public cancelLogin = () => {
-    if (this.loginAbortController) {
-      this.loginAbortController.abort();
-      this.loginAbortController = null;
-    }
-
-    if (this.provider && this.provider.cancelAction) {
-      this.provider.cancelAction();
-    }
   };
 
   private signTransactions = async (transactions: Transaction[]) => {

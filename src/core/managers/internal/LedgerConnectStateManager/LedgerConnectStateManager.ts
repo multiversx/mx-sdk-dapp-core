@@ -140,7 +140,7 @@ export class LedgerConnectStateManager extends SidePanelBaseManager<
       onCancel
     );
     this.eventBus.subscribe(
-      LedgerConnectEventsEnum.UI_DISCONECTED,
+      LedgerConnectEventsEnum.UI_DISCONNECTED,
       this.destroy.bind(this)
     );
   }
@@ -159,7 +159,7 @@ export class LedgerConnectStateManager extends SidePanelBaseManager<
       onCancel
     );
     this.eventBus.unsubscribe(
-      LedgerConnectEventsEnum.UI_DISCONECTED,
+      LedgerConnectEventsEnum.UI_DISCONNECTED,
       this.destroy.bind(this)
     );
   }

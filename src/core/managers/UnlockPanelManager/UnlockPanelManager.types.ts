@@ -9,5 +9,5 @@ export enum UnlockPanelEventsEnum {
 
 export interface IUnlockPanel {
   isOpen: boolean;
-  allowedProviders?: ProviderTypeEnum[];
+  allowedProviders?: ProviderTypeEnum[] | null;
 }

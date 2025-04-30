@@ -15,28 +15,19 @@ import { ProviderErrorsEnum } from 'types/provider.types';
 import { IFrameProviderType } from './types';
 import { getPendingTransactionsHandlers } from '../helpers/getPendingTransactionsHandlers';
 import { signMessage } from '../helpers/signMessage/signMessage';
-import { withAbortableLogin } from '../helpers/withAbortableLogin/withAbortableLogin';
-import { cancelLogin } from '../helpers/cancelLogin/cancelLogin';
+import { BaseProviderStrategy } from '../BaseProviderStrategy/BaseProviderStrategy';
 
-export class IFrameProviderStrategy {
+export class IFrameProviderStrategy extends BaseProviderStrategy {
   private provider: IframeProvider | null = null;
-  private address?: string;
   private type: IframeLoginTypes | null = null;
   private _signTransactions:
     | ((transactions: Transaction[]) => Promise<Transaction[]>)
     | null = null;
   private _signMessage: ((message: Message) => Promise<Message>) | null = null;
-  private _login:
-    | ((options?: {
-        callbackUrl?: string;
-        token?: string;
-      }) => Promise<{ address: string; signature?: string }>)
-    | null = null;
-  private loginAbortController: AbortController | null = null;
 
   constructor({ type, address }: IFrameProviderType) {
+    super(address);
     this.type = type;
-    this.address = address;
   }
 
   public createProvider = async (): Promise<IProvider> => {
@@ -61,6 +52,10 @@ export class IFrameProviderStrategy {
     return this.buildProvider();
   };
 
+  protected override cancelAction() {
+    return this.provider?.cancelAction?.bind(this.provider)();
+  }
+
   private buildProvider = () => {
     const { address } = getAccount();
 
@@ -76,61 +71,6 @@ export class IFrameProviderStrategy {
     provider.cancelLogin = this.cancelLogin;
 
     return provider;
-  };
-
-  private initialize = () => {
-    if (this.address) {
-      return;
-    }
-
-    const address = getAddress();
-
-    if (!address) {
-      return;
-    }
-
-    this.address = address;
-  };
-
-  private login = async (options?: {
-    callbackUrl?: string;
-    token?: string;
-  }) => {
-    if (!this.provider || !this._login) {
-      throw new Error(ProviderErrorsEnum.notInitialized);
-    }
-
-    this.cancelLogin();
-
-    try {
-      const { address, signature } = await withAbortableLogin({
-        loginAbortController: this.loginAbortController,
-        setLoginAbortController: (controller) => {
-          this.loginAbortController = controller;
-        },
-        loginOperation: () =>
-          this._login?.(options) as Promise<{
-            address: string;
-            signature?: string;
-          }>
-      });
-
-      this.loginAbortController = null;
-      return { address, signature: signature ?? '' };
-    } catch (error) {
-      this.loginAbortController = null;
-      throw error;
-    }
-  };
-
-  public cancelLogin = () => {
-    cancelLogin({
-      loginAbortController: this.loginAbortController,
-      resetLoginAbortController: () => {
-        this.loginAbortController = null;
-      },
-      onAfterCancel: this.provider?.cancelAction?.bind(this.provider)
-    });
   };
 
   private signTransactions = async (transactions: Transaction[]) => {
