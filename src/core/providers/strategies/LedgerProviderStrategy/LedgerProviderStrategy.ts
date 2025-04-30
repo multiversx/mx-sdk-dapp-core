@@ -108,7 +108,7 @@ export class LedgerProviderStrategy extends BaseProviderStrategy {
     };
   };
 
-  public override getLoginOperation = async (options?: LoginOptionsTypes) => {
+  public override loginOperation = async (options?: LoginOptionsTypes) => {
     if (!this.provider) {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }

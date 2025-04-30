@@ -19,7 +19,9 @@ export abstract class BaseProviderStrategy {
     this.address = address || '';
   }
 
-  public login = async (options?: LoginOptionsTypes) => {
+  public login = async (
+    options?: LoginOptionsTypes
+  ): Promise<{ address: string; signature: string }> => {
     if (!this._login) {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
@@ -43,7 +45,7 @@ export abstract class BaseProviderStrategy {
       });
 
       const { address, signature } = await Promise.race([
-        this.getLoginOperation(options),
+        this.loginOperation(options),
         abortPromise
       ]);
 
@@ -65,7 +67,7 @@ export abstract class BaseProviderStrategy {
     this.loginAbortController = null;
   };
 
-  protected getLoginOperation = async (
+  protected loginOperation = async (
     options?: LoginOptionsTypes
   ): Promise<{ address: string; signature: string }> => {
     if (!this._login) {
