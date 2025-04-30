@@ -1,5 +1,6 @@
 import { HWProvider } from '@multiversx/sdk-hw-provider/out';
 import { BigNumber } from 'bignumber.js';
+
 import { ACCOUNTS_ENDPOINT } from 'apiCalls';
 import { LedgerConnectStateManager } from 'core/managers/internal/LedgerConnectStateManager/LedgerConnectStateManager';
 import { LedgerConnectEventsEnum } from 'core/managers/internal/LedgerConnectStateManager/types';
@@ -10,6 +11,7 @@ import { setLedgerAccount } from 'store/actions';
 import { setLedgerLogin } from 'store/actions/loginInfo/loginInfoActions';
 import { ProviderErrorsEnum } from 'types';
 import { getExplorerLink } from 'utils/transactions/getExplorerLink';
+
 import { getAuthTokenText } from './getAuthTokenText';
 import { updateAccountsList } from './updateAccountsList';
 import {

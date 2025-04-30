@@ -1,12 +1,9 @@
 import type { CustomElementsDefineOptions } from '@multiversx/sdk-dapp-core-ui/dist/loader';
-export type { MvxLedgerConnectPanel } from '@multiversx/sdk-dapp-core-ui/dist/web-components/mvx-ledger-connect-panel';
 export type { MvxLedgerFlow } from '@multiversx/sdk-dapp-core-ui/dist/web-components/mvx-ledger-flow';
 export type { MvxSignTransactionsPanel } from '@multiversx/sdk-dapp-core-ui/dist/web-components/mvx-sign-transactions-panel';
-export type { MvxWalletConnectPanel } from '@multiversx/sdk-dapp-core-ui/dist/web-components/mvx-wallet-connect-panel';
 export type { MvxWalletConnectProvider } from '@multiversx/sdk-dapp-core-ui/dist/web-components/mvx-wallet-connect-provider';
-export type { IWalletConnectPanelData } from '@multiversx/sdk-dapp-core-ui/dist/types/components/functional/wallet-connect/wallet-connect-panel/wallet-connect-panel.types';
 export type { MvxPendingTransactionsPanel } from '@multiversx/sdk-dapp-core-ui/dist/web-components/mvx-pending-transactions-panel';
-export { type IPendingTransactionsPanelData } from '@multiversx/sdk-dapp-core-ui/dist/types/components/functional/pending-transactions-panel/pending-transactions-panel.types.d';
+export type { IPendingTransactionsPanelData } from '@multiversx/sdk-dapp-core-ui/dist/types/components/functional/pending-transactions-panel/pending-transactions-panel.types.d';
 export type { MvxNotificationsFeed } from '@multiversx/sdk-dapp-core-ui/dist/web-components/mvx-notifications-feed';
 export type { MvxToastList } from '@multiversx/sdk-dapp-core-ui/dist/web-components/mvx-toast-list';
 export type { IEventBus } from '@multiversx/sdk-dapp-core-ui/dist/types/utils/EventBus';
