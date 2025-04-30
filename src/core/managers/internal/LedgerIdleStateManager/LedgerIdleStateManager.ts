@@ -5,7 +5,7 @@ import {
 } from 'core/providers/helpers/accountProvider';
 import { LedgerProviderStrategy } from 'core/providers/strategies/LedgerProviderStrategy/LedgerProviderStrategy';
 import { ProviderTypeEnum } from 'core/providers/types/providerFactory.types';
-import { createCustomToast } from 'store/actions';
+import { createCustomToast } from 'store/actions/toasts/toastsActions';
 import { accountSelector, loginInfoSelector } from 'store/selectors';
 import { isSidePanelOpenSelector } from 'store/selectors/uiSelectors';
 import { getState, getStore } from 'store/store';
@@ -35,13 +35,13 @@ export class LedgerIdleStateManager {
     this.startCheckConnectionLoop();
   };
 
-  private shouldCheckConnection = (): boolean => {
+  private readonly shouldCheckConnection = (): boolean => {
     const { providerType } = loginInfoSelector(this.store.getState());
     const address = accountSelector(this.store.getState()).address;
     return Boolean(providerType === ProviderTypeEnum.ledger && address);
   };
 
-  private startCheckConnectionLoop = () => {
+  private readonly startCheckConnectionLoop = () => {
     if (this.connectionCheckInterval) {
       return;
     }
@@ -76,7 +76,7 @@ export class LedgerIdleStateManager {
     }, LEDGER_IDLE_STATE_CHECK_INTERVAL);
   };
 
-  private getLedgerAddress = async () => {
+  private readonly getLedgerAddress = async () => {
     if (!this.shouldCheckConnection()) {
       return;
     }
@@ -86,7 +86,7 @@ export class LedgerIdleStateManager {
     return address;
   };
 
-  private reconnectProvider = async () => {
+  private readonly reconnectProvider = async () => {
     if (!this.shouldCheckConnection()) {
       return;
     }
