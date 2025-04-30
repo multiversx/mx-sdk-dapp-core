@@ -67,7 +67,7 @@ export abstract class BaseProviderStrategy {
 
   protected getLoginOperation = async (
     options?: LoginOptionsTypes
-  ): Promise<IProviderAccount> => {
+  ): Promise<{ address: string; signature: string }> => {
     if (!this._login) {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
