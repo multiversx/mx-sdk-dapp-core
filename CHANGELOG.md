@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+- [Fixed multisig login](https://github.com/multiversx/mx-sdk-dapp-core/pull/150)
 - [Fixed Ledger address table pagination transition state](https://github.com/multiversx/mx-sdk-dapp-core/pull/149)
 - [Removed unnecessary next and previous Ledger address table pagination handlers](https://github.com/multiversx/mx-sdk-dapp-core/pull/148)
 - [Added cancel login](https://github.com/multiversx/mx-sdk-dapp-core/pull/147)

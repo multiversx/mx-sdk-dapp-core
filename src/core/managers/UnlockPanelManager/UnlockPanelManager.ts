@@ -11,7 +11,8 @@ import { createUIElement } from 'utils/createUIElement';
 import {
   IUnlockPanel,
   LoginHandlerType,
-  UnlockPanelEventsEnum
+  UnlockPanelEventsEnum,
+  UnlockPanelManagerInitParamsType
 } from './UnlockPanelManager.types';
 
 export class UnlockPanelManager {
@@ -36,17 +37,16 @@ export class UnlockPanelManager {
     return UnlockPanelManager.instance;
   }
 
-  public static init(params: {
-    loginHandler: LoginHandlerType;
-    allowedProviders?: ProviderTypeEnum[] | null;
-  }) {
+  public static init(params: UnlockPanelManagerInitParamsType) {
     this.loginHandler = params.loginHandler;
     this.allowedProviders = params.allowedProviders;
     return this.getInstance();
   }
 
   public async openUnlockPanel() {
-    if (this.data.isOpen) return;
+    if (this.data.isOpen) {
+      return;
+    }
 
     this.data = {
       isOpen: true,
