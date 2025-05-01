@@ -1,7 +1,6 @@
 import { Message, Transaction } from '@multiversx/sdk-core/out';
 import { isBrowserWithPopupConfirmation } from 'constants/browser.constants';
 import { PendingTransactionsEventsEnum } from 'core/managers/internal/PendingTransactionsStateManager/types/pendingTransactions.types';
-import { getAddress } from 'core/methods/account/getAddress';
 import {
   IProvider,
   providerLabels
@@ -11,10 +10,10 @@ import { crossWindowConfigSelector } from 'store/selectors';
 import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
 import { ProviderErrorsEnum } from 'types/provider.types';
+import { BaseProviderStrategy } from '../BaseProviderStrategy/BaseProviderStrategy';
 import { getPendingTransactionsHandlers } from '../helpers/getPendingTransactionsHandlers';
 import { signMessage } from '../helpers/signMessage/signMessage';
 import { guardTransactions } from '../helpers/signTransactions/helpers/guardTransactions/guardTransactions';
-import { BaseProviderStrategy } from '../BaseProviderStrategy/BaseProviderStrategy';
 
 type CrossWindowProviderProps = {
   address?: string;

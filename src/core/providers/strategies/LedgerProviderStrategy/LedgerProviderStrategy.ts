@@ -16,11 +16,11 @@ import { authenticateLedgerAccount } from './helpers/authenticateLedgerAccount';
 import { initializeLedgerProvider } from './helpers/initializeLedgerProvider';
 import { signLedgerMessage } from './helpers/signLedgerMessage';
 import { LedgerConfigType } from './types/ledgerProvider.types';
-import { signTransactions } from '../helpers/signTransactions/signTransactions';
 import {
   BaseProviderStrategy,
   LoginOptionsTypes
 } from '../BaseProviderStrategy/BaseProviderStrategy';
+import { signTransactions } from '../helpers/signTransactions/signTransactions';
 
 export class LedgerProviderStrategy extends BaseProviderStrategy {
   private provider: HWProvider | null = null;

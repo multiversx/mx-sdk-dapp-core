@@ -1,6 +1,6 @@
-import { ProviderErrorsEnum } from 'types/provider.types';
 import { IProviderAccount } from '@multiversx/sdk-wallet-connect-provider/out';
 import { getAddress } from 'core/methods/account/getAddress';
+import { ProviderErrorsEnum } from 'types/provider.types';
 
 export type LoginOptionsTypes = {
   addressIndex?: number;
@@ -44,14 +44,14 @@ export abstract class BaseProviderStrategy {
         });
       });
 
-      const { address, signature } = await Promise.race([
+      const loginResult = await Promise.race([
         this.loginOperation(options),
         abortPromise
       ]);
 
       this.loginAbortController = null;
 
-      return { address, signature };
+      return loginResult;
     } catch (error) {
       this.loginAbortController = null;
       throw error;
@@ -81,6 +81,7 @@ export abstract class BaseProviderStrategy {
     }
 
     return {
+      ...result,
       address: result.address,
       signature: result.signature ?? ''
     };
