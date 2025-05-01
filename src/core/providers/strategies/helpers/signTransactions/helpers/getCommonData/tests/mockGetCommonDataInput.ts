@@ -95,6 +95,7 @@ export const mockGetCommonDataInput = {
   address: testAddress,
   shard: 0,
   signedIndexes: [],
+  providerName: 'Ledger',
   parsedTransactionsByDataField: {
     '5745474c442d613238633539@@0de0b6b3a7640000': {
       tokenId: 'WEGLD-a28c59',

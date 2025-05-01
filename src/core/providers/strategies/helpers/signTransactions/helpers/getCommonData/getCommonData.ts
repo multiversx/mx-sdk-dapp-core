@@ -34,6 +34,7 @@ export type GetCommonDataPropsType = {
     initialGasPrice: number;
     ppu: ISignTransactionsPanelCommonData['ppu'];
   };
+  providerName: string;
 };
 
 export async function getCommonData({
@@ -46,10 +47,11 @@ export async function getCommonData({
   address,
   shard,
   signedIndexes = [],
-  parsedTransactionsByDataField
+  parsedTransactionsByDataField,
+  providerName
 }: GetCommonDataPropsType) {
   const currentTransaction = allTransactions[currentScreenIndex];
-  const sender = currentTransaction?.transaction?.getSender().toString();
+  const sender = currentTransaction?.transaction?.sender.toString();
   const transaction = currentTransaction?.transaction;
 
   let tokenTransaction: {
@@ -164,7 +166,8 @@ export async function getCommonData({
     scCall: getScCall(txInfo?.transactionTokenInfo),
     needsSigning:
       txInfo?.needsSigning && !signedIndexes.includes(currentScreenIndex),
-    isEditable: txInfo?.needsSigning
+    isEditable: txInfo?.needsSigning,
+    providerName
   };
 
   return { commonData, tokenTransaction, fungibleTransaction };

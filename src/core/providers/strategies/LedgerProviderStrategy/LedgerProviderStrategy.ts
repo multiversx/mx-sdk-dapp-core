@@ -152,7 +152,8 @@ export class LedgerProviderStrategy extends BaseProviderStrategy {
 
     const signedTransactions = await signTransactions({
       transactions,
-      handleSign: this._signTransactions
+      handleSign: this._signTransactions,
+      providerName: 'Ledger'
     });
     return signedTransactions;
   };

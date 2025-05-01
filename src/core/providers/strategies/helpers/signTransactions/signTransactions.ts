@@ -23,12 +23,14 @@ type SignTransactionsParamsType = {
   transactions?: Transaction[];
   handleSign: IProvider['signTransactions'];
   guardTransactions?: typeof getGuardedTransactions;
+  providerName: string;
 };
 
 export async function signTransactions({
   transactions = [],
   handleSign,
-  guardTransactions = getGuardedTransactions
+  guardTransactions = getGuardedTransactions,
+  providerName
 }: SignTransactionsParamsType): Promise<Transaction[]> {
   const {
     account: { address, shard }
@@ -76,7 +78,8 @@ export async function signTransactions({
           address,
           shard,
           signedIndexes,
-          parsedTransactionsByDataField
+          parsedTransactionsByDataField,
+          providerName
         });
 
       if (tokenTransaction) {
@@ -112,7 +115,7 @@ export async function signTransactions({
           gasPriceData: manager.ppuMap[currentNonce]
         });
 
-        const newTransaction = Transaction.fromPlainObject({
+        const newTransaction = Transaction.newFromPlainObject({
           ...plainTransaction,
           gasPrice: newGasPrice
         });
