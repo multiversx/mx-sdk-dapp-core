@@ -15,31 +15,39 @@ export interface IUnlockPanel {
   allowedProviders?: ProviderTypeEnum[] | null;
 }
 
-/**
- * Handle the full login process
- * @example
- * ```ts
-    async ({ type, anchor }: IProviderFactory) => {
-      const provider = await ProviderFactory.create({
-        type,
-        anchor
-      });
-      await provider?.login();
-      navigate('/dashboard');
-    };
- *  ```
- */
-type LoginFunctonType = ({ type, anchor }: IProviderFactory) => Promise<void>;
+export type LoginFunctonType = ({
+  type,
+  anchor
+}: IProviderFactory) => Promise<void>;
 
-/**
- * Callback to be executed after login is performed
- * @example
- * ```ts
-    () => {
-      navigate('/dashboard');
-    };
- *  ```
- */
-type LoginCallbackType = () => void;
+export type LoginCallbackType = () => void;
 
 export type LoginHandlerType = LoginFunctonType | LoginCallbackType;
+
+export type UnlockPanelManagerInitParamsType = {
+  /**
+     * Handle the full login process or provide a callback to be executed after login is performed
+     * @example
+     * ```ts
+        async ({ type, anchor }: IProviderFactory) => {
+          const provider = await ProviderFactory.create({
+            type,
+            anchor
+          });
+          await provider?.login();
+          navigate('/dashboard');
+        };
+
+        // or
+
+        () => {
+          navigate('/dashboard');
+        };
+   *  ```
+   */
+  loginHandler: LoginHandlerType;
+  /**
+   * List of allowed providers
+   */
+  allowedProviders?: ProviderTypeEnum[] | null;
+};
