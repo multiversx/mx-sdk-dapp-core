@@ -24,28 +24,23 @@ export interface IProviderConfig {
 }
 
 export enum ProviderTypeEnum {
-  iframe = 'iframe',
   crossWindow = 'crossWindow',
   extension = 'extension',
   walletConnect = 'walletConnect',
   ledger = 'ledger',
-  opera = 'opera',
   metamask = 'metamask',
   passkey = 'passkey',
   webview = 'webview',
   none = ''
 }
 
-export const providerLabels: Record<ProviderTypeEnum, string> = {
-  [ProviderTypeEnum.iframe]: 'Linked Wallet',
-  [ProviderTypeEnum.crossWindow]: 'Web Wallet',
-  [ProviderTypeEnum.extension]: 'De-Fi Wallet',
-  [ProviderTypeEnum.walletConnect]: 'xPortal Wallet',
-  [ProviderTypeEnum.ledger]: 'Ledger Device',
-  [ProviderTypeEnum.opera]: 'Opera Wallet',
-  [ProviderTypeEnum.metamask]: 'MetaMask Wallet',
-  [ProviderTypeEnum.passkey]: 'Passkey Wallet',
-  [ProviderTypeEnum.webview]: 'App',
+export const providerLabels: Record<string, string> = {
+  [ProviderTypeEnum.crossWindow]: 'MultiversX Web Wallet',
+  [ProviderTypeEnum.extension]: 'MultiversX Wallet Extension',
+  [ProviderTypeEnum.walletConnect]: 'xPortal App',
+  [ProviderTypeEnum.ledger]: 'Ledger',
+  [ProviderTypeEnum.metamask]: 'MetaMask Snap',
+  [ProviderTypeEnum.passkey]: 'Passkey',
   [ProviderTypeEnum.none]: ''
 };
 
@@ -56,11 +51,14 @@ export interface IProviderFactory<
   anchor?: HTMLElement;
 }
 
-export interface ICustomProvider<
+export interface ICustomProviderBase<
   T extends ProviderTypeEnum = ProviderTypeEnum
 > {
   name: string;
   type: T[keyof T];
-  icon: string;
+  iconUrl?: string;
+}
+export interface ICustomProvider<T extends ProviderTypeEnum = ProviderTypeEnum>
+  extends ICustomProviderBase<T> {
   constructor: (address?: string) => Promise<IProvider>;
 }

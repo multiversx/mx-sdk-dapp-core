@@ -1,7 +1,9 @@
 import { UITagsEnum } from 'constants/UITags.enum';
 import { ProviderFactory } from 'core/providers/ProviderFactory';
 import {
+  ICustomProviderBase,
   IProviderFactory,
+  providerLabels,
   ProviderTypeEnum
 } from 'core/providers/types/providerFactory.types';
 import { MvxUnlockPanel } from 'lib/sdkDappCoreUi';
@@ -9,6 +11,7 @@ import { IEventBus } from 'types/manager.types';
 import { ProviderErrorsEnum } from 'types/provider.types';
 import { createUIElement } from 'utils/createUIElement';
 import {
+  AllowedProviderType,
   IUnlockPanel,
   LoginHandlerType,
   UnlockPanelEventsEnum,
@@ -18,7 +21,7 @@ import {
 export class UnlockPanelManager {
   private static instance: UnlockPanelManager;
   private static loginHandler: LoginHandlerType | null = null;
-  private static allowedProviders?: ProviderTypeEnum[] | null = null;
+  private static allowedProviders?: AllowedProviderType[] | null = null;
 
   private data: IUnlockPanel = { isOpen: false };
   private unlockPanelElement: MvxUnlockPanel | null = null;
@@ -50,7 +53,7 @@ export class UnlockPanelManager {
 
     this.data = {
       isOpen: true,
-      allowedProviders: UnlockPanelManager.allowedProviders
+      allowedProviders: UnlockPanelManager.getProvidersList()
     };
 
     await this.ensureUnlockPanelElementExists();
@@ -133,5 +136,43 @@ export class UnlockPanelManager {
   private isSimpleLoginCallback(login: LoginHandlerType): login is () => void {
     const takesZeroArguments = login.length === 0;
     return takesZeroArguments;
+  }
+
+  private static getProvidersList(): ICustomProviderBase[] {
+    const customProviders = ProviderFactory.customProviders;
+
+    const enumProviderTypes = Object.values(ProviderTypeEnum).filter(
+      (type) =>
+        type !== ProviderTypeEnum.none && type !== ProviderTypeEnum.webview
+    );
+
+    const allAvailableTypes = [
+      ...enumProviderTypes,
+      ...customProviders.map((p) => p.type)
+    ];
+
+    const allowedTypes = this.allowedProviders
+      ? this.allowedProviders.filter((type) => allAvailableTypes.includes(type))
+      : allAvailableTypes;
+
+    const allowedTypeSet = new Set(allowedTypes);
+
+    const result: ICustomProviderBase[] = Array.from(allowedTypeSet).map(
+      (type) => {
+        const custom = customProviders.find(
+          (customProvider) => customProvider.type === type
+        );
+        if (custom) {
+          return custom;
+        }
+
+        return {
+          name: providerLabels[type as ProviderTypeEnum] ?? type,
+          type
+        };
+      }
+    );
+
+    return result;
   }
 }
