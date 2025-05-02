@@ -1,7 +1,7 @@
 import { UITagsEnum } from 'constants/UITags.enum';
 import { ProviderFactory } from 'core/providers/ProviderFactory';
 import {
-  ICustomProviderBase,
+  IProviderBase,
   IProviderFactory,
   ProviderTypeEnum
 } from 'core/providers/types/providerFactory.types';
@@ -138,7 +138,7 @@ export class UnlockPanelManager {
     return takesZeroArguments;
   }
 
-  private static getProvidersList(): ICustomProviderBase[] {
+  private static getProvidersList(): IProviderBase[] {
     const customProviders = ProviderFactory.customProviders;
 
     const enumProviderTypes = Object.values(ProviderTypeEnum).filter(
@@ -157,21 +157,19 @@ export class UnlockPanelManager {
         )
       : allAvailableProviderTypes;
 
-    const providerList: ICustomProviderBase[] = allowedProviderTypes.map(
-      (type) => {
-        const custom = customProviders.find(
-          (customProvider) => customProvider.type === type
-        );
-        if (custom) {
-          return custom;
-        }
-
-        return {
-          name: providerLabels[type as ProviderTypeEnum] ?? type,
-          type
-        };
+    const providerList: IProviderBase[] = allowedProviderTypes.map((type) => {
+      const custom = customProviders.find(
+        (customProvider) => customProvider.type === type
+      );
+      if (custom) {
+        return custom;
       }
-    );
+
+      return {
+        name: providerLabels[type as ProviderTypeEnum] ?? type,
+        type
+      };
+    });
 
     return providerList;
   }

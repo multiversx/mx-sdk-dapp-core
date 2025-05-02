@@ -1,6 +1,6 @@
 import {
   ICustomProvider,
-  ICustomProviderBase,
+  IProviderBase,
   IProviderFactory,
   ProviderTypeEnum
 } from 'core/providers/types/providerFactory.types';
@@ -14,7 +14,7 @@ export enum UnlockPanelEventsEnum {
 
 export interface IUnlockPanel {
   isOpen: boolean;
-  allowedProviders?: ICustomProviderBase[] | null;
+  allowedProviders?: IProviderBase[] | null;
 }
 
 export type LoginFunctonType = ({

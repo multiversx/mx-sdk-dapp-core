@@ -41,14 +41,12 @@ export interface IProviderFactory<
   anchor?: HTMLElement;
 }
 
-export interface ICustomProviderBase<
-  T extends ProviderTypeEnum = ProviderTypeEnum
-> {
+export interface IProviderBase<T extends ProviderTypeEnum = ProviderTypeEnum> {
   name: string;
   type: T[keyof T];
   iconUrl?: string;
 }
 export interface ICustomProvider<T extends ProviderTypeEnum = ProviderTypeEnum>
-  extends ICustomProviderBase<T> {
+  extends IProviderBase<T> {
   constructor: (address?: string) => Promise<IProvider>;
 }
