@@ -3,7 +3,6 @@ import { ProviderFactory } from 'core/providers/ProviderFactory';
 import {
   ICustomProviderBase,
   IProviderFactory,
-  providerLabels,
   ProviderTypeEnum
 } from 'core/providers/types/providerFactory.types';
 import { MvxUnlockPanel } from 'lib/sdkDappCoreUi';
@@ -17,6 +16,7 @@ import {
   UnlockPanelEventsEnum,
   UnlockPanelManagerInitParamsType
 } from './UnlockPanelManager.types';
+import { providerLabels } from 'constants/providerFactory.constants';
 
 export class UnlockPanelManager {
   private static instance: UnlockPanelManager;
@@ -146,29 +146,33 @@ export class UnlockPanelManager {
         type !== ProviderTypeEnum.none && type !== ProviderTypeEnum.webview
     );
 
-    const allAvailableTypes = [
+    const allAvailableProviderTypes = [
       ...enumProviderTypes,
       ...customProviders.map((p) => p.type)
     ];
 
-    const allowedTypes = this.allowedProviders
-      ? this.allowedProviders.filter((type) => allAvailableTypes.includes(type))
-      : allAvailableTypes;
+    const allowedProviderTypes = this.allowedProviders
+      ? this.allowedProviders.filter((type) =>
+          allAvailableProviderTypes.includes(type)
+        )
+      : allAvailableProviderTypes;
 
-    const result: ICustomProviderBase[] = allowedTypes.map((type) => {
-      const custom = customProviders.find(
-        (customProvider) => customProvider.type === type
-      );
-      if (custom) {
-        return custom;
+    const providerList: ICustomProviderBase[] = allowedProviderTypes.map(
+      (type) => {
+        const custom = customProviders.find(
+          (customProvider) => customProvider.type === type
+        );
+        if (custom) {
+          return custom;
+        }
+
+        return {
+          name: providerLabels[type as ProviderTypeEnum] ?? type,
+          type
+        };
       }
+    );
 
-      return {
-        name: providerLabels[type as ProviderTypeEnum] ?? type,
-        type
-      };
-    });
-
-    return result;
+    return providerList;
   }
 }
