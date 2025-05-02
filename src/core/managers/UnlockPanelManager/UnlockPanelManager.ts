@@ -155,23 +155,19 @@ export class UnlockPanelManager {
       ? this.allowedProviders.filter((type) => allAvailableTypes.includes(type))
       : allAvailableTypes;
 
-    const allowedTypeSet = new Set(allowedTypes);
-
-    const result: ICustomProviderBase[] = Array.from(allowedTypeSet).map(
-      (type) => {
-        const custom = customProviders.find(
-          (customProvider) => customProvider.type === type
-        );
-        if (custom) {
-          return custom;
-        }
-
-        return {
-          name: providerLabels[type as ProviderTypeEnum] ?? type,
-          type
-        };
+    const result: ICustomProviderBase[] = allowedTypes.map((type) => {
+      const custom = customProviders.find(
+        (customProvider) => customProvider.type === type
+      );
+      if (custom) {
+        return custom;
       }
-    );
+
+      return {
+        name: providerLabels[type as ProviderTypeEnum] ?? type,
+        type
+      };
+    });
 
     return result;
   }
