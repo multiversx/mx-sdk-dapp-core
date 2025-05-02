@@ -2,10 +2,8 @@ import { Message, Transaction } from '@multiversx/sdk-core/out';
 import { ExtensionProvider } from '@multiversx/sdk-extension-provider/out/extensionProvider';
 import { PendingTransactionsEventsEnum } from 'core/managers/internal/PendingTransactionsStateManager/types/pendingTransactions.types';
 
-import {
-  IProvider,
-  providerLabels
-} from 'core/providers/types/providerFactory.types';
+import { IProvider } from 'core/providers/types/providerFactory.types';
+import { providerLabels } from 'constants/providerFactory.constants';
 import { ProviderErrorsEnum } from 'types/provider.types';
 import { getPendingTransactionsHandlers } from '../helpers/getPendingTransactionsHandlers';
 import { signMessage } from '../helpers/signMessage/signMessage';
