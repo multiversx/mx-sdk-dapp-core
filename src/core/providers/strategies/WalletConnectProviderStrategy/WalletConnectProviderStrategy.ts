@@ -12,10 +12,8 @@ import { WalletConnectStateManager } from 'core/managers/internal/WalletConnectS
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import { getAccountProvider } from 'core/providers/helpers/accountProvider';
 import { getPendingTransactionsHandlers } from 'core/providers/strategies/helpers';
-import {
-  IProvider,
-  providerLabels
-} from 'core/providers/types/providerFactory.types';
+import { IProvider } from 'core/providers/types/providerFactory.types';
+import { providerLabels } from 'constants/providerFactory.constants';
 import { defineCustomElements, IEventBus } from 'lib/sdkDappCoreUi';
 import { logoutAction } from 'store/actions';
 import {

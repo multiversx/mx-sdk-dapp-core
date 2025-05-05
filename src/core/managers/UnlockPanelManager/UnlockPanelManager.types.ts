@@ -1,4 +1,6 @@
 import {
+  ICustomProvider,
+  IProviderBase,
   IProviderFactory,
   ProviderTypeEnum
 } from 'core/providers/types/providerFactory.types';
@@ -12,13 +14,19 @@ export enum UnlockPanelEventsEnum {
 
 export interface IUnlockPanel {
   isOpen: boolean;
-  allowedProviders?: ProviderTypeEnum[] | null;
+  allowedProviders?: IProviderBase[] | null;
 }
 
 export type LoginFunctonType = ({
   type,
   anchor
 }: IProviderFactory) => Promise<void>;
+
+export type AllowedProviderType = ICustomProvider['type'];
+
+export type CustomProviderViewType<
+  T extends ProviderTypeEnum = ProviderTypeEnum
+> = Omit<ICustomProvider<T>, 'constructor'>;
 
 export type LoginCallbackType = () => void;
 
@@ -49,5 +57,5 @@ export type UnlockPanelManagerInitParamsType = {
   /**
    * List of allowed providers
    */
-  allowedProviders?: ProviderTypeEnum[] | null;
+  allowedProviders?: AllowedProviderType[] | null;
 };
