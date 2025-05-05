@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [[0.0.0-alpha.20](https://github.com/multiversx/mx-sdk-dapp-core/pull/155)] - 2025-05-05
+
 - [Added custom provider side panel integration](https://github.com/multiversx/mx-sdk-dapp-core/pull/154)
 - [Added providers customization support](https://github.com/multiversx/mx-sdk-dapp-core/pull/153)
 - [Fixed multisig login](https://github.com/multiversx/mx-sdk-dapp-core/pull/150)
