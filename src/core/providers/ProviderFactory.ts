@@ -100,7 +100,10 @@ export class ProviderFactory {
 
         for (const customProvider of this._customProviders) {
           if (customProvider.type === type) {
-            createdProvider = await customProvider.constructor(address);
+            createdProvider = await customProvider.constructor({
+              address,
+              anchor
+            });
           }
         }
         break;

@@ -48,5 +48,8 @@ export interface IProviderBase<T extends ProviderTypeEnum = ProviderTypeEnum> {
 }
 export interface ICustomProvider<T extends ProviderTypeEnum = ProviderTypeEnum>
   extends IProviderBase<T> {
-  constructor: (address?: string) => Promise<IProvider>;
+  constructor: (options?: {
+    address?: string;
+    anchor?: HTMLElement;
+  }) => Promise<IProvider>;
 }
