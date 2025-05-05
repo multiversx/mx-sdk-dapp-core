@@ -39,7 +39,7 @@ export interface ISignTransactionsPanelCommonData {
   isEditable?: boolean;
   highlight?: string | null;
   scCall?: string | null;
-  providerName?: string;
+  providerName: string;
 }
 
 export interface ISignTransactionsPanelData {

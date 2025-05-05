@@ -4,6 +4,7 @@ import {
   FungibleTransactionType,
   ISignTransactionsPanelCommonData
 } from 'core/managers/internal/SignTransactionsStateManager/types';
+import { getAccountProvider } from 'core/providers/helpers/accountProvider';
 import { formatAmount } from 'lib/sdkDappUtils';
 import { NetworkType } from 'types/network.types';
 import { NftEnumType } from 'types/tokens.types';
@@ -11,6 +12,7 @@ import {
   MultiSignTransactionType,
   TransactionDataTokenType
 } from 'types/transactions.types';
+import { capitalize } from 'utils/operations/capitalize';
 import { getUsdValue } from 'utils/operations/getUsdValue';
 import { getFeeData } from '../getFeeData';
 import { getExtractTransactionsInfo } from './helpers/getExtractTransactionsInfo';
@@ -34,7 +36,6 @@ export type GetCommonDataPropsType = {
     initialGasPrice: number;
     ppu: ISignTransactionsPanelCommonData['ppu'];
   };
-  providerName: string;
 };
 
 export async function getCommonData({
@@ -47,8 +48,7 @@ export async function getCommonData({
   address,
   shard,
   signedIndexes = [],
-  parsedTransactionsByDataField,
-  providerName
+  parsedTransactionsByDataField
 }: GetCommonDataPropsType) {
   const currentTransaction = allTransactions[currentScreenIndex];
   const sender = currentTransaction?.transaction?.sender.toString();
@@ -147,7 +147,11 @@ export async function getCommonData({
   const gasPrice = getRecommendedGasPrice({
     transaction: plainTransaction,
     gasPriceData
-  }).toString();
+  });
+
+  const provider = getAccountProvider();
+  const providerType = provider.getType();
+  const providerName = capitalize(providerType as string);
 
   const commonData: ISignTransactionsPanelCommonData = {
     receiver: plainTransaction.receiver.toString(),

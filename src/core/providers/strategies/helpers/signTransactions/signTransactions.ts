@@ -23,14 +23,12 @@ type SignTransactionsParamsType = {
   transactions?: Transaction[];
   handleSign: IProvider['signTransactions'];
   guardTransactions?: typeof getGuardedTransactions;
-  providerName: string;
 };
 
 export async function signTransactions({
   transactions = [],
   handleSign,
-  guardTransactions = getGuardedTransactions,
-  providerName
+  guardTransactions = getGuardedTransactions
 }: SignTransactionsParamsType): Promise<Transaction[]> {
   const {
     account: { address, shard }
@@ -78,8 +76,7 @@ export async function signTransactions({
           address,
           shard,
           signedIndexes,
-          parsedTransactionsByDataField,
-          providerName
+          parsedTransactionsByDataField
         });
 
       if (tokenTransaction) {
