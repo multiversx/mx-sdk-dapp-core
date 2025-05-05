@@ -79,7 +79,7 @@ export abstract class SidePanelBaseManager<TElement, TData, TEventEnum> {
     this.setIsUnlockPanelOpen(false);
 
     if (!props?.isFromUserclick) {
-      this.publishEvent(this.getCloseEventName());
+      // this.publishEvent(this.getCloseEventName());
     }
   }
 

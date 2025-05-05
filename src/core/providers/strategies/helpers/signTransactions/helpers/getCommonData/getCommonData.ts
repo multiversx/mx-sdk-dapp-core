@@ -156,7 +156,7 @@ export async function getCommonData({
   const commonData: ISignTransactionsPanelCommonData = {
     receiver: plainTransaction.receiver.toString(),
     data: currentTransaction.transaction.getData().toString(),
-    gasPrice,
+    gasPrice: gasPrice.toString(),
     gasLimit: plainTransaction.gasLimit.toString(),
     ppu: gasPriceData.ppu,
     ppuOptions,
