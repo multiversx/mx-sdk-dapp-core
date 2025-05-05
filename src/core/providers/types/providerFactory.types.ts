@@ -11,6 +11,7 @@ export interface IProvider<T extends ProviderTypeEnum = ProviderTypeEnum>
     [key: string]: unknown;
   }>;
   logout: () => Promise<boolean>;
+  cancelLogin?: () => void;
   setShouldShowConsentPopup?: (shouldShow: boolean) => void;
   getType: () => T[keyof T] | string;
   getAddress(): Promise<string | undefined>;
@@ -23,30 +24,15 @@ export interface IProviderConfig {
 }
 
 export enum ProviderTypeEnum {
-  iframe = 'iframe',
   crossWindow = 'crossWindow',
   extension = 'extension',
   walletConnect = 'walletConnect',
   ledger = 'ledger',
-  opera = 'opera',
   metamask = 'metamask',
   passkey = 'passkey',
   webview = 'webview',
   none = ''
 }
-
-export const providerLabels: Record<ProviderTypeEnum, string> = {
-  [ProviderTypeEnum.iframe]: 'Linked Wallet',
-  [ProviderTypeEnum.crossWindow]: 'Web Wallet',
-  [ProviderTypeEnum.extension]: 'De-Fi Wallet',
-  [ProviderTypeEnum.walletConnect]: 'xPortal Wallet',
-  [ProviderTypeEnum.ledger]: 'Ledger Device',
-  [ProviderTypeEnum.opera]: 'Opera Wallet',
-  [ProviderTypeEnum.metamask]: 'MetaMask Wallet',
-  [ProviderTypeEnum.passkey]: 'Passkey Wallet',
-  [ProviderTypeEnum.webview]: 'App',
-  [ProviderTypeEnum.none]: ''
-};
 
 export interface IProviderFactory<
   T extends ProviderTypeEnum = ProviderTypeEnum
@@ -55,11 +41,15 @@ export interface IProviderFactory<
   anchor?: HTMLElement;
 }
 
-export interface ICustomProvider<
-  T extends ProviderTypeEnum = ProviderTypeEnum
-> {
+export interface IProviderBase<T extends ProviderTypeEnum = ProviderTypeEnum> {
   name: string;
   type: T[keyof T];
-  icon: string;
-  constructor: (address?: string) => Promise<IProvider>;
+  iconUrl?: string;
+}
+export interface ICustomProvider<T extends ProviderTypeEnum = ProviderTypeEnum>
+  extends IProviderBase<T> {
+  constructor: (options?: {
+    address?: string;
+    anchor?: HTMLElement;
+  }) => Promise<IProvider>;
 }

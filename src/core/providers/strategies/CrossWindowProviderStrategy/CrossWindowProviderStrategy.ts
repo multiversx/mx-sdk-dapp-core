@@ -1,16 +1,14 @@
 import { Message, Transaction } from '@multiversx/sdk-core/out';
 import { isBrowserWithPopupConfirmation } from 'constants/browser.constants';
+import { providerLabels } from 'constants/providerFactory.constants';
 import { PendingTransactionsEventsEnum } from 'core/managers/internal/PendingTransactionsStateManager/types/pendingTransactions.types';
-import { getAddress } from 'core/methods/account/getAddress';
-import {
-  IProvider,
-  providerLabels
-} from 'core/providers/types/providerFactory.types';
+import { IProvider } from 'core/providers/types/providerFactory.types';
 import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
 import { crossWindowConfigSelector } from 'store/selectors';
 import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
 import { ProviderErrorsEnum } from 'types/provider.types';
+import { BaseProviderStrategy } from '../BaseProviderStrategy/BaseProviderStrategy';
 import { getPendingTransactionsHandlers } from '../helpers/getPendingTransactionsHandlers';
 import { signMessage } from '../helpers/signMessage/signMessage';
 import { guardTransactions } from '../helpers/signTransactions/helpers/guardTransactions/guardTransactions';
@@ -20,10 +18,9 @@ type CrossWindowProviderProps = {
   walletAddress?: string;
 };
 
-export class CrossWindowProviderStrategy {
+export class CrossWindowProviderStrategy extends BaseProviderStrategy {
   private provider: CrossWindowProvider | null = null;
-  private address: string;
-  private walletAddress?: string;
+  private readonly walletAddress?: string;
   private _signTransactions:
     | ((transactions: Transaction[]) => Promise<Transaction[]>)
     | null = null;
@@ -31,7 +28,7 @@ export class CrossWindowProviderStrategy {
     null;
 
   constructor(config?: CrossWindowProviderProps) {
-    this.address = config?.address || '';
+    super(config?.address);
     this.walletAddress = config?.walletAddress;
   }
 
@@ -47,6 +44,7 @@ export class CrossWindowProviderStrategy {
     // Bind in order to break reference
     this._signTransactions = this.provider.signTransactions.bind(this.provider);
     this._signMessage = this.provider.signMessage.bind(this.provider);
+    this._login = this.provider.login.bind(this.provider);
 
     this.provider.setWalletUrl(this.walletAddress || network.walletAddress);
     this.provider.setAddress(this.address);
@@ -56,32 +54,23 @@ export class CrossWindowProviderStrategy {
     return this.buildProvider();
   };
 
+  protected override cancelAction() {
+    return this.provider?.cancelAction?.bind(this.provider)();
+  }
+
   private buildProvider = () => {
     if (!this.provider) {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
     const provider = this.provider as unknown as IProvider;
-
     provider.setAccount({ address: this.address });
     provider.signTransactions = this.signTransactions;
     provider.signMessage = this.signMessage;
+    provider.login = this.login;
+    provider.cancelLogin = this.cancelLogin;
 
     return provider;
-  };
-
-  private initialize = () => {
-    if (this.address) {
-      return;
-    }
-
-    const address = getAddress();
-
-    if (!address) {
-      return;
-    }
-
-    this.address = address;
   };
 
   private signTransactions = async (transactions: Transaction[]) => {
@@ -145,7 +134,6 @@ export class CrossWindowProviderStrategy {
 
     return signedMessage;
   };
-
   private setPopupConsent = () => {
     const crossWindowDappConfig = crossWindowConfigSelector(getState());
 

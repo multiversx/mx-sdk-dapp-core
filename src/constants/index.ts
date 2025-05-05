@@ -6,3 +6,5 @@ export * from './placeholders.constants';
 export * from './storage.constants';
 export * from './webWalletProvider.constants';
 export * from './window.constants';
+export * from './websocket.constants';
+export * from './providerFactory.constants';

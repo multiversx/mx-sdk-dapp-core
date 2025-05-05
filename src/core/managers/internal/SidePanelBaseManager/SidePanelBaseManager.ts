@@ -1,5 +1,6 @@
 import { UITagsEnum } from 'constants/UITags.enum';
 import { IEventBus } from 'lib/sdkDappCoreUi';
+import { setIsUnlockPanelOpen } from 'store/actions/ui/uiActions';
 import { ProviderErrorsEnum } from 'types/provider.types';
 import { createUIElement } from 'utils/createUIElement';
 
@@ -62,7 +63,7 @@ export abstract class SidePanelBaseManager<TElement, TData, TEventEnum> {
 
     this.data = isDataEmpty ? initialData : { ...initialData, ...data };
 
-    this.isOpen = true;
+    this.setIsUnlockPanelOpen(true);
     this.publishEvent(this.getOpenEventName());
     this.notifyDataUpdate();
   }
@@ -75,7 +76,7 @@ export abstract class SidePanelBaseManager<TElement, TData, TEventEnum> {
     this.data = { ...this.data, shouldClose: true };
     this.notifyDataUpdate();
     this.resetData();
-    this.isOpen = false;
+    this.setIsUnlockPanelOpen(false);
   }
 
   public updateData(newData: Partial<TData>): void {
@@ -84,6 +85,11 @@ export abstract class SidePanelBaseManager<TElement, TData, TEventEnum> {
   }
 
   public async getEventBus(): Promise<IEventBus | null> {
+    // Return eventBus in null state while element is being created
+    if (this.isCreatingElement) {
+      return this.eventBus;
+    }
+
     if (!this.uiElement) {
       // Try to create the UI element again
       await this.createUIElement();
@@ -94,12 +100,9 @@ export abstract class SidePanelBaseManager<TElement, TData, TEventEnum> {
       throw new Error(`Failed to create ${this.getUIElementName()} element`);
     }
 
-    if (!this.eventBus) {
-      // Try to get the event bus from the UI element again
-      this.eventBus = await (
-        this.uiElement as unknown as IUIElement
-      ).getEventBus();
-    }
+    this.eventBus ??= await (
+      this.uiElement as unknown as IUIElement
+    ).getEventBus();
 
     if (!this.eventBus) {
       // The event bus failed to be retrieved
@@ -112,18 +115,17 @@ export abstract class SidePanelBaseManager<TElement, TData, TEventEnum> {
   public async createUIElement(
     anchor: HTMLElement | undefined = this.anchor
   ): Promise<TElement | null> {
-    if (this.uiElement) {
+    if (this.isCreatingElement || this.uiElement) {
       return this.uiElement;
     }
 
     if (!this.isCreatingElement) {
       this.isCreatingElement = true;
 
-      const options = anchor
-        ? { name: this.getUIElementName(), anchor }
-        : { name: this.getUIElementName() };
-
-      const element = await createUIElement<TElement>(options);
+      const element = await createUIElement<TElement>({
+        name: this.getUIElementName(),
+        anchor
+      });
 
       this.uiElement = element || null;
       await this.getEventBus();
@@ -158,8 +160,7 @@ export abstract class SidePanelBaseManager<TElement, TData, TEventEnum> {
       this.uiElement = null;
     }
 
-    this.isOpen = false;
-
+    this.setIsUnlockPanelOpen(false);
     this.unsubscribeFunctions.forEach((unsubscribe) => unsubscribe());
     this.unsubscribeFunctions = [];
   }
@@ -189,8 +190,13 @@ export abstract class SidePanelBaseManager<TElement, TData, TEventEnum> {
   }
 
   protected handleCloseUI(): void {
-    this.isOpen = false;
+    this.setIsUnlockPanelOpen(false);
     this.resetData();
+  }
+
+  private setIsUnlockPanelOpen(isOpen: boolean): void {
+    this.isOpen = isOpen;
+    setIsUnlockPanelOpen(isOpen);
   }
 
   protected abstract getUIElementName(): UITagsEnum;

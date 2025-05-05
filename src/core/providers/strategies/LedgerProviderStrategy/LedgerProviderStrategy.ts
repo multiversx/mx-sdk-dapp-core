@@ -6,7 +6,6 @@ import { safeWindow } from 'constants/index';
 import { CANCEL_TRANSACTION_TOAST_DEFAULT_DURATION } from 'constants/transactions.constants';
 import { LedgerConnectStateManager } from 'core/managers/internal/LedgerConnectStateManager/LedgerConnectStateManager';
 import { ToastIconsEnum } from 'core/managers/internal/ToastManager/helpers/getToastDataStateByStatus';
-import { getAddress } from 'core/methods/account/getAddress';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import { IProvider } from 'core/providers/types/providerFactory.types';
 import { defineCustomElements, IEventBus } from 'lib/sdkDappCoreUi';
@@ -16,18 +15,17 @@ import { getLedgerProvider } from './helpers';
 import { authenticateLedgerAccount } from './helpers/authenticateLedgerAccount';
 import { initializeLedgerProvider } from './helpers/initializeLedgerProvider';
 import { signLedgerMessage } from './helpers/signLedgerMessage';
+import { LedgerConfigType } from './types/ledgerProvider.types';
 import {
-  LedgerConfigType,
-  LedgerLoginType
-} from './types/ledgerProvider.types';
+  BaseProviderStrategy,
+  LoginOptionsTypes
+} from '../BaseProviderStrategy/BaseProviderStrategy';
 import { signTransactions } from '../helpers/signTransactions/signTransactions';
 
-export class LedgerProviderStrategy {
-  private address: string = '';
+export class LedgerProviderStrategy extends BaseProviderStrategy {
   private provider: HWProvider | null = null;
   private config: LedgerConfigType | null = null;
   private eventBus: IEventBus | null = null;
-  private _login: LedgerLoginType | null = null;
   private _signTransactions:
     | ((
         transactions: Transaction[],
@@ -37,7 +35,7 @@ export class LedgerProviderStrategy {
   private _signMessage: ((message: Message) => Promise<Message>) | null = null;
 
   constructor(address?: string) {
-    this.address = address || '';
+    super(address);
   }
 
   public createProvider = async (options?: {
@@ -69,10 +67,9 @@ export class LedgerProviderStrategy {
 
     this.config = ledgerConfig;
     this.provider = ledgerProvider;
-    this._login = ledgerProvider.login.bind(ledgerProvider);
+    this._login = this.ledgerLogin.bind(this);
     this._signTransactions =
       ledgerProvider.signTransactions.bind(ledgerProvider);
-
     this._signMessage = ledgerProvider.signMessage.bind(ledgerProvider);
 
     return this.buildProvider();
@@ -86,24 +83,46 @@ export class LedgerProviderStrategy {
     const provider = this.provider as unknown as IProvider;
     provider.setAccount({ address: this.address });
     provider.signTransactions = this.signTransactions;
-    provider.login = this.login;
     provider.signMessage = this.signMessage;
+    provider.login = this.login;
+    provider.cancelLogin = this.cancelLogin;
 
     return provider;
   };
 
-  private initialize = () => {
-    if (this.address) {
-      return;
+  private ledgerLogin = async (
+    options?: LoginOptionsTypes
+  ): Promise<{ address: string; signature: string }> => {
+    if (!this.provider) {
+      throw new Error(ProviderErrorsEnum.notInitialized);
     }
-
-    const address = getAddress();
-
-    if (!address) {
-      return;
+    if (!options || typeof options.addressIndex !== 'number') {
+      throw new Error('Missing addressIndex for Ledger login');
     }
+    const { address, signature } = await this.provider.login({
+      addressIndex: options.addressIndex
+    });
+    return {
+      address,
+      signature: signature || ''
+    };
+  };
 
-    this.address = address;
+  public override loginOperation = async (options?: LoginOptionsTypes) => {
+    if (!this.provider) {
+      throw new Error(ProviderErrorsEnum.notInitialized);
+    }
+    const ledgerConnectManager = LedgerConnectStateManager.getInstance();
+    await ledgerConnectManager.init();
+
+    return await authenticateLedgerAccount({
+      options,
+      config: this.config!,
+      manager: ledgerConnectManager,
+      provider: this.provider!,
+      eventBus: this.eventBus,
+      login: this.ledgerLogin.bind(this)
+    });
   };
 
   private createEventBus = async (anchor?: HTMLElement) => {
@@ -138,36 +157,6 @@ export class LedgerProviderStrategy {
     return signedTransactions;
   };
 
-  private login = async (options?: {
-    callbackUrl?: string;
-    token?: string;
-  }) => {
-    if (!this.provider || !this.config) {
-      throw new Error(ProviderErrorsEnum.notInitialized);
-    }
-
-    await this.rebuildProvider();
-
-    const ledgerConnectManager = LedgerConnectStateManager.getInstance();
-    await ledgerConnectManager.init();
-
-    const { address, signature } = await authenticateLedgerAccount({
-      options,
-      config: this.config,
-      manager: ledgerConnectManager,
-      provider: this.provider,
-      eventBus: this.eventBus,
-      login: this._login
-    });
-
-    ledgerConnectManager.closeAndReset();
-
-    return {
-      address,
-      signature
-    };
-  };
-
   private signMessage = async (message: Message): Promise<Message> => {
     if (!this.provider || !this._signMessage) {
       throw new Error(ProviderErrorsEnum.notInitialized);
@@ -183,6 +172,9 @@ export class LedgerProviderStrategy {
     return signedMessage;
   };
 
+  /**
+   * Makes sure the device is accessible and if not, tries to initialize a new provider
+   */
   private rebuildProvider = async () => {
     try {
       await this.provider?.getAddress(); // can communicate with device

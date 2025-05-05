@@ -1,5 +1,5 @@
 import { DECIMALS, DIGITS, formatAmount } from 'lib/sdkDappUtils';
-import { getUsdValue } from './getUsdValue';
+import { getUsdValue } from 'utils/operations/getUsdValue';
 
 export interface CalculateFeeInFiatType {
   feeLimit: string;

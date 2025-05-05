@@ -7,7 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [[0.0.0-alpha.20](https://github.com/multiversx/mx-sdk-dapp-core/pull/155)] - 2025-05-05
+
+- [Added custom provider side panel integration](https://github.com/multiversx/mx-sdk-dapp-core/pull/154)
+- [Added providers customization support](https://github.com/multiversx/mx-sdk-dapp-core/pull/153)
+- [Fixed multisig login](https://github.com/multiversx/mx-sdk-dapp-core/pull/150)
+- [Fixed Ledger address table pagination transition state](https://github.com/multiversx/mx-sdk-dapp-core/pull/149)
+- [Removed unnecessary next and previous Ledger address table pagination handlers](https://github.com/multiversx/mx-sdk-dapp-core/pull/148)
+- [Added cancel login](https://github.com/multiversx/mx-sdk-dapp-core/pull/147)
+- [Added `usdValue` to ledger accounts](https://github.com/multiversx/mx-sdk-dapp-core-ui/pull/146)
+- [Fixed logging in without native auth](https://github.com/multiversx/mx-sdk-dapp-core/pull/143)
+- [Fixed ledger idle state manager check connection while signing](https://github.com/multiversx/mx-sdk-dapp-core/pull/141)
+- [Fixed canceling transactions creates different toasts](https://github.com/multiversx/mx-sdk-dapp-core/pull/140)
+- [Fix isssues with websocket and polling on init](https://github.com/multiversx/mx-sdk-dapp-core/pull/139)
+- [Prevent multiple initApp executions](https://github.com/multiversx/mx-sdk-dapp-core/pull/138)
+
+## [[0.0.0-alpha.19](https://github.com/multiversx/mx-sdk-dapp-core/pull/137)] - 2025-04-10
+
+- [Switched publish workflow to esbuild](https://github.com/multiversx/mx-sdk-dapp-core/pull/137)
+- [Add parallel manager initialization](https://github.com/multiversx/mx-sdk-dapp-core/pull/136)
+
 ## [[0.0.0-alpha.18](https://github.com/multiversx/mx-sdk-dapp-core/pull/135)] - 2025-04-09
+
 - [Fix DappProvider init in NextJS](https://github.com/multiversx/mx-sdk-dapp-core/pull/134)
 - [Updated prefix to ui tags and component imports](https://github.com/multiversx/mx-sdk-dapp-core/pull/133)
 

@@ -1,5 +1,5 @@
 export * from './CrossWindowProviderStrategy';
 export * from './ExtensionProviderStrategy';
-export * from './IFrameProviderStrategy';
+export * from './IframeProviderStrategy';
 export * from './LedgerProviderStrategy';
 export * from './WalletConnectProviderStrategy';

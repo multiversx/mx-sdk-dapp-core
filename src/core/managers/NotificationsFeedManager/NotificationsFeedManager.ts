@@ -5,9 +5,9 @@ import { ITransactionListItem } from 'lib/sdkDappCoreUi';
 import { clearCompletedTransactions } from 'store/actions/transactions/transactionsActions';
 import { getStore } from 'store/store';
 import { NotificationsFeedEventsEnum } from './types';
+import { SidePanelBaseManager } from '../internal/SidePanelBaseManager/SidePanelBaseManager';
 import { createToastsFromTransactions } from '../internal/ToastManager/helpers/createToastsFromTransactions';
 import { ITransactionToast } from '../internal/ToastManager/types';
-import { SidePanelBaseManager } from '../SidePanelBaseManager/SidePanelBaseManager';
 
 interface INotificationsFeedManagerData {
   pendingTransactions: ITransactionToast[];

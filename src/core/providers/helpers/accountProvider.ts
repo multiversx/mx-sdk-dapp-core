@@ -6,7 +6,7 @@ export type ProvidersType = IProvider;
 
 let accountProvider: DappProvider | null = null;
 
-export function setAccountProvider<TProvider extends DappProvider>(
+export function setAccountProvider<TProvider extends DappProvider | null>(
   provider: TProvider
 ) {
   accountProvider = provider;

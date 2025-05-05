@@ -3,11 +3,11 @@ import {
   WalletConnectEventsEnum,
   IWalletConnectModalData
 } from 'core/providers/strategies/WalletConnectProviderStrategy/types';
-import { MvxWalletConnectPanel } from 'lib/sdkDappCoreUi';
-import { SidePanelBaseManager } from '../../SidePanelBaseManager/SidePanelBaseManager';
+import { MvxWalletConnectProvider } from 'lib/sdkDappCoreUi';
+import { SidePanelBaseManager } from '../SidePanelBaseManager/SidePanelBaseManager';
 
 export class WalletConnectStateManager extends SidePanelBaseManager<
-  MvxWalletConnectPanel,
+  MvxWalletConnectProvider,
   IWalletConnectModalData,
   WalletConnectEventsEnum
 > {
@@ -64,6 +64,10 @@ export class WalletConnectStateManager extends SidePanelBaseManager<
     this.eventBus.subscribe(
       WalletConnectEventsEnum.CLOSE_WALLET_CONNECT_PANEL,
       this.handleCloseUI.bind(this)
+    );
+    this.eventBus.subscribe(
+      WalletConnectEventsEnum.UI_DISCONNECTED,
+      this.destroy.bind(this)
     );
   }
 }

@@ -2,17 +2,17 @@ import { UITagsEnum } from 'constants/UITags.enum';
 
 import {
   IAccountScreenData,
-  IConfirmScreenData,
-  IConnectScreenData,
   ILedgerAccount,
   ILedgerConnectPanelData,
-  MvxLedgerConnectPanel
-} from 'lib/sdkDappCoreUi';
+  IConnectScreenData,
+  IConfirmScreenData
+} from 'core/providers/strategies/LedgerProviderStrategy/types/ledger.types';
+import { MvxLedgerFlow } from 'lib/sdkDappCoreUi';
 import { LedgerConnectEventsEnum } from './types';
-import { SidePanelBaseManager } from '../../SidePanelBaseManager/SidePanelBaseManager';
+import { SidePanelBaseManager } from '../SidePanelBaseManager/SidePanelBaseManager';
 
 export class LedgerConnectStateManager extends SidePanelBaseManager<
-  MvxLedgerConnectPanel,
+  MvxLedgerFlow,
   ILedgerConnectPanelData,
   LedgerConnectEventsEnum
 > {
@@ -49,7 +49,8 @@ export class LedgerConnectStateManager extends SidePanelBaseManager<
 
   // third screen data
   private initialConfirmScreenData: IConfirmScreenData = {
-    selectedAddress: ''
+    selectedAddress: '',
+    addressExplorerLink: ''
   };
 
   private confirmScreenData: IConfirmScreenData = {
@@ -139,6 +140,10 @@ export class LedgerConnectStateManager extends SidePanelBaseManager<
       LedgerConnectEventsEnum.CLOSE_LEDGER_CONNECT_PANEL,
       onCancel
     );
+    this.eventBus.subscribe(
+      LedgerConnectEventsEnum.UI_DISCONNECTED,
+      this.destroy.bind(this)
+    );
   }
 
   public unsubscribeFromProviderInit(
@@ -154,6 +159,10 @@ export class LedgerConnectStateManager extends SidePanelBaseManager<
       LedgerConnectEventsEnum.CLOSE_LEDGER_CONNECT_PANEL,
       onCancel
     );
+    this.eventBus.unsubscribe(
+      LedgerConnectEventsEnum.UI_DISCONNECTED,
+      this.destroy.bind(this)
+    );
   }
 
   protected resetData(): void {
@@ -165,7 +174,7 @@ export class LedgerConnectStateManager extends SidePanelBaseManager<
 
   protected getUIElementName(): UITagsEnum {
     return this.anchor
-      ? UITagsEnum.LEDGER_CONNECT
+      ? UITagsEnum.LEDGER_FLOW
       : UITagsEnum.LEDGER_CONNECT_PANEL;
   }
 

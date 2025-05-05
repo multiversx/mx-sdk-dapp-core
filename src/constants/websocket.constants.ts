@@ -1,10 +1,5 @@
 import { Socket } from 'socket.io-client';
 
-export type BatchTransactionsWSResponseType = {
-  batchId: string;
-  txHashes: string[];
-};
-
 export enum WebsocketConnectionStatusEnum {
   NOT_INITIALIZED = 'not_initialized',
   PENDING = 'pending',

@@ -47,6 +47,7 @@ yarn add @multiversx/sdk-dapp-core
 ```
 
 If you need only the core behaviour, without the additional UI, you can create a project-specific `.npmrc` file to configure per-package installation behavior. This will skip the installation of `@multiversx/sdk-dapp-core-ui`, but keep in mind that you may need to provide the UI components yourself.
+Also, make sure you run your app on `https`, not `http`, otherwise some providers will not work.
 
 ```bash
 ## .npmrc
@@ -337,6 +338,34 @@ The transaction lifecycle consists of the following steps:
    Once a transaction array is tracked, it gets associated with a `sessionId`, returned by the `track()` method and stored in the `transactions` slice. Depending on the array's type (plain/batch), the session's status varies from initial (`pending`/`invalid`/`sent`) to final (`successful`/`failed`/`timedOut`).
 
 5. **User feedback** is provided through toast notifications, which are triggered to inform about transactions' progress. Additional tracking details can be optionally displayed in the toast UI.
+There is an option to add custom toast messages by using the `createCustomToast` helper.
+
+```ts
+import { createRoot } from 'react-dom/client';
+import { createCustomToast } from '@multiversx/sdk-dapp-core/out/store/actions/toasts/toastsActions';
+
+// by creating a custom toast element containing a component
+createCustomToast({
+  toastId: 'username-toast',
+  instantiateToastElement: () => {
+    const toastBody = document.createElement('div');
+    const root = createRoot(toastBody);
+    root.render(<ReloadButton />);
+    return toastBody;
+  }
+});
+
+// or by creating a simple custom toast
+createCustomToast({
+  toastId: 'custom-toast',
+  icon: 'times',
+  iconClassName: 'warning',
+  message: 'This is a custom toast',
+  title: 'My custom toast'
+});
+      
+
+```
 
 6. **Error Handling & Recovery** is done through a custom toast that prompts the user to take appropriate action.
 

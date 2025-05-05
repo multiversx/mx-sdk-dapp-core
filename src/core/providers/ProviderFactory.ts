@@ -4,13 +4,16 @@ import { getAddress } from 'core/methods/account/getAddress';
 import {
   CrossWindowProviderStrategy,
   ExtensionProviderStrategy,
-  IFrameProviderStrategy,
+  IframeProviderStrategy,
   LedgerProviderStrategy,
   WalletConnectProviderStrategy
 } from 'core/providers/strategies';
 import { setProviderType } from 'store/actions/loginInfo/loginInfoActions';
 import { DappProvider } from './DappProvider/DappProvider';
-import { setAccountProvider } from './helpers/accountProvider';
+import {
+  getAccountProvider,
+  setAccountProvider
+} from './helpers/accountProvider';
 import { clearInitiatedLogins } from './helpers/clearInitiatedLogins';
 import { WebviewProviderStrategy } from './strategies/WebviewProviderStrategy';
 import {
@@ -23,8 +26,12 @@ import {
 export class ProviderFactory {
   private static _customProviders: ICustomProvider[] = [];
 
-  public static customProviders(providers: ICustomProvider[]) {
+  public static set customProviders(providers: ICustomProvider[]) {
     this._customProviders = providers;
+  }
+
+  public static get customProviders() {
+    return this._customProviders;
   }
 
   public static async create({
@@ -59,7 +66,7 @@ export class ProviderFactory {
       }
 
       case ProviderTypeEnum.metamask: {
-        const providerInstance = new IFrameProviderStrategy({
+        const providerInstance = new IframeProviderStrategy({
           type: IframeLoginTypes.metamask
         });
 
@@ -69,7 +76,7 @@ export class ProviderFactory {
       }
 
       case ProviderTypeEnum.passkey: {
-        const providerInstance = new IFrameProviderStrategy({
+        const providerInstance = new IframeProviderStrategy({
           type: IframeLoginTypes.passkey
         });
         createdProvider = await providerInstance.createProvider();
@@ -93,7 +100,10 @@ export class ProviderFactory {
 
         for (const customProvider of this._customProviders) {
           if (customProvider.type === type) {
-            createdProvider = await customProvider.constructor(address);
+            createdProvider = await customProvider.constructor({
+              address,
+              anchor
+            });
           }
         }
         break;
@@ -123,5 +133,12 @@ export class ProviderFactory {
     );
 
     return dappProvider;
+  }
+
+  public static async destroy() {
+    const provider = getAccountProvider();
+    provider.cancelLogin();
+    setAccountProvider(null);
+    setProviderType(ProviderTypeEnum.none);
   }
 }

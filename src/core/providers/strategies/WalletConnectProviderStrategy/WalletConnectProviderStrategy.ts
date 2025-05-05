@@ -12,10 +12,8 @@ import { WalletConnectStateManager } from 'core/managers/internal/WalletConnectS
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import { getAccountProvider } from 'core/providers/helpers/accountProvider';
 import { getPendingTransactionsHandlers } from 'core/providers/strategies/helpers';
-import {
-  IProvider,
-  providerLabels
-} from 'core/providers/types/providerFactory.types';
+import { IProvider } from 'core/providers/types/providerFactory.types';
+import { providerLabels } from 'constants/providerFactory.constants';
 import { defineCustomElements, IEventBus } from 'lib/sdkDappCoreUi';
 import { logoutAction } from 'store/actions';
 import {
@@ -70,7 +68,7 @@ export class WalletConnectProviderStrategy {
     await this.createEventBus(options.anchor);
 
     if (!this.provider && this.config) {
-      const { walletConnectProvider, dappMethods } =
+      const { walletConnectProvider, dappMethods: dAppMethods } =
         await this.createWalletConnectProvider(this.config);
 
       // Bind in order to break reference
@@ -83,7 +81,7 @@ export class WalletConnectProviderStrategy {
       );
 
       this.provider = walletConnectProvider;
-      this.methods = dappMethods;
+      this.methods = dAppMethods;
     }
 
     if (this.provider) {

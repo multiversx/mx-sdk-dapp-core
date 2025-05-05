@@ -2,25 +2,23 @@ import { Message, Transaction } from '@multiversx/sdk-core/out';
 import { ExtensionProvider } from '@multiversx/sdk-extension-provider/out/extensionProvider';
 import { PendingTransactionsEventsEnum } from 'core/managers/internal/PendingTransactionsStateManager/types/pendingTransactions.types';
 
-import { getAddress } from 'core/methods/account/getAddress';
-import {
-  IProvider,
-  providerLabels
-} from 'core/providers/types/providerFactory.types';
+import { IProvider } from 'core/providers/types/providerFactory.types';
+import { providerLabels } from 'constants/providerFactory.constants';
 import { ProviderErrorsEnum } from 'types/provider.types';
 import { getPendingTransactionsHandlers } from '../helpers/getPendingTransactionsHandlers';
 import { signMessage } from '../helpers/signMessage/signMessage';
+import { BaseProviderStrategy } from '../BaseProviderStrategy/BaseProviderStrategy';
 
-export class ExtensionProviderStrategy {
-  private address: string = '';
+export class ExtensionProviderStrategy extends BaseProviderStrategy {
   private provider: ExtensionProvider | null = null;
   private _signTransactions:
     | ((transactions: Transaction[]) => Promise<Transaction[]>)
     | null = null;
-  private _signMessage: ((message: Message) => Promise<Message>) | null = null;
+  private _signMessage: ((messageToSign: Message) => Promise<Message>) | null =
+    null;
 
   constructor(address?: string) {
-    this.address = address || '';
+    super(address);
   }
 
   public createProvider = async (): Promise<IProvider> => {
@@ -33,9 +31,14 @@ export class ExtensionProviderStrategy {
 
     this._signTransactions = this.provider.signTransactions.bind(this.provider);
     this._signMessage = this.provider.signMessage.bind(this.provider);
+    this._login = this.provider.login.bind(this.provider);
 
     return this.buildProvider();
   };
+
+  protected override cancelAction() {
+    return this.provider?.cancelAction?.bind(this.provider)();
+  }
 
   private buildProvider = () => {
     if (!this.provider) {
@@ -43,25 +46,13 @@ export class ExtensionProviderStrategy {
     }
 
     const provider = this.provider as unknown as IProvider;
+    provider.login = this.login;
     provider.signTransactions = this.signTransactions;
     provider.signMessage = this.signMessage;
     provider.setAccount({ address: this.address });
+    provider.cancelLogin = this.cancelLogin;
 
     return provider;
-  };
-
-  private initialize = () => {
-    if (this.address) {
-      return;
-    }
-
-    const address = getAddress();
-
-    if (!address) {
-      return;
-    }
-
-    this.address = address;
   };
 
   private signTransactions = async (transactions: Transaction[]) => {
@@ -92,7 +83,8 @@ export class ExtensionProviderStrategy {
 
       return signedTransactions;
     } catch (error) {
-      await onClose({ shouldCancelAction: true });
+      await onClose({ shouldCancelAction: false }); // action was triggered by user in extension, no need to retrigger it
+
       throw error;
     } finally {
       manager.closeAndReset();

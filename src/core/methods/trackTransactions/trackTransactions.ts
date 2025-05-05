@@ -1,59 +1,120 @@
+import { subscriptions } from 'constants/storage.constants';
+import {
+  WebsocketConnectionStatusEnum,
+  websocketConnection
+} from 'constants/websocket.constants';
 import { websocketEventSelector } from 'store/selectors/accountSelectors';
 import { getStore } from 'store/store';
+import { SubscriptionsEnum } from 'types/subscriptions.type';
 import { checkTransactionStatus } from './helpers/checkTransactionStatus';
 import { getPollingInterval } from './helpers/getPollingInterval';
-import {
-  websocketConnection,
-  WebsocketConnectionStatusEnum
-} from '../initApp/websocket/websocket.constants';
 
 /**
  * Tracks transactions using websocket or polling
- * @returns cleanup function
+ * @returns stopTransactionsTracking function
  */
 export async function trackTransactions() {
   const store = getStore();
   const pollingInterval = getPollingInterval();
-  // eslint-disable-next-line no-undef
-  let pollingIntervalTimer: NodeJS.Timeout | null = null;
+  let pollingIntervalRef: ReturnType<typeof setTimeout> | null = null;
+  let websocketStatusCheckIntervalRef: ReturnType<typeof setTimeout> | null =
+    null;
   let timestamp = websocketEventSelector(store.getState())?.timestamp;
-
-  const isWebsocketCompleted =
-    websocketConnection.status === WebsocketConnectionStatusEnum.COMPLETED;
 
   const recheckStatus = () => {
     checkTransactionStatus();
   };
 
+  const startPolling = () => {
+    pollingIntervalRef ??= setInterval(recheckStatus, pollingInterval);
+  };
+
+  const stopPolling = () => {
+    if (pollingIntervalRef) {
+      clearInterval(pollingIntervalRef);
+      pollingIntervalRef = null;
+    }
+  };
+
+  const setupWebSocketTracking = () => {
+    stopPolling();
+    const unsubscribeWebsocketEvent = store.subscribe(
+      ({ account: { websocketEvent } }) => {
+        if (websocketEvent?.message && timestamp !== websocketEvent.timestamp) {
+          timestamp = websocketEvent.timestamp;
+          recheckStatus();
+        }
+      }
+    );
+
+    subscriptions.set(
+      SubscriptionsEnum.websocketEventReceived,
+      unsubscribeWebsocketEvent
+    );
+  };
+
+  const startWatchingWebsocketStatus = () => {
+    if (
+      websocketConnection.status !==
+        WebsocketConnectionStatusEnum.NOT_INITIALIZED ||
+      websocketStatusCheckIntervalRef
+    ) {
+      return;
+    }
+
+    websocketStatusCheckIntervalRef = setInterval(() => {
+      if (
+        websocketConnection.status === WebsocketConnectionStatusEnum.COMPLETED
+      ) {
+        clearInterval(websocketStatusCheckIntervalRef!);
+        websocketStatusCheckIntervalRef = null;
+        setupWebSocketTracking();
+      }
+    }, 1000);
+  };
+
+  // Initial execution
   recheckStatus();
 
-  if (isWebsocketCompleted) {
-    // Do not set polling interval if websocket is complete
-    if (pollingIntervalTimer) {
-      clearInterval(pollingIntervalTimer);
-      pollingIntervalTimer = null;
+  const stopTransactionsTracking = () => {
+    stopPolling();
+    if (websocketStatusCheckIntervalRef) {
+      clearInterval(websocketStatusCheckIntervalRef);
+      websocketStatusCheckIntervalRef = null;
     }
-    store.subscribe(async ({ account: { websocketEvent } }) => {
-      if (websocketEvent?.message && timestamp !== websocketEvent.timestamp) {
-        timestamp = websocketEvent.timestamp;
-        recheckStatus();
-      }
-    });
-  } else {
-    // Set polling interval if websocket is not complete and no existing interval is set
-    if (!pollingIntervalTimer) {
-      pollingIntervalTimer = setInterval(recheckStatus, pollingInterval);
-    }
-  }
-
-  function cleanup() {
-    if (pollingIntervalTimer) {
-      clearInterval(pollingIntervalTimer);
-      pollingIntervalTimer = null;
-    }
-  }
-
-  return {
-    cleanup
   };
+
+  const unsubscribeWebsocketStatus = store.subscribe(
+    ({ account: { address }, config: { websocketStatus } }, prevState) => {
+      const hasStatusChange =
+        prevState.config.websocketStatus !== websocketStatus;
+
+      if (!hasStatusChange) {
+        return;
+      }
+
+      switch (websocketStatus) {
+        case WebsocketConnectionStatusEnum.COMPLETED:
+          setupWebSocketTracking();
+          break;
+        case WebsocketConnectionStatusEnum.PENDING:
+          startPolling();
+          startWatchingWebsocketStatus();
+          break;
+        default:
+          address ? startPolling() : stopTransactionsTracking();
+          break;
+      }
+    }
+  );
+
+  subscriptions.set(
+    SubscriptionsEnum.websocketStatusChanged,
+    unsubscribeWebsocketStatus
+  );
+  subscriptions.set(
+    SubscriptionsEnum.websocketEventReceived,
+    stopTransactionsTracking
+  );
+  return { stopTransactionsTracking };
 }

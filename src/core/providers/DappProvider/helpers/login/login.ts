@@ -1,15 +1,18 @@
 import { registerWebsocketListener } from 'core/methods/initApp/websocket/registerWebsocket';
+import { getNetworkConfig } from 'core/methods/network/getNetworkConfig';
+import { trackTransactions } from 'core/methods/trackTransactions/trackTransactions';
 import { IProvider } from 'core/providers/types/providerFactory.types';
 import { nativeAuth } from 'services/nativeAuth';
 import { NativeAuthConfigType } from 'services/nativeAuth/nativeAuth.types';
-import { logoutAction } from 'store/actions';
-import { setAddress } from 'store/actions/account';
 import { setTokenLogin } from 'store/actions/loginInfo/loginInfoActions';
 import { nativeAuthConfigSelector } from 'store/selectors';
 import { getState } from 'store/store';
-import { extractAccountFromToken } from './helpers/extractAccountFromToken';
+import { accountLogin } from './helpers/accountLogin';
+import { extractAddressFromToken } from './helpers/extractAddressFromToken';
 
 async function loginWithoutNativeToken(provider: IProvider) {
+  const { apiAddress } = getNetworkConfig();
+
   await provider.login();
 
   const address = await provider.getAddress();
@@ -18,7 +21,7 @@ async function loginWithoutNativeToken(provider: IProvider) {
     throw new Error('Address not found');
   }
 
-  setAddress(address);
+  await accountLogin({ address, provider, apiAddress });
 
   return {
     address
@@ -29,6 +32,8 @@ async function loginWithNativeToken(
   provider: IProvider,
   nativeAuthConfig: NativeAuthConfigType
 ) {
+  const { apiAddress } = getNetworkConfig();
+
   const nativeAuthClient = nativeAuth(nativeAuthConfig);
 
   const loginToken = await nativeAuthClient.initialize({
@@ -61,30 +66,24 @@ async function loginWithNativeToken(
     nativeAuthToken
   });
 
-  const accountDetails = await extractAccountFromToken({
+  const extractedAddress = await extractAddressFromToken({
     loginToken,
     extraInfoData: {
       multisig: loginResult?.multisig,
       impersonate: loginResult?.impersonate
     },
-    address,
-    provider
+    address
   });
 
-  if (!accountDetails.account) {
-    logoutAction();
-    console.error('Failed to fetch account');
-    throw new Error('Failed to fetch account');
-  }
-
-  await registerWebsocketListener();
+  await accountLogin({
+    address: extractedAddress,
+    provider,
+    apiAddress
+  });
 
   return {
-    address: accountDetails?.address || address,
-    signature,
-    nativeAuthToken,
-    loginToken: accountDetails?.modifiedLoginToken || loginToken,
-    nativeAuthConfig
+    address: extractedAddress,
+    signature
   };
 }
 
@@ -95,9 +94,10 @@ export async function login(provider: IProvider) {
     return await loginWithNativeToken(provider, nativeAuthConfig);
   }
 
-  const data = await loginWithoutNativeToken(provider);
+  const { address } = await loginWithoutNativeToken(provider);
 
-  await registerWebsocketListener();
+  await registerWebsocketListener(address);
+  trackTransactions();
 
-  return data;
+  return { address };
 }
