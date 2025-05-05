@@ -68,7 +68,7 @@ export abstract class SidePanelBaseManager<TElement, TData, TEventEnum> {
     this.notifyDataUpdate();
   }
 
-  public closeAndReset(isFromUserclick?: boolean): void {
+  public closeAndReset(props?: { isFromUserclick: boolean }): void {
     if (!this.eventBus) {
       return;
     }
@@ -78,7 +78,7 @@ export abstract class SidePanelBaseManager<TElement, TData, TEventEnum> {
     this.resetData();
     this.setIsUnlockPanelOpen(false);
 
-    if (!isFromUserclick) {
+    if (!props?.isFromUserclick) {
       this.publishEvent(this.getCloseEventName());
     }
   }

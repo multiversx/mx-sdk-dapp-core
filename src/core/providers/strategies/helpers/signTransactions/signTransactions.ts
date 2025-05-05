@@ -133,7 +133,7 @@ export async function signTransactions({
       const onCancel = async () => {
         reject(new Error('Transaction signing cancelled by user'));
         await cancelCrossWindowAction();
-        manager.closeAndReset(true);
+        manager.closeAndReset({ isFromUserclick: true });
       };
 
       function removeEvents() {
