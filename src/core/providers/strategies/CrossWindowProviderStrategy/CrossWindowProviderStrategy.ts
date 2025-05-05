@@ -1,8 +1,8 @@
 import { Message, Transaction } from '@multiversx/sdk-core/out';
 import { isBrowserWithPopupConfirmation } from 'constants/browser.constants';
+import { providerLabels } from 'constants/providerFactory.constants';
 import { PendingTransactionsEventsEnum } from 'core/managers/internal/PendingTransactionsStateManager/types/pendingTransactions.types';
 import { IProvider } from 'core/providers/types/providerFactory.types';
-import { providerLabels } from 'constants/providerFactory.constants';
 import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
 import { crossWindowConfigSelector } from 'store/selectors';
 import { networkSelector } from 'store/selectors/networkSelectors';
@@ -20,7 +20,7 @@ type CrossWindowProviderProps = {
 
 export class CrossWindowProviderStrategy extends BaseProviderStrategy {
   private provider: CrossWindowProvider | null = null;
-  private walletAddress?: string;
+  private readonly walletAddress?: string;
   private _signTransactions:
     | ((transactions: Transaction[]) => Promise<Transaction[]>)
     | null = null;
