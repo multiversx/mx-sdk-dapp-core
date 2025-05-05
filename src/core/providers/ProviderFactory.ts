@@ -26,8 +26,12 @@ import {
 export class ProviderFactory {
   private static _customProviders: ICustomProvider[] = [];
 
-  public static customProviders(providers: ICustomProvider[]) {
+  public static set customProviders(providers: ICustomProvider[]) {
     this._customProviders = providers;
+  }
+
+  public static get customProviders() {
+    return this._customProviders;
   }
 
   public static async create({

@@ -1,5 +1,5 @@
 import { Message } from '@multiversx/sdk-core/out';
-import { providerLabels } from 'core/providers/types/providerFactory.types';
+import { providerLabels } from 'constants/providerFactory.constants';
 import { getLedgerErrorCodes } from './getLedgerErrorCodes';
 import { signMessage } from '../../helpers/signMessage/signMessage';
 
