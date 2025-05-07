@@ -1,3 +1,4 @@
+import { providerLabels } from 'constants/providerFactory.constants';
 import { UITagsEnum } from 'constants/UITags.enum';
 import { ProviderFactory } from 'core/providers/ProviderFactory';
 import {
@@ -16,7 +17,6 @@ import {
   UnlockPanelEventsEnum,
   UnlockPanelManagerInitParamsType
 } from './UnlockPanelManager.types';
-import { providerLabels } from 'constants/providerFactory.constants';
 
 export class UnlockPanelManager {
   private static instance: UnlockPanelManager;
