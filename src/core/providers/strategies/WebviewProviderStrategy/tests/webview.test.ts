@@ -21,7 +21,6 @@ jest.mock(
 
 const HANDSHAKE_TIMEOUT_RESPONSE = 1000;
 
-// Mock sendPostMessage manually since it's used internally
 const mockSendPostMessage = jest.fn();
 
 describe('WebviewProvider.init', () => {
