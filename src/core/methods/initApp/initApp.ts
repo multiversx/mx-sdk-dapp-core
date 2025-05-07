@@ -90,12 +90,16 @@ export async function initApp({
   const isLoggedIn = getIsLoggedIn();
   const account = getAccount();
 
-  if (isInIframe && !isLoggedIn) {
+  if (isInIframe) {
     const provider = await ProviderFactory.create({
       type: ProviderTypeEnum.webview
     });
 
-    await login(provider.getProvider());
+    const isInitialized = provider.isInitialized();
+
+    if (isInitialized && !isLoggedIn) {
+      await login(provider.getProvider());
+    }
   }
 
   const toastManager = ToastManager.getInstance({
