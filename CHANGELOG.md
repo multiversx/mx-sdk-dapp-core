@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- [Added webview provider tests](https://github.com/multiversx/mx-sdk-dapp-core/pull/161)
+
+## [[0.0.0-alpha.21](https://github.com/multiversx/mx-sdk-dapp-core/pull/159)] - 2025-05-07
+
 - [Fixed ledger double screen](https://github.com/multiversx/mx-sdk-dapp-core/pull/158)
 - [Updated providers order](https://github.com/multiversx/mx-sdk-dapp-core/pull/157)
 - [Added support for dapps inside iframe/webview](https://github.com/multiversx/mx-sdk-dapp-core/pull/156)
