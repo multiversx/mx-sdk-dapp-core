@@ -1,3 +1,4 @@
+import { providerLabels } from 'constants/providerFactory.constants';
 import { UITagsEnum } from 'constants/UITags.enum';
 import { ProviderFactory } from 'core/providers/ProviderFactory';
 import {
@@ -16,7 +17,6 @@ import {
   UnlockPanelEventsEnum,
   UnlockPanelManagerInitParamsType
 } from './UnlockPanelManager.types';
-import { providerLabels } from 'constants/providerFactory.constants';
 
 export class UnlockPanelManager {
   private static instance: UnlockPanelManager;
@@ -112,15 +112,21 @@ export class UnlockPanelManager {
       );
     }
 
-    if (this.isSimpleLoginCallback(UnlockPanelManager.loginHandler)) {
-      const provider = await ProviderFactory.create({ type, anchor });
-      await provider?.login();
-      UnlockPanelManager.loginHandler();
-    } else {
-      UnlockPanelManager.loginHandler({ type, anchor });
+    try {
+      if (this.isSimpleLoginCallback(UnlockPanelManager.loginHandler)) {
+        const provider = await ProviderFactory.create({ type, anchor });
+        await provider.login();
+        UnlockPanelManager.loginHandler();
+      } else {
+        UnlockPanelManager.loginHandler({ type, anchor });
+      }
+      await this.handleCloseUI();
+    } catch {
+      this.eventBus?.publish(
+        UnlockPanelEventsEnum.CANCEL_IN_PROVIDER,
+        this.data
+      );
     }
-
-    await this.handleCloseUI();
   }
 
   private async handleCancelLogin() {

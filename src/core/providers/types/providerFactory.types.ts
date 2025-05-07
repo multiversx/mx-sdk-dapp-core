@@ -24,12 +24,12 @@ export interface IProviderConfig {
 }
 
 export enum ProviderTypeEnum {
-  crossWindow = 'crossWindow',
   extension = 'extension',
-  walletConnect = 'walletConnect',
-  ledger = 'ledger',
   metamask = 'metamask',
   passkey = 'passkey',
+  walletConnect = 'walletConnect',
+  ledger = 'ledger',
+  crossWindow = 'crossWindow',
   webview = 'webview',
   none = ''
 }
