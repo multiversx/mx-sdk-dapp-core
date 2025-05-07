@@ -33,7 +33,9 @@ export class SignTransactionsStateManager extends SidePanelBaseManager<
       transactionsCount: 0,
       egldLabel: '',
       currentIndex: 0,
-      ppuOptions: []
+      ppuOptions: [],
+      address: '',
+      origin: ''
     },
     tokenTransaction: null,
     nftTransaction: null,

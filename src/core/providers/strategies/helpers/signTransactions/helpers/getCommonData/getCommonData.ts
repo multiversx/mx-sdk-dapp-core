@@ -1,5 +1,6 @@
 import { getPersistedTokenDetails } from 'apiCalls/tokens/getPersistedTokenDetails';
 import { MULTI_TRANSFER_EGLD_TOKEN } from 'constants/mvx.constants';
+import { safeWindow } from 'constants/window.constants';
 import {
   FungibleTransactionType,
   ISignTransactionsPanelCommonData
@@ -171,7 +172,9 @@ export async function getCommonData({
     needsSigning:
       txInfo?.needsSigning && !signedIndexes.includes(currentScreenIndex),
     isEditable: txInfo?.needsSigning,
-    providerName
+    providerName,
+    address,
+    origin: safeWindow.location.origin
   };
 
   return { commonData, tokenTransaction, fungibleTransaction };

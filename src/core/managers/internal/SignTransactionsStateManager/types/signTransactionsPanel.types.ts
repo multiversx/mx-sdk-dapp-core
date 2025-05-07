@@ -40,6 +40,8 @@ export interface ISignTransactionsPanelCommonData {
   highlight?: string | null;
   scCall?: string | null;
   providerName?: string;
+  address: string;
+  origin: string;
 }
 
 export interface ISignTransactionsPanelData {
