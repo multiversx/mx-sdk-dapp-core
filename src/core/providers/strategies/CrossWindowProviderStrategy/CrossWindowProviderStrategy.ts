@@ -55,7 +55,11 @@ export class CrossWindowProviderStrategy extends BaseProviderStrategy {
   };
 
   protected override cancelAction() {
-    return this.provider?.cancelAction?.bind(this.provider)();
+    const cancelActionReference = this.provider?.cancelAction?.bind(
+      this.provider
+    );
+
+    cancelActionReference?.();
   }
 
   private buildProvider = () => {

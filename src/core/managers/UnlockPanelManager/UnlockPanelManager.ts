@@ -112,15 +112,21 @@ export class UnlockPanelManager {
       );
     }
 
-    if (this.isSimpleLoginCallback(UnlockPanelManager.loginHandler)) {
-      const provider = await ProviderFactory.create({ type, anchor });
-      await provider?.login();
-      UnlockPanelManager.loginHandler();
-    } else {
-      UnlockPanelManager.loginHandler({ type, anchor });
+    try {
+      if (this.isSimpleLoginCallback(UnlockPanelManager.loginHandler)) {
+        const provider = await ProviderFactory.create({ type, anchor });
+        await provider.login();
+        UnlockPanelManager.loginHandler();
+      } else {
+        UnlockPanelManager.loginHandler({ type, anchor });
+      }
+      await this.handleCloseUI();
+    } catch {
+      this.eventBus?.publish(
+        UnlockPanelEventsEnum.CANCEL_IN_PROVIDER,
+        this.data
+      );
     }
-
-    await this.handleCloseUI();
   }
 
   private async handleCancelLogin() {
