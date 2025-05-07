@@ -153,7 +153,6 @@ export class WalletConnectProviderStrategy {
   private createWalletConnectProvider = async (config: WalletConnectConfig) => {
     const isLoggedIn = getIsLoggedIn();
     const chainId = chainIdSelector(getState());
-    const provider = getAccountProvider();
     const nativeAuthConfig = nativeAuthConfigSelector(getState());
 
     if (nativeAuthConfig) {
@@ -199,6 +198,7 @@ export class WalletConnectProviderStrategy {
       console.error(WalletConnectV2Error.connectError, err);
 
       if (isLoggedIn) {
+        const provider = getAccountProvider();
         await provider.logout();
       }
 
