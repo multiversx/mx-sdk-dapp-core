@@ -43,15 +43,23 @@ export async function signTransactions({
   let signedIndexes: number[] = [];
 
   const manager = SignTransactionsStateManager.getInstance();
+
+  if (!manager) {
+    throw new Error('Unable to establish connection with sign screens');
+  }
+
   const eventBus = await manager.getEventBus();
 
   if (!eventBus) {
     throw new Error(ProviderErrorsEnum.eventBusError);
   }
 
-  if (!manager) {
-    throw new Error('Unable to establish connection with sign screens');
-  }
+  const onCancel = async () => {
+    await cancelCrossWindowAction();
+    manager.closeAndReset();
+  };
+
+  eventBus.subscribe(SignEventsEnum.CLOSE_SIGN_TRANSACTIONS_PANEL, onCancel);
 
   return new Promise<Transaction[]>(async (resolve, reject) => {
     const signedTransactions: Transaction[] = [];
@@ -133,7 +141,7 @@ export async function signTransactions({
       const onCancel = async () => {
         reject(new Error('Transaction signing cancelled by user'));
         await cancelCrossWindowAction();
-        manager.closeAndReset({ isFromUserclick: true });
+        manager.closeAndReset();
       };
 
       function removeEvents() {
@@ -152,8 +160,6 @@ export async function signTransactions({
 
       async function onSign() {
         const shouldContinueWithoutSigning = !commonData.needsSigning;
-
-        removeEvents();
 
         if (shouldContinueWithoutSigning) {
           return showNextScreen(currentScreenIndex + 1);
@@ -201,9 +207,10 @@ export async function signTransactions({
 
           showNextScreen(currentScreenIndex + 1);
         } catch (error) {
-          removeEvents();
           manager.closeAndReset();
           reject(error);
+        } finally {
+          removeEvents();
         }
       }
 
