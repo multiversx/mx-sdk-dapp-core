@@ -75,8 +75,7 @@ export abstract class SidePanelBaseManager<TElement, TData, TEventEnum> {
 
     this.data = { ...this.data, shouldClose: true };
     this.notifyDataUpdate();
-    this.resetData();
-    this.setIsUnlockPanelOpen(false);
+    this.handleCloseUI();
   }
 
   public updateData(newData: Partial<TData>): void {

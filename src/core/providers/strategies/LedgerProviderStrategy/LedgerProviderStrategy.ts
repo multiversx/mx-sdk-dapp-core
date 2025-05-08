@@ -150,10 +150,13 @@ export class LedgerProviderStrategy extends BaseProviderStrategy {
       throw new Error(ProviderErrorsEnum.signTransactionsNotInitialized);
     }
 
+    await this.rebuildProvider();
+
     const signedTransactions = await signTransactions({
       transactions,
-      handleSign: this._signTransactions
+      handleSign: this._signTransactions.bind(this.provider)
     });
+
     return signedTransactions;
   };
 
