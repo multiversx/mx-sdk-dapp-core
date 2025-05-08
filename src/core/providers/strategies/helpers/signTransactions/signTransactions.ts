@@ -54,12 +54,15 @@ export async function signTransactions({
     throw new Error(ProviderErrorsEnum.eventBusError);
   }
 
-  const onCancel = async () => {
+  const handleCancel = async () => {
     await cancelCrossWindowAction();
     manager.closeAndReset();
   };
 
-  eventBus.subscribe(SignEventsEnum.CLOSE_SIGN_TRANSACTIONS_PANEL, onCancel);
+  eventBus.subscribe(
+    SignEventsEnum.CLOSE_SIGN_TRANSACTIONS_PANEL,
+    handleCancel
+  );
 
   return new Promise<Transaction[]>(async (resolve, reject) => {
     const signedTransactions: Transaction[] = [];
