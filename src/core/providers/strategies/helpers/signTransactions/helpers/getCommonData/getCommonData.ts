@@ -48,7 +48,6 @@ export async function getCommonData({
   price,
   address,
   shard,
-  signedIndexes = [],
   parsedTransactionsByDataField
 }: GetCommonDataPropsType) {
   const currentTransaction = allTransactions[currentScreenIndex];
