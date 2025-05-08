@@ -68,7 +68,7 @@ export abstract class SidePanelBaseManager<TElement, TData, TEventEnum> {
     this.notifyDataUpdate();
   }
 
-  public closeAndReset(props?: { isFromUserclick: boolean }): void {
+  public closeAndReset(): void {
     if (!this.eventBus) {
       return;
     }
