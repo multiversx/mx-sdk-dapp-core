@@ -163,7 +163,7 @@ export async function signTransactions({
         const plainTransaction = currentEditedTransaction.toPlainObject();
         const txNonce = plainTransaction.nonce;
 
-        if (!currentNonce) {
+        if (currentNonce == null) {
           throw new Error('Current nonce not found');
         }
 
