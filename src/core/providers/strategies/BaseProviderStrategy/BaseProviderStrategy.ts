@@ -3,8 +3,6 @@ import { getAddress } from 'core/methods/account/getAddress';
 import { ProviderErrorsEnum } from 'types/provider.types';
 
 export type LoginOptionsTypes = {
-  addressIndex?: number;
-  callbackUrl?: string;
   token?: string;
 };
 
@@ -19,14 +17,20 @@ export abstract class BaseProviderStrategy {
     this.address = address || '';
   }
 
-  public login = async (
+  public async login(
     options?: LoginOptionsTypes
-  ): Promise<{ address: string; signature: string }> => {
+  ): Promise<{ address: string; signature: string }> {
     if (!this._login) {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    this.cancelLogin();
+    if (
+      options &&
+      'shouldCancelLogin' in options &&
+      options.shouldCancelLogin
+    ) {
+      this.cancelLogin();
+    }
 
     if (this.loginAbortController) {
       this.loginAbortController.abort();
@@ -56,7 +60,7 @@ export abstract class BaseProviderStrategy {
       this.loginAbortController = null;
       throw error;
     }
-  };
+  }
 
   public cancelLogin = () => {
     if (this.loginAbortController) {

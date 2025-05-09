@@ -75,7 +75,7 @@ export class LedgerProviderStrategy extends BaseProviderStrategy {
     return this.buildProvider();
   };
 
-  private buildProvider = async () => {
+  private readonly buildProvider = async () => {
     if (!this.provider) {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
@@ -90,8 +90,8 @@ export class LedgerProviderStrategy extends BaseProviderStrategy {
     return provider;
   };
 
-  private ledgerLogin = async (
-    options?: LoginOptionsTypes
+  private readonly ledgerLogin = async (
+    options?: LoginOptionsTypes & { addressIndex?: number }
   ): Promise<{ address: string; signature: string }> => {
     if (!this.provider) {
       throw new Error(ProviderErrorsEnum.notInitialized);
@@ -104,7 +104,7 @@ export class LedgerProviderStrategy extends BaseProviderStrategy {
     });
     return {
       address,
-      signature: signature || ''
+      signature: signature ?? ''
     };
   };
 
@@ -119,13 +119,13 @@ export class LedgerProviderStrategy extends BaseProviderStrategy {
       options,
       config: this.config!,
       manager: ledgerConnectManager,
-      provider: this.provider!,
+      provider: this.provider,
       eventBus: this.eventBus,
       login: this.ledgerLogin.bind(this)
     });
   };
 
-  private createEventBus = async (anchor?: HTMLElement) => {
+  private readonly createEventBus = async (anchor?: HTMLElement) => {
     const shouldInitiateLogin = !getIsLoggedIn();
 
     if (!shouldInitiateLogin) {
@@ -145,7 +145,7 @@ export class LedgerProviderStrategy extends BaseProviderStrategy {
     return this.eventBus;
   };
 
-  private signTransactions = async (transactions: Transaction[]) => {
+  private readonly signTransactions = async (transactions: Transaction[]) => {
     if (!this._signTransactions) {
       throw new Error(ProviderErrorsEnum.signTransactionsNotInitialized);
     }
@@ -160,7 +160,7 @@ export class LedgerProviderStrategy extends BaseProviderStrategy {
     return signedTransactions;
   };
 
-  private signMessage = async (message: Message): Promise<Message> => {
+  private readonly signMessage = async (message: Message): Promise<Message> => {
     if (!this.provider || !this._signMessage) {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
@@ -178,7 +178,7 @@ export class LedgerProviderStrategy extends BaseProviderStrategy {
   /**
    * Makes sure the device is accessible and if not, tries to initialize a new provider
    */
-  private rebuildProvider = async () => {
+  private readonly rebuildProvider = async () => {
     try {
       await this.provider?.getAddress(); // can communicate with device
     } catch (_err) {
