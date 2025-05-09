@@ -180,6 +180,7 @@ export async function signTransactions({
 
         if (shouldContinueWithoutSigning) {
           signedIndexes.push(currentScreenIndex);
+          removeEvents();
           return showNextScreen(currentScreenIndex + 1);
         }
 
