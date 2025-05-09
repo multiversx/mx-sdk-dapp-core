@@ -14,7 +14,7 @@ export abstract class BaseProviderStrategy {
   protected loginAbortController: AbortController | null = null;
 
   constructor(address?: string) {
-    this.address = address || '';
+    this.address = address ?? '';
   }
 
   public async login(
@@ -24,11 +24,12 @@ export abstract class BaseProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    if (
+    const shouldSkipCancelLogin =
       options &&
       'shouldCancelLogin' in options &&
-      options.shouldCancelLogin
-    ) {
+      options.shouldCancelLogin === true;
+
+    if (!shouldSkipCancelLogin) {
       this.cancelLogin();
     }
 
