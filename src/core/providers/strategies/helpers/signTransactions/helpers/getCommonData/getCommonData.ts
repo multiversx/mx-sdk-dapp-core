@@ -153,6 +153,7 @@ export async function getCommonData({
   const provider = getAccountProvider();
   const providerType = provider.getType();
   const providerName = capitalize(providerType as string);
+  const txLength = allTransactions.length;
 
   const commonData: ISignTransactionsPanelCommonData = {
     receiver: plainTransaction.receiver.toString(),
@@ -165,12 +166,13 @@ export async function getCommonData({
     tokenType: getTokenType(type),
     feeLimit: feeLimitFormatted,
     feeInFiatLimit,
-    transactionsCount: allTransactions.length,
+    transactionsCount: txLength,
     currentIndex: currentScreenIndex,
     highlight: getHighlight(txInfo?.transactionTokenInfo),
     scCall: getScCall(txInfo?.transactionTokenInfo),
     needsSigning:
-      txInfo?.needsSigning && !signedIndexes.includes(currentScreenIndex),
+      txLength === 1 ||
+      (txInfo?.needsSigning && !signedIndexes.includes(currentScreenIndex)),
     isEditable: txInfo?.needsSigning,
     providerName,
     address,
