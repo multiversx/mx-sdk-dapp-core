@@ -17,6 +17,7 @@ export type TokenType = EsdtEnumType | NftEnumType;
 
 export interface ISignTransactionsPanelCommonData {
   receiver?: string;
+  receiverIcon?: string;
   data?: string;
   gasPrice?: string;
   /**
@@ -39,9 +40,11 @@ export interface ISignTransactionsPanelCommonData {
   isEditable?: boolean;
   highlight?: string | null;
   scCall?: string | null;
+  nextUnsignedTxIndex?: number;
   providerName?: string;
-  address: string;
-  origin: string;
+  address?: string;
+  username?: string;
+  origin?: string;
 }
 
 export interface ISignTransactionsPanelData {

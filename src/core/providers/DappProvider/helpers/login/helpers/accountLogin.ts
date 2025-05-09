@@ -28,7 +28,7 @@ export async function accountLogin({
   }
 
   loginAction({
-    address: account.address,
+    address,
     providerType: provider.getType()
   });
 

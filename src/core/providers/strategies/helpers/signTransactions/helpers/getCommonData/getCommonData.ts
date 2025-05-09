@@ -32,6 +32,7 @@ export type GetCommonDataPropsType = {
   egldLabel: string;
   address: string;
   shard?: number;
+  username?: string;
   parsedTransactionsByDataField: Record<string, TransactionDataTokenType>;
   gasPriceData: {
     initialGasPrice: number;
@@ -47,6 +48,7 @@ export async function getCommonData({
   gasPriceData,
   price,
   address,
+  username,
   shard,
   signedIndexes,
   parsedTransactionsByDataField
@@ -176,6 +178,7 @@ export async function getCommonData({
     isEditable: txInfo?.needsSigning,
     providerName,
     address,
+    username,
     origin: safeWindow.location.origin
   };
 

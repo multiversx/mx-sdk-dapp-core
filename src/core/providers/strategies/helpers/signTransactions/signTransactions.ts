@@ -31,7 +31,7 @@ export async function signTransactions({
   guardTransactions = getGuardedTransactions
 }: SignTransactionsParamsType): Promise<Transaction[]> {
   const {
-    account: { address, shard }
+    account: { address, shard, username }
   } = getAccountInfo();
   const network = networkSelector(getState());
 
@@ -85,6 +85,7 @@ export async function signTransactions({
           gasPriceData: manager.ppuMap[currentNonce],
           price,
           address,
+          username,
           shard,
           signedIndexes,
           parsedTransactionsByDataField
