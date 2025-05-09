@@ -13,6 +13,7 @@ import {
   MultiSignTransactionType,
   TransactionDataTokenType
 } from 'types/transactions.types';
+import { decodeBase64 } from 'utils/decoders/base64Utils';
 import { capitalize } from 'utils/operations/capitalize';
 import { getUsdValue } from 'utils/operations/getUsdValue';
 import { getFeeData } from '../getFeeData';
@@ -107,7 +108,7 @@ export async function getCommonData({
     const getFormattedAmount = ({ addCommas }: { addCommas: boolean }) =>
       formatAmount({
         input: isEgld
-          ? currentTransaction.transaction.getValue().toString()
+          ? currentTransaction.transaction.value.toString()
           : amount,
         decimals: isEgld ? Number(network.decimals) : tokenDecimals,
         digits: Number(network.digits),
@@ -155,13 +156,12 @@ export async function getCommonData({
   const providerName = capitalize(providerType as string);
   const txLength = allTransactions.length;
 
-  const currentIndexToSign = signedIndexes
-    ? signedIndexes[signedIndexes.length - 1] + 1
-    : 0;
+  const currentIndexToSign =
+    signedIndexes.length > 0 ? signedIndexes[signedIndexes.length - 1] + 1 : 0;
 
   const commonData: ISignTransactionsPanelCommonData = {
     receiver: plainTransaction.receiver.toString(),
-    data: currentTransaction.transaction.getData().toString(),
+    data: decodeBase64(currentTransaction.transaction.data.toString() ?? ''),
     gasPrice: gasPrice.toString(),
     gasLimit: plainTransaction.gasLimit.toString(),
     ppu: gasPriceData.ppu,

@@ -179,6 +179,7 @@ export async function signTransactions({
         const shouldContinueWithoutSigning = !commonData.needsSigning;
 
         if (shouldContinueWithoutSigning) {
+          signedIndexes.push(currentScreenIndex);
           return showNextScreen(currentScreenIndex + 1);
         }
 
