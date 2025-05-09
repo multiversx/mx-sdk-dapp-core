@@ -105,8 +105,12 @@ export async function signTransactions({
       manager.updateCommonData(commonData);
 
       const onBack = () => {
-        removeEvents();
+        if (currentScreenIndex <= 0) {
+          return;
+        }
+
         showNextScreen(currentScreenIndex - 1);
+        removeEvents();
       };
 
       const onSetPpu = (
@@ -148,11 +152,21 @@ export async function signTransactions({
         manager.closeAndReset();
       };
 
+      const onNext = () => {
+        if (currentScreenIndex >= manager.transactionsCount - 1) {
+          return;
+        }
+
+        showNextScreen(currentScreenIndex + 1);
+        removeEvents();
+      };
+
       function removeEvents() {
         if (!eventBus) {
           return;
         }
 
+        eventBus.unsubscribe(SignEventsEnum.NEXT, onNext);
         eventBus.unsubscribe(SignEventsEnum.CONFIRM, onSign);
         eventBus.unsubscribe(
           SignEventsEnum.CLOSE_SIGN_TRANSACTIONS_PANEL,
@@ -166,6 +180,8 @@ export async function signTransactions({
         const shouldContinueWithoutSigning = !commonData.needsSigning;
 
         if (shouldContinueWithoutSigning) {
+          signedIndexes.push(currentScreenIndex);
+          removeEvents();
           return showNextScreen(currentScreenIndex + 1);
         }
 
@@ -188,11 +204,11 @@ export async function signTransactions({
         });
 
         try {
-          const signedTransaction = await handleSign([transactionToSign]);
+          const signedTxs = await handleSign([transactionToSign]);
 
-          if (signedTransaction) {
+          if (signedTxs) {
             signedIndexes.push(currentScreenIndex);
-            signedTransactions.push(signedTransaction[0]);
+            signedTransactions.push(signedTxs[0]);
           }
 
           const isLastScreen =
@@ -218,6 +234,7 @@ export async function signTransactions({
         }
       }
 
+      eventBus.subscribe(SignEventsEnum.NEXT, onNext);
       eventBus.subscribe(SignEventsEnum.CONFIRM, onSign);
       eventBus.subscribe(
         SignEventsEnum.CLOSE_SIGN_TRANSACTIONS_PANEL,
