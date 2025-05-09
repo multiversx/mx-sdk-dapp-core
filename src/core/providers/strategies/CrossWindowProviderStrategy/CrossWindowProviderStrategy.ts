@@ -62,6 +62,7 @@ export class CrossWindowProviderStrategy extends BaseProviderStrategy {
       this.loginAbortController.abort();
     }
 
+    // is called instead of provider.cancelAction()
     CrossWindowProvider.getInstance().onDestroy();
     this.loginAbortController = null;
   };
@@ -142,7 +143,7 @@ export class CrossWindowProviderStrategy extends BaseProviderStrategy {
     }
   };
 
-  private signMessage = async (message: Message) => {
+  private readonly signMessage = async (message: Message) => {
     if (!this.provider || !this._signMessage) {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
@@ -158,7 +159,8 @@ export class CrossWindowProviderStrategy extends BaseProviderStrategy {
 
     return signedMessage;
   };
-  private setPopupConsent = () => {
+
+  private readonly setPopupConsent = () => {
     const crossWindowDappConfig = crossWindowConfigSelector(getState());
 
     if (!this.provider) {
