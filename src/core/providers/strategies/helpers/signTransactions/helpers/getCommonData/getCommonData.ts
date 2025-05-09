@@ -155,6 +155,10 @@ export async function getCommonData({
   const providerName = capitalize(providerType as string);
   const txLength = allTransactions.length;
 
+  const currentIndexToSign = signedIndexes
+    ? signedIndexes[signedIndexes.length - 1] + 1
+    : 0;
+
   const commonData: ISignTransactionsPanelCommonData = {
     receiver: plainTransaction.receiver.toString(),
     data: currentTransaction.transaction.getData().toString(),
@@ -168,6 +172,7 @@ export async function getCommonData({
     feeInFiatLimit,
     transactionsCount: txLength,
     currentIndex: currentScreenIndex,
+    currentIndexToSign,
     highlight: getHighlight(txInfo?.transactionTokenInfo),
     scCall: getScCall(txInfo?.transactionTokenInfo),
     needsSigning:
