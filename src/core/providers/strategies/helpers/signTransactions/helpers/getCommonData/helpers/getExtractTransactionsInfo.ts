@@ -6,6 +6,7 @@ import {
   MultiSignTransactionType,
   TransactionDataTokenType
 } from 'types/transactions.types';
+import { decodeBase64 } from 'utils/decoders/base64Utils';
 import { checkIsValidSender } from './checkIsValidSender';
 import { getTxInfoByDataField } from './getTxInfoByDataField';
 import { isTokenTransfer } from '../../isTokenTransfer';
@@ -46,15 +47,15 @@ export function getExtractTransactionsInfo({
           });
 
     const { transaction, multiTxData, transactionIndex } = currentTx;
-    const dataField = transaction.getData().toString();
+    const dataField = decodeBase64(transaction.data.toString() ?? '');
     const transactionTokenInfo = getTxInfoByDataField({
-      data: transaction.getData().toString(),
+      data: dataField,
       multiTransactionData: multiTxData,
       parsedTransactionsByDataField
     });
 
     const { tokenId } = transactionTokenInfo;
-    const receiver = transaction.getReceiver().toString();
+    const receiver = transaction.receiver.toBech32();
 
     if (sender && sender !== address) {
       const isValidSender = checkIsValidSender(senderAccount, address);

@@ -4,6 +4,7 @@ import { getNetworkConfig } from 'core/methods/network/getNetworkConfig';
 import { getAccountProvider } from 'core/providers/helpers/accountProvider';
 import { setAccount } from 'store/actions';
 import { fetchAccount } from './fetchAccount';
+import { trimUsernameDomain } from './trimUsernameDomain';
 
 const setNewAccount = async () => {
   try {
@@ -19,6 +20,7 @@ const setNewAccount = async () => {
       if (account != null) {
         const accountData = {
           ...account,
+          username: trimUsernameDomain(account.username),
           nonce: getLatestNonce(account)
         };
 

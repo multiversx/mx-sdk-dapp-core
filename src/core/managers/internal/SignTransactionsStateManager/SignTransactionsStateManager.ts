@@ -31,9 +31,12 @@ export class SignTransactionsStateManager extends SidePanelBaseManager<
   protected initialData: ISignTransactionsPanelData = {
     commonData: {
       transactionsCount: 0,
+      currentIndexToSign: 0,
       egldLabel: '',
       currentIndex: 0,
-      ppuOptions: []
+      ppuOptions: [],
+      address: '',
+      origin: ''
     },
     tokenTransaction: null,
     nftTransaction: null,
@@ -58,6 +61,10 @@ export class SignTransactionsStateManager extends SidePanelBaseManager<
   public async init() {
     await super.init();
     this.resetData();
+  }
+
+  get transactionsCount() {
+    return this.data.commonData.transactionsCount;
   }
 
   public async openSignTransactions(
