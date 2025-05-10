@@ -1,3 +1,4 @@
+import { ACCOUNTS_ENDPOINT } from 'apiCalls';
 import { getPersistedTokenDetails } from 'apiCalls/tokens/getPersistedTokenDetails';
 import { MULTI_TRANSFER_EGLD_TOKEN } from 'constants/mvx.constants';
 import { safeWindow } from 'constants/window.constants';
@@ -79,7 +80,6 @@ export async function getCommonData({
   });
 
   const plainTransaction = currentTransaction.transaction.toPlainObject();
-
   const txInfo = await extractTransactionsInfo(currentTransaction);
 
   const isEgld = !txInfo?.transactionTokenInfo?.tokenId;
@@ -166,6 +166,7 @@ export async function getCommonData({
     data: decodeBase64(currentTransaction.transaction.data.toString() ?? ''),
     gasPrice: gasPrice.toString(),
     gasLimit: plainTransaction.gasLimit.toString(),
+    addressExplorerLink: `${network.explorerAddress}/${ACCOUNTS_ENDPOINT}/${address}`,
     ppu: gasPriceData.ppu,
     ppuOptions,
     egldLabel,

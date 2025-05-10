@@ -46,6 +46,7 @@ export interface ISignTransactionsPanelCommonData {
   address?: string;
   username?: string;
   origin?: string;
+  addressExplorerLink?: string;
 }
 
 export interface ISignTransactionsPanelData {

@@ -6,6 +6,7 @@ import { loginAction } from 'store/actions';
 import { setAccount } from 'store/actions/account';
 import { AccountType } from 'types/account.types';
 import { fetchAccount } from 'utils/account/fetchAccount';
+import { trimUsernameDomain } from 'utils/account/trimUsernameDomain';
 
 interface IAccountLoginProps {
   address: string;
@@ -34,6 +35,7 @@ export async function accountLogin({
 
   const newAccount: AccountType = {
     ...account,
+    username: trimUsernameDomain(account.username),
     nonce: getLatestNonce(account)
   };
 
