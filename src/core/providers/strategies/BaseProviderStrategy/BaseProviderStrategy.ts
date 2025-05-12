@@ -26,8 +26,8 @@ export abstract class BaseProviderStrategy {
 
     const shouldSkipCancelLogin =
       options &&
-      'shouldCancelLogin' in options &&
-      options.shouldCancelLogin === true;
+      'shouldSkipCancelLogin' in options &&
+      options.shouldSkipCancelLogin === true;
 
     if (!shouldSkipCancelLogin) {
       this.cancelLogin();
