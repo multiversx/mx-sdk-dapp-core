@@ -50,7 +50,7 @@ export class TransactionManager {
 
       if (!sentTransactions.data || sentTransactions.data.error) {
         throw new Error(
-          sentTransactions.data?.error || 'Failed to send transactions'
+          sentTransactions.data?.error ?? 'Failed to send transactions'
         );
       }
 
@@ -100,7 +100,7 @@ export class TransactionManager {
     return sessionId;
   };
 
-  private sendSignedTransactions = async (
+  private readonly sendSignedTransactions = async (
     signedTransactions: Transaction[]
   ): Promise<SignedTransactionType[]> => {
     const { apiAddress, apiTimeout } = networkSelector(getState());
@@ -120,7 +120,7 @@ export class TransactionManager {
     }));
   };
 
-  private sendSignedBatchTransactions = async (
+  private readonly sendSignedBatchTransactions = async (
     signedTransactions: Transaction[][]
   ) => {
     const { address } = getAccount();
@@ -156,22 +156,22 @@ export class TransactionManager {
     return { data };
   };
 
-  private buildBatchId = (address: string) => {
+  private readonly buildBatchId = (address: string) => {
     const sessionId = Date.now().toString();
     return `${sessionId}${BATCH_TRANSACTIONS_ID_SEPARATOR}${address}`;
   };
-  private sequentialToFlatArray = (
+  private readonly sequentialToFlatArray = (
     transactions: SignedTransactionType[] | SignedTransactionType[][] = []
   ) =>
     this.getIsSequential(transactions)
       ? transactions.flat()
       : (transactions as SignedTransactionType[]);
 
-  private getIsSequential = (
+  private readonly getIsSequential = (
     transactions?: SignedTransactionType[] | SignedTransactionType[][]
   ) => transactions?.every((transaction) => Array.isArray(transaction));
 
-  private parseSignedTransaction = (
+  private readonly parseSignedTransaction = (
     signedTransaction: Transaction
   ): SignedTransactionType => {
     const transactionComputer = new TransactionComputer();
