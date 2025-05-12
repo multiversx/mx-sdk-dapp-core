@@ -29,6 +29,7 @@ export class SignTransactionsStateManager extends SidePanelBaseManager<
   > = {};
 
   protected initialData: ISignTransactionsPanelData = {
+    isLoading: false,
     commonData: {
       transactionsCount: 0,
       currentIndexToSign: 0,
@@ -82,7 +83,8 @@ export class SignTransactionsStateManager extends SidePanelBaseManager<
         this.updateGasPriceMap({
           nonce: Number(transaction.nonce),
           ppu,
-          initialGasPrice
+          initialGasPrice,
+          shouldNotify: false
         });
       });
   }
@@ -90,11 +92,13 @@ export class SignTransactionsStateManager extends SidePanelBaseManager<
   public updateGasPriceMap({
     nonce,
     ppu,
-    initialGasPrice
+    initialGasPrice,
+    shouldNotify = true
   }: {
     nonce: number;
     initialGasPrice?: number;
     ppu: ISignTransactionsPanelCommonData['ppu'];
+    shouldNotify?: boolean;
   }) {
     this._ppuMap[nonce] = {
       ...this._ppuMap[nonce],
@@ -103,7 +107,10 @@ export class SignTransactionsStateManager extends SidePanelBaseManager<
     if (initialGasPrice) {
       this._ppuMap[nonce].initialGasPrice = initialGasPrice;
     }
-    this.updateCommonData({ ppu });
+
+    if (shouldNotify) {
+      this.updateCommonData({ ppu });
+    }
   }
 
   public updateCommonData(
@@ -113,6 +120,12 @@ export class SignTransactionsStateManager extends SidePanelBaseManager<
       ...this.data.commonData,
       ...newCommonData
     };
+    this.notifyDataUpdate();
+  }
+
+  public updateIsLoading(newState: boolean) {
+    this.data.isLoading = newState;
+
     this.notifyDataUpdate();
   }
 

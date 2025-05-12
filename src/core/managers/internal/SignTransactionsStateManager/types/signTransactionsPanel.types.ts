@@ -50,7 +50,8 @@ export interface ISignTransactionsPanelCommonData {
 }
 
 export interface ISignTransactionsPanelData {
-  shouldClose?: true;
+  shouldClose?: boolean;
+  isLoading: boolean;
   commonData: ISignTransactionsPanelCommonData;
   tokenTransaction: {
     identifier?: string;
