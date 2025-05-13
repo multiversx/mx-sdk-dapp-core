@@ -43,15 +43,26 @@ export async function signTransactions({
   let signedIndexes: number[] = [];
 
   const manager = SignTransactionsStateManager.getInstance();
+
+  if (!manager) {
+    throw new Error('Unable to establish connection with sign screens');
+  }
+
   const eventBus = await manager.getEventBus();
 
   if (!eventBus) {
     throw new Error(ProviderErrorsEnum.eventBusError);
   }
 
-  if (!manager) {
-    throw new Error('Unable to establish connection with sign screens');
-  }
+  const handleCancel = async () => {
+    await cancelCrossWindowAction();
+    manager.closeAndReset();
+  };
+
+  eventBus.subscribe(
+    SignEventsEnum.CLOSE_SIGN_TRANSACTIONS_PANEL,
+    handleCancel
+  );
 
   return new Promise<Transaction[]>(async (resolve, reject) => {
     const signedTransactions: Transaction[] = [];
@@ -112,7 +123,7 @@ export async function signTransactions({
           gasPriceData: manager.ppuMap[currentNonce]
         });
 
-        const newTransaction = Transaction.fromPlainObject({
+        const newTransaction = Transaction.newFromPlainObject({
           ...plainTransaction,
           gasPrice: newGasPrice
         });
@@ -152,8 +163,6 @@ export async function signTransactions({
 
       async function onSign() {
         const shouldContinueWithoutSigning = !commonData.needsSigning;
-
-        removeEvents();
 
         if (shouldContinueWithoutSigning) {
           return showNextScreen(currentScreenIndex + 1);
@@ -201,9 +210,10 @@ export async function signTransactions({
 
           showNextScreen(currentScreenIndex + 1);
         } catch (error) {
-          removeEvents();
           manager.closeAndReset();
           reject(error);
+        } finally {
+          removeEvents();
         }
       }
 

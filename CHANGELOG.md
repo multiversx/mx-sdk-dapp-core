@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- [Fixed cross-window skipLogin flag](https://github.com/multiversx/mx-sdk-dapp-core/pull/164)
+- [Fixed login double cross-window wallet disconnect](https://github.com/multiversx/mx-sdk-dapp-core/pull/163)
 - [Added webview provider tests](https://github.com/multiversx/mx-sdk-dapp-core/pull/161)
 
 ## [[0.0.0-alpha.21](https://github.com/multiversx/mx-sdk-dapp-core/pull/159)] - 2025-05-07
@@ -19,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - [Added custom provider side panel integration](https://github.com/multiversx/mx-sdk-dapp-core/pull/154)
 - [Added providers customization support](https://github.com/multiversx/mx-sdk-dapp-core/pull/153)
+- [Fixed ledger signing](https://github.com/multiversx/mx-sdk-dapp-core/pull/152)
 - [Fixed multisig login](https://github.com/multiversx/mx-sdk-dapp-core/pull/150)
 - [Fixed Ledger address table pagination transition state](https://github.com/multiversx/mx-sdk-dapp-core/pull/149)
 - [Removed unnecessary next and previous Ledger address table pagination handlers](https://github.com/multiversx/mx-sdk-dapp-core/pull/148)

@@ -8,7 +8,10 @@ import { crossWindowConfigSelector } from 'store/selectors';
 import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
 import { ProviderErrorsEnum } from 'types/provider.types';
-import { BaseProviderStrategy } from '../BaseProviderStrategy/BaseProviderStrategy';
+import {
+  BaseProviderStrategy,
+  LoginOptionsTypes
+} from '../BaseProviderStrategy/BaseProviderStrategy';
 import { getPendingTransactionsHandlers } from '../helpers/getPendingTransactionsHandlers';
 import { signMessage } from '../helpers/signMessage/signMessage';
 import { guardTransactions } from '../helpers/signTransactions/helpers/guardTransactions/guardTransactions';
@@ -46,12 +49,22 @@ export class CrossWindowProviderStrategy extends BaseProviderStrategy {
     this._signMessage = this.provider.signMessage.bind(this.provider);
     this._login = this.provider.login.bind(this.provider);
 
-    this.provider.setWalletUrl(this.walletAddress || network.walletAddress);
+    this.provider.setWalletUrl(this.walletAddress ?? network.walletAddress);
     this.provider.setAddress(this.address);
 
     this.setPopupConsent();
 
     return this.buildProvider();
+  };
+
+  override cancelLogin = () => {
+    if (this.loginAbortController) {
+      this.loginAbortController.abort();
+    }
+
+    // is called instead of provider.cancelAction()
+    CrossWindowProvider.getInstance().onDestroy();
+    this.loginAbortController = null;
   };
 
   protected override cancelAction() {
@@ -62,7 +75,15 @@ export class CrossWindowProviderStrategy extends BaseProviderStrategy {
     cancelActionReference?.();
   }
 
-  private buildProvider = () => {
+  override login = async (
+    options?: LoginOptionsTypes
+  ): Promise<{ address: string; signature: string }> => {
+    // we are no longer cancelling the login here, because cancelLogin already destroys the provider
+    const loginOptions = { ...options, shouldSkipCancelLogin: true };
+    return super.login(loginOptions);
+  };
+
+  private readonly buildProvider = () => {
     if (!this.provider) {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
@@ -77,7 +98,7 @@ export class CrossWindowProviderStrategy extends BaseProviderStrategy {
     return provider;
   };
 
-  private signTransactions = async (transactions: Transaction[]) => {
+  private readonly signTransactions = async (transactions: Transaction[]) => {
     if (!this.provider || !this._signTransactions) {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
@@ -122,7 +143,7 @@ export class CrossWindowProviderStrategy extends BaseProviderStrategy {
     }
   };
 
-  private signMessage = async (message: Message) => {
+  private readonly signMessage = async (message: Message) => {
     if (!this.provider || !this._signMessage) {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
@@ -138,7 +159,8 @@ export class CrossWindowProviderStrategy extends BaseProviderStrategy {
 
     return signedMessage;
   };
-  private setPopupConsent = () => {
+
+  private readonly setPopupConsent = () => {
     const crossWindowDappConfig = crossWindowConfigSelector(getState());
 
     if (!this.provider) {

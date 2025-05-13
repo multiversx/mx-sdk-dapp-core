@@ -4,6 +4,7 @@ import {
   FungibleTransactionType,
   ISignTransactionsPanelCommonData
 } from 'core/managers/internal/SignTransactionsStateManager/types';
+import { getAccountProvider } from 'core/providers/helpers/accountProvider';
 import { formatAmount } from 'lib/sdkDappUtils';
 import { NetworkType } from 'types/network.types';
 import { NftEnumType } from 'types/tokens.types';
@@ -11,6 +12,7 @@ import {
   MultiSignTransactionType,
   TransactionDataTokenType
 } from 'types/transactions.types';
+import { capitalize } from 'utils/operations/capitalize';
 import { getUsdValue } from 'utils/operations/getUsdValue';
 import { getFeeData } from '../getFeeData';
 import { getExtractTransactionsInfo } from './helpers/getExtractTransactionsInfo';
@@ -49,7 +51,7 @@ export async function getCommonData({
   parsedTransactionsByDataField
 }: GetCommonDataPropsType) {
   const currentTransaction = allTransactions[currentScreenIndex];
-  const sender = currentTransaction?.transaction?.getSender().toString();
+  const sender = currentTransaction?.transaction?.sender.toString();
   const transaction = currentTransaction?.transaction;
 
   let tokenTransaction: {
@@ -145,12 +147,16 @@ export async function getCommonData({
   const gasPrice = getRecommendedGasPrice({
     transaction: plainTransaction,
     gasPriceData
-  }).toString();
+  });
+
+  const provider = getAccountProvider();
+  const providerType = provider.getType();
+  const providerName = capitalize(providerType as string);
 
   const commonData: ISignTransactionsPanelCommonData = {
     receiver: plainTransaction.receiver.toString(),
     data: currentTransaction.transaction.getData().toString(),
-    gasPrice,
+    gasPrice: gasPrice.toString(),
     gasLimit: plainTransaction.gasLimit.toString(),
     ppu: gasPriceData.ppu,
     ppuOptions,
@@ -164,7 +170,8 @@ export async function getCommonData({
     scCall: getScCall(txInfo?.transactionTokenInfo),
     needsSigning:
       txInfo?.needsSigning && !signedIndexes.includes(currentScreenIndex),
-    isEditable: txInfo?.needsSigning
+    isEditable: txInfo?.needsSigning,
+    providerName
   };
 
   return { commonData, tokenTransaction, fungibleTransaction };
