@@ -29,6 +29,7 @@ describe('getCommonData', () => {
     expect(commonData).toStrictEqual({
       commonData: {
         currentIndex: 0,
+        currentIndexToSign: 0,
         data: 'wrapEgld',
         egldLabel: 'xEGLD',
         feeInFiatLimit: '$0.0018',
@@ -44,7 +45,14 @@ describe('getCommonData', () => {
           'erd1qqqqqqqqqqqqqpgqpv09kfzry5y4sj05udcngesat07umyj70n4sa2c0rp',
         scCall: null,
         tokenType: 'FungibleESDT',
-        transactionsCount: 4
+        transactionsCount: 4,
+        address:
+          'erd1dm9uxpf5awkn7uhju7zjn9lde0dhahy0qaxqqlu26xcuuw27qqrsqfmej3',
+        addressExplorerLink:
+          'http://devnet-explorer.multiversx.com/accounts/erd1dm9uxpf5awkn7uhju7zjn9lde0dhahy0qaxqqlu26xcuuw27qqrsqfmej3',
+        origin: 'http://localhost',
+        providerName: '',
+        username: undefined
       },
       fungibleTransaction: null,
       tokenTransaction: {
@@ -90,7 +98,7 @@ describe('when the gas limit is updated', () => {
     ]
   };
 
-  it('should return the common data wit ppu for fist transaction', async () => {
+  it('should return the common data with ppu for first transaction', async () => {
     const commonData = await getCommonData({
       ...mockData,
       gasPriceData: {
@@ -104,6 +112,7 @@ describe('when the gas limit is updated', () => {
     expect(commonData).toStrictEqual({
       commonData: {
         currentIndex: 0,
+        currentIndexToSign: 0,
         data: 'wrapEgld',
         egldLabel: 'xEGLD',
         feeInFiatLimit: '$0.0036',
@@ -128,8 +137,16 @@ describe('when the gas limit is updated', () => {
           'erd1qqqqqqqqqqqqqpgqpv09kfzry5y4sj05udcngesat07umyj70n4sa2c0rp',
         scCall: null,
         tokenType: 'FungibleESDT',
-        transactionsCount: 4
+        transactionsCount: 4,
+        address:
+          'erd1dm9uxpf5awkn7uhju7zjn9lde0dhahy0qaxqqlu26xcuuw27qqrsqfmej3',
+        addressExplorerLink:
+          'http://devnet-explorer.multiversx.com/accounts/erd1dm9uxpf5awkn7uhju7zjn9lde0dhahy0qaxqqlu26xcuuw27qqrsqfmej3',
+        origin: 'http://localhost',
+        providerName: '',
+        username: undefined
       },
+
       fungibleTransaction: null,
       tokenTransaction: {
         amount: '1.0000',
@@ -154,6 +171,7 @@ describe('when the gas limit is updated', () => {
     expect(commonData).toStrictEqual({
       commonData: {
         currentIndex: 3,
+        currentIndexToSign: 0,
         data: 'MultiESDTNFTTransfer@00000000000000000500139ed7ae4aa03792e6bcb332394a40fe746eefa47ceb@02@5745474c442d613238633539@@0de0b6b3a7640000@4d45582d613635396430@@e177704bc43f9bee3106@6164644c6971756964697479@0dbd2fc137a30000@df363e8872ed0d9235a7',
         egldLabel: 'xEGLD',
         feeInFiatLimit: '$0.0998',
@@ -183,7 +201,14 @@ describe('when the gas limit is updated', () => {
           'erd1dm9uxpf5awkn7uhju7zjn9lde0dhahy0qaxqqlu26xcuuw27qqrsqfmej3',
         scCall: 'addLiquidity',
         tokenType: 'FungibleESDT',
-        transactionsCount: 4
+        transactionsCount: 4,
+        address:
+          'erd1dm9uxpf5awkn7uhju7zjn9lde0dhahy0qaxqqlu26xcuuw27qqrsqfmej3',
+        addressExplorerLink:
+          'http://devnet-explorer.multiversx.com/accounts/erd1dm9uxpf5awkn7uhju7zjn9lde0dhahy0qaxqqlu26xcuuw27qqrsqfmej3',
+        origin: 'http://localhost',
+        providerName: '',
+        username: undefined
       },
       fungibleTransaction: null,
       tokenTransaction: {
