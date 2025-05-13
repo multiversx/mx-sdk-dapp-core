@@ -79,7 +79,7 @@ export class CrossWindowProviderStrategy extends BaseProviderStrategy {
     options?: LoginOptionsTypes
   ): Promise<{ address: string; signature: string }> => {
     // we are no longer cancelling the login here, because cancelLogin already destroys the provider
-    const loginOptions = { ...options, shouldCancelLogin: false };
+    const loginOptions = { ...options, shouldSkipCancelLogin: true };
     return super.login(loginOptions);
   };
 

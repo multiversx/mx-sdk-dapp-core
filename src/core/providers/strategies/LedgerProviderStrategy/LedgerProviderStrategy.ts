@@ -90,6 +90,14 @@ export class LedgerProviderStrategy extends BaseProviderStrategy {
     return provider;
   };
 
+  override login = async (
+    options?: LoginOptionsTypes
+  ): Promise<{ address: string; signature: string }> => {
+    // we are no longer cancelling the login here, because cancelLogin already destroys the provider
+    const loginOptions = { ...options, shouldSkipCancelLogin: true };
+    return super.login(loginOptions);
+  };
+
   private readonly ledgerLogin = async (
     options?: LoginOptionsTypes & { addressIndex?: number }
   ): Promise<{ address: string; signature: string }> => {
