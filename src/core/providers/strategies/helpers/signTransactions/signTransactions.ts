@@ -213,8 +213,12 @@ export async function signTransactions({
         }
 
         const isLastScreen = currentScreenIndex === allTransactions.length - 1;
+        const allTransactionsWithSign = allTransactions.filter(
+          (tx) => tx.needsSigning
+        );
+
         const areAllTransactionsSigned =
-          signedTransactions.length === allTransactions.length;
+          signedTransactions.length === allTransactionsWithSign.length;
 
         if (isLastScreen && areAllTransactionsSigned) {
           const optionallyGuardedTransactions =
