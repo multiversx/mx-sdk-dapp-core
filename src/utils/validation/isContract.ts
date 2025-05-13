@@ -1,7 +1,7 @@
+import { Address } from 'lib/sdkCore';
 import { ESDTTransferTypesEnum, TypesOfSmartContractCallsEnum } from 'types';
 import { isStringBase64 } from 'utils/decoders/base64Utils';
 import { addressIsValid } from './addressIsValid';
-import { Address } from 'lib/sdkCore';
 
 export function isContract(
   receiver: string,

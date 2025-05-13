@@ -23,8 +23,9 @@ import { getIsInIframe } from 'utils/window/getIsInIframe';
 import { InitAppType } from './initApp.types';
 import { getIsLoggedIn } from '../account/getIsLoggedIn';
 import { registerWebsocketListener } from './websocket/registerWebsocket';
-import { getAccount } from '../account/getAccount';
 import { trackTransactions } from '../trackTransactions/trackTransactions';
+import { initGasStationMetadata } from './gastStationMetadata/initGasStationMetadata';
+import { getAccount } from '../account/getAccount';
 
 const defaultInitAppProps = {
   storage: {
@@ -134,6 +135,13 @@ export async function initApp({
     await restoreProvider();
     await registerWebsocketListener(account.address);
     trackTransactions();
+
+    if (account.shard != null) {
+      await initGasStationMetadata({
+        shard: Number(account.shard),
+        apiAddress
+      });
+    }
   }
 
   isAppInitialized = true;
