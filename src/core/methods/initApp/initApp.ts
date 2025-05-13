@@ -135,13 +135,13 @@ export async function initApp({
     await restoreProvider();
     await registerWebsocketListener(account.address);
     trackTransactions();
+  }
 
-    if (account.shard != null) {
-      await initGasStationMetadata({
-        shard: Number(account.shard),
-        apiAddress
-      });
-    }
+  if (account.shard != null) {
+    await initGasStationMetadata({
+      shard: Number(account.shard),
+      apiAddress
+    });
   }
 
   isAppInitialized = true;
