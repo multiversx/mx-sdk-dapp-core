@@ -157,7 +157,7 @@ export async function signTransactions({
     const onCancel = async () => {
       reject(new Error('Transaction signing cancelled by user'));
       await cancelCrossWindowAction();
-      unsubscribeEvents();
+      unsubscribeFromEvents();
       manager.closeAndReset();
     };
 
@@ -213,60 +213,58 @@ export async function signTransactions({
         }
 
         const isLastScreen = currentScreenIndex === allTransactions.length - 1;
-        const allTransactionsWithSign = allTransactions.filter(
+        const allSignableTransactions = allTransactions.filter(
           (tx) => tx.needsSigning
         );
 
         const areAllTransactionsSigned =
-          signedTransactions.length === allTransactionsWithSign.length;
+          signedTransactions.length === allSignableTransactions.length;
 
         if (isLastScreen && areAllTransactionsSigned) {
           const optionallyGuardedTransactions =
             await guardTransactions(signedTransactions);
-          unsubscribeEvents();
+          unsubscribeFromEvents();
           manager.closeAndReset();
           return resolve(optionallyGuardedTransactions);
         }
 
         onNext();
       } catch (error) {
-        unsubscribeEvents();
+        unsubscribeFromEvents();
         manager.closeAndReset();
         reject(error);
       }
     };
 
-    function subscribeEvents() {
+    const eventHandlersMap = new Map([
+      [SignEventsEnum.NEXT, onNext],
+      [SignEventsEnum.CONFIRM, onSign],
+      [SignEventsEnum.CLOSE_SIGN_TRANSACTIONS_PANEL, onCancel],
+      [SignEventsEnum.BACK, onBack],
+      [SignEventsEnum.SET_PPU, onSetPpu]
+    ]);
+
+    function subscribeToEvents() {
       if (!eventBus) {
         return;
       }
 
-      eventBus.subscribe(SignEventsEnum.NEXT, onNext);
-      eventBus.subscribe(SignEventsEnum.CONFIRM, onSign);
-      eventBus.subscribe(
-        SignEventsEnum.CLOSE_SIGN_TRANSACTIONS_PANEL,
-        onCancel
-      );
-      eventBus.subscribe(SignEventsEnum.BACK, onBack);
-      eventBus.subscribe(SignEventsEnum.SET_PPU, onSetPpu);
+      for (const [event, handler] of eventHandlersMap) {
+        eventBus.subscribe(event, handler);
+      }
     }
 
-    function unsubscribeEvents() {
+    function unsubscribeFromEvents() {
       if (!eventBus) {
         return;
       }
 
-      eventBus.unsubscribe(SignEventsEnum.NEXT, onNext);
-      eventBus.unsubscribe(SignEventsEnum.CONFIRM, onSign);
-      eventBus.unsubscribe(
-        SignEventsEnum.CLOSE_SIGN_TRANSACTIONS_PANEL,
-        onCancel
-      );
-      eventBus.unsubscribe(SignEventsEnum.BACK, onBack);
-      eventBus.unsubscribe(SignEventsEnum.SET_PPU, onSetPpu);
+      for (const [event, handler] of eventHandlersMap) {
+        eventBus.unsubscribe(event, handler);
+      }
     }
 
-    subscribeEvents();
+    subscribeToEvents();
     await updateScreen();
   });
 }

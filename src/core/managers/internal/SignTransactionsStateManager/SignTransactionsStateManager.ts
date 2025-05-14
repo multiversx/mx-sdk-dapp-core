@@ -29,7 +29,6 @@ export class SignTransactionsStateManager extends SidePanelBaseManager<
   > = {};
 
   protected initialData: ISignTransactionsPanelData = {
-    isLoading: false,
     commonData: {
       transactionsCount: 0,
       currentIndexToSign: 0,
