@@ -18,6 +18,7 @@ import { decodeBase64 } from 'utils/decoders/base64Utils';
 import { capitalize } from 'utils/operations/capitalize';
 import { getUsdValue } from 'utils/operations/getUsdValue';
 import { getFeeData } from '../getFeeData';
+import { getAllDecodedFormats } from './helpers/decodeData';
 import { getExtractTransactionsInfo } from './helpers/getExtractTransactionsInfo';
 import { getHighlight } from './helpers/getHighlight';
 import { getPpuOptions } from './helpers/getPpuOptions';
@@ -161,9 +162,16 @@ export async function getCommonData({
   const currentIndexToSign =
     signedIndexes.length > 0 ? signedIndexes[signedIndexes.length - 1] + 1 : 0;
 
+  const data = decodeBase64(
+    currentTransaction.transaction.data.toString() ?? ''
+  );
+
+  const decodedData = getAllDecodedFormats({ data, identifier });
+
   const commonData: ISignTransactionsPanelCommonData = {
     receiver: plainTransaction.receiver.toString(),
     data: decodeBase64(currentTransaction.transaction.data.toString() ?? ''),
+    decodedData,
     gasPrice: gasPrice.toString(),
     gasLimit: plainTransaction.gasLimit.toString(),
     addressExplorerLink: `${network.explorerAddress}/${ACCOUNTS_ENDPOINT}/${address}`,

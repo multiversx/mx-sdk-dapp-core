@@ -1,7 +1,7 @@
+import { Address } from 'lib/sdkCore';
 import { ESDTTransferTypesEnum, TypesOfSmartContractCallsEnum } from 'types';
 import { isStringBase64 } from 'utils/decoders/base64Utils';
 import { addressIsValid } from './addressIsValid';
-import { Address } from 'lib/sdkCore';
 
 export function isContract(
   receiver: string,
@@ -35,10 +35,11 @@ export function isContract(
   );
 }
 
-const isHexValidCharacters = (str: string) => {
+export const isHexValidCharacters = (str: string) => {
   return str.toLowerCase().match(/[0-9a-f]/g);
 };
-const isHexValidLength = (str: string) => {
+
+export const isHexValidLength = (str: string) => {
   return str.length % 2 === 0;
 };
 

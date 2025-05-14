@@ -1,4 +1,8 @@
 // types here need to be synced with the types in sdk-dapp-core-ui sign-transactions-modal.types.ts
+import {
+  DecodedDisplayType,
+  DecodeMethodEnum
+} from 'types/serverTransactions.types';
 import type { EsdtEnumType, NftEnumType } from 'types/tokens.types';
 
 export interface ITransactionData {
@@ -20,6 +24,7 @@ export interface ISignTransactionsPanelCommonData {
   receiverIcon?: string;
   data?: string;
   gasPrice?: string;
+  decodedData?: Partial<Record<DecodeMethodEnum, DecodedDisplayType>>;
   /**
    * ppu - Price Per Unit
    * a constant that is used to calculate the gas price inside `recommendGasPrice`
