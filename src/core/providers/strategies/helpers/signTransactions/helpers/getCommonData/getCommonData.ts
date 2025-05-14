@@ -166,7 +166,8 @@ export async function getCommonData({
     currentTransaction.transaction.data.toString() ?? ''
   );
 
-  const decodedData = getAllDecodedFormats({ data, identifier });
+  const highlight = getHighlight(txInfo?.transactionTokenInfo);
+  const decodedData = getAllDecodedFormats({ data, identifier, highlight });
 
   const commonData: ISignTransactionsPanelCommonData = {
     receiver: plainTransaction.receiver.toString(),

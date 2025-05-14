@@ -130,6 +130,7 @@ const getDisplayValueAndValidationWarnings = ({
       ((index === 0 && part.length < 64) || (index === 1 && !parts[0]))
     ) {
       const encodedDisplayValue = /[^a-z0-9]/gi.test(part);
+
       if (encodedDisplayValue) {
         return decodeByMethod(part, decodeMethod);
       }
@@ -160,22 +161,74 @@ const getDisplayValueAndValidationWarnings = ({
   return decodedParts;
 };
 
+const combineParts = ({
+  parts,
+  method,
+  identifier,
+  initialDecodedParts
+}: {
+  parts: string[];
+  method: DecodeMethodEnum;
+  identifier?: string;
+  initialDecodedParts: string[];
+}) => {
+  if (method === DecodeMethodEnum.smart) {
+    return getSmartDecodedParts({
+      parts,
+      decodedParts: initialDecodedParts,
+      identifier
+    });
+  }
+
+  return initialDecodedParts;
+};
+
+const decodeHighlight = ({
+  data,
+  identifier,
+  method
+}: {
+  data: string;
+  identifier?: string;
+  method: DecodeMethodEnum;
+}) => {
+  const parts = data.split('@');
+
+  const initialDecodedParts = parts.map((part) => {
+    return decodeByMethod(part, method);
+  });
+
+  return combineParts({
+    parts,
+    initialDecodedParts,
+    identifier,
+    method
+  });
+};
+
 const decodeDataField = ({
   data,
   identifier,
-  decodeMethod
+  decodeMethod,
+  highlight
 }: {
   data: string;
   identifier?: string;
   decodeMethod: DecodeMethodEnum;
+  highlight?: string | null;
 }) => {
   const decodedData: DecodedDisplayType = {
     displayValue: '',
-    validationWarnings: []
+    validationWarnings: [],
+    highlight
   };
 
   if (!data.includes('@') && !data.includes('\n')) {
     decodedData.displayValue = decodeByMethod(data, decodeMethod);
+
+    if (highlight) {
+      decodedData.highlight = decodeByMethod(highlight, decodeMethod);
+    }
 
     return decodedData;
   }
@@ -188,6 +241,16 @@ const decodeDataField = ({
       identifier,
       decodedData
     });
+
+    if (highlight) {
+      const result = decodeHighlight({
+        data: highlight,
+        identifier,
+        method: decodeMethod
+      });
+
+      decodedData.highlight = result.join('@');
+    }
 
     decodedData.displayValue = decodedParts.join('@');
   }
@@ -204,14 +267,22 @@ const decodeDataField = ({
       return decodeByMethod(base64Buffer.toString('hex'), decodeMethod);
     });
 
-    const decodedParts =
-      decodeMethod === DecodeMethodEnum.smart
-        ? getSmartDecodedParts({
-            parts,
-            decodedParts: initialDecodedParts,
-            identifier
-          })
-        : initialDecodedParts;
+    const decodedParts = combineParts({
+      parts,
+      initialDecodedParts,
+      identifier,
+      method: decodeMethod
+    });
+
+    if (highlight) {
+      const result = decodeHighlight({
+        data: highlight,
+        identifier,
+        method: decodeMethod
+      });
+
+      decodedData.highlight = result.join('\n');
+    }
 
     decodedData.displayValue = decodedParts.join('\n');
   }
@@ -221,9 +292,11 @@ const decodeDataField = ({
 
 export const getAllDecodedFormats = ({
   data,
+  highlight,
   identifier
 }: {
   data: string;
+  highlight?: string | null;
   identifier?: string;
 }) => {
   const decodedFormats: Partial<Record<DecodeMethodEnum, DecodedDisplayType>> =
@@ -233,7 +306,8 @@ export const getAllDecodedFormats = ({
     const decodedData = decodeDataField({
       data,
       identifier,
-      decodeMethod: method
+      decodeMethod: method,
+      highlight
     });
 
     decodedFormats[method] = decodedData;
