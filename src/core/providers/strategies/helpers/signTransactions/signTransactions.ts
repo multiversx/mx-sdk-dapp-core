@@ -130,6 +130,8 @@ export async function signTransactions({
         ppu
       });
 
+      manager.updateCommonData({ ppu });
+
       const plainTransaction = transaction.toPlainObject();
       const newGasPrice = getRecommendedGasPrice({
         transaction: plainTransaction,

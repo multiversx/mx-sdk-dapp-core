@@ -74,42 +74,42 @@ export class SignTransactionsStateManager extends SidePanelBaseManager<
   }
 
   public initializeGasPriceMap(transactions: Transaction[]) {
+    const ppu = EMPTY_PPU;
+
     transactions
       .filter((tx) => tx != null)
       .forEach((transaction) => {
         const initialGasPrice = transaction ? Number(transaction.gasPrice) : 0;
-        const ppu = EMPTY_PPU;
+
         this.updateGasPriceMap({
           nonce: Number(transaction.nonce),
           ppu,
-          initialGasPrice,
-          shouldNotify: false
+          initialGasPrice
         });
       });
+
+    this.updateCommonData({ ppu });
   }
 
   public updateGasPriceMap({
     nonce,
     ppu,
-    initialGasPrice,
-    shouldNotify = true
+    initialGasPrice
   }: {
     nonce: number;
     initialGasPrice?: number;
     ppu: ISignTransactionsPanelCommonData['ppu'];
-    shouldNotify?: boolean;
   }) {
     this._ppuMap[nonce] = {
       ...this._ppuMap[nonce],
       ppu
     };
-    if (initialGasPrice) {
-      this._ppuMap[nonce].initialGasPrice = initialGasPrice;
+
+    if (!initialGasPrice) {
+      return;
     }
 
-    if (shouldNotify) {
-      this.updateCommonData({ ppu });
-    }
+    this._ppuMap[nonce].initialGasPrice = initialGasPrice;
   }
 
   public updateCommonData(
