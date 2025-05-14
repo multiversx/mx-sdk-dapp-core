@@ -47,7 +47,7 @@ const decodeByMethod = (
       try {
         return Buffer.from(part, 'hex').toString('utf8');
       } catch {
-        //TODO
+        //DO NOTHING
       }
 
       return part;
@@ -55,13 +55,13 @@ const decodeByMethod = (
       return part !== '' ? new BigNumber(part, 16).toString(10) : '';
     case DecodeMethodEnum.smart:
       try {
-        const bech32Encoded = Address.fromHex(part).toString();
+        const bech32Encoded = Address.newFromHex(part).toString();
 
         if (addressIsValid(bech32Encoded)) {
           return bech32Encoded;
         }
       } catch {
-        //TODO
+        //DO NOTHING
       }
 
       try {
@@ -86,7 +86,7 @@ const decodeByMethod = (
           return decoded;
         }
       } catch {
-        //TODO
+        //DO NOTHING
       }
 
       return part;
