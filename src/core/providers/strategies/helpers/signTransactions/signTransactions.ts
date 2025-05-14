@@ -244,7 +244,7 @@ export async function signTransactions({
       [SignEventsEnum.SET_PPU, onSetPpu]
     ]);
 
-    function subscribeToEvents() {
+    function setupEventListeners() {
       if (!eventBus) {
         return;
       }
@@ -264,7 +264,7 @@ export async function signTransactions({
       }
     }
 
-    subscribeToEvents();
+    setupEventListeners();
     await updateScreen();
   });
 }
