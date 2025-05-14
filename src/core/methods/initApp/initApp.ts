@@ -24,7 +24,7 @@ import { InitAppType } from './initApp.types';
 import { getIsLoggedIn } from '../account/getIsLoggedIn';
 import { registerWebsocketListener } from './websocket/registerWebsocket';
 import { trackTransactions } from '../trackTransactions/trackTransactions';
-import { initGasStationMetadata } from './gastStationMetadata/initGasStationMetadata';
+import { setGasStationMetadata } from './gastStationMetadata/setGasStationMetadata';
 import { getAccount } from '../account/getAccount';
 
 const defaultInitAppProps = {
@@ -138,7 +138,7 @@ export async function initApp({
   }
 
   if (account.shard != null) {
-    await initGasStationMetadata({
+    await setGasStationMetadata({
       shard: Number(account.shard),
       apiAddress
     });

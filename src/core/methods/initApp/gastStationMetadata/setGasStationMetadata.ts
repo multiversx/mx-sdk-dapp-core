@@ -3,15 +3,15 @@ import { initializeNetworkConfig } from 'store/actions/network/networkActions';
 import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
 
-interface IInitGasStationMetadataParams {
+interface ISetGasStationMetadataParams {
   shard: number;
   apiAddress: string;
 }
 
-export async function initGasStationMetadata({
+export async function setGasStationMetadata({
   shard,
   apiAddress
-}: IInitGasStationMetadataParams) {
+}: ISetGasStationMetadataParams) {
   if (shard == null) {
     return;
   }

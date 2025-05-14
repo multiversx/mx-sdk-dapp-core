@@ -1,5 +1,5 @@
 import { getLatestNonce } from 'core/methods/account/getLatestNonce';
-import { initGasStationMetadata } from 'core/methods/initApp/gastStationMetadata/initGasStationMetadata';
+import { setGasStationMetadata } from 'core/methods/initApp/gastStationMetadata/setGasStationMetadata';
 import { registerWebsocketListener } from 'core/methods/initApp/websocket/registerWebsocket';
 import { trackTransactions } from 'core/methods/trackTransactions/trackTransactions';
 import { IProvider } from 'core/providers/types/providerFactory.types';
@@ -44,7 +44,7 @@ export async function accountLogin({
   trackTransactions();
 
   if (account.shard != null) {
-    await initGasStationMetadata({
+    await setGasStationMetadata({
       shard: Number(account.shard),
       apiAddress
     });
