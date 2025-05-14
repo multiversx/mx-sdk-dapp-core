@@ -230,8 +230,13 @@ export const getAllDecodedFormats = ({
     {};
 
   Object.values(DecodeMethodEnum).forEach((method) => {
-    const result = decodeDataField({ data, identifier, decodeMethod: method });
-    decodedFormats[method] = result;
+    const decodedData = decodeDataField({
+      data,
+      identifier,
+      decodeMethod: method
+    });
+
+    decodedFormats[method] = decodedData;
   });
 
   return decodedFormats;
