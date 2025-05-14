@@ -161,7 +161,7 @@ const getDisplayValueAndValidationWarnings = ({
   return decodedParts;
 };
 
-const combineParts = ({
+const getDecodedParts = ({
   parts,
   method,
   identifier,
@@ -198,7 +198,7 @@ const decodeHighlight = ({
     return decodeByMethod(part, method);
   });
 
-  return combineParts({
+  return getDecodedParts({
     parts,
     initialDecodedParts,
     identifier,
@@ -243,13 +243,13 @@ const decodeDataField = ({
     });
 
     if (highlight) {
-      const result = decodeHighlight({
+      const decodedHighlight = decodeHighlight({
         data: highlight,
         identifier,
         method: decodeMethod
       });
 
-      decodedData.highlight = result.join('@');
+      decodedData.highlight = decodedHighlight.join('@');
     }
 
     decodedData.displayValue = decodedParts.join('@');
@@ -267,7 +267,7 @@ const decodeDataField = ({
       return decodeByMethod(base64Buffer.toString('hex'), decodeMethod);
     });
 
-    const decodedParts = combineParts({
+    const decodedParts = getDecodedParts({
       parts,
       initialDecodedParts,
       identifier,
@@ -275,13 +275,13 @@ const decodeDataField = ({
     });
 
     if (highlight) {
-      const result = decodeHighlight({
+      const decodedHighlight = decodeHighlight({
         data: highlight,
         identifier,
         method: decodeMethod
       });
 
-      decodedData.highlight = result.join('\n');
+      decodedData.highlight = decodedHighlight.join('\n');
     }
 
     decodedData.displayValue = decodedParts.join('\n');
