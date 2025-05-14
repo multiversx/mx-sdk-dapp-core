@@ -4,6 +4,7 @@ import {
   MultiSignTransactionType,
   TransactionsDataTokensType
 } from 'types/transactions.types';
+import { decodeBase64 } from 'utils/decoders/base64Utils';
 import { getTokenFromData } from './getTokenFromData';
 import { parseMultiEsdtTransferData } from './parseMultiEsdtTransferData';
 
@@ -23,7 +24,7 @@ export function parseMultiEsdtTransferDataForMultipleTransactions({
   }
 
   transactions.forEach((transaction, transactionIndex) => {
-    const txData = transaction.getData().toString();
+    const txData = decodeBase64(transaction.data.toString() ?? '');
     const multiTxs = parseMultiEsdtTransferData(txData);
 
     if (multiTxs.length > 0) {
@@ -49,7 +50,7 @@ export function parseMultiEsdtTransferDataForMultipleTransactions({
         allTransactions.push(newTx);
       });
     } else {
-      const transactionData = transaction.getData().toString();
+      const transactionData = decodeBase64(transaction.data.toString() ?? '');
 
       const { tokenId, amount } = getTokenFromData(transactionData);
 
@@ -57,7 +58,7 @@ export function parseMultiEsdtTransferDataForMultipleTransactions({
         parsedTransactionsByDataField[transactionData] = {
           tokenId,
           amount,
-          receiver: transaction.getReceiver().bech32()
+          receiver: transaction.receiver.toBech32()
         };
       }
       allTransactions.push({

@@ -31,7 +31,7 @@ export async function signTransactions({
   guardTransactions = getGuardedTransactions
 }: SignTransactionsParamsType): Promise<Transaction[]> {
   const {
-    account: { address, shard }
+    account: { address, shard, username }
   } = getAccountInfo();
   const network = networkSelector(getState());
 
@@ -69,13 +69,17 @@ export async function signTransactions({
     const economics = await getEconomics({ baseURL: network.apiAddress });
     await manager.openSignTransactions();
     manager.initializeGasPriceMap(allTransactions.map((tx) => tx.transaction));
+    const price = economics?.price;
 
-    const showNextScreen = async (currentScreenIndex: number) => {
+    let currentScreenIndex = 0;
+
+    const updateScreen = async () => {
       const currentTransaction = allTransactions[currentScreenIndex];
       const transaction = currentTransaction?.transaction;
-      const price = economics?.price;
-      const currentNonce = Number(currentTransaction.transaction.nonce);
 
+      const currentNonce = Number(transaction.nonce);
+
+      manager.updateIsLoading(true);
       const { commonData, tokenTransaction, fungibleTransaction } =
         await getCommonData({
           allTransactions,
@@ -85,10 +89,13 @@ export async function signTransactions({
           gasPriceData: manager.ppuMap[currentNonce],
           price,
           address,
+          username,
           shard,
           signedIndexes,
           parsedTransactionsByDataField
         });
+
+      manager.updateIsLoading(false);
 
       if (tokenTransaction) {
         manager.updateTokenTransaction(tokenTransaction);
@@ -102,130 +109,164 @@ export async function signTransactions({
       }
 
       manager.updateCommonData(commonData);
-
-      const onBack = () => {
-        removeEvents();
-        showNextScreen(currentScreenIndex - 1);
-      };
-
-      const onSetPpu = (
-        ppu: ISignTransactionsPanelCommonData['ppu'] = EMPTY_PPU
-      ) => {
-        manager.updateGasPriceMap({
-          nonce: currentNonce,
-          ppu
-        });
-
-        const plainTransaction = transaction.toPlainObject();
-
-        const newGasPrice = getRecommendedGasPrice({
-          transaction: plainTransaction,
-          gasPriceData: manager.ppuMap[currentNonce]
-        });
-
-        const newTransaction = Transaction.newFromPlainObject({
-          ...plainTransaction,
-          gasPrice: newGasPrice
-        });
-
-        const feeData = getFeeData({
-          transaction: newTransaction,
-          price
-        });
-
-        manager.updateCommonData({
-          feeLimit: feeData.feeLimitFormatted,
-          feeInFiatLimit: feeData.feeInFiatLimit,
-          gasPrice: newGasPrice.toString(),
-          ppu
-        });
-      };
-
-      const onCancel = async () => {
-        reject(new Error('Transaction signing cancelled by user'));
-        await cancelCrossWindowAction();
-        manager.closeAndReset();
-      };
-
-      function removeEvents() {
-        if (!eventBus) {
-          return;
-        }
-
-        eventBus.unsubscribe(SignEventsEnum.CONFIRM, onSign);
-        eventBus.unsubscribe(
-          SignEventsEnum.CLOSE_SIGN_TRANSACTIONS_PANEL,
-          onCancel
-        );
-        eventBus.unsubscribe(SignEventsEnum.BACK, onBack);
-        eventBus.unsubscribe(SignEventsEnum.SET_PPU, onSetPpu);
-      }
-
-      async function onSign() {
-        const shouldContinueWithoutSigning = !commonData.needsSigning;
-
-        if (shouldContinueWithoutSigning) {
-          return showNextScreen(currentScreenIndex + 1);
-        }
-
-        const currentEditedTransaction = currentTransaction.transaction;
-        const plainTransaction = currentEditedTransaction.toPlainObject();
-        const txNonce = plainTransaction.nonce;
-
-        if (!currentNonce) {
-          throw new Error('Current nonce not found');
-        }
-
-        const newGasPrice = getRecommendedGasPrice({
-          transaction: plainTransaction,
-          gasPriceData: manager.ppuMap[txNonce]
-        });
-
-        const transactionToSign = Transaction.newFromPlainObject({
-          ...plainTransaction,
-          gasPrice: newGasPrice
-        });
-
-        try {
-          const signedTransaction = await handleSign([transactionToSign]);
-
-          if (signedTransaction) {
-            signedIndexes.push(currentScreenIndex);
-            signedTransactions.push(signedTransaction[0]);
-          }
-
-          const isLastScreen =
-            currentScreenIndex === allTransactions.length - 1;
-
-          const areAllTransactionsSigned =
-            signedTransactions.length === transactions.length;
-
-          if (isLastScreen && areAllTransactionsSigned) {
-            const optionallyGuardedTransactions =
-              await guardTransactions(signedTransactions);
-            manager.closeAndReset();
-
-            return resolve(optionallyGuardedTransactions);
-          }
-
-          showNextScreen(currentScreenIndex + 1);
-        } catch (error) {
-          manager.closeAndReset();
-          reject(error);
-        } finally {
-          removeEvents();
-        }
-      }
-
-      eventBus.subscribe(SignEventsEnum.CONFIRM, onSign);
-      eventBus.subscribe(
-        SignEventsEnum.CLOSE_SIGN_TRANSACTIONS_PANEL,
-        onCancel
-      );
-      eventBus.subscribe(SignEventsEnum.BACK, onBack);
-      eventBus.subscribe(SignEventsEnum.SET_PPU, onSetPpu);
     };
 
-    showNextScreen(0);
+    const onBack = () => {
+      if (currentScreenIndex > 0) {
+        currentScreenIndex--;
+        updateScreen();
+      }
+    };
+
+    const onSetPpu = (
+      ppu: ISignTransactionsPanelCommonData['ppu'] = EMPTY_PPU
+    ) => {
+      const currentTransaction = allTransactions[currentScreenIndex];
+      const transaction = currentTransaction.transaction;
+      const currentNonce = Number(transaction.nonce);
+
+      manager.updateGasPriceMap({
+        nonce: currentNonce,
+        ppu
+      });
+
+      manager.updateCommonData({ ppu });
+
+      const plainTransaction = transaction.toPlainObject();
+      const newGasPrice = getRecommendedGasPrice({
+        transaction: plainTransaction,
+        gasPriceData: manager.ppuMap[currentNonce]
+      });
+
+      const newTransaction = Transaction.newFromPlainObject({
+        ...plainTransaction,
+        gasPrice: newGasPrice
+      });
+
+      const feeData = getFeeData({
+        transaction: newTransaction,
+        price
+      });
+
+      manager.updateCommonData({
+        feeLimit: feeData.feeLimitFormatted,
+        feeInFiatLimit: feeData.feeInFiatLimit,
+        gasPrice: newGasPrice.toString(),
+        ppu
+      });
+    };
+
+    const onCancel = async () => {
+      reject(new Error('Transaction signing cancelled by user'));
+      await cancelCrossWindowAction();
+      unsubscribeFromEvents();
+      manager.closeAndReset();
+    };
+
+    const onNext = () => {
+      if (currentScreenIndex < manager.transactionsCount - 1) {
+        currentScreenIndex++;
+        updateScreen();
+      }
+    };
+
+    const onSign = async () => {
+      const currentTransaction = allTransactions[currentScreenIndex];
+      const transaction = currentTransaction.transaction;
+      const currentNonce = Number(transaction.nonce);
+
+      const { commonData } = await getCommonData({
+        allTransactions,
+        currentScreenIndex,
+        egldLabel,
+        network,
+        gasPriceData: manager.ppuMap[currentNonce],
+        price,
+        address,
+        username,
+        shard,
+        signedIndexes,
+        parsedTransactionsByDataField
+      });
+
+      if (!commonData.needsSigning) {
+        signedIndexes.push(currentScreenIndex);
+        return onNext();
+      }
+
+      const plainTransaction = transaction.toPlainObject();
+      const txNonce = plainTransaction.nonce;
+
+      const newGasPrice = getRecommendedGasPrice({
+        transaction: plainTransaction,
+        gasPriceData: manager.ppuMap[txNonce]
+      });
+
+      const transactionToSign = Transaction.newFromPlainObject({
+        ...plainTransaction,
+        gasPrice: newGasPrice
+      });
+
+      try {
+        const signedTxs = await handleSign([transactionToSign]);
+        if (signedTxs) {
+          signedIndexes.push(currentScreenIndex);
+          signedTransactions.push(signedTxs[0]);
+        }
+
+        const isLastScreen = currentScreenIndex === allTransactions.length - 1;
+        const allSignableTransactions = allTransactions.filter(
+          (tx) => tx.needsSigning
+        );
+
+        const areAllTransactionsSigned =
+          signedTransactions.length === allSignableTransactions.length;
+
+        if (isLastScreen && areAllTransactionsSigned) {
+          const optionallyGuardedTransactions =
+            await guardTransactions(signedTransactions);
+          unsubscribeFromEvents();
+          manager.closeAndReset();
+          return resolve(optionallyGuardedTransactions);
+        }
+
+        onNext();
+      } catch (error) {
+        unsubscribeFromEvents();
+        manager.closeAndReset();
+        reject(error);
+      }
+    };
+
+    const eventHandlersMap = new Map([
+      [SignEventsEnum.NEXT, onNext],
+      [SignEventsEnum.CONFIRM, onSign],
+      [SignEventsEnum.CLOSE_SIGN_TRANSACTIONS_PANEL, onCancel],
+      [SignEventsEnum.BACK, onBack],
+      [SignEventsEnum.SET_PPU, onSetPpu]
+    ]);
+
+    function setupEventListeners() {
+      if (!eventBus) {
+        return;
+      }
+
+      for (const [event, handler] of eventHandlersMap) {
+        eventBus.subscribe(event, handler);
+      }
+    }
+
+    function unsubscribeFromEvents() {
+      if (!eventBus) {
+        return;
+      }
+
+      for (const [event, handler] of eventHandlersMap) {
+        eventBus.unsubscribe(event, handler);
+      }
+    }
+
+    setupEventListeners();
+    await updateScreen();
   });
 }

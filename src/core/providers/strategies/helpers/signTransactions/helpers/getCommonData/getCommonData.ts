@@ -1,5 +1,7 @@
+import { ACCOUNTS_ENDPOINT } from 'apiCalls';
 import { getPersistedTokenDetails } from 'apiCalls/tokens/getPersistedTokenDetails';
 import { MULTI_TRANSFER_EGLD_TOKEN } from 'constants/mvx.constants';
+import { safeWindow } from 'constants/window.constants';
 import {
   FungibleTransactionType,
   ISignTransactionsPanelCommonData
@@ -12,6 +14,7 @@ import {
   MultiSignTransactionType,
   TransactionDataTokenType
 } from 'types/transactions.types';
+import { decodeBase64 } from 'utils/decoders/base64Utils';
 import { capitalize } from 'utils/operations/capitalize';
 import { getUsdValue } from 'utils/operations/getUsdValue';
 import { getFeeData } from '../getFeeData';
@@ -31,6 +34,7 @@ export type GetCommonDataPropsType = {
   egldLabel: string;
   address: string;
   shard?: number;
+  username?: string;
   parsedTransactionsByDataField: Record<string, TransactionDataTokenType>;
   gasPriceData: {
     initialGasPrice: number;
@@ -46,8 +50,9 @@ export async function getCommonData({
   gasPriceData,
   price,
   address,
+  username,
   shard,
-  signedIndexes = [],
+  signedIndexes,
   parsedTransactionsByDataField
 }: GetCommonDataPropsType) {
   const currentTransaction = allTransactions[currentScreenIndex];
@@ -75,7 +80,6 @@ export async function getCommonData({
   });
 
   const plainTransaction = currentTransaction.transaction.toPlainObject();
-
   const txInfo = await extractTransactionsInfo(currentTransaction);
 
   const isEgld = !txInfo?.transactionTokenInfo?.tokenId;
@@ -106,7 +110,7 @@ export async function getCommonData({
     const getFormattedAmount = ({ addCommas }: { addCommas: boolean }) =>
       formatAmount({
         input: isEgld
-          ? currentTransaction.transaction.getValue().toString()
+          ? currentTransaction.transaction.value.toString()
           : amount,
         decimals: isEgld ? Number(network.decimals) : tokenDecimals,
         digits: Number(network.digits),
@@ -152,26 +156,36 @@ export async function getCommonData({
   const provider = getAccountProvider();
   const providerType = provider.getType();
   const providerName = capitalize(providerType as string);
+  const txLength = allTransactions.length;
+
+  const currentIndexToSign =
+    signedIndexes.length > 0 ? signedIndexes[signedIndexes.length - 1] + 1 : 0;
 
   const commonData: ISignTransactionsPanelCommonData = {
     receiver: plainTransaction.receiver.toString(),
-    data: currentTransaction.transaction.getData().toString(),
+    data: decodeBase64(currentTransaction.transaction.data.toString() ?? ''),
     gasPrice: gasPrice.toString(),
     gasLimit: plainTransaction.gasLimit.toString(),
+    addressExplorerLink: `${network.explorerAddress}/${ACCOUNTS_ENDPOINT}/${address}`,
     ppu: gasPriceData.ppu,
     ppuOptions,
     egldLabel,
     tokenType: getTokenType(type),
     feeLimit: feeLimitFormatted,
     feeInFiatLimit,
-    transactionsCount: allTransactions.length,
+    transactionsCount: txLength,
     currentIndex: currentScreenIndex,
+    currentIndexToSign,
     highlight: getHighlight(txInfo?.transactionTokenInfo),
     scCall: getScCall(txInfo?.transactionTokenInfo),
     needsSigning:
-      txInfo?.needsSigning && !signedIndexes.includes(currentScreenIndex),
+      txLength === 1 ||
+      (txInfo?.needsSigning && !signedIndexes.includes(currentScreenIndex)),
     isEditable: txInfo?.needsSigning,
-    providerName
+    providerName,
+    address,
+    username,
+    origin: safeWindow.location.origin
   };
 
   return { commonData, tokenTransaction, fungibleTransaction };
