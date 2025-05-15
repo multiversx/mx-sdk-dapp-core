@@ -3,13 +3,11 @@ import { BigNumber } from 'bignumber.js';
 
 import { ACCOUNTS_ENDPOINT } from 'apiCalls';
 import { LedgerConnectStateManager } from 'core/managers/internal/LedgerConnectStateManager/LedgerConnectStateManager';
-import { LedgerConnectEventsEnum } from 'core/managers/internal/LedgerConnectStateManager/types';
 import { getExplorerAddress } from 'core/methods/network/getExplorerAddress';
 import { ProviderTypeEnum } from 'core/providers/types/providerFactory.types';
 import { IEventBus } from 'lib/sdkDappCoreUi';
 import { setLedgerAccount } from 'store/actions';
 import { setLedgerLogin } from 'store/actions/loginInfo/loginInfoActions';
-import { ProviderErrorsEnum } from 'types';
 import { getExplorerLink } from 'utils/transactions/getExplorerLink';
 
 import { getAuthTokenText } from './getAuthTokenText';
@@ -25,7 +23,6 @@ interface IGetLedgerLogin {
     token?: string;
   };
   config: LedgerConfigType;
-  manager: LedgerConnectStateManager | null;
   provider: HWProvider | null;
   eventBus?: IEventBus | null;
   login: LedgerLoginType | null;
@@ -40,11 +37,11 @@ interface ISelectedAccount {
 export async function authenticateLedgerAccount({
   options,
   config,
-  manager,
   provider,
-  eventBus,
   login
 }: IGetLedgerLogin) {
+  const manager = LedgerConnectStateManager.getInstance();
+
   const explorerAddress = getExplorerAddress();
 
   const authData = getAuthTokenText({
@@ -66,7 +63,7 @@ export async function authenticateLedgerAccount({
     reject
   ) {
     function closeComponent() {
-      manager?.closeAndReset();
+      manager?.handleClose();
     }
 
     async function handleGoToPage(page: number) {
@@ -126,42 +123,20 @@ export async function authenticateLedgerAccount({
       }
     }
 
-    function unsubscribeFromEvents() {
-      if (!eventBus) {
-        throw new Error(ProviderErrorsEnum.eventBusError);
-      }
-
-      eventBus.unsubscribe(
-        LedgerConnectEventsEnum.CLOSE_LEDGER_CONNECT_PANEL,
-        handleCancel
-      );
-
-      eventBus.unsubscribe(
-        LedgerConnectEventsEnum.ACCESS_WALLET,
-        handleAccessWallet
-      );
-      eventBus.unsubscribe(LedgerConnectEventsEnum.GO_TO_PAGE, handleGoToPage);
-    }
-
     async function handleCancel() {
       await updateAccountsList(accountsListProps);
-      unsubscribeFromEvents();
+      manager.unsubscribeFromAuthEvents(
+        handleCancel,
+        handleAccessWallet,
+        handleGoToPage
+      );
       reject('User cancelled login');
     }
 
-    if (!eventBus) {
-      throw new Error(ProviderErrorsEnum.eventBusError);
-    }
-
-    eventBus.subscribe(
-      LedgerConnectEventsEnum.CLOSE_LEDGER_CONNECT_PANEL,
-      handleCancel
-    );
-
-    eventBus.subscribe(LedgerConnectEventsEnum.GO_TO_PAGE, handleGoToPage);
-    eventBus.subscribe(
-      LedgerConnectEventsEnum.ACCESS_WALLET,
-      handleAccessWallet
+    manager.subscribeToAuthEvents(
+      handleCancel,
+      handleAccessWallet,
+      handleGoToPage
     );
   });
 

@@ -4,9 +4,9 @@ import {
   IWalletConnectModalData
 } from 'core/providers/strategies/WalletConnectProviderStrategy/types';
 import { MvxWalletConnectProvider } from 'lib/sdkDappCoreUi';
-import { SidePanelBaseManager } from '../SidePanelBaseManager/SidePanelBaseManager';
+import { UIBaseManager } from '../UIBaseManager/UIBaseManager';
 
-export class WalletConnectStateManager extends SidePanelBaseManager<
+export class WalletConnectStateManager extends UIBaseManager<
   MvxWalletConnectProvider,
   IWalletConnectModalData,
   WalletConnectEventsEnum
@@ -14,8 +14,7 @@ export class WalletConnectStateManager extends SidePanelBaseManager<
   private static instance: WalletConnectStateManager;
 
   protected initialData: IWalletConnectModalData = {
-    wcURI: '',
-    shouldClose: false
+    wcURI: ''
   };
 
   public static getInstance(): WalletConnectStateManager {
@@ -26,34 +25,17 @@ export class WalletConnectStateManager extends SidePanelBaseManager<
   }
 
   constructor() {
-    super('wallet-connect');
+    super({
+      uiDataUpdateEvent: WalletConnectEventsEnum.DATA_UPDATE,
+      uiTag: UITagsEnum.WALLET_CONNECT
+    });
     this.data = { ...this.initialData };
   }
 
-  public async openWalletConnect(data: IWalletConnectModalData) {
-    await this.openUI(data);
-  }
-
-  public updateWcURI(uri: string): void {
-    this.updateData({ wcURI: uri });
-  }
-
-  protected getUIElementName(): UITagsEnum {
-    return this.anchor
-      ? UITagsEnum.WALLET_CONNECT
-      : UITagsEnum.WALLET_CONNECT_PANEL;
-  }
-
-  protected getOpenEventName(): WalletConnectEventsEnum {
-    return WalletConnectEventsEnum.OPEN_WALLET_CONNECT_PANEL;
-  }
-
-  protected getCloseEventName(): WalletConnectEventsEnum {
-    return WalletConnectEventsEnum.CLOSE_WALLET_CONNECT_PANEL;
-  }
-
-  protected getDataUpdateEventName(): WalletConnectEventsEnum {
-    return WalletConnectEventsEnum.DATA_UPDATE;
+  public handleClose() {
+    this.anchor?.dispatchEvent(
+      new CustomEvent('close', { composed: false, bubbles: false })
+    );
   }
 
   protected async setupEventListeners() {
@@ -62,9 +44,10 @@ export class WalletConnectStateManager extends SidePanelBaseManager<
     }
 
     this.eventBus.subscribe(
-      WalletConnectEventsEnum.CLOSE_WALLET_CONNECT_PANEL,
-      this.handleCloseUI.bind(this)
+      WalletConnectEventsEnum.CLOSE,
+      this.handleClose.bind(this)
     );
+
     this.eventBus.subscribe(
       WalletConnectEventsEnum.UI_DISCONNECTED,
       this.destroy.bind(this)
