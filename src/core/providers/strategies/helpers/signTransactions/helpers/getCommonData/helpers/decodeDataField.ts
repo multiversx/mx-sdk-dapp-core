@@ -161,16 +161,16 @@ const getDisplayValueAndValidationWarnings = ({
 
 const getDecodedParts = ({
   parts,
-  method,
+  decodeMethod,
   identifier,
   initialDecodedParts
 }: {
   parts: string[];
-  method: DecodeMethodEnum;
+  decodeMethod: DecodeMethodEnum;
   identifier?: string;
   initialDecodedParts: string[];
 }) => {
-  if (method === DecodeMethodEnum.smart) {
+  if (decodeMethod === DecodeMethodEnum.smart) {
     return getSmartDecodedParts({
       parts,
       decodedParts: initialDecodedParts,
@@ -184,25 +184,25 @@ const getDecodedParts = ({
 const decodeHighlight = ({
   data,
   identifier,
-  method,
+  decodeMethod,
   delimiter
 }: {
   data: string;
   identifier?: string;
-  method: DecodeMethodEnum;
+  decodeMethod: DecodeMethodEnum;
   delimiter: string;
 }) => {
   const parts = data.split('@');
 
   const initialDecodedParts = parts.map((part) => {
-    return decodeByMethod(part, method);
+    return decodeByMethod(part, decodeMethod);
   });
 
   const decodedHighlight = getDecodedParts({
     parts,
     initialDecodedParts,
     identifier,
-    method
+    decodeMethod
   });
 
   return decodedHighlight.join(delimiter);
@@ -249,7 +249,7 @@ const decodeDataField = ({
       ? decodeHighlight({
           data: highlight,
           identifier,
-          method: decodeMethod,
+          decodeMethod,
           delimiter: '@'
         })
       : null;
@@ -279,14 +279,14 @@ const decodeDataField = ({
       parts,
       initialDecodedParts,
       identifier,
-      method: decodeMethod
+      decodeMethod
     });
 
     const decodedHighlight = highlight
       ? decodeHighlight({
           data: highlight,
           identifier,
-          method: decodeMethod,
+          decodeMethod,
           delimiter: '\n'
         })
       : null;
@@ -313,15 +313,15 @@ export const getAllDecodedFormats = ({
   const decodedFormats: Partial<Record<DecodeMethodEnum, DecodedDisplayType>> =
     {};
 
-  Object.values(DecodeMethodEnum).forEach((method) => {
+  Object.values(DecodeMethodEnum).forEach((decodeMethod) => {
     const decodedData = decodeDataField({
       data,
       identifier,
-      decodeMethod: method,
+      decodeMethod,
       highlight
     });
 
-    decodedFormats[method] = decodedData;
+    decodedFormats[decodeMethod] = decodedData;
   });
 
   return decodedFormats;
