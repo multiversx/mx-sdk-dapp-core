@@ -8,7 +8,7 @@ import { LedgerConnectStateManager } from 'core/managers/internal/LedgerConnectS
 import { ToastIconsEnum } from 'core/managers/internal/ToastManager/helpers/getToastDataStateByStatus';
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import { IProvider } from 'core/providers/types/providerFactory.types';
-import { defineCustomElements, IEventBus } from 'lib/sdkDappCoreUi';
+import { defineCustomElements } from 'lib/sdkDappCoreUi';
 import { createCustomToast } from 'store/actions/toasts/toastsActions';
 import { ProviderErrorsEnum } from 'types/provider.types';
 import { getLedgerProvider } from './helpers';
@@ -25,7 +25,6 @@ import { signTransactions } from '../helpers/signTransactions/signTransactions';
 export class LedgerProviderStrategy extends BaseProviderStrategy {
   private provider: HWProvider | null = null;
   private config: LedgerConfigType | null = null;
-  private eventBus: IEventBus | null = null;
   private _signTransactions:
     | ((
         transactions: Transaction[],
@@ -44,15 +43,8 @@ export class LedgerProviderStrategy extends BaseProviderStrategy {
   }): Promise<IProvider> => {
     this.initialize();
     await defineCustomElements(safeWindow);
-    await this.createEventBus(options?.anchor);
+    await this.initLegderConnectManager(options?.anchor);
     const ledgerConnectManager = LedgerConnectStateManager.getInstance();
-    const isLoggedIn = getIsLoggedIn();
-
-    const shouldOpenPanel = !options?.anchor;
-
-    if (shouldOpenPanel && !isLoggedIn) {
-      await ledgerConnectManager.openLedgerConnect();
-    }
 
     const { ledgerProvider, ledgerConfig } = await new Promise<
       Awaited<ReturnType<typeof getLedgerProvider>>
@@ -120,20 +112,16 @@ export class LedgerProviderStrategy extends BaseProviderStrategy {
     if (!this.provider) {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
-    const ledgerConnectManager = LedgerConnectStateManager.getInstance();
-    await ledgerConnectManager.init();
 
     return await authenticateLedgerAccount({
       options,
       config: this.config!,
-      manager: ledgerConnectManager,
       provider: this.provider,
-      eventBus: this.eventBus,
       login: this.ledgerLogin.bind(this)
     });
   };
 
-  private readonly createEventBus = async (anchor?: HTMLElement) => {
+  private readonly initLegderConnectManager = async (anchor?: HTMLElement) => {
     const shouldInitiateLogin = !getIsLoggedIn();
 
     if (!shouldInitiateLogin) {
@@ -147,10 +135,6 @@ export class LedgerProviderStrategy extends BaseProviderStrategy {
     if (!eventBus) {
       throw new Error(ProviderErrorsEnum.eventBusError);
     }
-
-    this.eventBus = eventBus;
-
-    return this.eventBus;
   };
 
   private readonly signTransactions = async (transactions: Transaction[]) => {

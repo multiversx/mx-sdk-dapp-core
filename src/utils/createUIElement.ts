@@ -4,7 +4,7 @@ import { UITagsEnum } from 'constants/UITags.enum';
 import { defineCustomElements } from 'lib/sdkDappCoreUi';
 
 export interface CreateEventBusUIElementType extends HTMLElement {
-  getEventBus: () => Promise<IEventBus | undefined>;
+  getEventBus: () => Promise<IEventBus | null>;
 }
 
 export const createUIElement = async <T = CreateEventBusUIElementType>({

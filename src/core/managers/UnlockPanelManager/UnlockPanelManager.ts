@@ -121,7 +121,8 @@ export class UnlockPanelManager {
         UnlockPanelManager.loginHandler({ type, anchor });
       }
       await this.handleCloseUI();
-    } catch {
+    } catch (error) {
+      console.error(error);
       this.eventBus?.publish(
         UnlockPanelEventsEnum.CANCEL_IN_PROVIDER,
         this.data

@@ -1,5 +1,6 @@
 import { UITagsEnum } from 'constants/UITags.enum';
 
+import { UnlockPanelEventsEnum } from 'core/managers/UnlockPanelManager/UnlockPanelManager.types';
 import {
   IAccountScreenData,
   ILedgerAccount,
@@ -9,9 +10,9 @@ import {
 } from 'core/providers/strategies/LedgerProviderStrategy/types/ledger.types';
 import { MvxLedgerFlow } from 'lib/sdkDappCoreUi';
 import { LedgerConnectEventsEnum } from './types';
-import { SidePanelBaseManager } from '../SidePanelBaseManager/SidePanelBaseManager';
+import { UIBaseManager } from '../UIBaseManager/UIBaseManager';
 
-export class LedgerConnectStateManager extends SidePanelBaseManager<
+export class LedgerConnectStateManager extends UIBaseManager<
   MvxLedgerFlow,
   ILedgerConnectPanelData,
   LedgerConnectEventsEnum
@@ -64,14 +65,11 @@ export class LedgerConnectStateManager extends SidePanelBaseManager<
   };
 
   constructor() {
-    super('ledger-connect');
+    super({
+      uiDataUpdateEvent: LedgerConnectEventsEnum.DATA_UPDATE,
+      uiTag: UITagsEnum.LEDGER_FLOW
+    });
     this.data = this.getInitialData();
-  }
-
-  public async openLedgerConnect(
-    data: ILedgerConnectPanelData = this.initialData
-  ) {
-    await this.openUI(data);
   }
 
   public updateAllAccounts(accounts: ILedgerAccount[]): void {
@@ -136,10 +134,7 @@ export class LedgerConnectStateManager extends SidePanelBaseManager<
     }
 
     this.eventBus.subscribe(LedgerConnectEventsEnum.CONNECT_DEVICE, onRetry);
-    this.eventBus.subscribe(
-      LedgerConnectEventsEnum.CLOSE_LEDGER_CONNECT_PANEL,
-      onCancel
-    );
+    this.eventBus.subscribe(LedgerConnectEventsEnum.CLOSE, onCancel);
     this.eventBus.subscribe(
       LedgerConnectEventsEnum.UI_DISCONNECTED,
       this.destroy.bind(this)
@@ -155,14 +150,67 @@ export class LedgerConnectStateManager extends SidePanelBaseManager<
     }
 
     this.eventBus.unsubscribe(LedgerConnectEventsEnum.CONNECT_DEVICE, onRetry);
-    this.eventBus.unsubscribe(
-      LedgerConnectEventsEnum.CLOSE_LEDGER_CONNECT_PANEL,
-      onCancel
-    );
+    this.eventBus.unsubscribe(LedgerConnectEventsEnum.CLOSE, onCancel);
     this.eventBus.unsubscribe(
       LedgerConnectEventsEnum.UI_DISCONNECTED,
       this.destroy.bind(this)
     );
+  }
+
+  public subscribeToAuthEvents(
+    handleCancel: () => Promise<void>,
+    handleAccessWallet: (payload: {
+      addressIndex: number;
+      selectedAddress: string;
+    }) => Promise<void>,
+    handleGoToPage: (page: number) => Promise<void>
+  ) {
+    if (!this.eventBus) {
+      return;
+    }
+
+    this.eventBus.subscribe(LedgerConnectEventsEnum.CLOSE, handleCancel);
+
+    this.eventBus.subscribe(
+      LedgerConnectEventsEnum.ACCESS_WALLET,
+      handleAccessWallet
+    );
+    this.eventBus.subscribe(LedgerConnectEventsEnum.GO_TO_PAGE, handleGoToPage);
+  }
+  public unsubscribeFromAuthEvents(
+    handleCancel: () => Promise<void>,
+    handleAccessWallet: (payload: {
+      addressIndex: number;
+      selectedAddress: string;
+    }) => Promise<void>,
+    handleGoToPage: (page: number) => Promise<void>
+  ) {
+    if (!this.eventBus) {
+      return;
+    }
+
+    this.eventBus.unsubscribe(LedgerConnectEventsEnum.CLOSE, handleCancel);
+
+    this.eventBus.unsubscribe(
+      LedgerConnectEventsEnum.ACCESS_WALLET,
+      handleAccessWallet
+    );
+    this.eventBus.unsubscribe(
+      LedgerConnectEventsEnum.GO_TO_PAGE,
+      handleGoToPage
+    );
+  }
+
+  public handleClose() {
+    this.anchor?.dispatchEvent(
+      new CustomEvent(UnlockPanelEventsEnum.ACNHOR_CLOSE, {
+        composed: false,
+        bubbles: false
+      })
+    );
+    if (!this.anchor) {
+      this.destroy();
+    }
   }
 
   protected resetData(): void {
@@ -172,32 +220,14 @@ export class LedgerConnectStateManager extends SidePanelBaseManager<
     super.resetData();
   }
 
-  protected getUIElementName(): UITagsEnum {
-    return this.anchor
-      ? UITagsEnum.LEDGER_FLOW
-      : UITagsEnum.LEDGER_CONNECT_PANEL;
-  }
-
-  protected getOpenEventName(): LedgerConnectEventsEnum {
-    return LedgerConnectEventsEnum.OPEN_LEDGER_CONNECT_PANEL;
-  }
-
-  protected getCloseEventName(): LedgerConnectEventsEnum {
-    return LedgerConnectEventsEnum.CLOSE_LEDGER_CONNECT_PANEL;
-  }
-
-  protected getDataUpdateEventName(): LedgerConnectEventsEnum {
-    return LedgerConnectEventsEnum.DATA_UPDATE;
-  }
-
   protected async setupEventListeners() {
     if (!this.eventBus) {
       return;
     }
 
     this.eventBus.subscribe(
-      LedgerConnectEventsEnum.CLOSE_LEDGER_CONNECT_PANEL,
-      this.handleCloseUI.bind(this)
+      LedgerConnectEventsEnum.CLOSE,
+      this.handleClose.bind(this)
     );
   }
 }
