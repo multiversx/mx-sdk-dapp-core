@@ -18,7 +18,7 @@ import { decodeBase64 } from 'utils/decoders/base64Utils';
 import { capitalize } from 'utils/operations/capitalize';
 import { getUsdValue } from 'utils/operations/getUsdValue';
 import { getFeeData } from '../getFeeData';
-import { getAllDecodedFormats } from './helpers/decodeData';
+import { getAllDecodedFormats } from './helpers/decodeDataField';
 import { getExtractTransactionsInfo } from './helpers/getExtractTransactionsInfo';
 import { getHighlight } from './helpers/getHighlight';
 import { getPpuOptions } from './helpers/getPpuOptions';

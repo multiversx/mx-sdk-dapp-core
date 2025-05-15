@@ -47,10 +47,9 @@ const decodeByMethod = (
       try {
         return Buffer.from(part, 'hex').toString('utf8');
       } catch {
-        //DO NOTHING
+        return part;
       }
 
-      return part;
     case DecodeMethodEnum.decimal:
       return part !== '' ? new BigNumber(part, 16).toString(10) : '';
     case DecodeMethodEnum.smart:
@@ -61,7 +60,7 @@ const decodeByMethod = (
           return bech32Encoded;
         }
       } catch {
-        //DO NOTHING
+        // skip
       }
 
       try {
@@ -86,10 +85,9 @@ const decodeByMethod = (
           return decoded;
         }
       } catch {
-        //DO NOTHING
+        return part;
       }
 
-      return part;
     case DecodeMethodEnum.raw:
     default:
       return part;
@@ -216,24 +214,39 @@ const decodeDataField = ({
   identifier?: string;
   decodeMethod: DecodeMethodEnum;
   highlight?: string | null;
-}) => {
+}): DecodedDisplayType => {
   const decodedData: DecodedDisplayType = {
     displayValue: '',
     validationWarnings: [],
     highlight
   };
 
-  if (!data.includes('@') && !data.includes('\n')) {
-    decodedData.displayValue = decodeByMethod(data, decodeMethod);
-
-    if (highlight) {
-      decodedData.highlight = decodeByMethod(highlight, decodeMethod);
+  const decodeHighlightWithDelimiter = (delimiter: string) => {
+    if (!highlight) {
+      return null;
     }
 
-    return decodedData;
+    const decodedHighlight = decodeHighlight({
+      data: highlight,
+      identifier,
+      method: decodeMethod
+    });
+
+    return decodedHighlight.join(delimiter);
+  };
+
+  const hasAt = data.includes('@');
+  const hasNewLine = data.includes('\n');
+
+  if (!hasAt && !hasNewLine) {
+    return {
+      ...decodedData,
+      displayValue: decodeByMethod(data, decodeMethod),
+      highlight: highlight ? decodeByMethod(highlight, decodeMethod) : highlight
+    };
   }
 
-  if (data.includes('@')) {
+  if (hasAt) {
     const parts = data.split('@');
     const decodedParts = getDisplayValueAndValidationWarnings({
       parts,
@@ -242,29 +255,25 @@ const decodeDataField = ({
       decodedData
     });
 
-    if (highlight) {
-      const decodedHighlight = decodeHighlight({
-        data: highlight,
-        identifier,
-        method: decodeMethod
-      });
-
-      decodedData.highlight = decodedHighlight.join('@');
-    }
-
-    decodedData.displayValue = decodedParts.join('@');
+    return {
+      ...decodedData,
+      displayValue: decodedParts.join('@'),
+      highlight: decodeHighlightWithDelimiter('@')
+    };
   }
 
-  if (data.includes('\n')) {
+  if (hasNewLine) {
     const parts = data.split('\n');
-    const initialDecodedParts = parts.map((part) => {
-      const base64Buffer = Buffer.from(part, 'base64');
 
+    const initialDecodedParts = parts.map((part) => {
       if (decodeMethod === DecodeMethodEnum.raw) {
         return part;
       }
 
-      return decodeByMethod(base64Buffer.toString('hex'), decodeMethod);
+      return decodeByMethod(
+        Buffer.from(part, 'base64').toString('hex'),
+        decodeMethod
+      );
     });
 
     const decodedParts = getDecodedParts({
@@ -274,17 +283,11 @@ const decodeDataField = ({
       method: decodeMethod
     });
 
-    if (highlight) {
-      const decodedHighlight = decodeHighlight({
-        data: highlight,
-        identifier,
-        method: decodeMethod
-      });
-
-      decodedData.highlight = decodedHighlight.join('\n');
-    }
-
-    decodedData.displayValue = decodedParts.join('\n');
+    return {
+      ...decodedData,
+      displayValue: decodedParts.join('\n'),
+      highlight: decodeHighlightWithDelimiter('\n')
+    };
   }
 
   return decodedData;
