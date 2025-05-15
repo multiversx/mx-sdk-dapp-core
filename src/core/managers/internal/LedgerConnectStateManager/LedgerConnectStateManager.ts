@@ -186,16 +186,13 @@ export class LedgerConnectStateManager extends UIBaseManager<
       return;
     }
 
-    this.eventBus.unsubscribe(LedgerConnectEventsEnum.CLOSE, handleCancel);
+    this.eventBus.subscribe(LedgerConnectEventsEnum.CLOSE, handleCancel);
 
-    this.eventBus.unsubscribe(
+    this.eventBus.subscribe(
       LedgerConnectEventsEnum.ACCESS_WALLET,
       handleAccessWallet
     );
-    this.eventBus.unsubscribe(
-      LedgerConnectEventsEnum.GO_TO_PAGE,
-      handleGoToPage
-    );
+    this.eventBus.subscribe(LedgerConnectEventsEnum.GO_TO_PAGE, handleGoToPage);
   }
   public unsubscribeFromAuthEvents(
     handleCancel: () => Promise<void>,
