@@ -185,7 +185,7 @@ export async function getCommonData({
     transactionsCount: txLength,
     currentIndex: currentScreenIndex,
     currentIndexToSign,
-    highlight: getHighlight(txInfo?.transactionTokenInfo),
+    highlight,
     scCall: getScCall(txInfo?.transactionTokenInfo),
     needsSigning:
       txLength === 1 ||
