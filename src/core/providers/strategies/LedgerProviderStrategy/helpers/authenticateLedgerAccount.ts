@@ -62,10 +62,6 @@ export async function authenticateLedgerAccount({
     resolve,
     reject
   ) {
-    function closeComponent() {
-      manager?.handleClose();
-    }
-
     async function handleGoToPage(page: number) {
       const addressesPerPage = manager ? manager.addressesPerPage ?? 1 : 1;
       const startIndex = new BigNumber(page - 1).times(addressesPerPage);
@@ -101,8 +97,6 @@ export async function authenticateLedgerAccount({
               addressIndex: payload.addressIndex
             });
 
-        closeComponent();
-
         resolve({
           address: loginInfo.address,
           signature: loginInfo.signature
@@ -112,10 +106,7 @@ export async function authenticateLedgerAccount({
         });
       } catch (err) {
         console.error('User rejected login:', err);
-        const shouldClose = Boolean(manager?.getAccountScreenData());
-        if (shouldClose) {
-          return closeComponent();
-        }
+
         const shouldGoBack = Boolean(manager?.getConfirmScreenData());
         if (shouldGoBack) {
           await updateAccountsList(accountsListProps);
