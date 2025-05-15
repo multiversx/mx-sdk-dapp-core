@@ -99,21 +99,21 @@ const getSmartDecodedParts = ({
   decodedParts,
   identifier
 }: SmartDecodedPartsType) => {
-  const updatedParts = [...decodedParts];
+  const smartDecodedParts = [...decodedParts];
 
   if (parts[0] === TransactionTypesEnum.ESDTNFTTransfer && parts[2]) {
-    updatedParts[2] = decodeByMethod(parts[2], DecodeMethodEnum.decimal);
+    smartDecodedParts[2] = decodeByMethod(parts[2], DecodeMethodEnum.decimal);
   }
 
   if (identifier === TransactionTypesEnum.ESDTNFTTransfer && parts[1]) {
     const base64Buffer = Buffer.from(String(parts[1]), 'base64');
-    updatedParts[1] = decodeByMethod(
+    smartDecodedParts[1] = decodeByMethod(
       base64Buffer.toString('hex'),
       DecodeMethodEnum.decimal
     );
   }
 
-  return updatedParts;
+  return smartDecodedParts;
 };
 
 const getDisplayValueAndValidationWarnings = ({
@@ -184,11 +184,13 @@ const getDecodedParts = ({
 const decodeHighlight = ({
   data,
   identifier,
-  method
+  method,
+  delimiter
 }: {
   data: string;
   identifier?: string;
   method: DecodeMethodEnum;
+  delimiter: string;
 }) => {
   const parts = data.split('@');
 
@@ -196,12 +198,14 @@ const decodeHighlight = ({
     return decodeByMethod(part, method);
   });
 
-  return getDecodedParts({
+  const decodedHighlight = getDecodedParts({
     parts,
     initialDecodedParts,
     identifier,
     method
   });
+
+  return decodedHighlight.join(delimiter);
 };
 
 const decodeDataField = ({
@@ -219,20 +223,6 @@ const decodeDataField = ({
     displayValue: '',
     validationWarnings: [],
     highlight
-  };
-
-  const decodeHighlightWithDelimiter = (delimiter: string) => {
-    if (!highlight) {
-      return null;
-    }
-
-    const decodedHighlight = decodeHighlight({
-      data: highlight,
-      identifier,
-      method: decodeMethod
-    });
-
-    return decodedHighlight.join(delimiter);
   };
 
   const hasAt = data.includes('@');
@@ -255,10 +245,19 @@ const decodeDataField = ({
       decodedData
     });
 
+    const decodedHighlight = highlight
+      ? decodeHighlight({
+          data: highlight,
+          identifier,
+          method: decodeMethod,
+          delimiter: '@'
+        })
+      : null;
+
     return {
       ...decodedData,
       displayValue: decodedParts.join('@'),
-      highlight: decodeHighlightWithDelimiter('@')
+      highlight: decodedHighlight
     };
   }
 
@@ -283,10 +282,19 @@ const decodeDataField = ({
       method: decodeMethod
     });
 
+    const decodedHighlight = highlight
+      ? decodeHighlight({
+          data: highlight,
+          identifier,
+          method: decodeMethod,
+          delimiter: '\n'
+        })
+      : null;
+
     return {
       ...decodedData,
       displayValue: decodedParts.join('\n'),
-      highlight: decodeHighlightWithDelimiter('\n')
+      highlight: decodedHighlight
     };
   }
 
