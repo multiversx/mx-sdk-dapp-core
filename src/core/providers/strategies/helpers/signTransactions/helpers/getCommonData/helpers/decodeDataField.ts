@@ -78,9 +78,9 @@ const decodeByMethod = (
             }
           }
 
-          const bn = new BigNumber(part, 16);
+          const bigNumber = new BigNumber(part, 16);
 
-          return bn.isFinite() ? bn.toString(10) : part;
+          return bigNumber.isFinite() ? bigNumber.toString(10) : part;
         } else {
           return decoded;
         }
