@@ -3,7 +3,10 @@ import { ExtensionProvider } from '@multiversx/sdk-extension-provider/out/extens
 import { providerLabels } from 'constants/providerFactory.constants';
 import { PendingTransactionsEventsEnum } from 'core/managers/internal/PendingTransactionsStateManager/types/pendingTransactions.types';
 
-import { IProvider } from 'core/providers/types/providerFactory.types';
+import {
+  IProvider,
+  ProviderTypeEnum
+} from 'core/providers/types/providerFactory.types';
 import { ProviderErrorsEnum } from 'types/provider.types';
 import { BaseProviderStrategy } from '../BaseProviderStrategy/BaseProviderStrategy';
 import { getPendingTransactionsHandlers } from '../helpers/getPendingTransactionsHandlers';
@@ -40,7 +43,7 @@ export class ExtensionProviderStrategy extends BaseProviderStrategy {
     return this.provider?.cancelAction?.bind(this.provider)();
   }
 
-  private buildProvider = () => {
+  private readonly buildProvider = () => {
     if (!this.provider) {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
@@ -55,7 +58,7 @@ export class ExtensionProviderStrategy extends BaseProviderStrategy {
     return provider;
   };
 
-  private signTransactions = async (transactions: Transaction[]) => {
+  private readonly signTransactions = async (transactions: Transaction[]) => {
     if (!this.provider || !this._signTransactions) {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
@@ -72,9 +75,10 @@ export class ExtensionProviderStrategy extends BaseProviderStrategy {
     );
 
     manager.updateData({
-      isPending: true,
-      title: 'Confirm on MultiversX DeFi Wallet',
-      subtitle: 'Check your MultiversX Wallet Extension to sign the transaction'
+      provider: {
+        name: providerLabels.extension,
+        type: ProviderTypeEnum.extension
+      }
     });
 
     try {
@@ -95,7 +99,7 @@ export class ExtensionProviderStrategy extends BaseProviderStrategy {
     }
   };
 
-  private signMessage = async (message: Message) => {
+  private readonly signMessage = async (message: Message) => {
     if (!this.provider || !this._signMessage) {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }

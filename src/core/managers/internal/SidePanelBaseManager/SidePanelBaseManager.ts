@@ -173,7 +173,7 @@ export abstract class SidePanelBaseManager<TElement, TData, TEventEnum> {
       return;
     }
 
-    this.eventBus.publish(event as unknown as string, data || this.data);
+    this.eventBus.publish(event as unknown as string, data);
   }
 
   protected resetData(): void {

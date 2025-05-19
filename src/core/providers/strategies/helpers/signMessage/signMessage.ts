@@ -1,4 +1,5 @@
 import { Message } from '@multiversx/sdk-core/out';
+import { providerLabels } from 'constants/providerFactory.constants';
 import { PendingTransactionsEventsEnum } from 'core/managers/internal/PendingTransactionsStateManager/types/pendingTransactions.types';
 import { SigningWarningsEnum } from 'types/enums.types';
 import { getPendingTransactionsHandlers } from '../getPendingTransactionsHandlers';
@@ -34,9 +35,10 @@ export async function signMessage<T>({
       );
 
       manager.updateData({
-        isPending: true,
-        title: 'Message Signing',
-        subtitle: `Check your ${providerType} to sign the message`
+        provider: {
+          name: providerLabels[providerType],
+          type: providerType
+        }
       });
 
       try {

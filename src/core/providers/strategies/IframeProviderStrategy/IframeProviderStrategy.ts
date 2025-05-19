@@ -86,11 +86,15 @@ export class IframeProviderStrategy extends BaseProviderStrategy {
       onClose
     );
 
-    manager.updateData({
-      isPending: true,
-      title: `Confirm on MultiversX ${this.type}`,
-      subtitle: `Check your MultiversX ${this.type} to sign the transaction`
-    });
+    if (this.type) {
+      manager.updateData({
+        provider: {
+          name: providerLabels.iframe,
+          type: this.type
+        }
+      });
+    }
+
     try {
       const signedTransactions: Transaction[] =
         await this._signTransactions(transactions);

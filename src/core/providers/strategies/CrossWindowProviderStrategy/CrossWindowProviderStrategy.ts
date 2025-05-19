@@ -2,7 +2,10 @@ import { Message, Transaction } from '@multiversx/sdk-core/out';
 import { isBrowserWithPopupConfirmation } from 'constants/browser.constants';
 import { providerLabels } from 'constants/providerFactory.constants';
 import { PendingTransactionsEventsEnum } from 'core/managers/internal/PendingTransactionsStateManager/types/pendingTransactions.types';
-import { IProvider } from 'core/providers/types/providerFactory.types';
+import {
+  IProvider,
+  ProviderTypeEnum
+} from 'core/providers/types/providerFactory.types';
 import { CrossWindowProvider } from 'lib/sdkWebWalletCrossWindowProvider';
 import { crossWindowConfigSelector } from 'store/selectors';
 import { networkSelector } from 'store/selectors/networkSelectors';
@@ -114,10 +117,11 @@ export class CrossWindowProviderStrategy extends BaseProviderStrategy {
       onClose
     );
 
-    manager.openPendingTransactions({
-      isPending: true,
-      title: 'Confirm on MultiversX Web Wallet',
-      subtitle: 'Check your MultiversX Web Wallet to sign the transaction'
+    manager.openProviderIdleState({
+      provider: {
+        name: providerLabels.crossWindow,
+        type: ProviderTypeEnum.crossWindow
+      }
     });
 
     this.setPopupConsent();
