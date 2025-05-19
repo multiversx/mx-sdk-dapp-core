@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- [Fixed provider pending screens](https://github.com/multiversx/mx-sdk-dapp-core/pull/166)
 - [Added dynamic ppu](https://github.com/multiversx/mx-sdk-dapp-core/pull/166)
 - [Fixed cross-window skipLogin flag](https://github.com/multiversx/mx-sdk-dapp-core/pull/164)
 - [Fixed login double cross-window wallet disconnect](https://github.com/multiversx/mx-sdk-dapp-core/pull/163)
