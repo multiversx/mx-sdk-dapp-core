@@ -34,13 +34,14 @@ export class WalletConnectStateManager extends UIBaseManager<
   }
 
   public handleClose() {
-    this.anchor?.dispatchEvent(
-      new CustomEvent(UnlockPanelEventsEnum.ACNHOR_CLOSE, {
-        composed: false,
-        bubbles: false
-      })
-    );
-    if (!this.anchor) {
+    if (this.anchor) {
+      this.anchor.dispatchEvent(
+        new CustomEvent(UnlockPanelEventsEnum.ACNHOR_CLOSE, {
+          composed: false,
+          bubbles: false
+        })
+      );
+    } else {
       this.destroy();
     }
   }

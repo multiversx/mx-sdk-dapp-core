@@ -116,19 +116,19 @@ export async function authenticateLedgerAccount({
 
     async function handleCancel() {
       await updateAccountsList(accountsListProps);
-      manager.unsubscribeFromAuthEvents(
+      manager.unsubscribeFromAuthEvents({
         handleCancel,
         handleAccessWallet,
         handleGoToPage
-      );
+      });
       reject('User cancelled login');
     }
 
-    manager.subscribeToAuthEvents(
+    manager.subscribeToAuthEvents({
       handleCancel,
       handleAccessWallet,
       handleGoToPage
-    );
+    });
   });
 
   const { version, dataEnabled } = config;
