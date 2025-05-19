@@ -54,18 +54,17 @@ export class WalletConnectProviderStrategy {
     | ((transactions: Transaction[]) => Promise<Transaction[]>)
     | null = null;
   private _signMessage: ((message: Message) => Promise<Message>) | null = null;
-  private eventBus: IEventBus | null = null;
 
   constructor(config?: WalletConnectConfig) {
     this.config = config;
   }
 
-  public createProvider = async (options: {
+  public createProvider = async (options?: {
     anchor?: HTMLElement;
   }): Promise<IProvider> => {
     this.initialize();
     await defineCustomElements(safeWindow);
-    await this.createEventBus(options.anchor);
+    await this.initWalletConnectManager(options?.anchor);
 
     if (!this.provider && this.config) {
       const { walletConnectProvider, dappMethods: dAppMethods } =
@@ -90,18 +89,9 @@ export class WalletConnectProviderStrategy {
       });
 
       this.approval = approval;
-
-      if (!options.anchor) {
-        const walletConnectManager = WalletConnectStateManager.getInstance();
-        walletConnectManager.updateWcURI(uri);
-        await walletConnectManager.openWalletConnect({ wcURI: uri });
-      } else if (this.eventBus) {
-        this.eventBus.publish(WalletConnectEventsEnum.DATA_UPDATE, {
-          wcURI: uri
-        });
-      }
+      const walletConnectManager = WalletConnectStateManager.getInstance();
+      walletConnectManager.updateData({ wcURI: uri });
     }
-
     return this.buildProvider();
   };
 
@@ -132,7 +122,7 @@ export class WalletConnectProviderStrategy {
     this.config = walletConnectConfig;
   };
 
-  private createEventBus = async (anchor?: HTMLElement) => {
+  private initWalletConnectManager = async (anchor?: HTMLElement) => {
     const shouldInitiateLogin = !getIsLoggedIn();
 
     if (!shouldInitiateLogin) {
@@ -146,8 +136,6 @@ export class WalletConnectProviderStrategy {
     if (!eventBus) {
       throw new Error(ProviderErrorsEnum.eventBusError);
     }
-
-    this.eventBus = eventBus;
   };
 
   private createWalletConnectProvider = async (config: WalletConnectConfig) => {
@@ -238,14 +226,13 @@ export class WalletConnectProviderStrategy {
 
       try {
         await this.provider.init();
+        const walletConnectManager = WalletConnectStateManager.getInstance();
 
         const { uri = '', approval: wcApproval } = await this.provider.connect({
           methods: this.methods
         });
 
-        const walletConnectManager = WalletConnectStateManager.getInstance();
-        walletConnectManager.updateWcURI(uri);
-        walletConnectManager.openWalletConnect({ wcURI: uri });
+        walletConnectManager.updateData({ wcURI: uri });
 
         const providerInfo = await this._login({
           approval: wcApproval,
@@ -254,7 +241,7 @@ export class WalletConnectProviderStrategy {
 
         const { address = '', signature = '' } = providerInfo ?? {};
 
-        walletConnectManager.closeAndReset();
+        walletConnectManager.handleClose();
         return { address, signature };
       } catch {
         return await reconnect();
@@ -274,7 +261,7 @@ export class WalletConnectProviderStrategy {
       const { address = '', signature = '' } = providerData ?? {};
 
       const walletConnectManager = WalletConnectStateManager.getInstance();
-      walletConnectManager.closeAndReset();
+      walletConnectManager.handleClose();
       return { address, signature };
     } catch (error) {
       console.error(WalletConnectV2Error.userRejected, error);

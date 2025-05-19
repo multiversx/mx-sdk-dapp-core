@@ -32,13 +32,13 @@ export async function initializeLedgerProvider({
     });
 
     if (manager && shouldInitiateLogin) {
-      manager.subscribeToProviderInit(handleRetry, handleCancel);
+      manager.subscribeToProviderInit({ handleRetry, handleCancel });
     }
 
     const data = await getLedgerProvider({ shouldInitProvider });
 
     if (manager && shouldInitiateLogin) {
-      manager.unsubscribeFromProviderInit(handleRetry, handleCancel);
+      manager.unsubscribeFromProviderInit({ handleRetry, handleCancel });
     }
 
     resolve(data);
@@ -53,7 +53,7 @@ export async function initializeLedgerProvider({
     });
 
     if (manager) {
-      manager.subscribeToProviderInit(handleRetry, handleCancel);
+      manager.subscribeToProviderInit({ handleRetry, handleCancel });
     }
   }
 }
