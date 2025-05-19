@@ -1,4 +1,5 @@
 import { UITagsEnum } from 'constants/UITags.enum';
+import { UnlockPanelEventsEnum } from 'core/managers/UnlockPanelManager/UnlockPanelManager.types';
 import {
   WalletConnectEventsEnum,
   IWalletConnectModalData
@@ -33,9 +34,16 @@ export class WalletConnectStateManager extends UIBaseManager<
   }
 
   public handleClose() {
-    this.anchor?.dispatchEvent(
-      new CustomEvent('close', { composed: false, bubbles: false })
-    );
+    if (this.anchor) {
+      this.anchor.dispatchEvent(
+        new CustomEvent(UnlockPanelEventsEnum.ACNHOR_CLOSE, {
+          composed: false,
+          bubbles: false
+        })
+      );
+    } else {
+      this.destroy();
+    }
   }
 
   protected async setupEventListeners() {

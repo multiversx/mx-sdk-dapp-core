@@ -1,5 +1,6 @@
 import { UITagsEnum } from 'constants/UITags.enum';
 
+import { UnlockPanelEventsEnum } from 'core/managers/UnlockPanelManager/UnlockPanelManager.types';
 import {
   IAccountScreenData,
   ILedgerAccount,
@@ -10,6 +11,20 @@ import {
 import { MvxLedgerFlow } from 'lib/sdkDappCoreUi';
 import { LedgerConnectEventsEnum } from './types';
 import { UIBaseManager } from '../UIBaseManager/UIBaseManager';
+
+type AuthEventsParams = {
+  handleCancel: () => Promise<void>;
+  handleAccessWallet: (payload: {
+    addressIndex: number;
+    selectedAddress: string;
+  }) => Promise<void>;
+  handleGoToPage: (page: number) => Promise<void>;
+};
+
+type ProviderInitEventsParams = {
+  handleRetry: () => void;
+  handleCancel: () => void;
+};
 
 export class LedgerConnectStateManager extends UIBaseManager<
   MvxLedgerFlow,
@@ -124,64 +139,49 @@ export class LedgerConnectStateManager extends UIBaseManager<
     return this.allAccounts;
   }
 
-  public subscribeToProviderInit(
-    onRetry: () => void,
-    onCancel: () => void
-  ): void {
+  public subscribeToProviderInit({
+    handleRetry,
+    handleCancel
+  }: ProviderInitEventsParams): void {
     if (!this.eventBus) {
       return;
     }
 
-    this.eventBus.subscribe(LedgerConnectEventsEnum.CONNECT_DEVICE, onRetry);
-    this.eventBus.subscribe(LedgerConnectEventsEnum.CLOSE, onCancel);
+    this.eventBus.subscribe(
+      LedgerConnectEventsEnum.CONNECT_DEVICE,
+      handleRetry
+    );
+    this.eventBus.subscribe(LedgerConnectEventsEnum.CLOSE, handleCancel);
     this.eventBus.subscribe(
       LedgerConnectEventsEnum.UI_DISCONNECTED,
       this.destroy.bind(this)
     );
   }
 
-  public unsubscribeFromProviderInit(
-    onRetry: () => void,
-    onCancel: () => void
-  ): void {
+  public unsubscribeFromProviderInit({
+    handleRetry,
+    handleCancel
+  }: ProviderInitEventsParams): void {
     if (!this.eventBus) {
       return;
     }
 
-    this.eventBus.unsubscribe(LedgerConnectEventsEnum.CONNECT_DEVICE, onRetry);
-    this.eventBus.unsubscribe(LedgerConnectEventsEnum.CLOSE, onCancel);
+    this.eventBus.unsubscribe(
+      LedgerConnectEventsEnum.CONNECT_DEVICE,
+      handleRetry
+    );
+    this.eventBus.unsubscribe(LedgerConnectEventsEnum.CLOSE, handleCancel);
     this.eventBus.unsubscribe(
       LedgerConnectEventsEnum.UI_DISCONNECTED,
       this.destroy.bind(this)
     );
   }
 
-  public subscribeToProviderAccess(
-    onAccessWallet: () => void,
-    onCancel: () => void
-  ): void {
-    if (!this.eventBus) {
-      return;
-    }
-    this.eventBus.subscribe(
-      LedgerConnectEventsEnum.ACCESS_WALLET,
-      onAccessWallet
-    );
-    this.eventBus.subscribe(LedgerConnectEventsEnum.CLOSE, onCancel);
-    this.eventBus.subscribe(
-      LedgerConnectEventsEnum.UI_DISCONNECTED,
-      this.destroy.bind(this)
-    );
-  }
-
-  public subscribeToAuthEvents(
-    handleCancel: () => Promise<void>,
-    handleAccessWallet: (payload: {
-      addressIndex: number;
-      selectedAddress: string;
-    }) => Promise<void>,
-    handleGoToPage: (page: number) => Promise<void>
-  ) {
+  public subscribeToAuthEvents({
+    handleCancel,
+    handleAccessWallet,
+    handleGoToPage
+  }: AuthEventsParams) {
     if (!this.eventBus) {
       return;
     }
@@ -194,14 +194,11 @@ export class LedgerConnectStateManager extends UIBaseManager<
     );
     this.eventBus.subscribe(LedgerConnectEventsEnum.GO_TO_PAGE, handleGoToPage);
   }
-  public unsubscribeFromAuthEvents(
-    handleCancel: () => Promise<void>,
-    handleAccessWallet: (payload: {
-      addressIndex: number;
-      selectedAddress: string;
-    }) => Promise<void>,
-    handleGoToPage: (page: number) => Promise<void>
-  ) {
+  public unsubscribeFromAuthEvents({
+    handleCancel,
+    handleAccessWallet,
+    handleGoToPage
+  }: AuthEventsParams) {
     if (!this.eventBus) {
       return;
     }
@@ -219,9 +216,16 @@ export class LedgerConnectStateManager extends UIBaseManager<
   }
 
   public handleClose() {
-    this.anchor?.dispatchEvent(
-      new CustomEvent('close', { composed: false, bubbles: false })
-    );
+    if (this.anchor) {
+      this.anchor?.dispatchEvent(
+        new CustomEvent(UnlockPanelEventsEnum.ACNHOR_CLOSE, {
+          composed: false,
+          bubbles: false
+        })
+      );
+    } else {
+      this.destroy();
+    }
   }
 
   protected resetData(): void {
