@@ -81,7 +81,7 @@ export async function authenticateLedgerAccount({
       manager?.updateConfirmScreen({
         ...authData,
         selectedAddress: payload.selectedAddress,
-        addressExplorerLink: getExplorerLink({
+        explorerLink: getExplorerLink({
           to: `/${ACCOUNTS_ENDPOINT}/${payload.selectedAddress}`,
           explorerAddress
         })

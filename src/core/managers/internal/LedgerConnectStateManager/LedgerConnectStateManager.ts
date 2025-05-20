@@ -65,7 +65,7 @@ export class LedgerConnectStateManager extends UIBaseManager<
   // third screen data
   private initialConfirmScreenData: IConfirmScreenData = {
     selectedAddress: '',
-    addressExplorerLink: ''
+    explorerLink: ''
   };
 
   private confirmScreenData: IConfirmScreenData = {

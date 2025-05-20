@@ -171,7 +171,7 @@ export async function getCommonData({
   const highlight = getHighlight(txInfo?.transactionTokenInfo);
   const decodedData = getAllDecodedFormats({ data, identifier, highlight });
   const explorerAddress = getExplorerAddress();
-  const addressExplorerLink = getExplorerLink({
+  const explorerLink = getExplorerLink({
     to: `/${ACCOUNTS_ENDPOINT}/${address}`,
     explorerAddress
   });
@@ -186,7 +186,7 @@ export async function getCommonData({
     decodedData,
     gasPrice: gasPrice.toString(),
     gasLimit: plainTransaction.gasLimit.toString(),
-    addressExplorerLink,
+    explorerLink,
     ppu: gasPriceData.ppu,
     ppuOptions,
     egldLabel,

@@ -71,7 +71,7 @@ describe('getCommonData', () => {
         transactionsCount: 4,
         address:
           'erd1dm9uxpf5awkn7uhju7zjn9lde0dhahy0qaxqqlu26xcuuw27qqrsqfmej3',
-        addressExplorerLink:
+        explorerLink:
           'http://devnet-explorer.multiversx.com/accounts/erd1dm9uxpf5awkn7uhju7zjn9lde0dhahy0qaxqqlu26xcuuw27qqrsqfmej3',
         origin: 'http://localhost',
         username: undefined
@@ -185,7 +185,7 @@ describe('when the gas limit is updated', () => {
         transactionsCount: 4,
         address:
           'erd1dm9uxpf5awkn7uhju7zjn9lde0dhahy0qaxqqlu26xcuuw27qqrsqfmej3',
-        addressExplorerLink:
+        explorerLink:
           'http://devnet-explorer.multiversx.com/accounts/erd1dm9uxpf5awkn7uhju7zjn9lde0dhahy0qaxqqlu26xcuuw27qqrsqfmej3',
         origin: 'http://localhost',
         username: undefined
@@ -278,7 +278,7 @@ describe('when the gas limit is updated', () => {
         transactionsCount: 4,
         address:
           'erd1dm9uxpf5awkn7uhju7zjn9lde0dhahy0qaxqqlu26xcuuw27qqrsqfmej3',
-        addressExplorerLink:
+        explorerLink:
           'http://devnet-explorer.multiversx.com/accounts/erd1dm9uxpf5awkn7uhju7zjn9lde0dhahy0qaxqqlu26xcuuw27qqrsqfmej3',
         origin: 'http://localhost',
         username: undefined
