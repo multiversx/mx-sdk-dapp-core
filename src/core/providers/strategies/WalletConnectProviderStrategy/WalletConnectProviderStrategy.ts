@@ -205,7 +205,7 @@ export class WalletConnectProviderStrategy {
       );
     }
 
-    const isConnected = this.provider.isConnected();
+    const isConnected = await this.provider.isConnected();
 
     if (isConnected) {
       throw new Error(WalletConnectV2Error.connectError);

@@ -1,6 +1,5 @@
 import BigNumber from 'bignumber.js';
-import trimEnd from 'lodash/trimEnd';
-
+import trimEnd from 'lodash.trimend';
 import { formatAmount, DECIMALS, DIGITS, ZERO } from 'lib/sdkDappUtils';
 
 import { trimAmountDecimals } from 'utils/operations/trimAmountDecimals';
