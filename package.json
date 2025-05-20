@@ -62,7 +62,7 @@
     "bignumber.js": "9.x"
   },
   "optionalDependencies": {
-    "@multiversx/sdk-dapp-core-ui": ">=0.0.0-alpha.14"
+    "@multiversx/sdk-dapp-core-ui": ">=0.0.0-alpha.15"
   },
   "resolutions": {
     "string-width": "4.1.0"

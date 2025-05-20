@@ -13,7 +13,10 @@ import { WalletConnectStateManager } from 'core/managers/internal/WalletConnectS
 import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import { getAccountProvider } from 'core/providers/helpers/accountProvider';
 import { getPendingTransactionsHandlers } from 'core/providers/strategies/helpers';
-import { IProvider } from 'core/providers/types/providerFactory.types';
+import {
+  IProvider,
+  ProviderTypeEnum
+} from 'core/providers/types/providerFactory.types';
 import { defineCustomElements } from 'lib/sdkDappCoreUi';
 import { logoutAction } from 'store/actions';
 import {
@@ -202,7 +205,7 @@ export class WalletConnectProviderStrategy {
       );
     }
 
-    const isConnected = this.provider.isConnected();
+    const isConnected = await this.provider.isConnected();
 
     if (isConnected) {
       throw new Error(WalletConnectV2Error.connectError);
@@ -282,9 +285,10 @@ export class WalletConnectProviderStrategy {
     );
 
     manager.updateData({
-      isPending: true,
-      title: 'Confirm on the xPortal App',
-      subtitle: 'Check your phone to sign the transaction'
+      provider: {
+        name: providerLabels.walletConnect,
+        type: ProviderTypeEnum.walletConnect
+      }
     });
     try {
       const signedTransactions: Transaction[] =
