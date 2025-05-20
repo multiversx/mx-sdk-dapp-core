@@ -11,10 +11,7 @@ import { crossWindowConfigSelector } from 'store/selectors';
 import { networkSelector } from 'store/selectors/networkSelectors';
 import { getState } from 'store/store';
 import { ProviderErrorsEnum } from 'types/provider.types';
-import {
-  BaseProviderStrategy,
-  LoginOptionsTypes
-} from '../BaseProviderStrategy/BaseProviderStrategy';
+import { BaseProviderStrategy } from '../BaseProviderStrategy/BaseProviderStrategy';
 import { getPendingTransactionsHandlers } from '../helpers/getPendingTransactionsHandlers';
 import { signMessage } from '../helpers/signMessage/signMessage';
 import { guardTransactions } from '../helpers/signTransactions/helpers/guardTransactions/guardTransactions';
@@ -78,14 +75,6 @@ export class CrossWindowProviderStrategy extends BaseProviderStrategy {
     cancelActionReference?.();
   }
 
-  override login = async (
-    options?: LoginOptionsTypes
-  ): Promise<{ address: string; signature: string }> => {
-    // we are no longer cancelling the login here, because cancelLogin already destroys the provider
-    const loginOptions = { ...options, shouldSkipCancelLogin: true };
-    return super.login(loginOptions);
-  };
-
   private readonly buildProvider = () => {
     if (!this.provider) {
       throw new Error(ProviderErrorsEnum.notInitialized);
@@ -95,7 +84,6 @@ export class CrossWindowProviderStrategy extends BaseProviderStrategy {
     provider.setAccount({ address: this.address });
     provider.signTransactions = this.signTransactions;
     provider.signMessage = this.signMessage;
-    provider.login = this.login;
     provider.cancelLogin = this.cancelLogin;
 
     return provider;

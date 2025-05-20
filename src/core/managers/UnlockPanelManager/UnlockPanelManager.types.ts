@@ -14,7 +14,7 @@ export enum UnlockPanelEventsEnum {
   /**
    * User clicks Close button inside mounted provider
    */
-  ACNHOR_CLOSE = 'ACNHOR_CLOSE'
+  ANCHOR_CLOSE = 'ANCHOR_CLOSE'
 }
 
 export interface IUnlockPanel {

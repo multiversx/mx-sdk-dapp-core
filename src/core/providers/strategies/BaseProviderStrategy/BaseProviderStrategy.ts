@@ -24,15 +24,6 @@ export abstract class BaseProviderStrategy {
       throw new Error(ProviderErrorsEnum.notInitialized);
     }
 
-    const shouldSkipCancelLogin =
-      options &&
-      'shouldSkipCancelLogin' in options &&
-      options.shouldSkipCancelLogin === true;
-
-    if (!shouldSkipCancelLogin) {
-      this.cancelLogin();
-    }
-
     if (this.loginAbortController) {
       this.loginAbortController.abort();
     }

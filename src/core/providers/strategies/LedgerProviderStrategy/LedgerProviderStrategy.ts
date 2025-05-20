@@ -76,18 +76,10 @@ export class LedgerProviderStrategy extends BaseProviderStrategy {
     provider.setAccount({ address: this.address });
     provider.signTransactions = this.signTransactions;
     provider.signMessage = this.signMessage;
-    provider.login = this.login;
+    provider.login = this.login.bind(this);
     provider.cancelLogin = this.cancelLogin;
 
     return provider;
-  };
-
-  override login = async (
-    options?: LoginOptionsTypes
-  ): Promise<{ address: string; signature: string }> => {
-    // we are no longer cancelling the login here, because cancelLogin already destroys the provider
-    const loginOptions = { ...options, shouldSkipCancelLogin: true };
-    return super.login(loginOptions);
   };
 
   private readonly ledgerLogin = async (

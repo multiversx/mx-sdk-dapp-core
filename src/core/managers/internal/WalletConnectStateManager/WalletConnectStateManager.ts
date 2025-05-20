@@ -33,10 +33,14 @@ export class WalletConnectStateManager extends UIBaseManager<
     this.data = { ...this.initialData };
   }
 
-  public handleClose() {
+  public handleClose(options?: { isLoginFinished?: boolean }) {
+    if (options?.isLoginFinished) {
+      return;
+    }
+
     if (this.anchor) {
       this.anchor.dispatchEvent(
-        new CustomEvent(UnlockPanelEventsEnum.ACNHOR_CLOSE, {
+        new CustomEvent(UnlockPanelEventsEnum.ANCHOR_CLOSE, {
           composed: false,
           bubbles: false
         })
