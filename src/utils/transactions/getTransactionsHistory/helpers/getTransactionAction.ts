@@ -1,7 +1,7 @@
-import startCase from 'lodash/startCase';
-import uniq from 'lodash/uniq';
-
+import startCase from 'lodash.startcase';
+import uniq from 'lodash.uniq';
 import { ITransactionListItemAction } from 'lib/sdkDappCoreUi';
+
 import type { ServerTransactionType } from 'types/serverTransactions.types';
 import { TransactionActionMethodTypeEnum } from 'types/transaction-list-item.types';
 import { getTransactionActionDirectionLabel } from './getTransactionActionDirectionLabel';

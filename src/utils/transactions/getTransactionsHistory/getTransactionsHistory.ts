@@ -1,4 +1,4 @@
-import isEmpty from 'lodash/isEmpty';
+import isEmpty from 'lodash.isempty';
 import { ITransactionListItem } from 'lib/sdkDappCoreUi';
 import type { IGetHistoricalTransactionsParams } from 'types/transaction-list-item.types';
 import {

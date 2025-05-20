@@ -1,4 +1,5 @@
 import { getLatestNonce } from 'core/methods/account/getLatestNonce';
+import { setGasStationMetadata } from 'core/methods/initApp/gastStationMetadata/setGasStationMetadata';
 import { registerWebsocketListener } from 'core/methods/initApp/websocket/registerWebsocket';
 import { trackTransactions } from 'core/methods/trackTransactions/trackTransactions';
 import { IProvider } from 'core/providers/types/providerFactory.types';
@@ -43,4 +44,11 @@ export async function accountLogin({
 
   await registerWebsocketListener(address);
   trackTransactions();
+
+  if (account.shard != null) {
+    await setGasStationMetadata({
+      shard: Number(account.shard),
+      apiAddress
+    });
+  }
 }

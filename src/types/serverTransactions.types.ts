@@ -1,4 +1,3 @@
-import { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import { AssetType, ScamInfoType } from './account.types';
 import {
   TransactionBatchStatusesEnum,
@@ -297,7 +296,7 @@ export interface TransactionMethodType {
 }
 
 export interface TransactionIconInfoType {
-  icon?: IconDefinition;
+  icon?: string;
   tooltip: string;
 }
 

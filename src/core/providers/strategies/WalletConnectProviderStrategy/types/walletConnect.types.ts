@@ -15,15 +15,13 @@ export enum WalletConnectV2Error {
 
 // types here need to be synced with the types in sdk-dapp-core-ui
 export enum WalletConnectEventsEnum {
-  CLOSE_WALLET_CONNECT_PANEL = 'CLOSE_WALLET_CONNECT_PANEL',
-  OPEN_WALLET_CONNECT_PANEL = 'OPEN_WALLET_CONNECT_PANEL',
+  CLOSE = 'CLOSE',
   DATA_UPDATE = 'DATA_UPDATE',
   UI_DISCONNECTED = 'UI_DISCONNECTED'
 }
 
 export interface IWalletConnectModalData {
   wcURI: string;
-  shouldClose?: boolean;
 }
 
 export interface WalletConnectConfig {

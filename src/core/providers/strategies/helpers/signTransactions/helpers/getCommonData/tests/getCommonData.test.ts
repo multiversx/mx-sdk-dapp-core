@@ -63,6 +63,7 @@ describe('getCommonData', () => {
         needsSigning: true,
         ppu: 0,
         ppuOptions: [],
+        providerName: '',
         receiver:
           'erd1qqqqqqqqqqqqqpgqpv09kfzry5y4sj05udcngesat07umyj70n4sa2c0rp',
         scCall: null,
@@ -177,6 +178,7 @@ describe('when the gas limit is updated', () => {
             value: 19287760
           }
         ],
+        providerName: '',
         receiver:
           'erd1qqqqqqqqqqqqqpgqpv09kfzry5y4sj05udcngesat07umyj70n4sa2c0rp',
         scCall: null,
@@ -270,6 +272,7 @@ describe('when the gas limit is updated', () => {
             value: 19287760
           }
         ],
+        providerName: '',
         receiver:
           'erd1dm9uxpf5awkn7uhju7zjn9lde0dhahy0qaxqqlu26xcuuw27qqrsqfmej3',
         scCall: 'addLiquidity',

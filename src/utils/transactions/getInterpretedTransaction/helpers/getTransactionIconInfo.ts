@@ -1,6 +1,3 @@
-import { faBan } from '@fortawesome/free-solid-svg-icons/faBan';
-import { faHourglass } from '@fortawesome/free-solid-svg-icons/faHourglass';
-import { faTimes } from '@fortawesome/free-solid-svg-icons/faTimes';
 import { ServerTransactionType } from 'types/serverTransactions.types';
 import { capitalize } from 'utils/operations/capitalize';
 import { getTransactionMessages } from './getTransactionMessages';
@@ -11,14 +8,14 @@ export const getTransactionIconInfo = (transaction: ServerTransactionType) => {
 
   const { failed, invalid, pending } = getTransactionStatus(transaction);
 
-  let icon;
+  let icon: string = '';
 
   if (failed) {
-    icon = faTimes;
+    icon = 'faTimes';
   } else if (invalid) {
-    icon = faBan;
+    icon = 'faBan';
   } else if (pending) {
-    icon = faHourglass;
+    icon = 'faHourglass';
   }
 
   const showErrorText = (failed || invalid) && transactionMessages.length > 0;
