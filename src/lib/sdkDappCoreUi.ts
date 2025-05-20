@@ -3,7 +3,6 @@ export type { MvxLedgerFlow } from '@multiversx/sdk-dapp-core-ui/dist/web-compon
 export type { MvxSignTransactionsPanel } from '@multiversx/sdk-dapp-core-ui/dist/web-components/mvx-sign-transactions-panel';
 export type { MvxWalletConnectProvider } from '@multiversx/sdk-dapp-core-ui/dist/web-components/mvx-wallet-connect-provider';
 export type { MvxPendingTransactionsPanel } from '@multiversx/sdk-dapp-core-ui/dist/web-components/mvx-pending-transactions-panel';
-export type { IPendingTransactionsPanelData } from '@multiversx/sdk-dapp-core-ui/dist/types/components/functional/pending-transactions-panel/pending-transactions-panel.types.d';
 export type { MvxNotificationsFeed } from '@multiversx/sdk-dapp-core-ui/dist/web-components/mvx-notifications-feed';
 export type { MvxToastList } from '@multiversx/sdk-dapp-core-ui/dist/web-components/mvx-toast-list';
 export type { MvxUnlockPanel } from '@multiversx/sdk-dapp-core-ui/dist/web-components/mvx-unlock-panel';

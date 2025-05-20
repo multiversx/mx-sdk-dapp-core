@@ -7,8 +7,8 @@ import {
   DecodedDisplayType
 } from 'types/serverTransactions.types';
 import { isUtf8 } from 'utils/decoders';
-import { isHexValidCharacters, isHexValidLength } from 'utils/validation';
 import { addressIsValid } from 'utils/validation/addressIsValid';
+import { isHexValidCharacters, isHexValidLength } from 'utils/validation/hex';
 
 interface GetDecodedPartsPropsType {
   parts: string[];
