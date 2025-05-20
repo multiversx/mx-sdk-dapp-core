@@ -217,7 +217,7 @@ const decodeDataField = ({
   data: string;
   identifier?: string;
   decodeMethod: DecodeMethodEnum;
-  highlight?: string | null;
+  highlight: string | null;
 }): DecodedDisplayType => {
   const decodedData: DecodedDisplayType = {
     displayValue: '',
@@ -307,7 +307,7 @@ export const getAllDecodedFormats = ({
   identifier
 }: {
   data: string;
-  highlight?: string | null;
+  highlight: string | null;
   identifier?: string;
 }) => {
   const decodedFormats: Partial<Record<DecodeMethodEnum, DecodedDisplayType>> =

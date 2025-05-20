@@ -327,7 +327,7 @@ export interface DecodeForDisplayPropsType {
 export interface DecodedDisplayType {
   displayValue: string;
   validationWarnings: string[];
-  highlight?: string | null;
+  highlight: string | null;
 }
 
 export enum DecodeMethodEnum {
