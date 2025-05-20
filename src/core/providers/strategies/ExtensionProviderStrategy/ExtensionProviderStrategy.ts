@@ -49,7 +49,6 @@ export class ExtensionProviderStrategy extends BaseProviderStrategy {
     }
 
     const provider = this.provider as unknown as IProvider;
-    provider.login = this.login;
     provider.signTransactions = this.signTransactions;
     provider.signMessage = this.signMessage;
     provider.setAccount({ address: this.address });

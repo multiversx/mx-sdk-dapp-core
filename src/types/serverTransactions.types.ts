@@ -324,10 +324,11 @@ export interface DecodeForDisplayPropsType {
   identifier?: string;
 }
 
-export interface DecodedDisplayType {
+export type DecodedDisplayType = {
   displayValue: string;
   validationWarnings: string[];
-}
+  highlight: string | null;
+};
 
 export enum DecodeMethodEnum {
   raw = 'raw',

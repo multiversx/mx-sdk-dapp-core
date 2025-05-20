@@ -51,6 +51,7 @@
     "lodash.isstring": "4.0.1",
     "lodash.trimend": "4.5.0",
     "lodash.uniq": "4.5.0",
+    "lodash.startcase": "4.4.0",
     "protobufjs": "7.3.0",
     "socket.io-client": "4.7.5",
     "zustand": "4.4.7"

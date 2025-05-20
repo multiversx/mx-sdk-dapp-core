@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- [Added sign screens](https://github.com/multiversx/mx-sdk-dapp-core/pull/160)
 - [Fixed provider pending screens](https://github.com/multiversx/mx-sdk-dapp-core/pull/169)
 - [Update package.json and refactor transaction icon handling](https://github.com/multiversx/mx-sdk-dapp-core/pull/170)
 - [Refactored UI state management and event handling for improved modularity and maintainability.](https://github.com/multiversx/mx-sdk-dapp-core/pull/168)
