@@ -1,6 +1,8 @@
 import { Transaction } from '@multiversx/sdk-core/out';
-import { MultiSignTransactionType } from 'types/transactions.types';
-import { TransactionDataTokenType } from 'types/transactions.types';
+import {
+  MultiSignTransactionType,
+  TransactionDataTokenType
+} from 'types/transactions.types';
 import { getCommonData, GetCommonDataPropsType } from '../getCommonData';
 import { mockGetCommonDataInput } from './mockGetCommonDataInput';
 
@@ -21,6 +23,10 @@ const mockData: GetCommonDataPropsType = {
   allTransactions,
   parsedTransactionsByDataField
 };
+
+jest.mock('core/methods/network/getExplorerAddress', () => ({
+  getExplorerAddress: jest.fn(() => 'http://devnet-explorer.multiversx.com')
+}));
 
 describe('getCommonData', () => {
   it('should return the common data without ppu', async () => {
