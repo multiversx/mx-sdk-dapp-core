@@ -74,7 +74,6 @@ describe('getCommonData', () => {
         addressExplorerLink:
           'http://devnet-explorer.multiversx.com/accounts/erd1dm9uxpf5awkn7uhju7zjn9lde0dhahy0qaxqqlu26xcuuw27qqrsqfmej3',
         origin: 'http://localhost',
-        providerName: '',
         username: undefined
       },
       fungibleTransaction: null,
@@ -189,7 +188,6 @@ describe('when the gas limit is updated', () => {
         addressExplorerLink:
           'http://devnet-explorer.multiversx.com/accounts/erd1dm9uxpf5awkn7uhju7zjn9lde0dhahy0qaxqqlu26xcuuw27qqrsqfmej3',
         origin: 'http://localhost',
-        providerName: '',
         username: undefined
       },
 
@@ -283,7 +281,6 @@ describe('when the gas limit is updated', () => {
         addressExplorerLink:
           'http://devnet-explorer.multiversx.com/accounts/erd1dm9uxpf5awkn7uhju7zjn9lde0dhahy0qaxqqlu26xcuuw27qqrsqfmej3',
         origin: 'http://localhost',
-        providerName: '',
         username: undefined
       },
       fungibleTransaction: null,
