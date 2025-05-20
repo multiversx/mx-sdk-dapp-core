@@ -218,7 +218,7 @@ export class LedgerConnectStateManager extends UIBaseManager<
   public handleClose() {
     if (this.anchor) {
       this.anchor?.dispatchEvent(
-        new CustomEvent(UnlockPanelEventsEnum.ACNHOR_CLOSE, {
+        new CustomEvent(UnlockPanelEventsEnum.ANCHOR_CLOSE, {
           composed: false,
           bubbles: false
         })

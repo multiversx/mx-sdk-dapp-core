@@ -205,7 +205,7 @@ export class WalletConnectProviderStrategy {
       );
     }
 
-    const isConnected = await this.provider.isConnected();
+    const isConnected = this.provider.isConnected();
 
     if (isConnected) {
       throw new Error(WalletConnectV2Error.connectError);
@@ -240,7 +240,7 @@ export class WalletConnectProviderStrategy {
 
         const { address = '', signature = '' } = providerInfo ?? {};
 
-        walletConnectManager.handleClose();
+        walletConnectManager.handleClose({ isLoginFinished: Boolean(address) });
         return { address, signature };
       } catch {
         return await reconnect();
@@ -260,7 +260,7 @@ export class WalletConnectProviderStrategy {
       const { address = '', signature = '' } = providerData ?? {};
 
       const walletConnectManager = WalletConnectStateManager.getInstance();
-      walletConnectManager.handleClose();
+      walletConnectManager.handleClose({ isLoginFinished: Boolean(address) });
       return { address, signature };
     } catch (error) {
       console.error(WalletConnectV2Error.userRejected, error);
