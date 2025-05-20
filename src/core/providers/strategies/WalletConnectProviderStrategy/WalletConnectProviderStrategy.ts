@@ -14,7 +14,7 @@ import { getIsLoggedIn } from 'core/methods/account/getIsLoggedIn';
 import { getAccountProvider } from 'core/providers/helpers/accountProvider';
 import { getPendingTransactionsHandlers } from 'core/providers/strategies/helpers';
 import { IProvider } from 'core/providers/types/providerFactory.types';
-import { defineCustomElements, IEventBus } from 'lib/sdkDappCoreUi';
+import { defineCustomElements } from 'lib/sdkDappCoreUi';
 import { logoutAction } from 'store/actions';
 import {
   chainIdSelector,
@@ -27,11 +27,7 @@ import {
   WalletConnectOptionalMethodsEnum,
   WalletConnectV2Provider
 } from 'utils/walletconnect/__sdkWalletconnectProvider';
-import {
-  WalletConnectEventsEnum,
-  WalletConnectV2Error,
-  WalletConnectConfig
-} from './types';
+import { WalletConnectV2Error, WalletConnectConfig } from './types';
 import { signMessage } from '../helpers/signMessage/signMessage';
 
 const dappMethods: string[] = [
