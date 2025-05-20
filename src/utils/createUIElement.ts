@@ -1,4 +1,4 @@
-import { IEventBus } from '@multiversx/sdk-dapp-core-ui/dist/loader';
+import { IEventBus } from '@multiversx/sdk-dapp-ui/dist/loader';
 import { safeWindow } from 'constants/index';
 import { UITagsEnum } from 'constants/UITags.enum';
 import { defineCustomElements } from 'lib/sdkDappCoreUi';
