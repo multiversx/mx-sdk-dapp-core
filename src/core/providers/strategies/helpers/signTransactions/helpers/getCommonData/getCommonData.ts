@@ -6,6 +6,7 @@ import {
   FungibleTransactionType,
   ISignTransactionsPanelCommonData
 } from 'core/managers/internal/SignTransactionsStateManager/types';
+import { getExplorerAddress } from 'core/methods/network/getExplorerAddress';
 import { getAccountProvider } from 'core/providers/helpers/accountProvider';
 import { formatAmount } from 'lib/sdkDappUtils';
 import { NetworkType } from 'types/network.types';
@@ -17,6 +18,7 @@ import {
 import { decodeBase64 } from 'utils/decoders/base64Utils';
 import { capitalize } from 'utils/operations/capitalize';
 import { getUsdValue } from 'utils/operations/getUsdValue';
+import { getExplorerLink } from 'utils/transactions/getExplorerLink';
 import { getFeeData } from '../getFeeData';
 import { getAllDecodedFormats } from './helpers/decodeDataField';
 import { getExtractTransactionsInfo } from './helpers/getExtractTransactionsInfo';
@@ -157,7 +159,7 @@ export async function getCommonData({
   const provider = getAccountProvider();
   const providerType = provider.getType();
   const providerName = capitalize(providerType as string);
-  const txLength = allTransactions.length;
+  const transactionsCount = allTransactions.length;
 
   const currentIndexToSign =
     signedIndexes.length > 0 ? signedIndexes[signedIndexes.length - 1] + 1 : 0;
@@ -168,6 +170,15 @@ export async function getCommonData({
 
   const highlight = getHighlight(txInfo?.transactionTokenInfo);
   const decodedData = getAllDecodedFormats({ data, identifier, highlight });
+  const explorerAddress = getExplorerAddress();
+  const addressExplorerLink = getExplorerLink({
+    to: `/${ACCOUNTS_ENDPOINT}/${address}`,
+    explorerAddress
+  });
+
+  const needsSigning =
+    transactionsCount === 1 ||
+    (txInfo?.needsSigning && !signedIndexes.includes(currentScreenIndex));
 
   const commonData: ISignTransactionsPanelCommonData = {
     receiver: plainTransaction.receiver.toString(),
@@ -175,21 +186,19 @@ export async function getCommonData({
     decodedData,
     gasPrice: gasPrice.toString(),
     gasLimit: plainTransaction.gasLimit.toString(),
-    addressExplorerLink: `${network.explorerAddress}/${ACCOUNTS_ENDPOINT}/${address}`,
+    addressExplorerLink,
     ppu: gasPriceData.ppu,
     ppuOptions,
     egldLabel,
     tokenType: getTokenType(type),
     feeLimit: feeLimitFormatted,
     feeInFiatLimit,
-    transactionsCount: txLength,
+    transactionsCount,
     currentIndex: currentScreenIndex,
     currentIndexToSign,
     highlight,
     scCall: getScCall(txInfo?.transactionTokenInfo),
-    needsSigning:
-      txLength === 1 ||
-      (txInfo?.needsSigning && !signedIndexes.includes(currentScreenIndex)),
+    needsSigning,
     isEditable: txInfo?.needsSigning,
     providerName,
     address,

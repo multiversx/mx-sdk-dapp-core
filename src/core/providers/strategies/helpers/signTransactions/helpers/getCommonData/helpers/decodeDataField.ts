@@ -10,14 +10,14 @@ import { isUtf8 } from 'utils/decoders';
 import { addressIsValid } from 'utils/validation/addressIsValid';
 import { isHexValidCharacters, isHexValidLength } from 'utils/validation/hex';
 
-interface GetDecodedPartsPropsType {
+interface IGetDecodedParts {
   parts: string[];
   decodeMethod: DecodeMethodEnum;
   identifier?: string;
   decodedData: DecodedDisplayType;
 }
 
-interface SmartDecodedPartsType {
+interface ISmartDecodedParts {
   parts: string[];
   decodedParts: string[];
   identifier?: string;
@@ -98,7 +98,7 @@ const getSmartDecodedParts = ({
   parts,
   decodedParts,
   identifier
-}: SmartDecodedPartsType) => {
+}: ISmartDecodedParts) => {
   const smartDecodedParts = [...decodedParts];
 
   if (parts[0] === TransactionTypesEnum.ESDTNFTTransfer && parts[2]) {
@@ -121,7 +121,7 @@ const getDisplayValueAndValidationWarnings = ({
   decodeMethod,
   identifier,
   decodedData
-}: GetDecodedPartsPropsType) => {
+}: IGetDecodedParts) => {
   const initialDecodedParts = parts.map((part, index) => {
     if (
       parts.length >= 2 &&
