@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- [Upgrade sdk-dapp-ui](https://github.com/multiversx/mx-sdk-dapp-core/pull/172)
 - [Fix walletConnect login issues](https://github.com/multiversx/mx-sdk-dapp-core/pull/171)
 - [Added sign screens](https://github.com/multiversx/mx-sdk-dapp-core/pull/160)
 - [Fixed provider pending screens](https://github.com/multiversx/mx-sdk-dapp-core/pull/169)
