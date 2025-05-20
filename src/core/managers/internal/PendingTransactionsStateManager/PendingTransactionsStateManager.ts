@@ -1,22 +1,23 @@
 import { UITagsEnum } from 'constants/UITags.enum';
-import {
-  IPendingTransactionsPanelData,
-  MvxPendingTransactionsPanel
-} from 'lib/sdkDappCoreUi';
+import { IProviderBase } from 'core/providers/types/providerFactory.types';
+import { MvxPendingTransactionsPanel } from 'lib/sdkDappCoreUi';
 import { PendingTransactionsEventsEnum } from './types/pendingTransactions.types';
 import { SidePanelBaseManager } from '../SidePanelBaseManager/SidePanelBaseManager';
 
+interface IPendingTransactionsState {
+  provider: IProviderBase | null;
+  shouldClose?: boolean;
+}
+
 export class PendingTransactionsStateManager extends SidePanelBaseManager<
   MvxPendingTransactionsPanel,
-  IPendingTransactionsPanelData,
+  IPendingTransactionsState,
   PendingTransactionsEventsEnum
 > {
   private static instance: PendingTransactionsStateManager;
 
-  protected initialData: IPendingTransactionsPanelData = {
-    isPending: false,
-    title: '',
-    subtitle: '',
+  protected initialData: IPendingTransactionsState = {
+    provider: null,
     shouldClose: false
   };
 
@@ -38,8 +39,8 @@ export class PendingTransactionsStateManager extends SidePanelBaseManager<
     return this.isOpen;
   }
 
-  public async openPendingTransactions(data: IPendingTransactionsPanelData) {
-    await this.openUI({ ...data, isPending: true });
+  public async openProviderIdleState(data: IPendingTransactionsState) {
+    await this.openUI(data);
   }
 
   protected getUIElementName(): UITagsEnum {
