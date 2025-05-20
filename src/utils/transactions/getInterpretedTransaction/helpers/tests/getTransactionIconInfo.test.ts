@@ -1,4 +1,3 @@
-import { faBan, faHourglass, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { getTransactionIconInfo } from '../getTransactionIconInfo';
 import * as getTransactionMessagesModule from '../getTransactionMessages';
 import * as getTransactionStatusModule from '../getTransactionStatus';
@@ -28,7 +27,7 @@ describe('getTransactionIconInfo', () => {
 
     const result = getTransactionIconInfo(mockTransaction);
 
-    expect(result.icon).toEqual(faHourglass);
+    expect(result.icon).toEqual('faHourglass');
     expect(result.tooltip).toBe('Pending ');
   });
 
@@ -47,7 +46,7 @@ describe('getTransactionIconInfo', () => {
 
     const result = getTransactionIconInfo(mockTransaction);
 
-    expect(result.icon).toEqual(faTimes);
+    expect(result.icon).toEqual('faTimes');
     expect(result.tooltip).toBe('Pending Error message');
   });
 
@@ -66,7 +65,7 @@ describe('getTransactionIconInfo', () => {
 
     const result = getTransactionIconInfo(mockTransaction);
 
-    expect(result.icon).toEqual(faBan);
+    expect(result.icon).toEqual('faBan');
     expect(result.tooltip).toBe('Pending Invalid message');
   });
 

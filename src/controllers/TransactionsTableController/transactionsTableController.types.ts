@@ -1,4 +1,3 @@
-import { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import {
   TransactionAgeType,
   TransactionMethodType
@@ -17,7 +16,7 @@ export interface TransactionsTableRowType {
 }
 
 export interface TransactionIconInfoType {
-  icon?: IconDefinition;
+  icon?: string;
   tooltip: string;
 }
 

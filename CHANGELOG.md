@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- [Update package.json and refactor transaction icon handling](https://github.com/multiversx/mx-sdk-dapp-core/pull/169)
 - [Refactored UI state management and event handling for improved modularity and maintainability.](https://github.com/multiversx/mx-sdk-dapp-core/pull/168)
 - [Added dynamic ppu](https://github.com/multiversx/mx-sdk-dapp-core/pull/166)
 - [Fixed cross-window skipLogin flag](https://github.com/multiversx/mx-sdk-dapp-core/pull/164)
