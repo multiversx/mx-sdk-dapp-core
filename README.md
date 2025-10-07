@@ -1,4 +1,4 @@
-# ⚠️ THIS PROJECT HAS MOVED TO THE ORIGINAL (@multiversx/sdk-dapp)[https://github.com/multiversx/mx-sdk-dapp] AND WILL BE DELETED ⚠️
+# ⚠️ THIS PROJECT HAS MOVED TO THE ORIGINAL [@multiversx/sdk-dapp](https://github.com/multiversx/mx-sdk-dapp) AND WILL BE DELETED ⚠️
 
 _____________________________________________________
 
