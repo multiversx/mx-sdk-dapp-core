@@ -1,3 +1,7 @@
+# ⚠️ THIS PROJECT HAS MOVED TO THE ORIGINAL (@multiversx/sdk-dapp)[https://github.com/multiversx/mx-sdk-dapp] AND WILL BE DELETED ⚠️
+
+_____________________________________________________
+
 # MultiversX SDK for Front-End DApps
 
 MultiversX Front-End SDK for JavaScript and TypeScript (written in TypeScript).
